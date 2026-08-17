@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0、Phase 1 和 Phase 2 已完成。当前尚未开始 Phase 3；每个后续阶段仍须在测试、复核和文档更新后才能关闭。
+Phase 0～Phase 3 已完成。当前尚未开始 Phase 4；每个后续阶段仍须在测试、复核和文档更新后才能关闭。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -43,15 +43,30 @@ Phase 0、Phase 1 和 Phase 2 已完成。当前尚未开始 Phase 3；每个后
 
 退出条件：GraphRepository、MultiDiGraph、ARM Demo、过滤、路径搜索、确定性、并行边、JSON round-trip、Evidence ID 和全部回归测试均通过。
 
+## Phase 3：Program Analysis MVP（已完成）
+
+目标：以存储无关 ProgramAnalyzer 和可审计 DemoProgramSpec 打通程序观察到 Behavior Graph 的确定性闭环。
+
+- [x] 实现 `ProgramAnalyzer`、`ProgramArtifact` 和 `ProgramAnalysisResult`
+- [x] 实现独立的 DemoProgramSpec 输入模型及跨字段校验
+- [x] 从 JSON fixture 转换 Function、CALLS、ioctl 和 MMIO 观察
+- [x] 为每条行为 Edge 生成分离的 Static Evidence 和 call-site/MMIO 位置
+- [x] 使用 metadata 标记 Sensitive Function，不产生漏洞结论
+- [x] 实现 AnalysisResult 到 GraphRepository 的 preflight、重校验和防御性回滚
+- [x] 实现 Program Spec → Analyzer → Repository → GraphPath 示例
+- [x] 记录 planned / not implemented 的 angr 集成和真实 MMIO 技术风险
+- [x] 覆盖输入、确定性、Evidence、架构、原子性和端到端回归测试
+
+退出条件：抽象、结果契约、DemoAnalyzer、Evidence、Ingestion、ARM Demo、GraphPath、全部回归测试和 angr 计划均完成，且未实现 angr 或 Phase 4。
+
 ## 后续路线（尚未实施）
 
-1. Phase 3：`ProgramAnalyzer` 与 `DemoAnalyzer`，之后再评估 angr
-2. Phase 4：受架构、层级和证据约束的候选链搜索
-3. Phase 5：`LLMProvider`、Mock Provider 和本地知识检索
-4. Phase 6：在稳定 Pipeline 上拆分多 Agent 职责
-5. Phase 7：逐边证据验证与覆盖率计算
-6. Phase 8：评测指标、错误分类和报告
-7. Phase 9：核心算法稳定后提供 FastAPI
-8. Phase 10：ARM 闭环完成后再讨论 RISC-V
+1. Phase 4：受架构、层级和证据约束的候选链搜索
+2. Phase 5：`LLMProvider`、Mock Provider 和本地知识检索
+3. Phase 6：在稳定 Pipeline 上拆分多 Agent 职责
+4. Phase 7：逐边证据验证与覆盖率计算
+5. Phase 8：评测指标、错误分类和报告
+6. Phase 9：核心算法稳定后提供 FastAPI
+7. Phase 10：ARM 闭环完成后再讨论 RISC-V
 
 任何阶段都不得为了展示功能而跳过其退出条件。

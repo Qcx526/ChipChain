@@ -50,7 +50,13 @@ Pydantic 模型定义漏洞、行为、接口、硬件资源、证据、根因�
 
 ### Program Analysis
 
-`ProgramAnalyzer` 抽象程序分析能力。MVP 先使用确定性的 `DemoAnalyzer` 打通流程，后续 `AngrAnalyzer`、`GhidraAnalyzer`、`QEMUAnalyzer` 作为独立适配器加入。
+`ProgramAnalyzer` 只负责从 artifact 提取可观察程序行为，不依赖 NetworkX、不写入 GraphRepository，也不返回 AttackChain。`ProgramArtifact` 为 fixture、ELF、raw binary 或 firmware payload 预留统一入口；`ProgramAnalysisResult` 复用 BehaviorNode、BehaviorEdge 和 Evidence，并严格校验 ID、端点、架构和 Evidence 引用。
+
+MVP 的确定性 `DemoAnalyzer` 读取独立 DemoProgramSpec JSON。Spec 表达函数、调用点、ioctl 交互和明确 fixture MMIO 访问，而不是预制 BehaviorNode/Edge。Adapter 将其转换为 Function/DriverFunction/Interface/Register 节点，以及 CALLS、ISSUES、INVOKES、MMIO_READ/WRITE Edge。Sensitive Function 只通过 metadata 表示“值得进一步分析”，不代表漏洞。
+
+`ingest_analysis_result` 位于 Analyzer 与 Repository 之间：先重建 Result 以阻止嵌套原地修改绕过校验，再检查 Repository 的全部 Node/Edge ID 冲突，最后插入；意外后端错误触发防御性回滚。DemoAnalyzer 本身完全不知道 Repository。
+
+当前未实现 AngrAnalyzer。后续可行性与真实 MMIO 地址解析风险见 `docs/ANGR_INTEGRATION_PLAN.md`。
 
 ### Graph Storage
 
@@ -99,6 +105,25 @@ JSON 快照使用 `chipchain_graph` / format version 1 信封，保存排序后�
 - 外部适配器依赖核心接口，核心模块不反向导入适配器。
 - CLI/API 调用应用服务，不直接承载算法。
 
+## Program Analysis 数据流
+
+```text
+DemoProgramSpec JSON
+        ↓ validate
+DemoAnalyzer
+        ↓ deterministic transform
+ProgramAnalysisResult
+  ├─ BehaviorNode[]
+  ├─ BehaviorEdge[]
+  └─ Evidence[]
+        ↓ preflight + rollback guard
+GraphRepository
+        ↓
+GraphPath
+```
+
+Program Analysis 路径在 Register/HardwareResource 观察处停止。Hardware Weakness、Impact、CVE/CWE、Exploitability 和 Verified AttackChain 均属于后续模块。
+
 ## GraphRepository API 语义
 
 - 重复 Node/Edge ID、悬空 Edge 和跨架构 Edge 立即失败，不静默覆盖。
@@ -110,4 +135,4 @@ JSON 快照使用 `chipchain_graph` / format version 1 信封，保存排序后�
 
 ## 当前实现边界
 
-Phase 0～2 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX MultiDiGraph 后端、ARM Graph fixture、确定性简单路径、JSON 图快照和 Schema 导出。程序分析、候选攻击链推理、证据验证算法、LLM/RAG 和 API 仍是受阶段退出条件约束的设计，不表示已经实现。
+Phase 0～3 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、Analysis Ingestion 和 ARM fixture 端到端 GraphPath。真实二进制/angr 分析、候选攻击链推理、证据验证算法、LLM/RAG 和 API 仍未实现。

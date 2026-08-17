@@ -11,9 +11,11 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - ARM toy fixture 和 JSON Schema 导出脚本
 - 存储无关的 `GraphRepository` 和 NetworkX `MultiDiGraph` 后端
 - 架构/层过滤、确定性有向简单路径和稳定 JSON 图快照
-- 不依赖外部服务的领域模型与图仓库测试
+- 存储无关的 `ProgramAnalyzer`、确定性 `DemoAnalyzer` 和原子预检 Ingestion
+- 从 ARM Program Spec 到 GraphPath 的可运行 fixture Pipeline
+- 不依赖外部服务的领域模型、图仓库与程序分析测试
 
-当前尚未实现程序分析、候选攻击链推理、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
+当前尚未实现真实二进制分析、候选攻击链推理、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
 
 ## 环境要求
 
@@ -100,6 +102,33 @@ print(paths[0].hop_count)
 ```
 
 默认图快照保存到 Git 忽略的 `artifacts/arm_graph_demo.json`。
+
+## Program Analysis Example
+
+Phase 3 的 DemoAnalyzer 读取语义化 fixture spec，而不是直接返回硬编码 BehaviorNode/Edge：
+
+```python
+from chipchain.analysis import DemoAnalyzer, ProgramArtifact
+
+artifact = ProgramArtifact(
+    id="fixture-arm-program",
+    architecture="arm",
+    artifact_type="fixture",
+    path="tests/fixtures/program_analysis/arm_demo_program.json",
+    fixture_identifier="fixture-arm-demo-program-spec",
+)
+result = DemoAnalyzer().analyze(artifact)
+
+print(len(result.nodes), len(result.edges), len(result.evidence))
+```
+
+运行从 Program Spec、Analyzer、Ingestion 到 GraphPath 的完整示例：
+
+```powershell
+.\.venv\Scripts\python examples\arm_program_analysis_demo.py
+```
+
+DemoAnalyzer 的 `confidence=1.0` 只表示 fixture 中确定存在该观察关系，不代表真实攻击可信度。当前没有实现 angr，也不会从 MMIO 等程序行为自动推断漏洞、影响或 AttackChain。
 
 ## 文档导航
 

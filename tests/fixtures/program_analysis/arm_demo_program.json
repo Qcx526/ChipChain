@@ -1,0 +1,76 @@
+{
+  "id": "fixture-arm-demo-program-spec",
+  "artifact_id": "fixture-arm-program",
+  "sample_type": "fixture",
+  "source": "chipchain-program-analysis-fixture",
+  "architecture": "arm",
+  "functions": [
+    {
+      "id": "fixture_parse_command",
+      "architecture": "arm",
+      "function_type": "function",
+      "symbol": "fixture_parse_command",
+      "layer": "firmware",
+      "address": "0x00401000"
+    },
+    {
+      "id": "fixture_send_ioctl",
+      "architecture": "arm",
+      "function_type": "function",
+      "symbol": "fixture_send_ioctl",
+      "layer": "firmware",
+      "address": "0x00401100"
+    },
+    {
+      "id": "fixture_driver_ioctl",
+      "architecture": "arm",
+      "function_type": "driver_function",
+      "symbol": "fixture_driver_ioctl",
+      "layer": "driver",
+      "address": "0x00402000"
+    }
+  ],
+  "calls": [
+    {
+      "id": "fixture-call-parse-send",
+      "architecture": "arm",
+      "caller_id": "fixture_parse_command",
+      "callee_id": "fixture_send_ioctl",
+      "callsite_address": "0x00401020",
+      "instruction": "BL fixture_send_ioctl"
+    }
+  ],
+  "ioctls": [
+    {
+      "id": "fixture-ioctl-flow",
+      "architecture": "arm",
+      "caller_function_id": "fixture_parse_command",
+      "interface_id": "fixture_ioctl",
+      "interface_name": "FIXTURE_IOCTL_SET_DEBUG",
+      "driver_function_id": "fixture_driver_ioctl",
+      "command": "FIXTURE_IOCTL_SET_DEBUG",
+      "issue_address": "0x00401040",
+      "issue_instruction": "SVC fixture_ioctl",
+      "invoke_address": "0x00402000",
+      "invoke_instruction": "fixture dispatch to driver ioctl"
+    }
+  ],
+  "mmio_accesses": [
+    {
+      "id": "fixture-mmio-access",
+      "architecture": "arm",
+      "function_id": "fixture_driver_ioctl",
+      "register_id": "fixture_debug_ctrl",
+      "register_name": "FIXTURE_DEBUG_CTRL",
+      "address": "0x50000000",
+      "access_type": "mmio_write",
+      "instruction_address": "0x00402030",
+      "instruction": "STR fixture_value, [fixture_mmio_base]"
+    }
+  ],
+  "metadata": {
+    "fixture": true,
+    "real_program": false,
+    "description": "Auditable semantic input for DemoAnalyzer tests."
+  }
+}
