@@ -20,6 +20,7 @@ classifiers = [
   "Topic :: Security",
 ]
 dependencies = [
+  "networkx>=3.4,<4",
   "pydantic>=2.11,<3",
 ]
 

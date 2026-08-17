@@ -9,9 +9,11 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - 基于 Pydantic 的严格领域模型与稳定字符串枚举
 - 漏洞样本和线性攻击链的 JSON 校验及 round-trip
 - ARM toy fixture 和 JSON Schema 导出脚本
-- 不依赖外部服务的领域模型测试
+- 存储无关的 `GraphRepository` 和 NetworkX `MultiDiGraph` 后端
+- 架构/层过滤、确定性有向简单路径和稳定 JSON 图快照
+- 不依赖外部服务的领域模型与图仓库测试
 
-当前尚未实现图存储、攻击链搜索、程序分析、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
+当前尚未实现程序分析、候选攻击链推理、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
 
 ## 环境要求
 
@@ -61,6 +63,43 @@ print(chain.model_dump_json(indent=2))
 ```
 
 默认输出到被 Git 忽略的 `artifacts/schema/`。Schema 可以从模型确定性重新生成，因此不提交生成文件，避免代码与生成副本漂移。
+
+## Graph Repository Example
+
+以下示例构建明确标记为 fixture 的 ARM Behavior Graph，并查询固件函数到 MMIO 寄存器的结构路径：
+
+```python
+from chipchain.graph import build_arm_demo_graph
+from chipchain.models import Architecture, Layer
+
+repository = build_arm_demo_graph()
+paths = repository.find_paths(
+    "fixture_parse_command",
+    target_id="fixture_debug_ctrl",
+    architecture=Architecture.ARM,
+    max_hops=3,
+    allowed_layers={
+        Layer.FIRMWARE,
+        Layer.INTERFACE,
+        Layer.DRIVER,
+        Layer.HARDWARE,
+    },
+)
+
+print(paths[0].node_ids)
+print(paths[0].edge_ids)
+print(paths[0].hop_count)
+```
+
+`GraphPath` 只表示图中存在的路径，不是 `AttackChain`，也不表达漏洞成立或可利用。
+
+运行完整的创建、查询、保存和重新加载示例：
+
+```powershell
+.\.venv\Scripts\python examples\arm_graph_demo.py
+```
+
+默认图快照保存到 Git 忽略的 `artifacts/arm_graph_demo.json`。
 
 ## 文档导航
 

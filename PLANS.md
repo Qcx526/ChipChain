@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0 和 Phase 1 已完成。当前尚未开始 Phase 2；每个后续阶段仍须在测试、复核和文档更新后才能关闭。
+Phase 0、Phase 1 和 Phase 2 已完成。当前尚未开始 Phase 3；每个后续阶段仍须在测试、复核和文档更新后才能关闭。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -28,16 +28,30 @@ Phase 0 和 Phase 1 已完成。当前尚未开始 Phase 2；每个后续阶段�
 
 退出条件：所有模型可 round-trip，非法数据被可靠拒绝，fixture 来源和性质清晰。
 
+## Phase 2：Graph MVP（已完成）
+
+目标：建立存储无关、可持久化、可确定性查询的跨层行为图基础。
+
+- [x] 实现 `GraphRepository` 抽象与明确异常类型
+- [x] 使用 NetworkX `MultiDiGraph` 实现节点、并行边和方向查询
+- [x] 实现 architecture、layer 和 relation 过滤
+- [x] 实现按 hop、node ID、edge ID 稳定排序的有向简单路径搜索
+- [x] 实现版本化 JSON `GraphSnapshot` 保存和重新校验加载
+- [x] 保留并行 Edge 与 `evidence_ids`
+- [x] 提供明确标记为 fixture 的 ARM Demo Graph 和示例脚本
+- [x] 覆盖重复 ID、悬空端点、跨架构、循环、过滤、持久化与损坏输入测试
+
+退出条件：GraphRepository、MultiDiGraph、ARM Demo、过滤、路径搜索、确定性、并行边、JSON round-trip、Evidence ID 和全部回归测试均通过。
+
 ## 后续路线（尚未实施）
 
-1. Phase 2：`GraphRepository` 与 NetworkX ARM Demo Graph
-2. Phase 3：`ProgramAnalyzer` 与 `DemoAnalyzer`，之后再评估 angr
-3. Phase 4：受架构、层级和证据约束的候选链搜索
-4. Phase 5：`LLMProvider`、Mock Provider 和本地知识检索
-5. Phase 6：在稳定 Pipeline 上拆分多 Agent 职责
-6. Phase 7：逐边证据验证与覆盖率计算
-7. Phase 8：评测指标、错误分类和报告
-8. Phase 9：核心算法稳定后提供 FastAPI
-9. Phase 10：ARM 闭环完成后再讨论 RISC-V
+1. Phase 3：`ProgramAnalyzer` 与 `DemoAnalyzer`，之后再评估 angr
+2. Phase 4：受架构、层级和证据约束的候选链搜索
+3. Phase 5：`LLMProvider`、Mock Provider 和本地知识检索
+4. Phase 6：在稳定 Pipeline 上拆分多 Agent 职责
+5. Phase 7：逐边证据验证与覆盖率计算
+6. Phase 8：评测指标、错误分类和报告
+7. Phase 9：核心算法稳定后提供 FastAPI
+8. Phase 10：ARM 闭环完成后再讨论 RISC-V
 
 任何阶段都不得为了展示功能而跳过其退出条件。

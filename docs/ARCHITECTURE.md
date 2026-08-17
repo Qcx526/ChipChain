@@ -54,7 +54,11 @@ Pydantic 模型定义漏洞、行为、接口、硬件资源、证据、根因�
 
 ### Graph Storage
 
-`GraphRepository` 统一节点、边和路径查询。MVP 默认实现基于 NetworkX + JSON，Neo4j 只作为可选生产适配器，避免首次运行依赖外部服务。
+`GraphRepository` 统一节点、边、方向邻接和路径查询，不向调用者暴露 NetworkX 类型。MVP 的 `NetworkXGraphRepository` 使用 `MultiDiGraph`，以全局唯一的 `BehaviorEdge.id` 作为 edge key，因此相同 source/target 之间的 CALLS、DATA_FLOWS_TO 等关系可以共存。
+
+搜索在遍历过程中同时检查 Node 和 Edge architecture；可选 `allowed_layers` 要求路径中所有 Node 都属于允许集合。只返回有向 simple `GraphPath`，其中 `max_hops` 和 `hop_count` 都表示 Edge 数量。结果按 hop count、node IDs、edge IDs 确定性排序。`GraphPath` 不是 `AttackChain`，不会产生漏洞或可利用性结论。
+
+JSON 快照使用 `chipchain_graph` / format version 1 信封，保存排序后的 Phase 1 Node/Edge 数据和 metadata。加载时重新执行 Pydantic、端点、唯一 ID 和架构一致性验证，不信任由本项目自身生成的 JSON。
 
 ### Candidate Search
 
@@ -95,6 +99,15 @@ Pydantic 模型定义漏洞、行为、接口、硬件资源、证据、根因�
 - 外部适配器依赖核心接口，核心模块不反向导入适配器。
 - CLI/API 调用应用服务，不直接承载算法。
 
+## GraphRepository API 语义
+
+- 重复 Node/Edge ID、悬空 Edge 和跨架构 Edge 立即失败，不静默覆盖。
+- `successors` / `predecessors` 返回按 ID 排序的唯一相邻节点；并行 Edge 通过 `list_edges` / `get_edge` 保留。
+- `find_paths` 在指定 target 时返回起点到目标的全部受限简单路径；未指定 target 时返回 1 到 `max_hops` 内的可达非空路径。
+- target 与 start 相同时允许一个 0-hop GraphPath。
+- `max_results` 在完整确定性排序后截断。该实现优先保证科研复现性，不面向超大稠密图的无界枚举。
+- `save` 使用稳定 JSON；`load` 返回新 Repository，避免失败加载污染已有实例。
+
 ## 当前实现边界
 
-Phase 0 和 Phase 1 已实现 Python 包、CLI、严格领域模型、ARM fixture 和 JSON Schema 导出。GraphRepository、候选搜索、程序分析、验证算法、LLM/RAG 和 API 仍是受阶段退出条件约束的设计，不表示已经实现。
+Phase 0～2 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX MultiDiGraph 后端、ARM Graph fixture、确定性简单路径、JSON 图快照和 Schema 导出。程序分析、候选攻击链推理、证据验证算法、LLM/RAG 和 API 仍是受阶段退出条件约束的设计，不表示已经实现。

@@ -71,9 +71,9 @@ fixture、demo 和 synthetic 不会被自动赋予 CVE 或真实来源。仓库 
 
 ## Behavior Graph 数据契约
 
-`BehaviorNode` 使用稳定 ID、NodeKind、Architecture 和 Layer，可直接通过 `model_dump(mode="json")` 转换成未来图仓库需要的属性字典。
+`BehaviorNode` 使用稳定 ID、NodeKind、Architecture 和 Layer，可直接通过 `model_dump(mode="json")` 转换成当前 GraphRepository 后端需要的属性字典。
 
-`BehaviorEdge` 使用 `source_id` / `target_id` 引用节点，以 RelationType 限定核心关系，并通过 Evidence ID 引用证据。Phase 1 不检查节点是否存在，因为该职责属于未来 GraphRepository；Phase 1 也不实现 NetworkX。
+`BehaviorEdge` 使用 `source_id` / `target_id` 引用节点，以 RelationType 限定核心关系，并通过 Evidence ID 引用证据。Phase 1 模型本身不检查节点是否存在；Phase 2 GraphRepository 在插入和加载时负责端点、全局 Edge ID 和架构一致性验证。
 
 ## 线性 AttackChain
 
@@ -120,4 +120,4 @@ python scripts/export_schema.py
 
 ## 当前边界
 
-模型只负责结构和明确的领域不变量，不执行图查询、候选搜索、静态/动态分析或证据真实性判断。后续 GraphRepository 可以直接消费 Node/Edge 的 JSON 字典，Candidate Search 可以先组装完整线性路径再统一校验，Verifier 可以更新逐边状态后重新构造并校验 AttackChain。
+模型只负责结构和明确的领域不变量，不执行图查询、候选攻击链推理、静态/动态分析或证据真实性判断。Phase 2 GraphRepository 直接消费 Node/Edge 的 JSON 字典并返回独立 GraphPath；后续 Candidate Search 可以使用这些结构路径组装完整线性链再统一校验，Verifier 可以更新逐边状态后重新构造并校验 AttackChain。
