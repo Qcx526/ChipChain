@@ -1,0 +1,282 @@
+{
+  "id": "FIXTURE-ARM-CHAIN-001",
+  "architecture": "arm",
+  "status": "candidate",
+  "nodes": [
+    {
+      "entity_id": "fixture-user-input",
+      "order": 0,
+      "kind": "vulnerability",
+      "architecture": "arm",
+      "layer": "firmware",
+      "label": "Fixture User-Controlled Input"
+    },
+    {
+      "entity_id": "fixture-firmware-function",
+      "order": 1,
+      "kind": "function",
+      "architecture": "arm",
+      "layer": "firmware",
+      "label": "fixture_parse_command"
+    },
+    {
+      "entity_id": "fixture-ioctl-interface",
+      "order": 2,
+      "kind": "interface",
+      "architecture": "arm",
+      "layer": "interface",
+      "label": "FIXTURE_IOCTL_SET_DEBUG"
+    },
+    {
+      "entity_id": "fixture-driver-function",
+      "order": 3,
+      "kind": "driver_function",
+      "architecture": "arm",
+      "layer": "driver",
+      "label": "fixture_driver_ioctl"
+    },
+    {
+      "entity_id": "fixture-debug-register",
+      "order": 4,
+      "kind": "register",
+      "architecture": "arm",
+      "layer": "hardware",
+      "label": "FIXTURE_DEBUG_CTRL"
+    },
+    {
+      "entity_id": "fixture-hardware-weakness",
+      "order": 5,
+      "kind": "weakness",
+      "architecture": "arm",
+      "layer": "hardware",
+      "label": "Fixture Hardware Weakness"
+    },
+    {
+      "entity_id": "fixture-privilege-impact",
+      "order": 6,
+      "kind": "impact",
+      "architecture": "arm",
+      "layer": "impact",
+      "label": "Fixture Privilege Impact"
+    }
+  ],
+  "edges": [
+    {
+      "id": "fixture-edge-0",
+      "source_id": "fixture-user-input",
+      "target_id": "fixture-firmware-function",
+      "relation": "triggers",
+      "architecture": "arm",
+      "evidence_ids": [
+        "fixture-chain-ev-0"
+      ],
+      "verification_status": "unverified",
+      "verification_messages": [],
+      "confidence": 0.7
+    },
+    {
+      "id": "fixture-edge-1",
+      "source_id": "fixture-firmware-function",
+      "target_id": "fixture-ioctl-interface",
+      "relation": "calls",
+      "architecture": "arm",
+      "evidence_ids": [
+        "fixture-chain-ev-1"
+      ],
+      "verification_status": "unverified",
+      "verification_messages": [],
+      "confidence": 0.8
+    },
+    {
+      "id": "fixture-edge-2",
+      "source_id": "fixture-ioctl-interface",
+      "target_id": "fixture-driver-function",
+      "relation": "issues",
+      "architecture": "arm",
+      "evidence_ids": [
+        "fixture-chain-ev-2"
+      ],
+      "verification_status": "unverified",
+      "verification_messages": [],
+      "confidence": 0.8
+    },
+    {
+      "id": "fixture-edge-3",
+      "source_id": "fixture-driver-function",
+      "target_id": "fixture-debug-register",
+      "relation": "mmio_write",
+      "architecture": "arm",
+      "evidence_ids": [
+        "fixture-chain-ev-3"
+      ],
+      "verification_status": "unverified",
+      "verification_messages": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "fixture-edge-4",
+      "source_id": "fixture-debug-register",
+      "target_id": "fixture-hardware-weakness",
+      "relation": "exploits",
+      "architecture": "arm",
+      "evidence_ids": [
+        "fixture-chain-ev-4"
+      ],
+      "verification_status": "unverified",
+      "verification_messages": [],
+      "confidence": 0.6
+    },
+    {
+      "id": "fixture-edge-5",
+      "source_id": "fixture-hardware-weakness",
+      "target_id": "fixture-privilege-impact",
+      "relation": "leads_to",
+      "architecture": "arm",
+      "evidence_ids": [
+        "fixture-chain-ev-5"
+      ],
+      "verification_status": "unverified",
+      "verification_messages": [],
+      "confidence": 0.7
+    }
+  ],
+  "evidence": [
+    {
+      "id": "fixture-chain-ev-0",
+      "type": "source_reference",
+      "source": "chipchain-test-fixture",
+      "artifact": "toy-arm-input-model",
+      "address": null,
+      "instruction": null,
+      "rule_id": null,
+      "confidence": 0.7,
+      "verified": false,
+      "metadata": {
+        "fixture": true
+      },
+      "reference": "tests/fixtures/valid_arm_chain.json"
+    },
+    {
+      "id": "fixture-chain-ev-1",
+      "type": "static_analysis",
+      "source": "chipchain-test-fixture",
+      "artifact": "toy-arm-firmware",
+      "address": "fixture-symbol:parse_command",
+      "instruction": "fixture_call_ioctl_wrapper",
+      "rule_id": null,
+      "confidence": 0.8,
+      "verified": false,
+      "metadata": {
+        "fixture": true
+      },
+      "reference": null
+    },
+    {
+      "id": "fixture-chain-ev-2",
+      "type": "static_analysis",
+      "source": "chipchain-test-fixture",
+      "artifact": "toy-arm-firmware",
+      "address": "fixture-symbol:ioctl_wrapper",
+      "instruction": "fixture_issue_ioctl",
+      "rule_id": null,
+      "confidence": 0.8,
+      "verified": false,
+      "metadata": {
+        "fixture": true
+      },
+      "reference": null
+    },
+    {
+      "id": "fixture-chain-ev-3",
+      "type": "static_analysis",
+      "source": "chipchain-test-fixture",
+      "artifact": "toy-arm-driver",
+      "address": "fixture-symbol:driver_ioctl",
+      "instruction": "STR fixture_value, [fixture_mmio_base]",
+      "rule_id": null,
+      "confidence": 0.9,
+      "verified": false,
+      "metadata": {
+        "fixture": true
+      },
+      "reference": null
+    },
+    {
+      "id": "fixture-chain-ev-4",
+      "type": "architecture_rule",
+      "source": "chipchain-test-fixture",
+      "artifact": "toy-arm-rule-set",
+      "address": "0x50000000",
+      "instruction": null,
+      "rule_id": "FIXTURE-RULE-DEBUG-LOCK",
+      "confidence": 0.6,
+      "verified": false,
+      "metadata": {
+        "fixture": true
+      },
+      "reference": null
+    },
+    {
+      "id": "fixture-chain-ev-5",
+      "type": "knowledge_graph",
+      "source": "chipchain-test-fixture",
+      "artifact": "toy-arm-knowledge",
+      "address": null,
+      "instruction": null,
+      "rule_id": null,
+      "confidence": 0.7,
+      "verified": false,
+      "metadata": {
+        "fixture": true
+      },
+      "reference": null
+    }
+  ],
+  "entry": "Fixture User-Controlled Input",
+  "impacts": [
+    {
+      "id": "fixture-impact-privilege",
+      "type": "fixture_privilege_impact",
+      "target": "fixture_protected_operation",
+      "severity": "fixture_high",
+      "scope": "toy_environment_only",
+      "description": "Synthetic impact used only for attack-chain model tests."
+    }
+  ],
+  "root_causes": [
+    {
+      "id": "fixture-chain-root-cause",
+      "kind": "missing_fixture_access_check",
+      "location": "fixture_driver_ioctl",
+      "architecture": "arm",
+      "function": "fixture_driver_ioctl",
+      "binary_address": "fixture-symbol:driver_ioctl",
+      "instruction": "fixture_mmio_write",
+      "register": "FIXTURE_DEBUG_CTRL",
+      "mmio_address": "0x50000000",
+      "hardware_resource": "fixture-debug-register",
+      "security_mechanism": "fixture-debug-lock",
+      "evidence_ids": [
+        "fixture-chain-ev-3"
+      ],
+      "description": "Synthetic root cause used only for model validation."
+    }
+  ],
+  "score": 0.72,
+  "score_components": {
+    "static_evidence": 0.8,
+    "architecture_consistency": 1.0,
+    "knowledge_graph": 0.6
+  },
+  "evidence_coverage": 1.0,
+  "unmet_conditions": [
+    "Evidence has not been verified; this remains a fixture candidate."
+  ],
+  "explanation": "Fixture-only ARM cross-layer candidate for data-model tests.",
+  "created_at": "2026-01-01T00:00:00Z",
+  "metadata": {
+    "fixture": true,
+    "real_vulnerability": false,
+    "source": "chipchain-test-fixture"
+  }
+}
