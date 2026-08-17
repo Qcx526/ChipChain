@@ -13,9 +13,12 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - 架构/层过滤、确定性有向简单路径和稳定 JSON 图快照
 - 存储无关的 `ProgramAnalyzer`、确定性 `DemoAnalyzer` 和原子预检 Ingestion
 - 从 ARM Program Spec 到 GraphPath 的可运行 fixture Pipeline
+- 可选 `AngrAnalyzer`：真实 ARM ELF 装载、CFGFast 函数/CALLS 恢复和 call-site Static Evidence
+- 可审计、可重复生成且带 SHA-256/Ground Truth 的 synthetic ARM A32 ELF
+- ARM ELF 到 `ProgramAnalysisResult`、Ingestion 和 GraphPath 的端到端示例
 - 不依赖外部服务的领域模型、图仓库与程序分析测试
 
-当前尚未实现真实二进制分析、候选攻击链推理、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
+当前尚未实现 MMIO 地址解析、漏洞知识图谱、候选攻击链推理、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
 
 ## 环境要求
 
@@ -31,6 +34,13 @@ python -m venv .venv
 .\.venv\Scripts\python -m pip install -e ".[dev]"
 .\.venv\Scripts\chipchain --help
 .\.venv\Scripts\python -m pytest
+```
+
+Phase 4 的真实 ARM 静态分析为可选能力，不会被普通 `dev` 安装引入：
+
+```powershell
+.\.venv\Scripts\python -m pip install -e ".[dev,angr]"
+.\.venv\Scripts\python examples\arm_angr_analysis_demo.py
 ```
 
 也可以不安装入口脚本，通过源码运行：
@@ -128,7 +138,17 @@ print(len(result.nodes), len(result.edges), len(result.evidence))
 .\.venv\Scripts\python examples\arm_program_analysis_demo.py
 ```
 
-DemoAnalyzer 的 `confidence=1.0` 只表示 fixture 中确定存在该观察关系，不代表真实攻击可信度。当前没有实现 angr，也不会从 MMIO 等程序行为自动推断漏洞、影响或 AttackChain。
+DemoAnalyzer 的 `confidence=1.0` 只表示 fixture 中确定存在该观察关系，不代表真实攻击可信度。AngrAnalyzer 同样只返回静态程序观察，不会从函数、CALLS 或 MMIO 等行为自动推断漏洞、影响或 AttackChain。
+
+真实 ARM ELF 示例：
+
+```powershell
+.\.venv\Scripts\python examples\arm_angr_analysis_demo.py
+```
+
+该示例使用仓库自有的 synthetic ARM A32 ELF，恢复 Function、CALLS、call-site
+Evidence，并经现有 Ingestion 查询三跳调用 GraphPath。生成方法、哈希和 Ground
+Truth 见 [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)。
 
 ## 文档导航
 
@@ -136,6 +156,7 @@ DemoAnalyzer 的 `confidence=1.0` 只表示 fixture 中确定存在该观察关�
 - [系统架构](docs/ARCHITECTURE.md)
 - [数据模型](docs/DATA_MODEL.md)
 - [评测设计](docs/EVALUATION.md)
+- [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)
 - [阶段计划](PLANS.md)
 
 ## 数据真实性

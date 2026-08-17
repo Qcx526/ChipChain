@@ -1,0 +1,61 @@
+{
+  "fixture_type": "synthetic",
+  "architecture": "ARM",
+  "format": "ELF32 little-endian ARM A32",
+  "entry_point": "0x10028",
+  "functions": [
+    {
+      "name": "driver_like_function",
+      "address": "0x10000",
+      "size": 8
+    },
+    {
+      "name": "helper_function",
+      "address": "0x10008",
+      "size": 16
+    },
+    {
+      "name": "parse_command",
+      "address": "0x10018",
+      "size": 16
+    },
+    {
+      "name": "main",
+      "address": "0x10028",
+      "size": 16
+    },
+    {
+      "name": "indirect_dispatch",
+      "address": "0x10038",
+      "size": 12
+    }
+  ],
+  "calls": [
+    {
+      "caller": "helper_function",
+      "callee": "driver_like_function",
+      "callsite": "0x10010",
+      "instruction": "bl driver_like_function"
+    },
+    {
+      "caller": "parse_command",
+      "callee": "helper_function",
+      "callsite": "0x10020",
+      "instruction": "bl helper_function"
+    },
+    {
+      "caller": "main",
+      "callee": "parse_command",
+      "callsite": "0x10030",
+      "instruction": "bl parse_command"
+    }
+  ],
+  "unresolved_calls": [
+    {
+      "caller": "indirect_dispatch",
+      "callsite": "0x1003c",
+      "instruction": "blx r3",
+      "reason": "register target is intentionally unconstrained"
+    }
+  ]
+}

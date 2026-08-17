@@ -56,7 +56,12 @@ MVP 的确定性 `DemoAnalyzer` 读取独立 DemoProgramSpec JSON。Spec 表达�
 
 `ingest_analysis_result` 位于 Analyzer 与 Repository 之间：先重建 Result 以阻止嵌套原地修改绕过校验，再检查 Repository 的全部 Node/Edge ID 冲突，最后插入；意外后端错误触发防御性回滚。DemoAnalyzer 本身完全不知道 Repository。
 
-当前未实现 AngrAnalyzer。后续可行性与真实 MMIO 地址解析风险见 `docs/ANGR_INTEGRATION_PLAN.md`。
+Phase 4A 的可选 `AngrAnalyzer` 使用 `angr.Project(auto_load_libs=False)` 和
+`CFGFast` 分析 ARM ELF，只保留 main object 内非 SimProcedure/PLT 的 Function，
+并将已解析的对象内调用转换为带 call-site Static Evidence 的 CALLS Edge。未解析
+间接调用只进入 result diagnostics，不产生猜测 Edge。angr 依赖在执行 adapter 时
+才动态导入；基础安装和 DemoAnalyzer 不依赖它。实现、环境矩阵和真实 MMIO
+地址解析边界见 `docs/ANGR_INTEGRATION_PLAN.md`。
 
 ### Graph Storage
 
@@ -108,10 +113,11 @@ JSON 快照使用 `chipchain_graph` / format version 1 信封，保存排序后�
 ## Program Analysis 数据流
 
 ```text
-DemoProgramSpec JSON
-        ↓ validate
-DemoAnalyzer
-        ↓ deterministic transform
+DemoProgramSpec JSON             ARM ELF
+        ↓ validate                 ↓ CFGFast
+DemoAnalyzer                   AngrAnalyzer
+        └──────────────┬────────────┘
+                       ↓ normalize
 ProgramAnalysisResult
   ├─ BehaviorNode[]
   ├─ BehaviorEdge[]
@@ -135,4 +141,8 @@ Program Analysis 路径在 Register/HardwareResource 观察处停止。Hardware 
 
 ## 当前实现边界
 
-Phase 0～3 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、Analysis Ingestion 和 ARM fixture 端到端 GraphPath。真实二进制/angr 分析、候选攻击链推理、证据验证算法、LLM/RAG 和 API 仍未实现。
+Phase 0～4A 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
+MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、可选 AngrAnalyzer、
+Analysis Ingestion，以及 synthetic ARM ELF 到 Function/CALLS/GraphPath 的端到端
+闭环。真实 MMIO、漏洞知识图谱、候选攻击链推理、证据验证算法、LLM/RAG 和
+API 仍未实现。

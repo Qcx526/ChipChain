@@ -2,7 +2,8 @@
 
 ## 当前状态
 
-Phase 0～Phase 3 已完成。当前尚未开始 Phase 4；每个后续阶段仍须在测试、复核和文档更新后才能关闭。
+Phase 0～Phase 4 已完成。Phase 4 在 Candidate Search 之前补齐真实 ARM ELF
+静态分析能力；每个后续阶段仍须在测试、复核和文档更新后才能关闭。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -59,14 +60,64 @@ Phase 0～Phase 3 已完成。当前尚未开始 Phase 4；每个后续阶段仍
 
 退出条件：抽象、结果契约、DemoAnalyzer、Evidence、Ingestion、ARM Demo、GraphPath、全部回归测试和 angr 计划均完成，且未实现 angr 或 Phase 4。
 
+## Phase 4：Real ARM Static Analysis / AngrAnalyzer（已完成）
+
+目标：使用可选 angr 后端，把自有 ARM ELF 的真实机器码转换成现有程序分析
+结果和行为图事实，不执行漏洞检测或攻击链推理。
+
+- [x] 在 Windows / Python 3.14.6 隔离环境验证 angr 9.3.2 安装、导入、Project 和 CFGFast
+- [x] 将 angr 固定在独立 optional dependency group，基础与 dev 安装不强制引入
+- [x] 实现 `AngrAnalyzer(ProgramAnalyzer)`，保持 `ProgramAnalysisResult` 契约
+- [x] 限定 ARM ELF、`auto_load_libs=False`、CFGFast 和 main object 分析范围
+- [x] 恢复 Function address/name 和稳定无符号名称，不按名称推断安全语义
+- [x] 恢复对象内 CALLS，并为每条 Edge 生成精确 call-site Static Evidence
+- [x] 统计未解析间接调用，不生成猜测 callee 或伪造 CALLS
+- [x] 建立自有可重复生成的 synthetic ARM A32 ELF、源码、脚本、SHA-256 和 Ground Truth
+- [x] 复用现有 Ingestion 与 GraphRepository，查询真实机器码恢复的 GraphPath
+- [x] 提供端到端 Demo、可选测试 marker、错误包装、确定性和完整回归测试
+- [x] 将真实 MMIO 地址解析明确延后，不把普通 LDR/STR 当作 MMIO
+
+退出条件：当前隔离环境可运行 angr；可审计 ARM ELF 能生成 Function、CALLS 和
+call-site Evidence；结果可 round-trip、Ingest 和查询 GraphPath；未解析调用不被
+伪造；全部测试通过；未产生漏洞结论或提前实现后续阶段。
+
 ## 后续路线（尚未实施）
 
-1. Phase 4：受架构、层级和证据约束的候选链搜索
-2. Phase 5：`LLMProvider`、Mock Provider 和本地知识检索
-3. Phase 6：在稳定 Pipeline 上拆分多 Agent 职责
-4. Phase 7：逐边证据验证与覆盖率计算
-5. Phase 8：评测指标、错误分类和报告
-6. Phase 9：核心算法稳定后提供 FastAPI
-7. Phase 10：ARM 闭环完成后再讨论 RISC-V
+### Phase 5：Vulnerability Knowledge Graph MVP
+
+规范化防御性漏洞、弱点、硬件资源、架构约束和来源证据，建立与行为图分离但
+可受控关联的知识图谱。先使用可审计 fixture/公开数据子集，不下载或伪造 CVE。
+
+### Phase 6：Candidate Chain Search
+
+在 ARM、层级、关系、深度和证据约束下，以确定性搜索融合知识图与程序行为图，
+只生成候选路径，不宣称已验证攻击链。
+
+### Phase 7：Architecture RAG + LLM Provider
+
+实现架构强过滤的知识检索、`LLMProvider` 抽象和 Mock Provider。LLM 只解释或
+补充候选，不覆盖结构化证据。
+
+### Phase 8：Multi-Agent
+
+在稳定单体 Pipeline 上拆分候选生成、知识检索和验证职责；不得通过 Agent
+边界绕过领域模型和证据校验。
+
+### Phase 9：Evidence Verification / Scoring / Root Cause
+
+逐边验证静态、动态与架构证据；从配置加载评分权重并计算覆盖率、置信度和根因，
+LLM 语义置信度不得占主导。
+
+### Phase 10：Evaluation
+
+固定 ARM Ground Truth、指标、错误分类、消融实验和可复现报告。
+
+### Phase 11：API / Visualization
+
+核心算法稳定后再提供 FastAPI 与可解释可视化，不把 API 层变成算法或存储层。
+
+### Phase 12：Additional Architectures
+
+仅在 ARM 闭环稳定并完成评测后，讨论并验证第二种架构；不进行跨架构拼接。
 
 任何阶段都不得为了展示功能而跳过其退出条件。

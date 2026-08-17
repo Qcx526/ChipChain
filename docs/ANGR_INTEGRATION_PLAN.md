@@ -1,151 +1,156 @@
-# angr 接入计划（Planned / Not Implemented）
+# angr 接入说明（Phase 4A 已实现）
 
 ## 状态与边界
 
-本文只记录 Phase 3 完成后的可行性计划。仓库当前没有 `angr` 依赖、`AngrAnalyzer` 类或真实二进制分析实现。正式接入必须由后续任务明确授权，并保持 `ProgramAnalyzer → ProgramAnalysisResult` 契约不变。
-
-angr 只负责从授权二进制中恢复可观察程序事实，不负责输出 CVE、CWE、Hardware Weakness、Exploitability、Privilege Escalation、Verified AttackChain 或其他安全结论。
-
-## 1. angr 将负责什么
-
-第一版 AngrAnalyzer 计划只负责：
-
-- 装载目标程序及其架构/地址布局；
-- 恢复函数地址、名称或稳定的合成符号；
-- 恢复直接调用和可解析的间接调用；
-- 保存调用点地址并生成 CALLS Evidence；
-- 检查明确可解析的内存访问，结合已知设备内存映射产生 MMIO_READ/MMIO_WRITE 观察；
-- 把结果转换为现有 BehaviorNode、BehaviorEdge 和 Evidence。
-
-不在第一版范围内：完整污点分析、漏洞检测、固件解包、动态执行、硬件弱点推断或攻击链生成。
-
-## 2. 输入范围
-
-建议按以下顺序逐步支持：
-
-1. 带明确架构和装载信息的 ARM ELF；
-2. 静态链接或依赖可控的 ELF；
-3. 已知 base address、entry point 和 ARM/Thumb 模式的 raw binary；
-4. 已从 firmware image 中提取的独立可执行 payload。
-
-Firmware unpacking 不属于 AngrAnalyzer。raw binary 缺少段、符号和装载地址，必须通过 ProgramArtifact metadata 或单独配置提供，不应猜测成事实。
-
-官方文档说明 angr 的 CLE loader 负责把不同二进制对象映射到统一地址空间；实际实现前仍需针对选定 angr 版本验证具体 loader 参数：[Loading a Binary](https://docs.angr.io/en/stable/core-concepts/loading.html)。
-
-## 3. Function 提取
-
-第一版优先使用静态 CFG 恢复函数边界和 FunctionManager 信息。官方资料将 CFGFast 描述为更快、依赖启发式和假设的静态恢复，而 CFGEmulated 使用符号执行、成本显著更高：[CFGFast API](https://docs.angr.io/en/latest/api/angr.analyses.cfg.cfg_fast.html)、[CFG Recovery](https://docs.angr.io/en/v9.2.63/analyses/cfg.html)。
-
-因此计划：
-
-- 默认从 CFGFast 获取函数地址、名称、区间和调用关系；
-- 对 stripped binary 使用 `sub_<address>` 等稳定合成名称；
-- 保留 recovered / symbol-backed 等 provenance metadata；
-- 不把“函数未恢复”解释为“函数不存在”；
-- CFGEmulated 只用于小范围、有边界的补充实验，不能成为默认全固件路径。
-
-## 4. Call Graph 与 CALLS Evidence
-
-AngrAnalyzer 应把调用者/被调用者转换为 Function 或 DriverFunction BehaviorNode，把调用转换为 RelationType.CALLS。
-
-每条 CALLS Edge 至少引用一条 Evidence：
-
-- `type=static_analysis`；
-- `source=angr_analyzer`；
-- `artifact=ProgramArtifact.id`；
-- `address=call-site instruction address`；
-- `instruction=反汇编或规范化 IR 摘要`；
-- metadata 保存 caller/callee address、direct/indirect 和解析状态。
-
-未解析的间接调用不得伪造 callee。可保留诊断统计，但不生成指向猜测目标的已确定 CALLS Edge。
-
-## 5. Function XRef
-
-第一版不新增 XREF RelationType。函数 XRef 仍表示为：
+Phase 4A 已实现 ARM ELF 的真实静态分析最小闭环：
 
 ```text
-CALLS Edge
-    → evidence_ids
-    → call-site Static Evidence
+ARM ELF → AngrAnalyzer → ProgramAnalysisResult
+        → ingest_analysis_result → GraphRepository → GraphPath
 ```
 
-这与 DemoAnalyzer 契约一致，避免将 angr 专有对象泄漏到公共模型。
+适配器只恢复可观察的函数与调用事实，不输出 CVE、CWE、Hardware
+Weakness、Exploitability、Privilege Escalation 或 AttackChain。Phase 4A 未实现
+MMIO、数据流、污点、符号执行和漏洞检测。
 
-## 6. MMIO 第一版识别计划
+## 已验证环境
 
-真实 ARM 指令：
+验证日期：2026-08-17。
+
+| 项目 | 实测值 |
+|---|---|
+| OS | Windows x86-64 |
+| Python | 3.14.6 |
+| pip | 26.1.2 |
+| angr | 9.3.2 |
+| ARM compiler | 未安装 |
+| Project smoke test | 通过 |
+| CFGFast smoke test | 通过 |
+
+PyPI 的 angr 9.3.2 metadata 声明 Python `>=3.12`、列出 Python 3.14，
+并提供 CPython 3.12+ ABI3 Windows x86-64 wheel：
+<https://pypi.org/project/angr/9.3.2/>。安装遵循官方建议，在仓库 `.venv`
+隔离环境中完成：<https://docs.angr.io/en/stable/getting-started/installing.html>。
+
+实际执行：
+
+```powershell
+.\.venv\Scripts\python -m pip install "angr==9.3.2"
+.\.venv\Scripts\python -c "import angr; print(angr.__version__)"
+```
+
+安装日志保存在本地忽略目录 `artifacts/phase4/angr-install.log`。导入时 angr
+报告 `unicornlib.dll` 不可用；Unicorn 是可选执行加速路径，本阶段只使用静态
+`CFGFast`，Project 与 CFG 冒烟及全部集成测试均通过。
+
+## 可选依赖
+
+angr 不属于基础依赖或 `dev` extra：
+
+```powershell
+pip install -e ".[dev]"       # Phase 0～3 与非 angr 测试
+pip install -e ".[dev,angr]"  # Phase 4A 集成测试和 Demo
+```
+
+`chipchain.analysis` 可以在未安装 angr 时导入。`AngrAnalyzer` 只在执行
+`analyze()` 时动态导入后端，并以稳定的 `ProgramAnalysisError` 说明缺失
+extra。angr 集成测试带 `angr` marker 和 import skip。
+
+## AngrAnalyzer 契约
+
+公共契约保持不变：
+
+```python
+AngrAnalyzer(ProgramAnalyzer).analyze(
+    artifact: ProgramArtifact,
+) -> ProgramAnalysisResult
+```
+
+MVP 只接受 `architecture=arm`、`artifact_type=elf` 和存在的文件路径。装载
+使用 `angr.Project(path, auto_load_libs=False)`，恢复使用
+`project.analyses.CFGFast(normalize=True)`。非 ARM、raw binary、缺失文件和
+无效 ELF 都由稳定的 ChipChain 分析异常拒绝。
+
+所有 angr/CLE/CFG/Capstone 对象停留在 adapter 内。适配器不返回 CFG、
+NetworkX 图或 AttackChain，也不直接操作 GraphRepository。
+
+## Function Recovery
+
+分析范围限定为 `loader.main_object`，并排除 SimProcedure 和 PLT Function。
+每个恢复函数转换为 `BehaviorNode(kind=function, layer=firmware,
+architecture=arm)`。
+
+ID 使用 artifact ID 和规范化地址确定性生成，例如：
 
 ```text
-STR X0, [X1]
+synthetic-arm-call-chain:function:00010028
 ```
 
-只能说明存在内存写。只有解析出 X1 最终落入目标设备已知 MMIO range，才能生成 MMIO_WRITE。
+名称优先使用 main object 精确地址上的 function symbol；无符号时使用
+`sub_<8位十六进制地址>`，不从名称猜测 driver、vulnerable 或 secure 等语义。
+metadata 保存 function address/size、`recovered`、`symbol_backed`、backend 与
+fixture provenance。
 
-第一版计划组合：
+## CALLS 与 Evidence
 
-1. 从指令或 VEX IR 找出 load/store 地址表达式；
-2. 对常量、PC-relative、基址加常量偏移做有限 constant propagation；
-3. 将已解析地址与用户提供的 architecture/device memory map 匹配；
-4. 保存 instruction address、resolved target、range/rule ID 和解析方法；
-5. 地址仍为 symbolic 或区间不确定时，不生成确定 MMIO Edge，只记录 unresolved diagnostic；
-6. 对同一地址的 READ/WRITE 使用现有 MMIO_READ/MMIO_WRITE RelationType。
+已解析且 callee 属于 main object 函数集合的调用转换为 `CALLS` Edge。每条
+Edge 引用一条 `static_analysis` Evidence，保存：
 
-必须明确：
+- artifact ID；
+- caller/callee address；
+- callsite instruction address；
+- Capstone 能可靠给出时的规范化 instruction；
+- direct/indirect、CFGFast 和 resolved provenance。
+
+Edge 和 Evidence ID 都由 artifact、caller、callee 与 callsite 决定。输出 Node、
+Edge 和 Evidence 在返回前按 ID 排序。
+
+无法解析的 register-indirect call 只增加
+`ProgramAnalysisResult.metadata.unresolved_calls`，不生成猜测 callee 或
+CALLS Edge。已解析到 main object 之外的 direct call 单独计入
+`excluded_external_call_count`。
+
+## 自有 ARM Fixture 与 Ground Truth
+
+fixture 位于 `tests/fixtures/angr/arm_call_chain/`，明确标记为 `synthetic`、
+`owned` 和 `fixture`，不是漏洞样本。目录包含：
+
+- `arm_call_chain.S`：人类可审计的 ARM A32 源码；
+- `generate_fixture.py`：确定性 ELF32/A32 编码器；
+- `build.ps1`：一键生成脚本；
+- `arm_call_chain.elf`：生成的 32-bit little-endian ARM ELF；
+- `ground_truth.json`：函数、直接调用、callsite 与未解析调用真值；
+- `SHA256SUMS`：二进制 SHA-256。
+
+当前机器没有 ARM GCC/Clang，因此没有下载未知预编译二进制；生成器直接写入
+逐条注释的 A32 word 和最小 ELF header/program header/section/symbol table。
+重新运行 build script 必须得到相同哈希。
+
+Ground Truth 的解析链为：
 
 ```text
-Demo fixture MMIO recognition != 真实 ARM MMIO recognition
+main@0x10028
+  → parse_command@0x10018        callsite 0x10030
+  → helper_function@0x10008      callsite 0x10020
+  → driver_like_function@0x10000 callsite 0x10010
 ```
 
-DemoAnalyzer 读取 fixture 中明确给出的地址；真实实现需要 constant propagation、address resolution、known MMIO ranges、symbolic address handling 和设备 memory map。
+另有未被调用的 `indirect_dispatch@0x10038`，其 `blx r3@0x1003c` 目标故意
+不受约束，用于证明 unresolved call 不会被伪造成 CALLS Edge。
 
-## 7. 转换到 ProgramAnalysisResult
+## MMIO Phase 4B 状态
 
-计划中的 AngrAnalyzer 仍只返回：
+MMIO 未实现。单独看到 `STR`/`LDR` 不能证明 MMIO。后续只有在目标地址可靠
+解析且命中显式配置的 known MMIO range 时，才允许生成 MMIO_WRITE/MMIO_READ
+及地址解析证据；否则只记录诊断。
 
-```text
-ProgramArtifact
-architecture
-BehaviorNode[]
-BehaviorEdge[]
-Evidence[]
-metadata
-```
+## 已知限制
 
-转换流程：
-
-```text
-angr/CLE/CFG internal objects
-        ↓ adapter-only normalization
-BehaviorNode / BehaviorEdge / Evidence
-        ↓
-ProgramAnalysisResult validation
-```
-
-Node、Edge、Evidence ID 必须确定性生成并排序；不得把 angr NetworkX 图、CFGNode、Function 或 SimState 暴露给上层。随后继续复用 `ingest_analysis_result` 写入 GraphRepository。
-
-## 8. 已知技术风险
-
-- stripped binary 的函数边界和名称不完整；
-- ARM/Thumb 模式和跳转地址低位语义；
-- 间接调用、跳转表、tail call 和异常控制流恢复不完整；
-- PIE、重定位、外部库和装载基址导致地址不稳定；
-- raw binary 缺少段权限、符号和入口信息；
-- CFGFast 启发式可能产生漏报或误报；
-- CFGEmulated 可能出现状态爆炸和高内存消耗；
-- symbolic address 无法可靠归入一个 MMIO range；
-- 错误或不完整的设备 memory map 会直接影响 MMIO 结论；
-- angr、Python 版本和本地原生依赖兼容性需要单独验证；
-- 大型固件需要超时、区域白名单、函数预算和缓存策略。
-
-## 9. 实施前验证门槛
-
-正式编码前应先固定：
-
-- 一个自有 ARM ELF toy program；
-- 明确的符号、调用点和 MMIO range Ground Truth；
-- 支持的 angr/Python 版本矩阵；
-- 函数、CALLS、call-site 和 MMIO 的接受标准；
-- 超时、最大函数数和最大 CFG 节点数；
-- 与 DemoAnalyzer 生成相同 ProgramAnalysisResult 语义的对照测试。
-
-只有这些门槛明确后，才适合增加可选 `angr` dependency group 和 AngrAnalyzer。本 Phase 不执行安装或实现。
+- 只支持 ARM ELF，不猜测 raw binary 的 base、entry 或 ARM/Thumb 模式；
+- CFGFast 是启发式恢复，可能漏报或误报；
+- stripped binary 只能获得稳定合成名称，不能恢复语义名称；
+- 间接调用只接受 angr 已可靠解析且命中 main object 函数的目标；
+- 不分析共享库、extern、SimProcedure 或 loader stub；
+- 尚未增加超时、函数预算、大型固件缓存或区域白名单；
+- 本阶段未使用 Unicorn、QEMU 或动态执行；
+- fixture 只验证提取管线，不代表真实固件覆盖率或漏洞检测能力。
