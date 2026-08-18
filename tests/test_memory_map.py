@@ -55,6 +55,20 @@ def test_memory_region_rejects_inverted_range() -> None:
         )
 
 
+def test_register_memory_region_rejects_address_range() -> None:
+    """A register identity must resolve to one exact hardware address."""
+
+    with pytest.raises(ValidationError, match="identify one address"):
+        MemoryRegion(
+            id="fixture-register",
+            name="FIXTURE_REGISTER",
+            start="0x40000000",
+            end="0x4000000f",
+            kind="mmio",
+            resource_kind=NodeKind.REGISTER,
+        )
+
+
 @pytest.mark.parametrize("resource_kind", ["function", "interface", "weakness"])
 def test_memory_region_rejects_non_hardware_node_kind(resource_kind: str) -> None:
     """Memory-map targets can only become Register or HardwareResource nodes."""
@@ -107,12 +121,12 @@ def test_memory_map_lookup_and_empty_map_are_deterministic() -> None:
     """Lookup accepts boundaries, rejects outside addresses, and permits no regions."""
 
     region = MemoryRegion(
-        id="fixture-register",
-        name="FIXTURE_REGISTER",
+        id="fixture-window",
+        name="FIXTURE_WINDOW",
         start="0x40000000",
         end="0x4000000f",
         kind="mmio",
-        resource_kind=NodeKind.REGISTER,
+        resource_kind=NodeKind.HARDWARE_RESOURCE,
     )
     memory_map = MemoryMap(
         id="fixture-map",

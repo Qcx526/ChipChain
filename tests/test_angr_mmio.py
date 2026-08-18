@@ -19,7 +19,13 @@ from chipchain.analysis import (
     ingest_analysis_result,
 )
 from chipchain.graph import NetworkXGraphRepository
+from chipchain.knowledge import (
+    KnowledgeNodeKind,
+    VulnerabilityKnowledgeBuilder,
+    hardware_resource_match_keys,
+)
 from chipchain.models import Architecture, EvidenceType, Layer, NodeKind, RelationType
+from chipchain.models import VulnerabilitySample
 
 angr = pytest.importorskip("angr")
 
@@ -213,6 +219,37 @@ def test_hardware_register_is_generated_once_and_reused(
     assert register.address == "0x40000000"
     assert register.layer is Layer.HARDWARE
     assert {edge.target_id for edge in mmio_edges} == {register.id}
+
+
+def test_phase4b_and_phase5_hardware_match_keys_agree(
+    mmio_result: ProgramAnalysisResult,
+) -> None:
+    """The actual analyzer node and KG fixture share exact keys, not node IDs."""
+
+    behavior_resource = next(
+        node for node in mmio_result.nodes if node.layer is Layer.HARDWARE
+    )
+    sample = VulnerabilitySample.model_validate_json(
+        (
+            Path(__file__).parent
+            / "fixtures"
+            / "knowledge"
+            / "synthetic_arm_vulnerability.json"
+        ).read_text(encoding="utf-8")
+    )
+    knowledge_resource = next(
+        node
+        for node in VulnerabilityKnowledgeBuilder().build(sample).nodes
+        if node.kind is KnowledgeNodeKind.HARDWARE_RESOURCE
+    )
+    behavior_keys = hardware_resource_match_keys(
+        behavior_resource.architecture,
+        address=behavior_resource.address,
+        metadata=behavior_resource.metadata,
+    )
+
+    assert behavior_resource.id != knowledge_resource.id
+    assert behavior_keys == knowledge_resource.match_keys
 
 
 def test_mmio_evidence_references_are_complete(

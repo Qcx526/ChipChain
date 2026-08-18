@@ -78,6 +78,27 @@ Phase 4B 为 `ProgramArtifact` 增加向后兼容的 firmware/driver 程序层�
 
 JSON 快照使用 `chipchain_graph` / format version 1 信封，保存排序后的 Phase 1 Node/Edge 数据和 metadata。加载时重新执行 Pydantic、端点、唯一 ID 和架构一致性验证，不信任由本项目自身生成的 JSON。
 
+### Vulnerability Knowledge Graph
+
+Phase 5 的 Knowledge Graph 与 Behavior Graph 是两个独立边界。它使用
+`KnowledgeNode`、`KnowledgeEdge`、`KnowledgeRelationType` 和
+`KnowledgeGraphRepository`，不复用 BehaviorNode/RelationType，也不提供
+`find_paths`。`VulnerabilityKnowledgeBuilder` 只依赖领域模型，负责将一个或多个
+`VulnerabilitySample` 确定性转换为 `KnowledgeGraphBundle`；它不知道 NetworkX、
+AttackChain、LLM 或分析器。
+
+`NetworkXKnowledgeGraphRepository` 同样使用 `MultiDiGraph`，但独立维护 Node、
+Edge 和 Evidence 目录。Repository 由单一 architecture 约束；CWE/CAPEC 是唯一
+允许 architecture 为空的全局 taxonomy 节点，连接它们的 Edge 仍使用样本 ARM
+architecture。重复 ID、悬空 endpoint/evidence 和跨架构实体立即失败。
+
+知识快照使用独立 `chipchain_knowledge_graph` / format version 1 信封，包含
+architecture、sample IDs、nodes、edges、evidence 和 metadata。加载时全部重新
+构造为 Pydantic 模型并检查跨实体不变量，不能被 Behavior Graph loader 接受。
+
+两张图仅通过结构化字段生成相同 canonical match keys；Phase 5 不消费这些键进行
+链接，也不创建跨图 Edge。完整键格式和 Phase 6 保守建议见 `ENTITY_LINKING.md`。
+
 ### Candidate Search
 
 融合漏洞知识图与行为图，在最大深度、目标架构、允许的层级转换和最低证据要求下生成 Top-N 候选路径。搜索应是可复现的确定性步骤。
@@ -148,8 +169,9 @@ Program Analysis 路径在 Register/HardwareResource 观察处停止。Hardware 
 
 ## 当前实现边界
 
-Phase 0～4B 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
+Phase 0～5 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
 MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、可选 AngrAnalyzer、
 Analysis Ingestion，以及 synthetic ARM ELF 到 Function/CALLS/MMIO Hardware
-Node/GraphPath 的端到端闭环。通用地址分析、漏洞知识图谱、候选攻击链推理、
-证据验证算法、LLM/RAG 和 API 仍未实现。
+Node/GraphPath 的端到端闭环；另有独立 Vulnerability Knowledge Graph、确定性
+Sample 转换、Evidence 目录和 canonical match keys。通用地址分析、跨图实体链接、
+候选攻击链推理、证据验证算法、LLM/RAG 和 API 仍未实现。

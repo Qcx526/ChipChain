@@ -31,6 +31,18 @@ Phase 1 已使用 Pydantic v2 实现 ChipChain 的第一版领域数据契约。
 
 公共模型从 `chipchain.models` 导出，调用者无需依赖内部文件布局。
 
+Phase 5 的独立知识图数据契约位于 `src/chipchain/knowledge/`，不放入上述 Behavior
+Graph 模型：
+
+| 模块 | 当前模型或职责 |
+| --- | --- |
+| `enums.py` | KnowledgeNodeKind、KnowledgeRelationType |
+| `models.py` | KnowledgeNode、KnowledgeEdge、KnowledgeGraphBundle、KnowledgeGraphSnapshot |
+| `builder.py` | VulnerabilitySample 的确定性转换与 Evidence 命名空间 |
+| `repository.py` | KnowledgeGraphRepository 抽象 |
+| `networkx_repository.py` | 独立 MultiDiGraph、Evidence 目录和 JSON 持久化 |
+| `match_keys.py` | 精确 canonical entity match keys |
+
 ## 稳定枚举
 
 - Architecture：`arm`、`risc_v`、`powerpc`、`sparc`、`loongarch`
@@ -140,11 +152,39 @@ DemoProgramSpec、DemoFunctionSpec、DemoCallSpec、DemoIoctlSpec 和 DemoMMIOAc
 
 Phase 4B 的 `MemoryMap` / `MemoryRegion` 是 Analyzer 配置模型，不是漏洞知识图谱。
 Region 使用规范十六进制 inclusive range，绑定 architecture，拒绝倒置范围、重复 ID
-和重叠；`resource_kind` 仅允许 Register/HardwareResource。它只把已由真实 IR
+和重叠；`resource_kind` 仅允许 Register/HardwareResource，Register 还必须满足
+`start == end`。它只把已由真实 IR
 可靠解析且命中 region 的地址分类为 MMIO。
+
+## Vulnerability Knowledge Graph 数据契约
+
+`KnowledgeNode` 包含稳定 ID、kind、label、可选 layer、external IDs、match keys、
+Evidence 引用和 metadata。只有 CWE/CAPEC 可使用 `architecture=None` 且不得声明
+layer；Vulnerability、Component、Trigger、Precondition、Behavior、Interface、
+HardwareResource、SecurityMechanism、Impact 和 RootCause 都必须带具体架构。
+
+`KnowledgeEdge` 使用独立的语义关系：HAS_CWE、HAS_CAPEC、AFFECTS_COMPONENT、
+HAS_TRIGGER、REQUIRES_PRECONDITION、INVOLVES_BEHAVIOR、USES_INTERFACE、
+TARGETS_RESOURCE、INVOLVES_SECURITY_MECHANISM、LEADS_TO_IMPACT 和
+HAS_ROOT_CAUSE。CALLS、MMIO_READ/MMIO_WRITE 等程序观察关系不属于知识枚举。
+
+`KnowledgeGraphBundle` 自包含 architecture、sample IDs、nodes、edges、Evidence
+目录和 metadata，并检查：
+
+1. Node、Edge、Evidence 和 sample ID 各自唯一；
+2. Edge endpoint 存在；
+3. Node/Edge architecture 与 bundle 一致，允许 endpoint 是全局 taxonomy；
+4. Node/Edge 的 Evidence 引用都存在；
+5. JSON round-trip 后重新执行相同校验。
+
+Builder 为非 taxonomy 节点使用 architecture + sample ID + local ID 的稳定身份；
+无显式 ID 的 Trigger/Precondition 使用规范 JSON 的 SHA-256 短摘要。全局 CWE/CAPEC
+按规范化 taxonomy ID 去重。Evidence 被复制为
+`sample:<sample-id>:evidence:<local-id>`，所有引用同步映射，源 Sample 不被修改。
+源关系没有 Evidence 时保留空列表，不生成伪证据。
 
 Demo Evidence 固定 `type=static_analysis`、`source=demo_analyzer`、`verified=true`、`metadata.fixture=true`。其中 confidence 1.0 只表示该关系由确定性 fixture 明确给出，不表示真实漏洞或攻击可信度。
 
 ## 当前边界
 
-模型只负责结构和明确的领域不变量，不执行候选攻击链推理、真实漏洞检测或证据真实性判断。Phase 3 DemoAnalyzer 生产程序观察，Phase 2 GraphRepository 消费 Node/Edge 并返回独立 GraphPath；后续 Candidate Search 才能把结构路径与漏洞知识组合，Verifier 可以更新逐边状态后重新构造并校验 AttackChain。
+模型只负责结构和明确的领域不变量，不执行候选攻击链推理、真实漏洞检测或证据真实性判断。ProgramAnalyzer 生产程序观察，Behavior Graph 返回独立 GraphPath；Phase 5 Builder 生产独立漏洞知识描述。后续 Candidate Search 才能通过受控实体链接组合两张图，Verifier 可以更新逐边状态后重新构造并校验 AttackChain。

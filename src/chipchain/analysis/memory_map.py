@@ -57,6 +57,11 @@ class MemoryRegion(DomainModel):
 
         if self.start_address > self.end_address:
             raise ValueError("memory region start must not exceed end")
+        if (
+            self.resource_kind is NodeKind.REGISTER
+            and self.start_address != self.end_address
+        ):
+            raise ValueError("register memory regions must identify one address")
         return self
 
     @property

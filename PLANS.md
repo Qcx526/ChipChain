@@ -2,9 +2,9 @@
 
 ## 当前状态
 
-Phase 0～Phase 4B 已完成。Phase 4A/4B 在 Candidate Search 之前补齐真实 ARM
-ELF 静态分析与软件到硬件 MMIO 观察；每个后续阶段仍须在测试、复核和文档
-更新后才能关闭。
+Phase 0～Phase 5 已完成。Phase 5 在 Candidate Search 之前建立了与 Behavior
+Graph 分离的 Vulnerability Knowledge Graph，以及供后续精确实体链接使用的
+canonical match keys；每个后续阶段仍须在测试、复核和文档更新后才能关闭。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -103,12 +103,26 @@ Memory Map 时才生成软件到硬件 MMIO 行为边。
 结果可 round-trip、Ingest 并查询 software→hardware GraphPath；未生成漏洞结论，
 未开始 Phase 5。
 
+## Phase 5：Vulnerability Knowledge Graph MVP（已完成）
+
+目标：把严格 `VulnerabilitySample` 确定性转换为独立、可持久化、保留证据的
+ARM 漏洞知识图，不执行候选链搜索或跨图融合。
+
+- [x] 实现独立 KnowledgeNode/KnowledgeEdge/KnowledgeGraphBundle 和知识关系枚举
+- [x] 只允许全局 CWE/CAPEC 省略 architecture，具体实体和 Edge 保持 ARM 一致
+- [x] 实现确定性 VulnerabilityKnowledgeBuilder 与稳定、样本作用域实体 ID
+- [x] 对 Evidence 做 `sample:<sample-id>:evidence:<local-id>` 命名空间复制
+- [x] 将 Trigger/Precondition 保留为节点，不发明缺失证据
+- [x] 实现独立 KnowledgeGraphRepository 和 NetworkX MultiDiGraph 后端
+- [x] 实现 `chipchain_knowledge_graph` v1 JSON 快照、Evidence 目录和重新校验加载
+- [x] 定义 address、Memory Map、component 和 interface canonical match keys
+- [x] 建立与 Phase 4B `0x40000000` 硬件锚点一致的自有 synthetic ARM fixture
+- [x] 强化 Register MemoryRegion 必须为单地址，并完成测试、Demo 和文档
+
+退出条件：知识模型、转换、证据命名空间、存储、持久化、全局 taxonomy 去重、
+ARM 硬件匹配键和完整回归均通过；两张图仍无跨图 Edge，未实现 Phase 6。
+
 ## 后续路线（尚未实施）
-
-### Phase 5：Vulnerability Knowledge Graph MVP
-
-规范化防御性漏洞、弱点、硬件资源、架构约束和来源证据，建立与行为图分离但
-可受控关联的知识图谱。先使用可审计 fixture/公开数据子集，不下载或伪造 CVE。
 
 ### Phase 6：Candidate Chain Search
 

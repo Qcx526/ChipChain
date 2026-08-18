@@ -10,6 +10,12 @@ import pytest
 
 from chipchain.analysis import DemoAnalyzer, ProgramAnalysisResult, ProgramArtifact
 from chipchain.graph import NetworkXGraphRepository, build_arm_demo_graph
+from chipchain.knowledge import (
+    KnowledgeGraphBundle,
+    NetworkXKnowledgeGraphRepository,
+    VulnerabilityKnowledgeBuilder,
+)
+from chipchain.models import VulnerabilitySample
 
 FIXTURE_DIRECTORY = Path(__file__).parent / "fixtures"
 
@@ -40,6 +46,35 @@ def arm_demo_graph() -> NetworkXGraphRepository:
     """Return a fresh synthetic ARM MultiDiGraph repository."""
 
     return build_arm_demo_graph()
+
+
+@pytest.fixture
+def synthetic_arm_knowledge_sample() -> VulnerabilitySample:
+    """Load the owned Phase 5 ARM vulnerability knowledge fixture."""
+
+    return VulnerabilitySample.model_validate(
+        load_fixture_data("knowledge/synthetic_arm_vulnerability.json")
+    )
+
+
+@pytest.fixture
+def synthetic_arm_knowledge_bundle(
+    synthetic_arm_knowledge_sample: VulnerabilitySample,
+) -> KnowledgeGraphBundle:
+    """Build a fresh deterministic bundle from the owned fixture."""
+
+    return VulnerabilityKnowledgeBuilder().build(synthetic_arm_knowledge_sample)
+
+
+@pytest.fixture
+def synthetic_arm_knowledge_repository(
+    synthetic_arm_knowledge_bundle: KnowledgeGraphBundle,
+) -> NetworkXKnowledgeGraphRepository:
+    """Return a fresh independent knowledge repository."""
+
+    return NetworkXKnowledgeGraphRepository.from_bundle(
+        synthetic_arm_knowledge_bundle
+    )
 
 
 @pytest.fixture

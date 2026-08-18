@@ -19,9 +19,15 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - 严格 Program Layer 与显式、架构绑定的 Memory Map 分析配置
 - 基于真实 ARM/VEX 常量地址解析的 MMIO_READ/MMIO_WRITE 与 Hardware Node
 - Driver Function → Hardware Register 的真实机器码跨层 GraphPath
+- 与 Behavior Graph 分离的 Vulnerability Knowledge Graph 领域模型和存储接口
+- `VulnerabilitySample` 到知识节点、语义关系和 Evidence 目录的确定性转换
+- ARM 硬件地址、Memory Map region、Component 和 Interface canonical match keys
+- `chipchain_knowledge_graph` v1 稳定 JSON 快照与自有 synthetic ARM KG fixture
 - 不依赖外部服务的领域模型、图仓库与程序分析测试
 
-当前尚未实现通用跨块/跨函数地址分析、漏洞知识图谱、候选攻击链推理、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
+当前尚未实现通用跨块/跨函数地址分析、行为图与知识图实体链接、候选攻击链
+推理、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步
+加入。
 
 ## 环境要求
 
@@ -164,11 +170,25 @@ Phase 4B 的真实 ARM MMIO 跨层示例：
 unresolved 地址只进入诊断。MMIO Evidence 的 confidence 表示静态关系观察的
 确定程度，不是漏洞可信度。
 
+## Vulnerability Knowledge Graph Example
+
+Phase 5 示例读取仓库自有、明确标记为 fixture/synthetic 的 ARM
+`VulnerabilitySample`，构建独立 Knowledge Graph 并打印硬件 match keys：
+
+```powershell
+.\.venv\Scripts\python examples\arm_vulnerability_kg_demo.py
+```
+
+该图保存漏洞样本的结构化描述和来源证据，不与 Behavior Graph 建立 Edge，
+不执行 Candidate Search，也不表示漏洞或攻击链已确认。实体链接键约定见
+[实体链接契约](docs/ENTITY_LINKING.md)。
+
 ## 文档导航
 
 - [项目范围](docs/PROJECT_SCOPE.md)
 - [系统架构](docs/ARCHITECTURE.md)
 - [数据模型](docs/DATA_MODEL.md)
+- [实体链接契约](docs/ENTITY_LINKING.md)
 - [评测设计](docs/EVALUATION.md)
 - [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)
 - [阶段计划](PLANS.md)
