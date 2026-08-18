@@ -101,7 +101,27 @@ architecture、sample IDs、nodes、edges、evidence 和 metadata。加载时全
 
 ### Candidate Search
 
-融合漏洞知识图与行为图，在最大深度、目标架构、允许的层级转换和最低证据要求下生成 Top-N 候选路径。搜索应是可复现的确定性步骤。
+Phase 6 不合并两张图。`ExactHardwareEntityLinker` 只读两个 Repository，以
+architecture 为第一层过滤，并对 Behavior Hardware Node 推导的 canonical keys
+与 Knowledge HardwareResource.match_keys 求精确交集。每个交集产生独立
+`EntityLink`；一个寄存器关联多个漏洞资源时保留全部链接。
+
+`CrossGraphCandidateSearcher` 先取得 linkable Behavior anchor，再以 anchor 为明确
+target 调用有界 `GraphRepository.find_paths`。路径遍历只允许 firmware、driver、
+interface、hardware layer，以及 CALLS、ISSUES、INVOKES、DATA_FLOWS_TO、
+MMIO_READ、MMIO_WRITE、ACCESSES relation。路径必须跨至少两个 layer 且包含
+hardware。`allowed_relations` 在 GraphRepository 遍历过程中应用，旧调用保持兼容。
+
+对于每个可达链接，Searcher 查询指向 Knowledge HardwareResource 的 incoming
+TARGETS_RESOURCE Edge，并要求其原始 source 是 Vulnerability。它不会反转或新增
+KnowledgeEdge，而是收集该 Vulnerability 的一跳 Trigger、Precondition、CWE、
+CAPEC、Component、Behavior、Interface、HardwareResource、SecurityMechanism、
+Impact 和 RootCause 上下文。
+
+结果 `CrossGraphCandidate` 保存 GraphPath、EntityLink、原向知识 Edge ID、上下文
+Node ID 和 Evidence ID。它只是“行为路径末端通过精确身份锚点关联到漏洞知识”的
+未验证结构相关性，不是 AttackChain，不包含可利用性、权限提升或概率评分。
+完整语义见 `docs/CANDIDATE_SEARCH.md`。
 
 ### Knowledge Retrieval and LLM
 
@@ -169,9 +189,10 @@ Program Analysis 路径在 Register/HardwareResource 观察处停止。Hardware 
 
 ## 当前实现边界
 
-Phase 0～5 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
+Phase 0～6 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
 MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、可选 AngrAnalyzer、
 Analysis Ingestion，以及 synthetic ARM ELF 到 Function/CALLS/MMIO Hardware
 Node/GraphPath 的端到端闭环；另有独立 Vulnerability Knowledge Graph、确定性
-Sample 转换、Evidence 目录和 canonical match keys。通用地址分析、跨图实体链接、
-候选攻击链推理、证据验证算法、LLM/RAG 和 API 仍未实现。
+Sample 转换、Evidence 目录、canonical match keys、Exact Hardware EntityLink 和
+CrossGraphCandidate Search。通用地址分析、Candidate 到 AttackChain 投影、条件
+满足性和证据验证算法、LLM/RAG 和 API 仍未实现。

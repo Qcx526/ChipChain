@@ -2,9 +2,9 @@
 
 ## 当前状态
 
-Phase 5 只定义可审计的精确匹配键，不执行实体链接，不生成跨图 Edge，也不搜索
-候选攻击链。行为图和漏洞知识图分别保存、分别加载，并使用不同的节点、关系和
-JSON 快照格式。
+Phase 6 已实现 Hardware Anchor 的精确实体链接。行为图和漏洞知识图仍分别保存、
+分别加载，并使用不同的节点、关系和 JSON 快照格式；链接结果是独立 `EntityLink`
+对象，不是跨图 Edge，也不会写回任一 Repository。
 
 ## 为什么 Node ID 不能直接相等
 
@@ -52,12 +52,23 @@ HardwareResource 都明确指向 `0x40000000`、`synthetic-arm-mmio-map` 和
 完全相等。`resource_kind=register` 的 MemoryRegion 还必须满足 `start == end`，
 避免用一个范围冒充单个寄存器。
 
-## Phase 6 可采用的保守链接步骤
+## Phase 6 精确链接步骤
 
 1. 先强制 architecture 相等；全局 CWE/CAPEC 不作为硬件链接端点。
 2. 对两边 canonical key 集合求交，只接受结构化键的精确相等。
-3. 为每个链接结果保留两端 Node ID、相交键、来源和证据引用。
-4. 多候选、键冲突或字段缺失时返回未链接/歧义，不使用名称猜测补全。
-5. 链接结果应是独立的候选映射数据，不回写或覆盖任一源图节点。
+3. 为每个链接结果保留两端 Node ID、相交键、link method 和审计 metadata。
+4. 一个 Behavior Hardware Node 可链接多个 Knowledge HardwareResource，每个精确
+   匹配都保留，不把 one-to-many 当作歧义。
+5. 字段缺失或无交集时记录 unmatched，不使用名称、编辑距离、embedding 或 LLM
+   猜测补全。
+6. Link ID 由 architecture 和两端 Node ID 的稳定 SHA-256 摘要产生。
+7. 链接结果应是独立的候选映射数据，不回写或覆盖任一源图节点。
 
-这些步骤是 Phase 6 建议，不属于当前实现。
+第一版只支持 Behavior Register/HardwareResource 到 Knowledge HardwareResource。
+Component/Interface 虽已有 match key contract，但尚未加入 Linker。
+
+## EntityLink 的有限语义
+
+`EntityLink` 只说明两端实体具有至少一个完全相同的 canonical identity anchor。
+它不说明漏洞存在、Trigger/Precondition 已满足、行为能够利用漏洞或攻击链已验证。
+Phase 6 Candidate Search 如何消费链接结果见 `CANDIDATE_SEARCH.md`。

@@ -84,14 +84,17 @@ class GraphRepository(ABC):
         max_hops: int,
         target_id: str | None = None,
         allowed_layers: AbstractSet[Layer] | None = None,
+        allowed_relations: AbstractSet[RelationType] | None = None,
         max_results: int | None = None,
     ) -> list[GraphPath]:
         """Find directed simple paths under architecture and optional layer constraints.
 
         ``max_hops`` counts edges, not nodes. When ``allowed_layers`` is provided,
-        every node in every returned path belongs to that set. Without a target,
-        all reachable paths with 1..max_hops edges are eligible. A target equal to
-        the start node yields the valid zero-hop path.
+        every node in every returned path belongs to that set. When
+        ``allowed_relations`` is provided, disallowed edges are excluded during
+        traversal. Without a target, all reachable paths with 1..max_hops edges
+        are eligible. A target equal to the start node yields the valid zero-hop
+        path.
         """
 
     @abstractmethod

@@ -148,6 +148,46 @@ def test_allowed_layers_apply_to_every_path_node(
     assert paths == []
 
 
+def test_allowed_relations_filter_during_traversal(
+    arm_demo_graph: NetworkXGraphRepository,
+) -> None:
+    """Disallowed semantic edges cannot occur inside a returned path."""
+
+    only_program_relations = {
+        RelationType.CALLS,
+        RelationType.ISSUES,
+        RelationType.INVOKES,
+        RelationType.MMIO_WRITE,
+    }
+    paths = query_register_paths(
+        arm_demo_graph,
+        allowed_relations=only_program_relations,
+    )
+    no_interface_issue = query_register_paths(
+        arm_demo_graph,
+        allowed_relations={
+            RelationType.CALLS,
+            RelationType.INVOKES,
+            RelationType.MMIO_WRITE,
+        },
+    )
+
+    assert len(paths) == 1
+    assert paths[0].edge_ids[0] == "fixture_edge_issues_ioctl"
+    assert no_interface_issue == []
+
+
+def test_omitting_allowed_relations_preserves_existing_results(
+    arm_demo_graph: NetworkXGraphRepository,
+) -> None:
+    """The Phase 6 extension remains fully backward compatible."""
+
+    assert query_register_paths(arm_demo_graph) == query_register_paths(
+        arm_demo_graph,
+        allowed_relations=None,
+    )
+
+
 def test_max_results_is_applied_after_deterministic_sorting(
     arm_demo_graph: NetworkXGraphRepository,
 ) -> None:

@@ -2,9 +2,10 @@
 
 ## 当前状态
 
-Phase 0～Phase 5 已完成。Phase 5 在 Candidate Search 之前建立了与 Behavior
-Graph 分离的 Vulnerability Knowledge Graph，以及供后续精确实体链接使用的
-canonical match keys；每个后续阶段仍须在测试、复核和文档更新后才能关闭。
+Phase 0～Phase 6 已完成。Phase 6 使用 canonical match keys 在不合并源图的前提下
+建立 Exact Hardware Entity Link，并从可达跨层 Behavior GraphPath 与直接漏洞知识
+上下文生成未验证 CrossGraphCandidate；每个后续阶段仍须在测试、复核和文档更新
+后才能关闭。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -122,12 +123,27 @@ ARM 漏洞知识图，不执行候选链搜索或跨图融合。
 退出条件：知识模型、转换、证据命名空间、存储、持久化、全局 taxonomy 去重、
 ARM 硬件匹配键和完整回归均通过；两张图仍无跨图 Edge，未实现 Phase 6。
 
+## Phase 6：Exact Entity Linking + Candidate Search（已完成）
+
+目标：保持 Behavior Graph 与 Knowledge Graph 独立，以精确硬件身份锚点关联可达
+程序路径和已有漏洞知识上下文，生成未验证的结构候选。
+
+- [x] 实现独立 EntityLink、EntityLinkResult 和 exact_canonical_key 方法
+- [x] 仅链接 Register/HardwareResource → Knowledge HardwareResource
+- [x] architecture 先行过滤并支持一个 Behavior Anchor 对多个 Knowledge Resource
+- [x] 为 GraphRepository 增加遍历期 `allowed_relations` 向后兼容过滤
+- [x] 实现 CrossGraphCandidate、稳定 ID、跨层和 Hardware layer 约束
+- [x] 从 linkable anchor 反推目标路径，不枚举全部无目标路径
+- [x] 按原方向发现 Vulnerability → TARGETS_RESOURCE → HardwareResource
+- [x] 收集 Vulnerability 的一跳 Trigger/Precondition/CWE/CAPEC/Impact 等上下文
+- [x] 聚合 Behavior/Knowledge Evidence ID 并保留缺失知识证据状态
+- [x] 完成多漏洞展开、只读性、负向测试及 Phase 4B + Phase 5 真实 fixture Demo
+
+退出条件：Exact Linker 与 Candidate Search 可独立测试；一个寄存器可产生多个链接
+和候选；搜索结果确定、跨层、保留原 KG 方向和 Evidence ID；源 Repository 不变；
+未生成 AttackChain，未启动 LLM/RAG/Multi-Agent。
+
 ## 后续路线（尚未实施）
-
-### Phase 6：Candidate Chain Search
-
-在 ARM、层级、关系、深度和证据约束下，以确定性搜索融合知识图与程序行为图，
-只生成候选路径，不宣称已验证攻击链。
 
 ### Phase 7：Architecture RAG + LLM Provider
 

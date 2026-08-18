@@ -43,6 +43,16 @@ Graph 模型：
 | `networkx_repository.py` | 独立 MultiDiGraph、Evidence 目录和 JSON 持久化 |
 | `match_keys.py` | 精确 canonical entity match keys |
 
+Phase 6 的第三类相关性对象位于 `src/chipchain/candidate/`：
+
+| 模块 | 当前模型或职责 |
+| --- | --- |
+| `enums.py` | 仅支持 `exact_canonical_key` 的 EntityLinkMethod |
+| `models.py` | EntityLink、EntityLinkResult、CrossGraphCandidate |
+| `linking.py` | Hardware-only exact key intersection |
+| `search.py` | 受限 Behavior target search 与一跳漏洞上下文收集 |
+| `errors.py` | 架构与非法知识上下文异常 |
+
 ## 稳定枚举
 
 - Architecture：`arm`、`risc_v`、`powerpc`、`sparc`、`loongarch`
@@ -183,8 +193,37 @@ Builder 为非 taxonomy 节点使用 architecture + sample ID + local ID 的稳�
 `sample:<sample-id>:evidence:<local-id>`，所有引用同步映射，源 Sample 不被修改。
 源关系没有 Evidence 时保留空列表，不生成伪证据。
 
+## EntityLink 与 CrossGraphCandidate
+
+`EntityLink` 保存 architecture、两端 Node ID/kind、非空精确 match key 交集和
+`exact_canonical_key` 方法。ID 由 architecture 与两端 ID 确定性生成。当前模型
+只接受 Behavior Register/HardwareResource 和 Knowledge HardwareResource；
+CWE/CAPEC 不能作为 endpoint。它不是 BehaviorEdge、KnowledgeEdge 或
+AttackChainEdge。
+
+`EntityLinkResult` 独立保存 links、unmatched Behavior IDs 和 unmatched Knowledge
+IDs，便于单独评测链接能力。一个 Behavior ID 可以出现在多个 EntityLink 中。
+
+`CrossGraphCandidate` 保存：
+
+- 原始 `GraphPath`、对应 path layer 和精确 `EntityLink`；
+- Knowledge Vulnerability/anchor ID 及原方向一跳 Knowledge Edge ID；
+- Component、Trigger、Precondition、CWE、CAPEC、Behavior、Interface、Hardware
+  Resource、Security Mechanism、Impact 和 Root Cause Node ID；
+- Behavior/Knowledge Evidence ID、知识证据计数和缺失知识证据标记；
+- 明确的 `unverified_correlation` metadata。
+
+Candidate 要求 GraphPath/EntityLink architecture 一致、路径终点等于 Behavior
+anchor、Knowledge anchor 等于链接端点、路径跨至少两个 layer 且包含 hardware。
+Candidate ID 由 architecture、GraphPath Node/Edge IDs、EntityLink ID 和
+Vulnerability ID 的稳定摘要生成。所有引用列表拒绝重复并支持 JSON round-trip。
+
 Demo Evidence 固定 `type=static_analysis`、`source=demo_analyzer`、`verified=true`、`metadata.fixture=true`。其中 confidence 1.0 只表示该关系由确定性 fixture 明确给出，不表示真实漏洞或攻击可信度。
 
 ## 当前边界
 
-模型只负责结构和明确的领域不变量，不执行候选攻击链推理、真实漏洞检测或证据真实性判断。ProgramAnalyzer 生产程序观察，Behavior Graph 返回独立 GraphPath；Phase 5 Builder 生产独立漏洞知识描述。后续 Candidate Search 才能通过受控实体链接组合两张图，Verifier 可以更新逐边状态后重新构造并校验 AttackChain。
+模型只负责结构和明确的领域不变量，不执行真实漏洞检测或证据真实性判断。
+ProgramAnalyzer 生产程序观察，Behavior Graph 返回 GraphPath，Phase 5 Builder 生产
+独立漏洞知识，Phase 6 只生成 CrossGraphCandidate。后续阶段完成条件满足性、架构
+知识检索和验证后，才可讨论投影为 `AttackChain(status=candidate)`；当前不得把
+CrossGraphCandidate 解释成已验证 AttackChain。

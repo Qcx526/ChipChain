@@ -23,11 +23,14 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - `VulnerabilitySample` 到知识节点、语义关系和 Evidence 目录的确定性转换
 - ARM 硬件地址、Memory Map region、Component 和 Interface canonical match keys
 - `chipchain_knowledge_graph` v1 稳定 JSON 快照与自有 synthetic ARM KG fixture
-- 不依赖外部服务的领域模型、图仓库与程序分析测试
+- Exact Hardware EntityLink、one-to-many 链接结果和未匹配诊断
+- 受 architecture、layer、relation、hop 约束的 CrossGraphCandidate Search
+- Phase 4B ARM ELF + Phase 5 Knowledge Fixture 的端到端未验证候选 Demo
+- 不依赖外部服务的领域模型、图仓库、程序分析与候选搜索测试
 
-当前尚未实现通用跨块/跨函数地址分析、行为图与知识图实体链接、候选攻击链
-推理、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步
-加入。
+当前尚未实现通用跨块/跨函数地址分析、Candidate 到 AttackChain 的语义投影、
+Trigger/Precondition 满足性验证、证据评分、LLM、RAG 或 API；这些能力会按
+[PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
 
 ## 环境要求
 
@@ -183,12 +186,26 @@ Phase 5 示例读取仓库自有、明确标记为 fixture/synthetic 的 ARM
 不执行 Candidate Search，也不表示漏洞或攻击链已确认。实体链接键约定见
 [实体链接契约](docs/ENTITY_LINKING.md)。
 
+## Exact Candidate Correlation Example
+
+Phase 6 示例复用真实 ARM MMIO ELF 和 Phase 5 synthetic knowledge fixture：
+
+```powershell
+.\.venv\Scripts\python examples\arm_candidate_search_demo.py
+```
+
+它先独立构建 Behavior/Knowledge Repository，通过硬件 canonical key 精确链接，
+再查找可达跨层 GraphPath 和 Vulnerability 的一跳知识上下文。输出是
+`unverified correlation`，不是已验证漏洞或 AttackChain。搜索设计见
+[Candidate Search](docs/CANDIDATE_SEARCH.md)。
+
 ## 文档导航
 
 - [项目范围](docs/PROJECT_SCOPE.md)
 - [系统架构](docs/ARCHITECTURE.md)
 - [数据模型](docs/DATA_MODEL.md)
 - [实体链接契约](docs/ENTITY_LINKING.md)
+- [Candidate Search](docs/CANDIDATE_SEARCH.md)
 - [评测设计](docs/EVALUATION.md)
 - [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)
 - [阶段计划](PLANS.md)

@@ -198,6 +198,7 @@ class NetworkXGraphRepository(GraphRepository):
         max_hops: int,
         target_id: str | None = None,
         allowed_layers: AbstractSet[Layer] | None = None,
+        allowed_relations: AbstractSet[RelationType] | None = None,
         max_results: int | None = None,
     ) -> list[GraphPath]:
         """Find deterministic directed simple paths while filtering during traversal."""
@@ -209,6 +210,7 @@ class NetworkXGraphRepository(GraphRepository):
 
         normalized_architecture = Architecture(architecture)
         normalized_layers = self._normalize_layers(allowed_layers)
+        normalized_relations = self._normalize_relations(allowed_relations)
         start = self.get_node(start_id)
         target = self.get_node(target_id) if target_id is not None else None
 
@@ -249,6 +251,11 @@ class NetworkXGraphRepository(GraphRepository):
                 edge = BehaviorEdge.model_validate(dict(edge_data))
                 next_node = self.get_node(next_id)
                 if edge.architecture is not normalized_architecture:
+                    continue
+                if (
+                    normalized_relations is not None
+                    and edge.relation not in normalized_relations
+                ):
                     continue
                 if next_node.architecture is not normalized_architecture:
                     continue
@@ -337,3 +344,13 @@ class NetworkXGraphRepository(GraphRepository):
         if allowed_layers is None:
             return None
         return frozenset(Layer(item) for item in allowed_layers)
+
+    @staticmethod
+    def _normalize_relations(
+        allowed_relations: AbstractSet[RelationType] | None,
+    ) -> frozenset[RelationType] | None:
+        """Normalize optional relation filters before traversal."""
+
+        if allowed_relations is None:
+            return None
+        return frozenset(RelationType(item) for item in allowed_relations)
