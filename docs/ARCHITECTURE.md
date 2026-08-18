@@ -63,6 +63,13 @@ Phase 4A 的可选 `AngrAnalyzer` 使用 `angr.Project(auto_load_libs=False)` �
 才动态导入；基础安装和 DemoAnalyzer 不依赖它。实现、环境矩阵和真实 MMIO
 地址解析边界见 `docs/ANGR_INTEGRATION_PLAN.md`。
 
+Phase 4B 为 `ProgramArtifact` 增加向后兼容的 firmware/driver 程序层，并通过
+`AngrAnalyzer(memory_map=...)` 接收严格、显式、架构绑定的 Memory Map。Adapter
+在每个函数 basic block 的未优化 VEX IR 上进行有限常量传播；只有真实 Load/Store
+地址解析为常量且落入配置 region 时，才生成 Function → Register/HardwareResource
+的 MMIO_READ/MMIO_WRITE。具体 RAM 地址和 unresolved 地址分别计入 diagnostics，
+均不产生 MMIO Edge。
+
 ### Graph Storage
 
 `GraphRepository` 统一节点、边、方向邻接和路径查询，不向调用者暴露 NetworkX 类型。MVP 的 `NetworkXGraphRepository` 使用 `MultiDiGraph`，以全局唯一的 `BehaviorEdge.id` 作为 edge key，因此相同 source/target 之间的 CALLS、DATA_FLOWS_TO 等关系可以共存。
@@ -113,8 +120,8 @@ JSON 快照使用 `chipchain_graph` / format version 1 信封，保存排序后�
 ## Program Analysis 数据流
 
 ```text
-DemoProgramSpec JSON             ARM ELF
-        ↓ validate                 ↓ CFGFast
+DemoProgramSpec JSON        ARM ELF + explicit MemoryMap
+        ↓ validate             ↓ CFGFast + VEX resolver
 DemoAnalyzer                   AngrAnalyzer
         └──────────────┬────────────┘
                        ↓ normalize
@@ -141,8 +148,8 @@ Program Analysis 路径在 Register/HardwareResource 观察处停止。Hardware 
 
 ## 当前实现边界
 
-Phase 0～4A 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
+Phase 0～4B 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
 MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、可选 AngrAnalyzer、
-Analysis Ingestion，以及 synthetic ARM ELF 到 Function/CALLS/GraphPath 的端到端
-闭环。真实 MMIO、漏洞知识图谱、候选攻击链推理、证据验证算法、LLM/RAG 和
-API 仍未实现。
+Analysis Ingestion，以及 synthetic ARM ELF 到 Function/CALLS/MMIO Hardware
+Node/GraphPath 的端到端闭环。通用地址分析、漏洞知识图谱、候选攻击链推理、
+证据验证算法、LLM/RAG 和 API 仍未实现。

@@ -1,0 +1,25 @@
+{
+  "id": "synthetic-arm-mmio-map",
+  "architecture": "arm",
+  "regions": [
+    {
+      "id": "fixture-mmio-register",
+      "name": "FIXTURE_MMIO_REGISTER",
+      "start": "0x40000000",
+      "end": "0x40000000",
+      "kind": "mmio",
+      "resource_kind": "register",
+      "metadata": {
+        "fixture": true,
+        "synthetic": true,
+        "owned": true,
+        "purpose": "phase4b address classification"
+      }
+    }
+  ],
+  "metadata": {
+    "fixture": true,
+    "synthetic": true,
+    "owned": true
+  }
+}

@@ -122,7 +122,7 @@ python scripts/export_schema.py
 
 Phase 3 在 `chipchain.analysis` 中增加两个存储无关模型：
 
-- `ProgramArtifact`：artifact ID、architecture、artifact type、可选 path / fixture identifier 和 JSON metadata；至少要有一种定位方式。
+- `ProgramArtifact`：artifact ID、architecture、artifact type、可选 path / fixture identifier、JSON metadata，以及默认 firmware、只允许 firmware/driver 的 `program_layer`；至少要有一种定位方式。
 - `ProgramAnalysisResult`：Artifact、architecture、BehaviorNode、BehaviorEdge、Evidence 和 metadata。
 
 ProgramAnalysisResult 保证：
@@ -137,6 +137,11 @@ ProgramAnalysisResult 保证：
 DemoProgramSpec、DemoFunctionSpec、DemoCallSpec、DemoIoctlSpec 和 DemoMMIOAccessSpec 是 DemoAnalyzer 私有输入格式，不从 `chipchain.models` 公共 API 导出。它们描述分析输入语义，DemoAnalyzer 再转换成全局领域模型。
 
 函数的 `sensitive` / `sensitive_reasons` 放在 BehaviorNode metadata，避免为一个分析 marker 扩大领域模型。CALL XRef 通过 CALLS Edge 引用带 call-site address 的 Evidence 表示。MMIO Register Node 保存 fixture address，MMIO Edge 和 Evidence 分别保存关系与指令位置。
+
+Phase 4B 的 `MemoryMap` / `MemoryRegion` 是 Analyzer 配置模型，不是漏洞知识图谱。
+Region 使用规范十六进制 inclusive range，绑定 architecture，拒绝倒置范围、重复 ID
+和重叠；`resource_kind` 仅允许 Register/HardwareResource。它只把已由真实 IR
+可靠解析且命中 region 的地址分类为 MMIO。
 
 Demo Evidence 固定 `type=static_analysis`、`source=demo_analyzer`、`verified=true`、`metadata.fixture=true`。其中 confidence 1.0 只表示该关系由确定性 fixture 明确给出，不表示真实漏洞或攻击可信度。
 

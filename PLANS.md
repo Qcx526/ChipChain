@@ -2,8 +2,9 @@
 
 ## 当前状态
 
-Phase 0～Phase 4 已完成。Phase 4 在 Candidate Search 之前补齐真实 ARM ELF
-静态分析能力；每个后续阶段仍须在测试、复核和文档更新后才能关闭。
+Phase 0～Phase 4B 已完成。Phase 4A/4B 在 Candidate Search 之前补齐真实 ARM
+ELF 静态分析与软件到硬件 MMIO 观察；每个后续阶段仍须在测试、复核和文档
+更新后才能关闭。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -80,6 +81,27 @@ Phase 0～Phase 4 已完成。Phase 4 在 Candidate Search 之前补齐真实 AR
 退出条件：当前隔离环境可运行 angr；可审计 ARM ELF 能生成 Function、CALLS 和
 call-site Evidence；结果可 round-trip、Ingest 和查询 GraphPath；未解析调用不被
 伪造；全部测试通过；未产生漏洞结论或提前实现后续阶段。
+
+## Phase 4B：Real ARM MMIO / Cross-Layer Observation（已完成）
+
+目标：从真实 ARM load/store 的可解析 effective address 出发，只有命中显式
+Memory Map 时才生成软件到硬件 MMIO 行为边。
+
+- [x] 为 `ProgramArtifact` 增加默认 firmware、严格限于 firmware/driver 的 `program_layer`
+- [x] 实现架构绑定、规范十六进制、包含端点、无重叠的 `MemoryMap` / `MemoryRegion`
+- [x] 通过 `AngrAnalyzer(memory_map=...)` 注入配置，保持 `analyze(artifact)` 契约
+- [x] 使用未优化 VEX IR 做块内寄存器/临时变量常量传播，不按指令类型猜 MMIO
+- [x] 建立独立自有 ARM MMIO ELF、源码、生成脚本、SHA-256、Memory Map 和 Ground Truth
+- [x] 恢复已解析 MMIO_READ/MMIO_WRITE、确定性 Hardware Node 和 Static Evidence
+- [x] 普通 RAM 与 unresolved/symbolic 地址只记录诊断，不生成 MMIO Edge
+- [x] 保留 Function、CALLS、call-site Evidence 和 unresolved call 语义
+- [x] 复用 `ProgramAnalysisResult`、Ingestion、GraphRepository 和 GraphPath
+- [x] 完成 Driver Function → Hardware Register 真实跨层 Demo 和完整回归测试
+
+退出条件：Program Layer 与 Memory Map 输入严格可验证；只有真实 load/store 的
+可靠地址命中显式 MMIO region 才产生 Edge；RAM/unresolved 不误判；CALLS 保持；
+结果可 round-trip、Ingest 并查询 software→hardware GraphPath；未生成漏洞结论，
+未开始 Phase 5。
 
 ## 后续路线（尚未实施）
 

@@ -1,0 +1,76 @@
+{
+  "fixture_type": "synthetic",
+  "owned": true,
+  "vulnerability_sample": false,
+  "architecture": "ARM",
+  "format": "ELF32 little-endian ARM A32",
+  "entry_point": "0x10030",
+  "functions": [
+    {
+      "name": "driver_like_function",
+      "address": "0x10000",
+      "size": 48
+    },
+    {
+      "name": "main",
+      "address": "0x10030",
+      "size": 12
+    }
+  ],
+  "calls": [
+    {
+      "caller": "main",
+      "callee": "driver_like_function",
+      "callsite": "0x10034",
+      "instruction": "bl driver_like_function"
+    }
+  ],
+  "expected_mmio_accesses": [
+    {
+      "function": "driver_like_function",
+      "instruction_address": "0x10008",
+      "instruction": "str r0, [r1]",
+      "access_type": "mmio_write",
+      "target": "0x40000000",
+      "region": "fixture-mmio-register"
+    },
+    {
+      "function": "driver_like_function",
+      "instruction_address": "0x1000c",
+      "instruction": "str r0, [r1]",
+      "access_type": "mmio_write",
+      "target": "0x40000000",
+      "region": "fixture-mmio-register"
+    },
+    {
+      "function": "driver_like_function",
+      "instruction_address": "0x10010",
+      "instruction": "ldr r4, [r1]",
+      "access_type": "mmio_read",
+      "target": "0x40000000",
+      "region": "fixture-mmio-register"
+    }
+  ],
+  "non_mmio_accesses": [
+    {
+      "instruction_address": "0x1001c",
+      "instruction": "str r0, [r2]",
+      "target": "0x20001000"
+    },
+    {
+      "instruction_address": "0x10020",
+      "instruction": "ldr r4, [r2]",
+      "target": "0x20001000"
+    }
+  ],
+  "unresolved_memory_accesses": [
+    {
+      "instruction_address": "0x10024",
+      "instruction": "str r0, [r3]"
+    },
+    {
+      "instruction_address": "0x10028",
+      "instruction": "ldr r4, [r5]"
+    }
+  ]
+}

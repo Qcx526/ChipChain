@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 
-from chipchain.models import Architecture, BehaviorEdge, BehaviorNode, Evidence
+from chipchain.models import Architecture, BehaviorEdge, BehaviorNode, Evidence, Layer
 from chipchain.models.common import DomainModel, Identifier, Metadata
 
 
@@ -14,9 +14,19 @@ class ProgramArtifact(DomainModel):
     id: Identifier
     architecture: Architecture
     artifact_type: Identifier
+    program_layer: Layer = Layer.FIRMWARE
     path: Identifier | None = None
     fixture_identifier: Identifier | None = None
     metadata: Metadata = Field(default_factory=dict)
+
+    @field_validator("program_layer")
+    @classmethod
+    def validate_program_layer(cls, value: Layer) -> Layer:
+        """Allow only executable software layers for program artifacts."""
+
+        if value not in {Layer.FIRMWARE, Layer.DRIVER}:
+            raise ValueError("program_layer must be firmware or driver")
+        return value
 
     @model_validator(mode="after")
     def validate_location(self) -> "ProgramArtifact":

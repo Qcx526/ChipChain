@@ -16,9 +16,12 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - 可选 `AngrAnalyzer`：真实 ARM ELF 装载、CFGFast 函数/CALLS 恢复和 call-site Static Evidence
 - 可审计、可重复生成且带 SHA-256/Ground Truth 的 synthetic ARM A32 ELF
 - ARM ELF 到 `ProgramAnalysisResult`、Ingestion 和 GraphPath 的端到端示例
+- 严格 Program Layer 与显式、架构绑定的 Memory Map 分析配置
+- 基于真实 ARM/VEX 常量地址解析的 MMIO_READ/MMIO_WRITE 与 Hardware Node
+- Driver Function → Hardware Register 的真实机器码跨层 GraphPath
 - 不依赖外部服务的领域模型、图仓库与程序分析测试
 
-当前尚未实现 MMIO 地址解析、漏洞知识图谱、候选攻击链推理、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
+当前尚未实现通用跨块/跨函数地址分析、漏洞知识图谱、候选攻击链推理、LLM、RAG 或 API；这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
 
 ## 环境要求
 
@@ -149,6 +152,17 @@ DemoAnalyzer 的 `confidence=1.0` 只表示 fixture 中确定存在该观察关�
 该示例使用仓库自有的 synthetic ARM A32 ELF，恢复 Function、CALLS、call-site
 Evidence，并经现有 Ingestion 查询三跳调用 GraphPath。生成方法、哈希和 Ground
 Truth 见 [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)。
+
+Phase 4B 的真实 ARM MMIO 跨层示例：
+
+```powershell
+.\.venv\Scripts\python examples\arm_angr_mmio_demo.py
+```
+
+该示例从真实 `movw/movt` 和 `LDR/STR` 的 VEX IR 解析 effective address，只有
+命中显式 ARM Memory Map 的 `0x40000000` 才生成 MMIO Edge；普通 RAM 和
+unresolved 地址只进入诊断。MMIO Evidence 的 confidence 表示静态关系观察的
+确定程度，不是漏洞可信度。
 
 ## 文档导航
 

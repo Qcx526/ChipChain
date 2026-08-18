@@ -1,17 +1,19 @@
-# angr 接入说明（Phase 4A 已实现）
+# angr 接入说明（Phase 4A / Phase 4B 已实现）
 
 ## 状态与边界
 
-Phase 4A 已实现 ARM ELF 的真实静态分析最小闭环：
+Phase 4A/4B 已实现 ARM ELF 的真实静态分析和第一条软件到硬件观察闭环：
 
 ```text
-ARM ELF → AngrAnalyzer → ProgramAnalysisResult
+ARM ELF + explicit MemoryMap
+        → AngrAnalyzer / CFGFast / VEX resolver
+        → ProgramAnalysisResult
         → ingest_analysis_result → GraphRepository → GraphPath
 ```
 
 适配器只恢复可观察的函数与调用事实，不输出 CVE、CWE、Hardware
-Weakness、Exploitability、Privilege Escalation 或 AttackChain。Phase 4A 未实现
-MMIO、数据流、污点、符号执行和漏洞检测。
+Weakness、Exploitability、Privilege Escalation 或 AttackChain。Phase 4B 的
+MMIO 只是已解析程序行为观察，仍未实现漏洞检测、通用数据流、污点或符号执行。
 
 ## 已验证环境
 
@@ -49,7 +51,7 @@ angr 不属于基础依赖或 `dev` extra：
 
 ```powershell
 pip install -e ".[dev]"       # Phase 0～3 与非 angr 测试
-pip install -e ".[dev,angr]"  # Phase 4A 集成测试和 Demo
+pip install -e ".[dev,angr]"  # Phase 4A/4B 集成测试和 Demo
 ```
 
 `chipchain.analysis` 可以在未安装 angr 时导入。`AngrAnalyzer` 只在执行
@@ -66,7 +68,8 @@ AngrAnalyzer(ProgramAnalyzer).analyze(
 ) -> ProgramAnalysisResult
 ```
 
-MVP 只接受 `architecture=arm`、`artifact_type=elf` 和存在的文件路径。装载
+MVP 只接受 `architecture=arm`、`artifact_type=elf` 和存在的文件路径；
+`ProgramArtifact.program_layer` 默认为 firmware，只允许 firmware/driver。装载
 使用 `angr.Project(path, auto_load_libs=False)`，恢复使用
 `project.analyses.CFGFast(normalize=True)`。非 ARM、raw binary、缺失文件和
 无效 ELF 都由稳定的 ChipChain 分析异常拒绝。
@@ -138,11 +141,41 @@ main@0x10028
 另有未被调用的 `indirect_dispatch@0x10038`，其 `blx r3@0x1003c` 目标故意
 不受约束，用于证明 unresolved call 不会被伪造成 CALLS Edge。
 
-## MMIO Phase 4B 状态
+## MMIO Phase 4B 实现
 
-MMIO 未实现。单独看到 `STR`/`LDR` 不能证明 MMIO。后续只有在目标地址可靠
-解析且命中显式配置的 known MMIO range 时，才允许生成 MMIO_WRITE/MMIO_READ
-及地址解析证据；否则只记录诊断。
+Memory Map 通过 `AngrAnalyzer(memory_map=...)` 显式注入，公共调用仍为
+`analyze(artifact) -> ProgramAnalysisResult`。`MemoryMap` 绑定 architecture，
+`MemoryRegion` 使用规范十六进制 inclusive range，拒绝倒置、重复 ID 和重叠，
+不在 Analyzer 中硬编码任何 SoC 地址范围。
+
+地址解析使用 `project.factory.block(..., opt_level=0)` 得到未优化 VEX IR，并在
+单个 basic block 内保守传播 register/tmp 常量。当前支持 fixture 所需的 Const、
+Get、RdTmp 以及 Add/Sub/And/Or/Xor/Shl/Shr 整数运算。遇到未知寄存器或不支持
+表达式时返回 unresolved，不猜测地址。
+
+分类必须同时满足：
+
+1. VEX 中存在真实 Load 或 Store；
+2. effective address 被有限传播解析为具体整数；
+3. 该整数命中显式 Memory Map region。
+
+满足后才生成 MMIO_READ/MMIO_WRITE、确定性的 Register/HardwareResource Node，
+以及保存 instruction address/text、resolved target、resolver 和 region 的 Static
+Evidence。MMIO observation confidence 只表示静态关系观察的确定程度，不是漏洞
+confidence。普通 RAM 和 unresolved 地址分别计入
+`non_mmio_memory_accesses` / `unresolved_memory_accesses`，不生成 Edge/Evidence。
+
+自有 fixture 位于 `tests/fixtures/angr/arm_mmio/`：包含 A32 源码、确定性 ELF
+生成器、build script、显式 `memory_map.json`、Ground Truth、SHA-256 和生成 ELF。
+真实机器码同时包含：
+
+- `0x40000000` 的两次 write 和一次 read：命中 `fixture-mmio-register`；
+- `0x20001000` 的普通 RAM write/read：不得分类为 MMIO；
+- `r3` / `r5` 的未知地址 write/read：只记录 unresolved。
+
+端到端结果保留 `main → driver_like_function` CALLS，并增加
+`driver_like_function → FIXTURE_MMIO_REGISTER` MMIO Edge；现有 Ingestion 和
+GraphRepository 可直接查询两跳 Driver → Hardware GraphPath。
 
 ## 已知限制
 
@@ -151,6 +184,9 @@ MMIO 未实现。单独看到 `STR`/`LDR` 不能证明 MMIO。后续只有在目
 - stripped binary 只能获得稳定合成名称，不能恢复语义名称；
 - 间接调用只接受 angr 已可靠解析且命中 main object 函数的目标；
 - 不分析共享库、extern、SimProcedure 或 loader stub；
+- MMIO 常量传播只在 basic block 内，不处理跨块 merge、跨函数参数或 alias；
+- 尚不处理 VEX LoadG、StoreG、CAS、LL/SC、SIMD 或复杂条件内存操作；
+- Memory Map 的正确性由调用方负责，不完整 map 会产生保守漏报；
 - 尚未增加超时、函数预算、大型固件缓存或区域白名单；
 - 本阶段未使用 Unicorn、QEMU 或动态执行；
 - fixture 只验证提取管线，不代表真实固件覆盖率或漏洞检测能力。

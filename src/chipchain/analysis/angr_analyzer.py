@@ -14,6 +14,8 @@ from chipchain.analysis.errors import (
     ProgramAnalysisError,
     UnsupportedArtifactError,
 )
+from chipchain.analysis.memory_map import MemoryMap
+from chipchain.analysis.mmio_analysis import recover_mmio_result_parts
 from chipchain.analysis.models import ProgramAnalysisResult, ProgramArtifact
 from chipchain.models import (
     Architecture,
@@ -34,10 +36,22 @@ class AngrAnalyzer(ProgramAnalyzer):
     using other analyzers does not require the optional native dependency.
     """
 
+    def __init__(self, *, memory_map: MemoryMap | None = None) -> None:
+        """Configure an optional explicit architecture-scoped memory map."""
+
+        self._memory_map = memory_map
+
     def analyze(self, artifact: ProgramArtifact) -> ProgramAnalysisResult:
         """Analyze one ARM ELF without loading libraries or inferring vulnerabilities."""
 
         self._validate_artifact(artifact)
+        if (
+            self._memory_map is not None
+            and self._memory_map.architecture is not artifact.architecture
+        ):
+            raise InvalidAnalysisInputError(
+                "memory map architecture must match artifact architecture"
+            )
         angr = self._load_angr()
         artifact_path = Path(str(artifact.path))
 
@@ -132,18 +146,40 @@ class AngrAnalyzer(ProgramAnalyzer):
             )
             for address, function in sorted(functions.items())
         ]
-        edges, evidence, diagnostics = self._recover_calls(
+        call_edges, call_evidence, call_diagnostics = self._recover_calls(
             artifact=artifact,
             project=project,
             functions=functions,
         )
+        if self._memory_map is None:
+            hardware_nodes: list[BehaviorNode] = []
+            mmio_edges: list[BehaviorEdge] = []
+            mmio_evidence: list[Evidence] = []
+            memory_diagnostics = {
+                "resolved_mmio_accesses": 0,
+                "unresolved_memory_accesses": 0,
+                "non_mmio_memory_accesses": 0,
+            }
+        else:
+            mmio_parts = recover_mmio_result_parts(
+                artifact=artifact,
+                project=project,
+                functions=functions,
+                memory_map=self._memory_map,
+            )
+            hardware_nodes = mmio_parts.nodes
+            mmio_edges = mmio_parts.edges
+            mmio_evidence = mmio_parts.evidence
+            memory_diagnostics = mmio_parts.diagnostics
 
         return ProgramAnalysisResult(
             artifact=artifact,
             architecture=Architecture.ARM,
-            nodes=sorted(nodes, key=lambda item: item.id),
-            edges=sorted(edges, key=lambda item: item.id),
-            evidence=sorted(evidence, key=lambda item: item.id),
+            nodes=sorted([*nodes, *hardware_nodes], key=lambda item: item.id),
+            edges=sorted([*call_edges, *mmio_edges], key=lambda item: item.id),
+            evidence=sorted(
+                [*call_evidence, *mmio_evidence], key=lambda item: item.id
+            ),
             metadata={
                 "analyzer": "angr_analyzer",
                 "backend": "angr",
@@ -154,10 +190,14 @@ class AngrAnalyzer(ProgramAnalyzer):
                 "main_object_min_address": hex(int(main_object.min_addr)),
                 "main_object_max_address": hex(int(main_object.max_addr)),
                 "function_count": len(nodes),
-                "resolved_call_count": len(edges),
-                "unresolved_calls": diagnostics["unresolved_calls"],
-                "excluded_external_call_count": diagnostics["external_calls"],
-                "mmio_analysis": False,
+                "resolved_call_count": len(call_edges),
+                "unresolved_calls": call_diagnostics["unresolved_calls"],
+                "excluded_external_call_count": call_diagnostics["external_calls"],
+                "mmio_analysis": self._memory_map is not None,
+                "memory_map_id": (
+                    self._memory_map.id if self._memory_map is not None else None
+                ),
+                **memory_diagnostics,
                 "fixture": bool(artifact.metadata.get("fixture", False)),
             },
         )
@@ -188,7 +228,7 @@ class AngrAnalyzer(ProgramAnalyzer):
             kind=NodeKind.FUNCTION,
             name=name,
             architecture=Architecture.ARM,
-            layer=Layer.FIRMWARE,
+            layer=artifact.program_layer,
             address=hex(address),
             metadata={
                 "analyzer": "angr_analyzer",
