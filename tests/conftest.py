@@ -9,13 +9,31 @@ from typing import Any
 import pytest
 
 from chipchain.analysis import DemoAnalyzer, ProgramAnalysisResult, ProgramArtifact
+from chipchain.candidate import CrossGraphCandidate, CrossGraphCandidateSearcher
 from chipchain.graph import NetworkXGraphRepository, build_arm_demo_graph
 from chipchain.knowledge import (
     KnowledgeGraphBundle,
     NetworkXKnowledgeGraphRepository,
     VulnerabilityKnowledgeBuilder,
 )
-from chipchain.models import VulnerabilitySample
+from chipchain.models import (
+    Architecture,
+    BehaviorEdge,
+    BehaviorNode,
+    Evidence,
+    EvidenceType,
+    Layer,
+    NodeKind,
+    RelationType,
+    VulnerabilitySample,
+)
+from chipchain.reasoning import (
+    ArchitectureKnowledgeDocument,
+    CandidateContext,
+    CandidateContextAssembler,
+    InMemoryEvidenceResolver,
+    load_architecture_knowledge_documents,
+)
 
 FIXTURE_DIRECTORY = Path(__file__).parent / "fixtures"
 
@@ -75,6 +93,109 @@ def synthetic_arm_knowledge_repository(
     return NetworkXKnowledgeGraphRepository.from_bundle(
         synthetic_arm_knowledge_bundle
     )
+
+
+@pytest.fixture
+def reasoning_behavior_evidence() -> list[Evidence]:
+    """Return full Evidence for the compact Phase 7 behavior path."""
+
+    return [
+        Evidence(
+            id="fixture-reasoning-mmio-evidence",
+            type=EvidenceType.STATIC_ANALYSIS,
+            source="phase7-fixture-observer",
+            artifact="phase7-fixture-artifact",
+            address="0x10008",
+            instruction="fixture-store",
+            confidence=1.0,
+            verified=True,
+            metadata={"fixture": True, "synthetic": True, "owned": True},
+        )
+    ]
+
+
+@pytest.fixture
+def reasoning_behavior_repository() -> NetworkXGraphRepository:
+    """Build a compact reachable ARM driver-to-register behavior graph."""
+
+    repository = NetworkXGraphRepository(metadata={"fixture": True})
+    repository.add_node(
+        BehaviorNode(
+            id="phase7-fixture-driver",
+            kind=NodeKind.FUNCTION,
+            name="phase7_fixture_driver",
+            architecture=Architecture.ARM,
+            layer=Layer.DRIVER,
+            metadata={"fixture": True},
+        )
+    )
+    repository.add_node(
+        BehaviorNode(
+            id="phase7-fixture-register",
+            kind=NodeKind.REGISTER,
+            name="FIXTURE_MMIO_REGISTER",
+            architecture=Architecture.ARM,
+            layer=Layer.HARDWARE,
+            address="0x40000000",
+            metadata={
+                "memory_map_id": "synthetic-arm-mmio-map",
+                "memory_map_region": "fixture-mmio-register",
+                "fixture": True,
+            },
+        )
+    )
+    repository.add_edge(
+        BehaviorEdge(
+            id="phase7-fixture-mmio-write",
+            source_id="phase7-fixture-driver",
+            target_id="phase7-fixture-register",
+            relation=RelationType.MMIO_WRITE,
+            architecture=Architecture.ARM,
+            evidence_ids=["fixture-reasoning-mmio-evidence"],
+            metadata={"fixture": True},
+        )
+    )
+    return repository
+
+
+@pytest.fixture
+def reasoning_candidate(
+    reasoning_behavior_repository: NetworkXGraphRepository,
+    synthetic_arm_knowledge_repository: NetworkXKnowledgeGraphRepository,
+) -> CrossGraphCandidate:
+    """Return one deterministic Phase 6 candidate for Phase 7 tests."""
+
+    return CrossGraphCandidateSearcher().search(
+        reasoning_behavior_repository,
+        synthetic_arm_knowledge_repository,
+        architecture=Architecture.ARM,
+        start_node_id="phase7-fixture-driver",
+        max_hops=1,
+    )[0]
+
+
+@pytest.fixture
+def reasoning_context(
+    reasoning_candidate: CrossGraphCandidate,
+    reasoning_behavior_repository: NetworkXGraphRepository,
+    reasoning_behavior_evidence: list[Evidence],
+    synthetic_arm_knowledge_repository: NetworkXKnowledgeGraphRepository,
+) -> CandidateContext:
+    """Resolve the compact candidate into a strict read-only context."""
+
+    return CandidateContextAssembler().assemble(
+        reasoning_candidate,
+        reasoning_behavior_repository,
+        synthetic_arm_knowledge_repository,
+        InMemoryEvidenceResolver(reasoning_behavior_evidence),
+    )
+
+
+@pytest.fixture
+def rag_fixture_documents() -> list[ArchitectureKnowledgeDocument]:
+    """Load the owned Phase 7 ARM/global/RISC-V retrieval corpus."""
+
+    return load_architecture_knowledge_documents(FIXTURE_DIRECTORY / "rag")
 
 
 @pytest.fixture

@@ -53,6 +53,20 @@ Phase 6 的第三类相关性对象位于 `src/chipchain/candidate/`：
 | `search.py` | 受限 Behavior target search 与一跳漏洞上下文收集 |
 | `errors.py` | 架构与非法知识上下文异常 |
 
+Phase 7 的只读解析、检索和解释契约位于 `src/chipchain/reasoning/`：
+
+| 模块 | 当前模型或职责 |
+| --- | --- |
+| `context.py` | EvidenceResolver、InMemoryEvidenceResolver、CandidateContextAssembler |
+| `documents.py` | 本地 ArchitectureKnowledgeDocument 严格加载 |
+| `query.py` | CandidateRetrievalQueryBuilder |
+| `retrieval.py` | KnowledgeRetriever、LocalLexicalKnowledgeRetriever |
+| `prompts.py` | CandidatePromptBuilder 与固定信任边界 |
+| `provider.py` | LLMProvider、可选 OpenAICompatibleLLMProvider |
+| `mock_provider.py` | deterministic offline structured assessment |
+| `reasoning.py` | 单体 CandidateReasoner 与 citation post-validation |
+| `models.py` | Context、Document、Chunk、Query、Prompt、Assessment、Config、Result |
+
 ## 稳定枚举
 
 - Architecture：`arm`、`risc_v`、`powerpc`、`sparc`、`loongarch`
@@ -218,12 +232,43 @@ anchor、Knowledge anchor 等于链接端点、路径跨至少两个 layer 且�
 Candidate ID 由 architecture、GraphPath Node/Edge IDs、EntityLink ID 和
 Vulnerability ID 的稳定摘要生成。所有引用列表拒绝重复并支持 JSON round-trip。
 
+## CandidateContext 与 Semantic Assessment
+
+`CandidateContext` 是 CrossGraphCandidate 引用事实的只读解析视图，包含 Behavior
+Node/Edge/Evidence、Knowledge Vulnerability/Anchor/Node/Edge/Evidence，以及分类后
+的 Trigger、Precondition、Impact、SecurityMechanism、RootCause 和 taxonomy Node。
+它不重新定义或补写事实。Behavior Evidence 由独立 resolver 从
+`ProgramAnalysisResult.evidence` 创建；Knowledge Evidence 由 Knowledge Repository
+解析。任何缺失 ID 都产生稳定错误，不能静默忽略。
+
+`ArchitectureKnowledgeDocument` 的 `scope=architecture` 必须带 architecture，
+`scope=global` 必须不带 architecture。`RetrievedKnowledgeChunk.score` 仅表示本地
+lexical retrieval relevance，不是漏洞或攻击链置信度；Chunk 保留 document、source、
+reference、section 和 scope provenance。
+
+`CandidateSemanticAssessment` 只允许：
+
+```text
+requires_verification
+insufficient_context
+contextually_inconsistent
+```
+
+它保存 summary、输入范围内的 Evidence/Chunk citation、未解析 Trigger/Precondition、
+缺失信息、矛盾和建议验证步骤。模型没有 verified、exploitable、probability 或最终
+confidence 字段。Reasoner 进一步检查 Candidate/Architecture 身份、citation 子集，
+并要求 Phase 7 中所有 Trigger/Precondition 保持 unresolved。
+
+`LLMProviderConfig` 只保存 base URL、model、显式 API style、JSON mode 和 timeout；
+API Key 不属于模型，不能出现在 repr/model_dump/metadata。
+
 Demo Evidence 固定 `type=static_analysis`、`source=demo_analyzer`、`verified=true`、`metadata.fixture=true`。其中 confidence 1.0 只表示该关系由确定性 fixture 明确给出，不表示真实漏洞或攻击可信度。
 
 ## 当前边界
 
 模型只负责结构和明确的领域不变量，不执行真实漏洞检测或证据真实性判断。
 ProgramAnalyzer 生产程序观察，Behavior Graph 返回 GraphPath，Phase 5 Builder 生产
-独立漏洞知识，Phase 6 只生成 CrossGraphCandidate。后续阶段完成条件满足性、架构
-知识检索和验证后，才可讨论投影为 `AttackChain(status=candidate)`；当前不得把
-CrossGraphCandidate 解释成已验证 AttackChain。
+独立漏洞知识，Phase 6 只生成 CrossGraphCandidate，Phase 7 只产生不可表达验证状态
+的 Semantic Assessment。后续阶段完成条件满足性和 Evidence Verification 后，才可
+讨论投影为 `AttackChain(status=candidate)`；当前不得把 Assessment 或 Retrieved
+文本解释成 Evidence 或已验证 AttackChain。

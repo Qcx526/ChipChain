@@ -2,10 +2,10 @@
 
 ## 当前状态
 
-Phase 0～Phase 6 已完成。Phase 6 使用 canonical match keys 在不合并源图的前提下
-建立 Exact Hardware Entity Link，并从可达跨层 Behavior GraphPath 与直接漏洞知识
-上下文生成未验证 CrossGraphCandidate；每个后续阶段仍须在测试、复核和文档更新
-后才能关闭。
+Phase 0～Phase 7 已完成。Phase 7 将 CrossGraphCandidate 严格解析为只读 Context，
+通过 architecture-first 本地检索和确定性 Prompt 交给可替换 LLMProvider，并对结构化
+Semantic Assessment 做引用后校验；每个后续阶段仍须在测试、复核和文档更新后
+才能关闭。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -143,12 +143,29 @@ ARM 硬件匹配键和完整回归均通过；两张图仍无跨图 Edge，未�
 和候选；搜索结果确定、跨层、保留原 KG 方向和 Evidence ID；源 Repository 不变；
 未生成 AttackChain，未启动 LLM/RAG/Multi-Agent。
 
+## Phase 7：Architecture RAG + LLM Provider MVP（已完成）
+
+目标：为 CrossGraphCandidate 组装完整只读事实，通过 ARM/global 文档的本地确定性
+检索和固定 Prompt Contract 生成严格、不可表达验证结论的 Semantic Assessment。
+
+- [x] 实现 CandidateContext、EvidenceResolver 和严格 ID→Domain Object 解析
+- [x] 实现 ArchitectureKnowledgeDocument、RetrievedKnowledgeChunk 和 provenance
+- [x] 实现 architecture filter before scoring 的 LocalLexicalKnowledgeRetriever
+- [x] 建立 owned ARM/global/RISC-V distractor fixture corpus
+- [x] 实现确定性 CandidateRetrievalQueryBuilder 和 CandidatePromptBuilder
+- [x] 明确 retrieved content 是 reference data，不能成为 Prompt instruction
+- [x] 实现 vendor-neutral LLMProvider 和 deterministic MockLLMProvider
+- [x] 实现 CandidateSemanticAssessment 非验证状态与 unresolved 条件保留
+- [x] 实现 Evidence/Chunk/Candidate/Architecture citation post-validation
+- [x] 实现可选 OpenAICompatibleLLMProvider、两种显式协议和 JSON/Pydantic 校验
+- [x] 外部化 API Key/Base URL/Model/API style/JSON mode/timeout 并提供 smoke script
+- [x] 完成 Phase 4B→7 ARM RAG + Mock Provider 端到端 Demo
+
+退出条件：Context 引用完整可解析；RISC-V 文档不进入 ARM scoring/prompt；Mock
+Provider 可离线完成结构化语义解释；幻觉引用被拒绝；源图、Candidate 和 Evidence
+保持不变；未生成 Verified AttackChain，未实现 Multi-Agent 或最终评分。
+
 ## 后续路线（尚未实施）
-
-### Phase 7：Architecture RAG + LLM Provider
-
-实现架构强过滤的知识检索、`LLMProvider` 抽象和 Mock Provider。LLM 只解释或
-补充候选，不覆盖结构化证据。
 
 ### Phase 8：Multi-Agent
 

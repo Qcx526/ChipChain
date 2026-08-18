@@ -1,0 +1,23 @@
+{
+  "id": "arm-fixture-access-control-note",
+  "scope": "architecture",
+  "architecture": "arm",
+  "title": "Synthetic ARM access-control verification note",
+  "content": "The fixture MMIO access-control mechanism requires separate verification of the driver trigger, authorization precondition, and register access evidence. A structural driver to hardware path does not prove that the trigger or precondition is satisfied.",
+  "source": "chipchain-owned-rag-fixture",
+  "reference": "tests/fixtures/rag/arm_fixture_access_control_note.json",
+  "section": "fixture-condition-boundary",
+  "tags": [
+    "access-control",
+    "arm",
+    "fixture",
+    "precondition",
+    "trigger"
+  ],
+  "metadata": {
+    "fixture": true,
+    "synthetic": true,
+    "owned": true,
+    "instructional": false
+  }
+}

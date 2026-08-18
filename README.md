@@ -26,10 +26,15 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Exact Hardware EntityLink、one-to-many 链接结果和未匹配诊断
 - 受 architecture、layer、relation、hop 约束的 CrossGraphCandidate Search
 - Phase 4B ARM ELF + Phase 5 Knowledge Fixture 的端到端未验证候选 Demo
-- 不依赖外部服务的领域模型、图仓库、程序分析与候选搜索测试
+- CandidateContext、完整 Evidence Resolution 和只读事实组装
+- architecture-first ARM/global Local Lexical RAG 与 RISC-V leakage 防护
+- 确定性 Prompt、LLMProvider 抽象、Mock Provider 和结构化 Assessment 后校验
+- 可选 OpenAI-compatible Responses/Chat Completions 客户端和人工 smoke script
+- 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
 
 当前尚未实现通用跨块/跨函数地址分析、Candidate 到 AttackChain 的语义投影、
-Trigger/Precondition 满足性验证、证据评分、LLM、RAG 或 API；这些能力会按
+Trigger/Precondition 满足性验证、Evidence Verification、最终评分、Multi-Agent
+或 API；这些能力会按
 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
 
 ## 环境要求
@@ -54,6 +59,15 @@ Phase 4 的真实 ARM 静态分析为可选能力，不会被普通 `dev` 安装
 .\.venv\Scripts\python -m pip install -e ".[dev,angr]"
 .\.venv\Scripts\python examples\arm_angr_analysis_demo.py
 ```
+
+Phase 7 的真实 OpenAI-compatible 客户端同样是可选能力；默认测试只使用 Mock：
+
+```powershell
+.\.venv\Scripts\python -m pip install -e ".[llm]"
+.\.venv\Scripts\python scripts\check_llm_provider.py
+```
+
+配置字段见 `.env.example`，真实 API Key 不得写入仓库。
 
 也可以不安装入口脚本，通过源码运行：
 
@@ -199,6 +213,19 @@ Phase 6 示例复用真实 ARM MMIO ELF 和 Phase 5 synthetic knowledge fixture�
 `unverified correlation`，不是已验证漏洞或 AttackChain。搜索设计见
 [Candidate Search](docs/CANDIDATE_SEARCH.md)。
 
+## Architecture RAG + Mock Reasoning Example
+
+Phase 7 继续复用同一 ARM ELF、Knowledge Fixture 和 CrossGraphCandidate：
+
+```powershell
+.\.venv\Scripts\python examples\arm_rag_reasoning_demo.py
+```
+
+Context Assembler 会解析完整 Node/Edge/Evidence，Local Retriever 在评分前排除
+非 ARM 文档，Mock Provider 输出 `requires_verification` Assessment。Retrieved
+内容只作为 reference data，LLM interpretation 不等于 Evidence 或 Verification。
+设计见 [RAG Reasoning](docs/RAG_REASONING.md)。
+
 ## 文档导航
 
 - [项目范围](docs/PROJECT_SCOPE.md)
@@ -206,6 +233,7 @@ Phase 6 示例复用真实 ARM MMIO ELF 和 Phase 5 synthetic knowledge fixture�
 - [数据模型](docs/DATA_MODEL.md)
 - [实体链接契约](docs/ENTITY_LINKING.md)
 - [Candidate Search](docs/CANDIDATE_SEARCH.md)
+- [RAG Reasoning](docs/RAG_REASONING.md)
 - [评测设计](docs/EVALUATION.md)
 - [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)
 - [阶段计划](PLANS.md)

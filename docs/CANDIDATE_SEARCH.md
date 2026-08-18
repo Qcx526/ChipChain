@@ -116,5 +116,9 @@ Vulnerability ID 和 Candidate ID。ID 全部由输入的稳定 SHA-256 摘要�
 
 ## 当前边界
 
-尚未实现 Component/Interface linking、Trigger/Precondition 满足性判断、架构 RAG、
-LLM 推理、Evidence Verification、Scoring、AttackChain 投影、Neo4j、API 或 GUI。
+Phase 7 可以把 Candidate 的引用解析为只读 `CandidateContext`，并用架构约束 RAG
+和 LLMProvider 生成 `CandidateSemanticAssessment`；这不会改变 Candidate 的上述
+有限语义。详细契约见 `RAG_REASONING.md`。
+
+尚未实现 Component/Interface linking、Trigger/Precondition 满足性判断、Evidence
+Verification、Scoring、AttackChain 投影、Multi-Agent、Neo4j、API 或 GUI。

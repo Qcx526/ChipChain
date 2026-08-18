@@ -1,0 +1,22 @@
+{
+  "id": "arm-fixture-mmio-note",
+  "scope": "architecture",
+  "architecture": "arm",
+  "title": "Synthetic ARM MMIO register identity note",
+  "content": "For the owned ARM fixture, FIXTURE_MMIO_REGISTER is identified by address 0x40000000 and memory map synthetic-arm-mmio-map region fixture-mmio-register. MMIO read or MMIO write observations identify access to the resource, not successful exploitation.",
+  "source": "chipchain-owned-rag-fixture",
+  "reference": "tests/fixtures/rag/arm_fixture_mmio_note.json",
+  "section": "fixture-mmio-identity",
+  "tags": [
+    "arm",
+    "fixture",
+    "mmio",
+    "register"
+  ],
+  "metadata": {
+    "fixture": true,
+    "synthetic": true,
+    "owned": true,
+    "instructional": false
+  }
+}

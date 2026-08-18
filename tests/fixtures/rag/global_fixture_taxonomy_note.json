@@ -1,0 +1,23 @@
+{
+  "id": "global-fixture-taxonomy-note",
+  "scope": "global",
+  "architecture": null,
+  "title": "Fixture taxonomy access-control context",
+  "content": "CWE-284 is used only as a real taxonomy identifier describing access-control context for this synthetic fixture. This local note is not MITRE text and does not claim a real CVE or verified vulnerability. FIXTURE-CAPEC-MMIO-ACCESS remains a synthetic identifier.",
+  "source": "chipchain-owned-rag-fixture",
+  "reference": "tests/fixtures/rag/global_fixture_taxonomy_note.json",
+  "section": "fixture-taxonomy-provenance",
+  "tags": [
+    "access-control",
+    "cwe-284",
+    "fixture",
+    "taxonomy"
+  ],
+  "metadata": {
+    "fixture": true,
+    "synthetic": true,
+    "owned": true,
+    "instructional": false,
+    "not_mitre_text": true
+  }
+}

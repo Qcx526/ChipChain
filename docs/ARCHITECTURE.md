@@ -125,7 +125,24 @@ Node ID 和 Evidence ID。它只是“行为路径末端通过精确身份锚点
 
 ### Knowledge Retrieval and LLM
 
-`KnowledgeRetriever` 必须按目标架构过滤知识。`LLMProvider` 仅接收候选路径、检索知识和程序证据，并输出可校验的结构化候选解释。测试使用 Mock 实现。
+Phase 7 由三个职责边界组成：
+
+1. `CandidateContextAssembler` 将 Candidate 的 ID 引用严格解析为 Behavior/
+   Knowledge Node、Edge 和完整 Evidence；任一引用缺失立即失败。
+2. `CandidateRetrievalQueryBuilder` 确定性抽取 architecture、relation、硬件 match
+   keys、taxonomy 和条件术语；`LocalLexicalKnowledgeRetriever` 在评分前只保留
+   目标架构文档和明确 global 文档。
+3. `CandidatePromptBuilder` 只序列化当前 Context 和 top-k chunks；`LLMProvider`
+   返回严格 `CandidateSemanticAssessment`，由 `CandidateReasoner` 做引用后校验。
+
+Retrieved document 被标为 reference data，不能覆盖固定 Prompt instruction、架构
+限制或 verification boundary。默认测试和 Demo 使用 deterministic
+`MockLLMProvider`，不依赖网络或 API Key。
+
+可选 `OpenAICompatibleLLMProvider` 通过环境变量显式选择 `responses` 或
+`chat_completions`，不会失败后自动切换。JSON Mode 是显式 capability；无论使用
+哪种协议，最终结果均通过 `json.loads` 和 Pydantic，而不是正则修复。API Key 不
+进入可序列化配置、日志或异常文本。详细契约见 `docs/RAG_REASONING.md`。
 
 ### Verification and Scoring
 
@@ -189,10 +206,12 @@ Program Analysis 路径在 Register/HardwareResource 观察处停止。Hardware 
 
 ## 当前实现边界
 
-Phase 0～6 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
+Phase 0～7 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
 MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、可选 AngrAnalyzer、
 Analysis Ingestion，以及 synthetic ARM ELF 到 Function/CALLS/MMIO Hardware
 Node/GraphPath 的端到端闭环；另有独立 Vulnerability Knowledge Graph、确定性
 Sample 转换、Evidence 目录、canonical match keys、Exact Hardware EntityLink 和
-CrossGraphCandidate Search。通用地址分析、Candidate 到 AttackChain 投影、条件
-满足性和证据验证算法、LLM/RAG 和 API 仍未实现。
+CrossGraphCandidate Search；Phase 7 增加只读 Context、Architecture RAG、Mock/
+optional compatible Provider 和 Semantic Assessment 后校验。通用地址分析、
+Candidate 到 AttackChain 投影、条件满足性、Evidence Verification/Scoring、
+Multi-Agent 和 API 仍未实现。

@@ -31,9 +31,11 @@
 
 ## 当前阶段限制
 
-- Phase 0：工程初始化、CLI 和基础测试。
-- Phase 1：先确定数据模型、序列化、校验和 fixture 设计。
-- 未经明确安排，不提前实现 angr、Ghidra、QEMU、Neo4j、RAG、真实 LLM 或 Multi-Agent。
+- Phase 0～6 已完成；当前进入 Phase 7：Architecture RAG + LLM Provider MVP。
+- Phase 7 允许实现 Candidate Context、架构约束检索、LLMProvider 抽象、
+  MockLLMProvider 和可选真实 Provider 集成。
+- 未经明确安排，不提前实现 Multi-Agent、Evidence Verification、Final Scoring、
+  Verified AttackChain、FastAPI/GUI 或 Additional Architectures。
 
 ## 提交前检查
 

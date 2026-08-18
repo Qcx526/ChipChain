@@ -28,6 +28,9 @@ dependencies = [
 angr = [
   "angr==9.3.2",
 ]
+llm = [
+  "openai>=1.0,<3",
+]
 dev = [
   "pytest>=8.0,<10",
 ]

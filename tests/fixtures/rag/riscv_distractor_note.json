@@ -1,0 +1,22 @@
+{
+  "id": "riscv-distractor-note",
+  "scope": "architecture",
+  "architecture": "risc_v",
+  "title": "RISC-V keyword-heavy distractor",
+  "content": "RISC-V ARM MMIO FIXTURE_MMIO_REGISTER 0x40000000 synthetic-arm-mmio-map fixture-mmio-register CWE-284 trigger precondition access control MMIO write MMIO read. This repeated keyword-heavy synthetic distractor must be excluded before ARM retrieval scoring. ARM MMIO register trigger precondition CWE-284.",
+  "source": "chipchain-owned-rag-fixture",
+  "reference": "tests/fixtures/rag/riscv_distractor_note.json",
+  "section": "architecture-isolation-distractor",
+  "tags": [
+    "distractor",
+    "fixture",
+    "risc-v"
+  ],
+  "metadata": {
+    "fixture": true,
+    "synthetic": true,
+    "owned": true,
+    "instructional": false,
+    "purpose": "architecture leakage negative test"
+  }
+}
