@@ -174,6 +174,14 @@ class BadMockProvider(LLMProvider):
             values["unresolved_trigger_node_ids"] = []
         elif self._mode == "claim":
             values["summary"] = "Verified attack chain."
+        elif self._mode == "missing_information_claim":
+            values["missing_information"] = ["Vulnerability confirmed."]
+        elif self._mode == "contradiction_claim":
+            values["contradictions"] = ["Exploit confirmed."]
+        elif self._mode == "recommendation_claim":
+            values["recommended_verification_steps"] = [
+                "Privilege escalation confirmed."
+            ]
         return CandidateSemanticAssessment.model_validate(values)
 
 
@@ -186,6 +194,9 @@ class BadMockProvider(LLMProvider):
         ("architecture", "wrong architecture"),
         ("trigger", "trigger nodes must remain unresolved"),
         ("claim", "forbidden verification claim"),
+        ("missing_information_claim", "forbidden verification claim"),
+        ("contradiction_claim", "forbidden verification claim"),
+        ("recommendation_claim", "forbidden verification claim"),
     ],
 )
 def test_reasoner_rejects_hallucinated_or_forbidden_output(

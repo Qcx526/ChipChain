@@ -59,6 +59,8 @@ class CandidateContext(DomainModel):
         if any(edge.architecture is not self.architecture for edge in self.knowledge_edges):
             raise ValueError("knowledge context edge architecture mismatch")
         known_ids = {node.id for node in self.knowledge_nodes}
+        if self.knowledge_anchor.id not in known_ids:
+            raise ValueError("knowledge anchor must exist in knowledge_nodes")
         categorized = [
             *self.trigger_nodes,
             *self.precondition_nodes,
@@ -69,6 +71,31 @@ class CandidateContext(DomainModel):
         ]
         if any(node.id not in known_ids for node in categorized):
             raise ValueError("categorized knowledge nodes must exist in knowledge_nodes")
+        _require_node_kind(
+            self.trigger_nodes,
+            KnowledgeNodeKind.TRIGGER,
+            "trigger_nodes",
+        )
+        _require_node_kind(
+            self.precondition_nodes,
+            KnowledgeNodeKind.PRECONDITION,
+            "precondition_nodes",
+        )
+        _require_node_kind(
+            self.impact_nodes,
+            KnowledgeNodeKind.IMPACT,
+            "impact_nodes",
+        )
+        _require_node_kind(
+            self.security_mechanism_nodes,
+            KnowledgeNodeKind.SECURITY_MECHANISM,
+            "security_mechanism_nodes",
+        )
+        _require_node_kind(
+            self.root_cause_nodes,
+            KnowledgeNodeKind.ROOT_CAUSE,
+            "root_cause_nodes",
+        )
         if any(
             node.kind not in {KnowledgeNodeKind.CWE, KnowledgeNodeKind.CAPEC}
             for node in self.taxonomy_nodes
@@ -250,6 +277,21 @@ class LLMProviderConfig(DomainModel):
     api_style: LLMAPIStyle
     json_mode: bool = False
     timeout: float = Field(default=30.0, gt=0)
+    reasoning_effort: str | None = None
+    max_completion_tokens: int | None = Field(default=None, gt=0)
+
+    @field_validator("reasoning_effort")
+    @classmethod
+    def validate_reasoning_effort(cls, value: str | None) -> str | None:
+        """Accept only explicit effort values documented by compatible APIs."""
+
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        allowed = {"none", "minimal", "low", "medium", "high", "xhigh", "max"}
+        if normalized not in allowed:
+            raise ValueError("unsupported LLM reasoning effort")
+        return normalized
 
 
 class CandidateReasoningResult(DomainModel):
@@ -266,3 +308,14 @@ def _require_unique_ids(items: list[object], label: str) -> None:
     ids = [getattr(item, "id") for item in items]
     if len(ids) != len(set(ids)):
         raise ValueError(f"{label} IDs must be unique")
+
+
+def _require_node_kind(
+    nodes: list[KnowledgeNode],
+    expected_kind: KnowledgeNodeKind,
+    field_name: str,
+) -> None:
+    """Require every categorized node to have the field's exact domain kind."""
+
+    if any(node.kind is not expected_kind for node in nodes):
+        raise ValueError(f"{field_name} may contain only {expected_kind.value} nodes")

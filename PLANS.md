@@ -2,10 +2,9 @@
 
 ## 当前状态
 
-Phase 0～Phase 7 已完成。Phase 7 将 CrossGraphCandidate 严格解析为只读 Context，
-通过 architecture-first 本地检索和确定性 Prompt 交给可替换 LLMProvider，并对结构化
-Semantic Assessment 做引用后校验；每个后续阶段仍须在测试、复核和文档更新后
-才能关闭。
+Phase 0～Phase 7R 已完成。Phase 7R 在不改变离线默认测试的前提下，完成可选真实
+Provider 人工验证、显式 `.env` smoke-test 体验、CandidateContext 分类契约和自由文本
+验证边界强化。尚未开始 Phase 8。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -164,6 +163,26 @@ ARM 硬件匹配键和完整回归均通过；两张图仍无跨图 Edge，未�
 退出条件：Context 引用完整可解析；RISC-V 文档不进入 ARM scoring/prompt；Mock
 Provider 可离线完成结构化语义解释；幻觉引用被拒绝；源图、Candidate 和 Evidence
 保持不变；未生成 Verified AttackChain，未实现 Multi-Agent 或最终评分。
+
+## Phase 7R：Real Provider Validation + Hardening（已完成）
+
+目标：用人工脚本验证用户显式配置的 OpenAI-compatible Provider，同时保持库代码
+环境注入、默认 pytest 离线和 Phase 7 非验证边界。
+
+- [x] `llm` 可选依赖加入 `python-dotenv`，仅人工脚本显式加载根目录 `.env`
+- [x] 核心 `OpenAICompatibleLLMProvider.from_env()` 继续只读取传入环境或 `os.environ`
+- [x] 人工连接脚本只记录 API style、model、成功状态和脱敏 HTTP status
+- [x] 增加真实 ARM ELF→Candidate→RAG→Provider→Assessment reasoning 脚本
+- [x] Qwen 3.8 Max Chat Completions 连接返回 HTTP 200
+- [x] 显式 none/2048 预算下真实 Assessment 通过 JSON、Pydantic 和后校验
+- [x] CandidateContext 强制五类节点的精确 KnowledgeNodeKind
+- [x] CandidateContext 强制 knowledge anchor 属于 resolved knowledge_nodes
+- [x] 验证性结论扫描覆盖所有自由文本输出字段
+- [x] 默认 pytest 继续使用 Mock Provider/Client，不读取 `.env` 或访问网络
+- [x] 记录 lexical Retriever 对正式中文语料的 tokenizer 限制
+
+退出条件：离线回归通过；真实连接和完整 Reasoning 均由人工脚本成功验证；真实响应
+通过 JSON、Pydantic 和 CandidateReasoner 后校验；密钥不进入日志；未开始 Phase 8。
 
 ## 后续路线（尚未实施）
 

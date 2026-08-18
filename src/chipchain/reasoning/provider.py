@@ -45,6 +45,7 @@ class OpenAICompatibleLLMProvider(LLMProvider):
         if not api_key.strip():
             raise LLMProviderConfigurationError("LLM API key is required")
         self._config = config
+        self._last_http_status: int | None = None
         if client is None:
             try:
                 from openai import OpenAI
@@ -65,6 +66,12 @@ class OpenAICompatibleLLMProvider(LLMProvider):
         return LLMProviderConfig.model_validate(
             self._config.model_dump(mode="json")
         )
+
+    @property
+    def last_http_status(self) -> int | None:
+        """Return the latest manual connection status without response content."""
+
+        return self._last_http_status
 
     @classmethod
     def from_env(
@@ -93,12 +100,25 @@ class OpenAICompatibleLLMProvider(LLMProvider):
                 values.get("CHIPCHAIN_LLM_JSON_MODE", "false")
             )
             timeout = float(values.get("CHIPCHAIN_LLM_TIMEOUT", "30"))
+            reasoning_effort = (
+                values.get("CHIPCHAIN_LLM_REASONING_EFFORT", "").strip() or None
+            )
+            raw_max_completion_tokens = values.get(
+                "CHIPCHAIN_LLM_MAX_COMPLETION_TOKENS", ""
+            ).strip()
+            max_completion_tokens = (
+                int(raw_max_completion_tokens)
+                if raw_max_completion_tokens
+                else None
+            )
             config = LLMProviderConfig(
                 base_url=base_url,
                 model=model,
                 api_style=api_style,
                 json_mode=json_mode,
                 timeout=timeout,
+                reasoning_effort=reasoning_effort,
+                max_completion_tokens=max_completion_tokens,
             )
         except (ValueError, ValidationError) as exc:
             raise LLMProviderConfigurationError(
@@ -121,6 +141,14 @@ class OpenAICompatibleLLMProvider(LLMProvider):
                 }
                 if self._config.json_mode:
                     kwargs["text"] = {"format": {"type": "json_object"}}
+                if self._config.reasoning_effort is not None:
+                    kwargs["reasoning"] = {
+                        "effort": self._config.reasoning_effort
+                    }
+                if self._config.max_completion_tokens is not None:
+                    kwargs["max_output_tokens"] = (
+                        self._config.max_completion_tokens
+                    )
                 response = self._client.responses.create(**kwargs)
                 content = response.output_text
             else:
@@ -134,6 +162,14 @@ class OpenAICompatibleLLMProvider(LLMProvider):
                 }
                 if self._config.json_mode:
                     kwargs["response_format"] = {"type": "json_object"}
+                if self._config.reasoning_effort is not None:
+                    kwargs["extra_body"] = {
+                        "reasoning_effort": self._config.reasoning_effort
+                    }
+                if self._config.max_completion_tokens is not None:
+                    kwargs["max_completion_tokens"] = (
+                        self._config.max_completion_tokens
+                    )
                 response = self._client.chat.completions.create(**kwargs)
                 content = response.choices[0].message.content
             return _parse_assessment(content)
@@ -143,6 +179,7 @@ class OpenAICompatibleLLMProvider(LLMProvider):
             raise LLMProviderResponseError(
                 f"LLM provider request failed ({type(exc).__name__})",
                 status_code=_status_code(exc),
+                stage="transport",
             ) from None
 
     def check_connection(self) -> str:
@@ -150,13 +187,15 @@ class OpenAICompatibleLLMProvider(LLMProvider):
 
         try:
             if self._config.api_style is LLMAPIStyle.RESPONSES:
-                response = self._client.responses.create(
+                response = self._create_connection_response(
+                    self._client.responses,
                     model=self._config.model,
                     input="Return exactly the word OK.",
                     timeout=self._config.timeout,
                 )
                 return str(response.output_text).strip()
-            response = self._client.chat.completions.create(
+            response = self._create_connection_response(
+                self._client.chat.completions,
                 model=self._config.model,
                 messages=[
                     {"role": "user", "content": "Return exactly the word OK."}
@@ -168,7 +207,20 @@ class OpenAICompatibleLLMProvider(LLMProvider):
             raise LLMProviderResponseError(
                 f"LLM provider connection failed ({type(exc).__name__})",
                 status_code=_status_code(exc),
+                stage="connection",
             ) from None
+
+    def _create_connection_response(self, endpoint: Any, **kwargs: Any) -> Any:
+        """Use SDK raw-response support when available to retain only HTTP status."""
+
+        raw_endpoint = getattr(endpoint, "with_raw_response", None)
+        if raw_endpoint is None:
+            self._last_http_status = None
+            return endpoint.create(**kwargs)
+        raw_response = raw_endpoint.create(**kwargs)
+        status_code = getattr(raw_response, "status_code", None)
+        self._last_http_status = status_code if isinstance(status_code, int) else None
+        return raw_response.parse()
 
 
 def _parse_boolean(value: str) -> bool:
@@ -182,13 +234,23 @@ def _parse_boolean(value: str) -> bool:
 
 def _parse_assessment(content: object) -> CandidateSemanticAssessment:
     if not isinstance(content, str):
-        raise LLMProviderResponseError("LLM provider returned non-text output")
+        raise LLMProviderResponseError(
+            "LLM provider returned non-text output",
+            stage="response_content",
+        )
     try:
         payload = json.loads(content)
-        return CandidateSemanticAssessment.model_validate(payload)
-    except (json.JSONDecodeError, ValidationError) as exc:
+    except json.JSONDecodeError:
         raise LLMProviderResponseError(
-            "LLM provider returned invalid assessment JSON"
+            "LLM provider returned invalid assessment JSON",
+            stage="json_parse",
+        ) from None
+    try:
+        return CandidateSemanticAssessment.model_validate(payload)
+    except ValidationError:
+        raise LLMProviderResponseError(
+            "LLM provider returned invalid assessment JSON",
+            stage="pydantic_validation",
         ) from None
 
 

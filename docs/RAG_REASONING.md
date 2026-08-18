@@ -85,7 +85,8 @@ Schema。`CandidateReasoner` 接受 Provider 输出后检查：
 - observation IDs 属于 Context Behavior Evidence；
 - chunk IDs 属于 RetrievalResult；
 - 所有 Trigger/Precondition 仍在 unresolved 列表；
-- summary/contradictions 不包含验证性结论。
+- summary、missing_information、contradictions 和 recommended_verification_steps
+  均不包含验证性结论。
 
 失败时抛出 `LLMOutputValidationError`，不修补或降级接受。
 
@@ -101,21 +102,46 @@ CHIPCHAIN_LLM_MODEL
 CHIPCHAIN_LLM_API_STYLE=responses|chat_completions
 CHIPCHAIN_LLM_JSON_MODE=true|false
 CHIPCHAIN_LLM_TIMEOUT
+CHIPCHAIN_LLM_REASONING_EFFORT
+CHIPCHAIN_LLM_MAX_COMPLETION_TOKENS
 ```
 
 API style 必须显式选择，不在失败后自动切换。JSON Mode 只在明确启用时传递；无论
 是否启用，Provider 都执行严格 `json.loads()` 和 Pydantic validation，不使用正则
 修复。API Key 不进入 `LLMProviderConfig`、repr、model dump、metadata 或错误文本。
 
+核心 `OpenAICompatibleLLMProvider.from_env()` 不读取磁盘文件。仅人工 smoke 脚本
+使用 `python-dotenv` 显式加载项目根目录 `.env`，且 `override=False`，从而保留部署时
+显式注入环境变量的优先级。默认 pytest 不加载 `.env`。
+
+`reasoning effort` 与 completion limit 均为可选显式配置，不由 Provider 猜测。
+Chat Completions 分别映射到兼容接口的 `extra_body.reasoning_effort` 和
+`max_completion_tokens`；Responses 映射到 `reasoning.effort` 和
+`max_output_tokens`。Provider 不因失败自动改变这些值。
+
+Qwen 3.8 Max 默认高推理预算可能超过人工 smoke test 的响应窗口。Phase 7R 的真实
+结构化验证使用显式 `CHIPCHAIN_LLM_REASONING_EFFORT=none` 和
+`CHIPCHAIN_LLM_MAX_COMPLETION_TOKENS=2048` 成功完成；这是面向结构映射任务的人工
+配置选择，不是 Provider 默认值。需要深度推理时应由用户显式选择 `low` 或更高档位，
+并相应调整 timeout，不允许自动 fallback。
+
 可选安装和人工 smoke check：
 
 ```powershell
 .\.venv\Scripts\python -m pip install -e ".[llm]"
 .\.venv\Scripts\python scripts\check_llm_provider.py
+.\.venv\Scripts\python scripts\check_real_reasoning.py
 ```
 
 Smoke script 只打印连接状态、显式 API style 和 model；不会打印 API Key 或完整
 endpoint。默认 pytest 使用 Mock Client 验证两种 request shape，不进行网络请求。
+
+## Lexical Retriever Language Limitation
+
+当前 lexical retriever 是 deterministic MVP，tokenizer 主要面向 ASCII 技术标识和
+英文 fixture。正式中文 ARM 文档进入语料库后，需要增加可测试、确定性的中英文
+tokenizer，或通过现有 `KnowledgeRetriever` 抽象替换 backend。本阶段不引入
+Embedding、FAISS、Chroma 或 LangChain。
 
 ## 当前限制
 

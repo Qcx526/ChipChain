@@ -31,9 +31,9 @@
 
 ## 当前阶段限制
 
-- Phase 0～6 已完成；当前进入 Phase 7：Architecture RAG + LLM Provider MVP。
-- Phase 7 允许实现 Candidate Context、架构约束检索、LLMProvider 抽象、
-  MockLLMProvider 和可选真实 Provider 集成。
+- Phase 0～7 已完成；当前仅执行 Phase 7R：真实 Provider 验证与 Phase 7 hardening。
+- Phase 7R 允许人工脚本显式加载 `.env`、验证可选真实 Provider，并强化
+  CandidateContext 与语义验证边界；核心 Provider 不得隐式读取 `.env`。
 - 未经明确安排，不提前实现 Multi-Agent、Evidence Verification、Final Scoring、
   Verified AttackChain、FastAPI/GUI 或 Additional Architectures。
 

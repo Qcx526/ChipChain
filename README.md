@@ -65,9 +65,14 @@ Phase 7 的真实 OpenAI-compatible 客户端同样是可选能力；默认测�
 ```powershell
 .\.venv\Scripts\python -m pip install -e ".[llm]"
 .\.venv\Scripts\python scripts\check_llm_provider.py
+.\.venv\Scripts\python scripts\check_real_reasoning.py
 ```
 
-配置字段见 `.env.example`，真实 API Key 不得写入仓库。
+配置字段见 `.env.example`，真实 API Key 不得写入仓库。只有这两个人工脚本显式
+加载根目录 `.env`；核心 Provider 和默认 pytest 不读取该文件。
+
+Qwen 3.8 Max 的 reasoning effort 和 completion limit 也必须由用户显式配置；
+Phase 7R 结构化 smoke test 使用 `none` / `2048`，Provider 不会自动改变这些值。
 
 也可以不安装入口脚本，通过源码运行：
 

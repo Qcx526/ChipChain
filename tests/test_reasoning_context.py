@@ -108,3 +108,43 @@ def test_context_model_rejects_architecture_leakage(
 
     with pytest.raises(ValidationError, match="behavior context nodes"):
         CandidateContext.model_validate(data)
+
+
+@pytest.mark.parametrize(
+    ("field_name", "invalid_kind"),
+    [
+        ("trigger_nodes", "precondition"),
+        ("precondition_nodes", "trigger"),
+        ("impact_nodes", "root_cause"),
+        ("security_mechanism_nodes", "impact"),
+        ("root_cause_nodes", "security_mechanism"),
+    ],
+)
+def test_context_model_rejects_wrong_categorized_node_kind(
+    field_name: str,
+    invalid_kind: str,
+    reasoning_context: CandidateContext,
+) -> None:
+    """Every categorized list enforces its exact KnowledgeNodeKind contract."""
+
+    data = reasoning_context.model_dump(mode="json")
+    assert data[field_name]
+    data[field_name][0]["kind"] = invalid_kind
+
+    with pytest.raises(ValidationError, match=field_name):
+        CandidateContext.model_validate(data)
+
+
+def test_context_model_requires_anchor_in_knowledge_nodes(
+    reasoning_context: CandidateContext,
+) -> None:
+    """The detached anchor cannot point outside the resolved knowledge context."""
+
+    data = reasoning_context.model_dump(mode="json")
+    anchor_id = data["knowledge_anchor"]["id"]
+    data["knowledge_nodes"] = [
+        node for node in data["knowledge_nodes"] if node["id"] != anchor_id
+    ]
+
+    with pytest.raises(ValidationError, match="anchor must exist"):
+        CandidateContext.model_validate(data)

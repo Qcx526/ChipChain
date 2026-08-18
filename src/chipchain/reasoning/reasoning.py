@@ -127,7 +127,12 @@ class CandidateReasoner:
                 "all precondition nodes must remain unresolved in Phase 7"
             )
         searchable_text = " ".join(
-            [assessment.summary, *assessment.contradictions]
+            [
+                assessment.summary,
+                *assessment.missing_information,
+                *assessment.contradictions,
+                *assessment.recommended_verification_steps,
+            ]
         ).lower()
         if any(claim in searchable_text for claim in _FORBIDDEN_CLAIMS):
             raise LLMOutputValidationError(

@@ -24,9 +24,16 @@ class LLMProviderConfigurationError(ReasoningError):
 class LLMProviderResponseError(ReasoningError):
     """Raised when provider output is not strict assessment JSON."""
 
-    def __init__(self, message: str, *, status_code: int | None = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        *,
+        status_code: int | None = None,
+        stage: str = "provider_response",
+    ) -> None:
         super().__init__(message)
         self.status_code = status_code
+        self.stage = stage
 
 
 class LLMOutputValidationError(ReasoningError):
