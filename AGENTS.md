@@ -36,13 +36,19 @@
 
 ## 当前阶段限制
 
-- Phase 0～8 已完成；当前执行 Phase 8R：Cross-Layer Semantics Refactor。
-- Phase 8R 只允许三类 Interaction/Direction/Location Role 数据契约、search capability
-  boundary、纯语义 fixture、兼容测试和评测/迁移文档。
-- 未经明确安排，不实现或迁移 Evidence Verification、Scoring、Root Cause algorithm、
-  Dynamic/QEMU Analysis、Hardware→Firmware synthetic BehaviorEdge、LLM Type
-  Classification、新 Agent、AttackChain projection、FastAPI/GUI、Additional
-  Architectures 或 Exploit Generation。
+- Phase 0～8R、Phase 9A-R、R1、R2 与 Phase 9A-R3 Binding Cardinality Hardening 已完成。
+  Verification 顶层 identity 是
+  `CrossLayerInteraction`，legacy Candidate 只能作为显式 software→hardware evidence source。
+- Type I/II 当前只有部分客观验证能力；Type III 客观 hardware→software propagation
+  verification 为 `not_implemented`，不得反转旧 GraphPath 或伪造反向 BehaviorEdge。
+- Evidence binding 必须具有结构化 subject linkage；Node existence 只能解析 reference；
+  architecture/condition 不能单独产生 partial verification；定位只能使用 supporting Evidence。
+- Legacy Candidate facts 只有通过显式 Interaction binding 才能支持 required truth；Evidence
+  ID collision 必须拒绝；direct Evidence 不能独立验证 vulnerability participant。
+- 同一 `(reference_role, interaction_reference_id)` 在 MVP 中至多绑定一个 source；
+  VerificationResult 的各 VerificationRecord 集合不得包含重复 ID。
+- 未经明确安排，不实现 Dynamic/QEMU Verification、DMA/interrupt/fault runtime trace、
+  Verified AttackChain projection、Additional Architectures、FastAPI/GUI 或 Exploit Generation。
 
 ## 提交前检查
 

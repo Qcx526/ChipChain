@@ -33,14 +33,20 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - 可选 OpenAI-compatible Responses/Chat Completions 客户端和人工 smoke script
 - 导师三类 CrossLayerInteraction、双向 Direction 与三种 Location Role 严格契约
 - software→hardware exact-anchor / hardware→software not-implemented 搜索能力边界
+- Phase 9A-R 显式 Interaction binding、CALLS/MMIO/Exact EntityLink 客观验证
+- Phase 9A-R1 subject-linked Evidence、substantive status 和 supporting-evidence hardening
+- Phase 9A-R2 binding-aware transition、Evidence collision 与 vulnerability boundary
+- Phase 9A-R3 semantic binding cardinality 与 VerificationRecord uniqueness hardening
+- 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
+- owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
 
 当前尚未实现通用跨块/跨函数地址分析、Candidate 到 AttackChain 的语义投影、
-Trigger/Precondition 满足性验证、Evidence Verification、最终评分或 API；这些能力会按
-[PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
+动态条件观察、Type III hardware→software propagation verification 或 API。Phase 9A-R
+的 score 是未校准客观证据支持度，不是攻击、利用或漏洞概率。
 
-Phase 8R 只建立双向跨层语义。现有 Candidate/Search/RAG/Multi-Agent 仍工作在
-software→hardware structural primitive 上；Type III 检测与反向 Evidence 尚未实现。
+Phase 9A-R 通过显式 adapter 使用 software→hardware legacy Candidate 支持 Type I/II；
+Type III 的 semantic feature 可提取，但 verifier 与反向 Evidence 明确未实现。
 
 ## 环境要求
 
@@ -249,6 +255,18 @@ CandidateContext 和一次 ARM/global RAG。默认 Demo 完全离线：
 Coordinator 是确定性 Python 编排器；三 Agent 共识不等于 Evidence Verification。
 设计见 [Multi-Agent Reasoning](docs/MULTI_AGENT_REASONING.md)。
 
+## Interaction Verification Example
+
+Phase 9A-R 使用 owned synthetic ARM ELF、显式 Type II interaction/bindings 和非 LLM
+verifier。该示例完全离线，不调用真实 Provider：
+
+```powershell
+.\.venv\Scripts\python examples\arm_interaction_verification_demo.py
+```
+
+输出的 MMIO 位置是 `cross_layer_trigger_point`，不是 initiating root cause；结果也不会
+投影为 verified AttackChain。
+
 ## 文档导航
 
 - [项目范围](docs/PROJECT_SCOPE.md)
@@ -260,6 +278,9 @@ Coordinator 是确定性 Python 编排器；三 Agent 共识不等于 Evidence V
 - [Multi-Agent Reasoning](docs/MULTI_AGENT_REASONING.md)
 - [Cross-Layer Semantics](docs/CROSS_LAYER_SEMANTICS.md)
 - [Phase 9A Migration](docs/PHASE9A_MIGRATION.md)
+- [Interaction Verification](docs/INTERACTION_VERIFICATION.md)
+- [Evidence Verification](docs/EVIDENCE_VERIFICATION.md)
+- [Role-Aware Localization](docs/ROOT_CAUSE_LOCALIZATION.md)
 - [评测设计](docs/EVALUATION.md)
 - [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)
 - [阶段计划](PLANS.md)

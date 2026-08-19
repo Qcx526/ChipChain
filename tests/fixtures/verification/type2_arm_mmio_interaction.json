@@ -1,0 +1,68 @@
+{
+  "interaction": {
+    "id": "cross-layer-interaction:arm:1595536db36d9ac4b2be9bb2ec485101e641ef459cb35841c8091d1d5276e7b6",
+    "architecture": "arm",
+    "interaction_type": "firmware_behavior_to_hardware",
+    "direction": "software_to_hardware",
+    "source_layer": "driver",
+    "target_layer": "hardware",
+    "initiating_vulnerability_ids": [],
+    "target_vulnerability_ids": ["synthetic-hardware-target-hypothesis"],
+    "trigger_behavior_ids": ["owned-type2-mmio-trigger"],
+    "propagation_behavior_ids": [],
+    "affected_execution_ids": [],
+    "fault_state_ids": [],
+    "hardware_resource_ids": ["fixture-mmio-register"],
+    "security_mechanism_ids": [],
+    "evidence_ids": [],
+    "referenced_architectures": ["arm"],
+    "metadata": {
+      "fixture": true,
+      "synthetic": true,
+      "owned": true,
+      "not_real_cve": true,
+      "not_benchmark": true
+    }
+  },
+  "verification_input": {
+    "interaction_id": "cross-layer-interaction:arm:1595536db36d9ac4b2be9bb2ec485101e641ef459cb35841c8091d1d5276e7b6",
+    "architecture": "arm",
+    "interaction_type": "firmware_behavior_to_hardware",
+    "direction": "software_to_hardware",
+    "bindings": [
+      {
+        "interaction_reference_id": "owned-type2-mmio-trigger",
+        "reference_role": "trigger_behavior",
+        "source_kind": "behavior_edge",
+        "source_id": "synthetic-arm-mmio:mmio-write:00010000:00010008:15",
+        "metadata": {"explicit": true}
+      },
+      {
+        "interaction_reference_id": "fixture-mmio-register",
+        "reference_role": "hardware_resource",
+        "source_kind": "entity_link",
+        "source_id": "entity-link:arm:f221a4311b627b44ca391a58",
+        "metadata": {"explicit": true}
+      }
+    ],
+    "condition_bindings": [
+      {
+        "condition_node_id": "trigger:arm:FIXTURE-ARM-KG-001:e0ca0f9405d9ac61",
+        "condition_kind": "trigger",
+        "applies_to_role": "cross_layer_trigger_point",
+        "required": true
+      },
+      {
+        "condition_node_id": "precondition:arm:FIXTURE-ARM-KG-001:41d40db5c54ed600",
+        "condition_kind": "precondition",
+        "applies_to_role": "cross_layer_trigger_point",
+        "required": true
+      }
+    ],
+    "legacy_candidate_id": "cross-graph-candidate:arm:d635cce7aafd99d6e12594a7",
+    "metadata": {
+      "fixture": true,
+      "explicit_interaction_type": true
+    }
+  }
+}

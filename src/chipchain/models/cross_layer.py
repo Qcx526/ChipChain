@@ -83,24 +83,25 @@ def cross_layer_interaction_id(
     fault_state_ids: list[str],
     hardware_resource_ids: list[str],
     security_mechanism_ids: list[str],
-    evidence_ids: list[str],
-    referenced_architectures: list[Architecture],
+    evidence_ids: list[str] | None = None,
+    referenced_architectures: list[Architecture] | None = None,
 ) -> str:
-    """Build a reproducible identity from canonical semantic JSON."""
+    """Build identity from semantic participants, never mutable provenance.
+
+    ``evidence_ids`` and ``referenced_architectures`` remain accepted for API
+    compatibility with Phase 8R callers, but deliberately do not contribute to
+    identity.  Adding evidence or provenance must not create a new interaction.
+    """
 
     payload = {
         "affected_execution_ids": sorted(affected_execution_ids),
         "architecture": architecture.value,
         "direction": direction.value,
-        "evidence_ids": sorted(evidence_ids),
         "fault_state_ids": sorted(fault_state_ids),
         "hardware_resource_ids": sorted(hardware_resource_ids),
         "initiating_vulnerability_ids": sorted(initiating_vulnerability_ids),
         "interaction_type": interaction_type.value,
         "propagation_behavior_ids": sorted(propagation_behavior_ids),
-        "referenced_architectures": sorted(
-            item.value for item in referenced_architectures
-        ),
         "security_mechanism_ids": sorted(security_mechanism_ids),
         "source_layer": source_layer.value,
         "target_layer": target_layer.value,

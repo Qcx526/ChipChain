@@ -48,8 +48,8 @@ hardware-side vulnerability
 ```
 
 必须包含 initiating hardware vulnerability 和 affected execution；target firmware
-vulnerability 可以为空。方向固定为 hardware_to_software。Phase 8R 仅提供数据契约，
-没有反向 Search、分析器或 synthetic BehaviorEdge。
+vulnerability 可以为空。方向固定为 hardware_to_software。Phase 9A-R 可提取 semantic
+features，但没有反向 Search、分析器、客观 propagation verifier 或 synthetic BehaviorEdge。
 
 ## Layer 与 Direction
 
@@ -83,4 +83,11 @@ Type I/II 提供底层候选，但无法区分软件行为是否源于软件漏�
 
 `VulnerabilitySample` 继续表示原子漏洞知识；`CrossLayerInteraction` 独立引用漏洞、
 行为、fault state 和资源，不写回 Behavior Graph 或 Knowledge Graph。
+
+Interaction identity 只由架构、类型/方向、两侧 layer 与语义参与者 ID 决定。Evidence、
+referenced architecture provenance、metadata、verification result、score 与 Agent output
+都不参与 identity；同一 Interaction 增加证据不会变成另一个 Interaction。
+
+Phase 9A-R 必须通过 `InteractionReferenceBinding` 把语义 reference 显式映射到 source
+fact。legacy Candidate 不能决定 Type I/II，也不能用于 Type III。
 

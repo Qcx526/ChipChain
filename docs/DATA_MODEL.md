@@ -343,5 +343,22 @@ Assessment，Phase 8 产生类型化 Multi-AgentReasoningResult；两者都不�
 讨论投影为 `AttackChain(status=candidate)`；当前不得把 Assessment 或 Retrieved
 文本解释成 Evidence 或已验证 AttackChain。
 
-Phase 8R 只新增 independent interaction semantics 和 search capability boundary；
-没有迁移旧 Phase 9A、没有评分/根因算法，也没有新增 hardware→software BehaviorEdge。
+Phase 9A-R 新增独立 verification package：`InteractionReferenceBinding`、
+`InteractionConditionBinding`、`InteractionVerificationInput`、interaction-scoped
+`VerificationRecord` / `ConditionAssessment`、`CrossLayerTriggerFeatureSet`、
+`ObjectiveEvidenceInventory`、`CrossLayerLocationFinding` 和 `InteractionVerificationResult`。
+
+Type III 结果严格要求 `verification_status=None`、`verification_score=None`、空 score
+components；semantic feature 不等于 verified fact。没有新增 hardware→software BehaviorEdge。
+
+Phase 9A-R1 为 VerificationRecord 增加 supporting Evidence 子集约束，并要求
+CrossLayerTriggerFeatureSet 的每个重要输出 feature 至少具有一条 TriggerFeatureProvenance。
+
+Phase 9A-R2 为 InteractionVerificationResult 增加 required fact status map，并强化 feature
+type/direction identity；Evidence 合并拒绝同 ID 异内容碰撞。硬件资源 binding 必须通过
+EntityLink anchor 的 exact external/resource/Memory Map identity 对应 Interaction reference。
+
+Phase 9A-R3 将 binding cardinality 收紧为每个 semantic `(role, reference ID)` 至多一个
+source。不同 reference ID 可继续独立绑定；InteractionVerificationResult 的各
+VerificationRecord collection 另外执行 record ID uniqueness 校验，binding collection 同时
+校验 subject ID uniqueness。

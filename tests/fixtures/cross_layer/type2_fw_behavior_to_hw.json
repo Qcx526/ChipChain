@@ -1,5 +1,5 @@
 {
-  "id": "cross-layer-interaction:arm:e9e4401a172c7d62788f52be385603968a1b140070335034a017f2f4d07a607b",
+  "id": "cross-layer-interaction:arm:3d422f520f0be3d5f022ba43e46b8b4732c3a3502342c16536da4dc2da422953",
   "architecture": "arm",
   "interaction_type": "firmware_behavior_to_hardware",
   "direction": "software_to_hardware",
