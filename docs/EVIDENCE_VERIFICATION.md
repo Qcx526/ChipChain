@@ -28,3 +28,24 @@ Phase 9A-R2 使用 deterministic merge：同 ID 且完整内容一致时安全�
 VerificationInputError，不存在 last-write-wins。对于 initiating/target vulnerability，
 generic direct Evidence 即使 subject linkage 正确也只能 UNKNOWN；正式 vulnerability
 provenance 继续通过 KnowledgeNode participant verifier 或未来专用 contract。
+
+## Dynamic Runtime Evidence
+
+Phase 9B0 只允许属于已验证 `RuntimeTrace` 的严格 `RuntimeObservation` 经
+`RuntimeEvidenceNormalizer` 转换为
+`EvidenceType.DYNAMIC_ANALYSIS`。`verified=true` 最多表示 observation 已通过 backend/trace
+identity、结构和 capability contract；不表示 vulnerability、Interaction、trigger condition
+或 exploitability 已验证。Owned fixture Evidence 必须同时标记 fixture/synthetic/owned、
+`not_real_vulnerability=true` 与 `not_benchmark=true`。
+
+Normalizer 不添加 `interaction_reference_id` 或 `reference_role`。Raw observation 保持
+interaction-agnostic，后续 verifier 必须经显式 binding 匹配。Backend capability 只表示工具
+有能力捕获某类事件；若没有实际 Observation，不能推出该事件发生。
+
+同一 Observation/backend 的 Evidence ID 与 JSON 确定；event semantic field 改变会改变 ID，
+metadata 顺序或 host timestamp 不改变 ID。未来同一 fact 的 Static/Dynamic VerificationRecord
+必须进入 multi-verifier aggregation；任何一方都不能覆盖另一方，本阶段不定义 conflict policy。
+
+Phase 9B0-R1 要求 Normalizer 在生成 `verified=true` 前重新序列化并验证整个 RuntimeTrace，
+再 detached-validate 调用方 Observation，并只消费新 snapshot 的 Observation/backend。
+先前已校验的 mutable object、list membership 或相同 ID 均不能单独建立 integrity trust。

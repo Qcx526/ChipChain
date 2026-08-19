@@ -185,6 +185,27 @@ Exact EntityLink、KG provenance、participant layer 与 ARM rules。
 initiating firmware vulnerability component，Type III profile disabled 且 score 为 None。
 该值只是 evidence support；LLM objective weight 固定为 0.0。
 
+### Runtime Evidence Contract
+
+Phase 9B0 在 Program/Behavior Graph 与 Verification 之外建立独立 runtime boundary：
+
+```text
+Runtime Backend Manifest
+  → Runtime Trace Manifest
+  → ordered RuntimeObservation[]
+  → Dynamic Evidence normalization
+  → future explicit Interaction binding / dynamic verifier
+```
+
+Runtime backend 通过 versioned manifest 声明 capability；Trace 在构造和加载时检查架构、
+backend identity、全局 `sequence_index`、Observation identity、vCPU 范围与 capability。
+`vcpu_count` 模型允许未来扩展，但 Phase 9B1 首个 observer 只支持单 vCPU deterministic
+ordering。Trace 使用独立 `chipchain_runtime_trace` v1 JSON，不写入 Behavior Graph。
+
+`RuntimeIntervention` 是 controlled action，不是 Observation。Phase 9B0 没有 executor、QEMU
+plugin、fault injection 或 causal verifier，也没有修改 9A-R Pipeline。Dynamic Evidence
+仍是 interaction-agnostic observation provenance；显式 binding 和 fact verification 留给后续。
+
 ### Evaluation and Presentation
 
 评测模块比较结构化预测链与 Ground Truth，统计检索、节点、边和根因指标及失败原因。CLI 是首个用户入口，核心算法稳定后再增加 FastAPI。
@@ -243,7 +264,7 @@ Program Analysis 路径在 Register/HardwareResource 观察处停止。Hardware 
 
 ## 当前实现边界
 
-Phase 0～9A-R 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
+Phase 0～9B0 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
 MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、可选 AngrAnalyzer、
 Analysis Ingestion，以及 synthetic ARM ELF 到 Function/CALLS/MMIO Hardware
 Node/GraphPath 的端到端闭环；另有独立 Vulnerability Knowledge Graph、确定性
@@ -255,5 +276,7 @@ Context/RAG、三个固定类型化 Agent、确定性
 Coordinator、Citation/Architecture/Condition 校验、失败隔离和 digest-only Trace。
 Phase 8R 新增三类 CrossLayerInteraction。Phase 9A-R 增加 Type I/II 部分非 LLM
 Evidence Verification、显式 condition assessment、type-aware score 与 trigger-point
-localization；现有 Candidate/Search/RAG/Multi-Agent API 保持不变。Hardware→software
-detection、runtime propagation Verification 与反向 BehaviorEdge 仍未实现。
+localization；现有 Candidate/Search/RAG/Multi-Agent API 保持不变。Phase 9B0 新增独立
+Runtime backend/trace/observation/intervention contract、v1 persistence 与 Dynamic Evidence
+normalization。真实 QEMU observation、Hardware→software causal Verification 与反向
+BehaviorEdge 仍未实现。

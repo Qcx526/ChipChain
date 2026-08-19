@@ -1,0 +1,101 @@
+{
+  "backend_manifest": {
+    "architecture": "arm",
+    "backend_kind": "owned_fixture",
+    "backend_name": "owned-type3-intervention-contract",
+    "backend_version": "phase-9b0-v1",
+    "capabilities": [
+      "active_state_mutation"
+    ],
+    "id": "runtime-backend:87d7bd2e59ed304698a687d4cfda4ae7705bb80684b1982919d87538d99777f9",
+    "metadata": {
+      "fixture": true,
+      "not_benchmark": true,
+      "not_real_vulnerability": true,
+      "owned": true,
+      "synthetic": true
+    },
+    "system_emulation": true
+  },
+  "baseline_manifest": {
+    "architecture": "arm",
+    "artifact_id": "owned-type3-baseline-placeholder",
+    "artifact_sha256": "b0da62c0d927ab53b5bb64aa2558de250b14a39ad83f922a9373e880c43ed1fe",
+    "backend_manifest_id": "runtime-backend:87d7bd2e59ed304698a687d4cfda4ae7705bb80684b1982919d87538d99777f9",
+    "cpu": "cortex-a9",
+    "environment_fingerprint": "owned-type3-initial-state-v1",
+    "id": "runtime-trace:a55154f11a7b1d9d26502e2147909932e34b210bd55029caf14344fbb531ad0d",
+    "input_fingerprint": "owned-type3-input-v1",
+    "machine": "synthetic-arm-type3-machine",
+    "memory_map_id": null,
+    "memory_map_sha256": null,
+    "metadata": {
+      "fixture": true,
+      "not_benchmark": true,
+      "not_real_vulnerability": true,
+      "owned": true,
+      "synthetic": true
+    },
+    "run_id": "owned-type3-baseline-run",
+    "run_mode": "baseline",
+    "scenario_id": "owned-type3-intervention-contract",
+    "vcpu_count": 1
+  },
+  "format": "chipchain_runtime_intervention_contract",
+  "format_version": 1,
+  "intervention": {
+    "architecture": "arm",
+    "before_sequence_index": 0,
+    "controller_backend": "runtime-backend:87d7bd2e59ed304698a687d4cfda4ae7705bb80684b1982919d87538d99777f9",
+    "id": "runtime-intervention:f247e2805a4a885ddcb33f3347005f9cd18e598fe65c1be177e1d83acce163f8",
+    "intervention_kind": "device_state_override",
+    "metadata": {
+      "fixture": true,
+      "not_benchmark": true,
+      "not_real_vulnerability": true,
+      "owned": true,
+      "synthetic": true
+    },
+    "run_id": "owned-type3-intervention-run",
+    "scenario_id": "owned-type3-intervention-contract",
+    "target_address": {
+      "value": "0x40000000"
+    },
+    "target_device_id": "synthetic-owned-device",
+    "value": 1,
+    "value_width_bits": 32
+  },
+  "intervention_manifest": {
+    "architecture": "arm",
+    "artifact_id": "owned-type3-intervention-placeholder",
+    "artifact_sha256": "332f1e8242ac40379abd47c25cbd3cc494a8339cd073779c3b24eede89480bcd",
+    "backend_manifest_id": "runtime-backend:87d7bd2e59ed304698a687d4cfda4ae7705bb80684b1982919d87538d99777f9",
+    "cpu": "cortex-a9",
+    "environment_fingerprint": "owned-type3-initial-state-v1",
+    "id": "runtime-trace:9205389d7b2ea740cfc956791b664d38efa920a4ba22e44a53d37c3fc4ae8602",
+    "input_fingerprint": "owned-type3-input-v1",
+    "machine": "synthetic-arm-type3-machine",
+    "memory_map_id": null,
+    "memory_map_sha256": null,
+    "metadata": {
+      "fixture": true,
+      "not_benchmark": true,
+      "not_real_vulnerability": true,
+      "owned": true,
+      "synthetic": true
+    },
+    "run_id": "owned-type3-intervention-run",
+    "run_mode": "intervention",
+    "scenario_id": "owned-type3-intervention-contract",
+    "vcpu_count": 1
+  },
+  "metadata": {
+    "fixture": true,
+    "not_benchmark": true,
+    "not_real_vulnerability": true,
+    "owned": true,
+    "synthetic": true,
+    "type3_verified": false,
+    "verification_result_generated": false
+  }
+}
