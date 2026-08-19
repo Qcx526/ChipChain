@@ -1,0 +1,44 @@
+{
+  "id": "cross-layer-interaction:arm:0a4b9c9bcb1cc55cc6b13547ed19a0378e2e802e72fb2f029b37d5b77603c454",
+  "architecture": "arm",
+  "interaction_type": "hardware_vulnerability_to_firmware",
+  "direction": "hardware_to_software",
+  "source_layer": "hardware",
+  "target_layer": "firmware",
+  "initiating_vulnerability_ids": [
+    "HW-VULN-FIXTURE-TYPE3"
+  ],
+  "target_vulnerability_ids": [],
+  "trigger_behavior_ids": [],
+  "propagation_behavior_ids": [
+    "fixture-fault-propagation-state"
+  ],
+  "affected_execution_ids": [
+    "fixture-branch-point",
+    "fixture-firmware-handler"
+  ],
+  "fault_state_ids": [
+    "fixture-corrupted-return-state"
+  ],
+  "hardware_resource_ids": [
+    "fixture-faulting-hardware-block"
+  ],
+  "security_mechanism_ids": [],
+  "evidence_ids": [
+    "fixture-type3-annotation"
+  ],
+  "referenced_architectures": [
+    "arm"
+  ],
+  "metadata": {
+    "fixture": true,
+    "synthetic": true,
+    "owned": true,
+    "classification_source": "explicit_fixture_annotation",
+    "purpose": "Phase 8R Type III data-contract testing",
+    "semantic_contract_only": true,
+    "no_hardware_to_firmware_behavior_edge": true,
+    "not_a_real_cve": true,
+    "not_a_benchmark": true
+  }
+}

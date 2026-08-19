@@ -43,11 +43,36 @@ Phase 8 的协作推理固定复用一次 CandidateContext Assembly 和一次 AR
 编排器，不是第四个 LLM；Agent 输出、共识和 Critic Review 均不等于 Evidence 或
 Verification。详细契约见 `docs/MULTI_AGENT_REASONING.md`。
 
+## 双向 Cross-Layer Semantics
+
+Phase 8R 的正式语义同时覆盖两个物理方向：
+
+```text
+Software/Firmware Side
+  └─ instruction / MMIO / data / control / shared state
+       └─> Hardware Side
+
+Hardware Side
+  └─ fault / interrupt / DMA / returned state / memory effect
+       └─> Software/Firmware Side
+            (semantic contract; future evidence-backed implementation)
+```
+
+第一条当前只有 `CrossGraphCandidate` software→hardware exact-anchor structural
+primitive；它可服务未来 Type I/II，但不能区分两者。第二条目前只有
+`CrossLayerInteraction` Type III 数据契约和明确的 not-implemented search capability，
+没有检测算法或猜测型 BehaviorEdge。
+
 ## 分层与职责
 
 ### Domain Models
 
 Pydantic 模型定义漏洞、行为、接口、硬件资源、证据、根因和攻击链。它们是模块间数据契约，不包含图搜索或外部服务逻辑。
+
+Phase 8R 的 `CrossLayerInteraction` 是独立关联对象，不是 Graph Edge、AttackChain、
+Verified Result 或 VulnerabilitySample。它显式保存 InteractionType、Direction、两侧
+Layer、漏洞/行为/fault state/affected execution 引用，并以 canonical semantic JSON
+的 SHA-256 建立身份。类型由 dataset annotation 或确定性输入提供，LLM 不分类。
 
 ### Ingestion and Normalization
 
@@ -221,3 +246,7 @@ optional compatible Provider 和 Semantic Assessment 后校验。通用地址分
 Candidate 到 AttackChain 投影、条件满足性、Evidence Verification/Scoring、
 以及 API 仍未实现。Phase 8 增加共享 Context/RAG、三个固定类型化 Agent、确定性
 Coordinator、Citation/Architecture/Condition 校验、失败隔离和 digest-only Trace。
+Phase 8R 新增独立三类 CrossLayerInteraction、双向 Direction、Location Role 和
+direction-aware search capability boundary；现有 Candidate/Search/RAG/Multi-Agent API
+保持不变。Hardware→software detection、Evidence、Verification 与反向 BehaviorEdge
+仍未实现。

@@ -5,7 +5,12 @@
 ## 研究边界
 
 - ChipChain 面向防御性科研，用于检测、分析、验证和解释跨层芯片漏洞攻击链。
-- “跨层”指同一芯片架构内部从固件、驱动、架构接口到硬件资源或安全机制的纵向关联，不等于跨架构拼接。
+- “跨层”指同一芯片架构内由真实软硬件接口传播的双向安全关联，不等于跨架构拼接。
+- 正式 Cross-Layer Semantics 只有三类：软件侧漏洞触发硬件漏洞、正常软件行为在特定
+  条件下触发硬件漏洞、硬件漏洞或异常状态反向影响软件执行。后续实现不得默认所有
+  跨层链都始于软件漏洞。
+- Type II 不得为建模方便伪造 firmware vulnerability；Type III 不得反转现有
+  software→hardware GraphPath 来冒充 hardware→software Evidence。
 - 当前只实现 ARM MVP；ARM 闭环稳定并完成评测后，才讨论第二种架构。
 - 不生成面向真实未授权目标的武器化利用代码。测试仅使用自有代码、toy、synthetic、fixture、公开基准或明确授权环境。
 - 示例或合成数据必须明确标记 `demo`、`synthetic` 或 `fixture`，不得伪装成真实 CVE 或正式 Benchmark。
@@ -31,12 +36,13 @@
 
 ## 当前阶段限制
 
-- Phase 0～7R 已完成；当前执行 Phase 8：Typed Multi-Agent Collaborative Reasoning。
-- Phase 8 允许类型化 Agent Contract、Evidence Analyst、Security Reasoner、Critic、
-  deterministic Coordinator、Mock Multi-Agent 和可选真实 Qwen 人工验证。
-- 未经明确安排，不提前实现 Evidence Verification、Final Scoring、Verified
-  AttackChain、Dynamic Verification、FastAPI/GUI、Additional Architectures 或
-  Exploit Generation。
+- Phase 0～8 已完成；当前执行 Phase 8R：Cross-Layer Semantics Refactor。
+- Phase 8R 只允许三类 Interaction/Direction/Location Role 数据契约、search capability
+  boundary、纯语义 fixture、兼容测试和评测/迁移文档。
+- 未经明确安排，不实现或迁移 Evidence Verification、Scoring、Root Cause algorithm、
+  Dynamic/QEMU Analysis、Hardware→Firmware synthetic BehaviorEdge、LLM Type
+  Classification、新 Agent、AttackChain projection、FastAPI/GUI、Additional
+  Architectures 或 Exploit Generation。
 
 ## 提交前检查
 

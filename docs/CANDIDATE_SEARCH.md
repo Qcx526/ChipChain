@@ -29,6 +29,18 @@ Behavior/Knowledge Repository 始终独立。EntityLink 和 Candidate 不写回 
 
 `EntityLink != AttackChainEdge`。它只证明两个硬件实体共享结构化 identity key。
 
+## Phase 8R 正式定位
+
+`CrossGraphCandidate != CrossLayerInteraction`。现有 Candidate/Searcher 是稳定的
+`software-to-hardware exact-anchor structural correlation primitive`：路径从软件侧
+到 linked hardware anchor，并关联现有漏洞知识。
+
+该 primitive 可为未来 Type I/Type II 提供底层行为候选，但它无法判断软件行为是否
+源于 firmware vulnerability，所以不得自动标注 Type I 或 Type II。它也不支持 Type III。
+`knowledge_vulnerability_id` 是关联到的知识节点，不等于 software-side initiating
+vulnerability。硬件→软件搜索通过 capability boundary 明确报告 not implemented，
+不会静默调用或反转当前 Searcher。
+
 ## Phase 6A：Exact Hardware Linking
 
 第一版只考虑：
@@ -122,6 +134,9 @@ Phase 7 可以把 Candidate 的引用解析为只读 `CandidateContext`，并用
 
 Phase 8 可以把 Candidate 交给固定的类型化 Multi-Agent 协作分析，但所有 Agent
 继续消费同一个只读 CandidateContext，不能修改 Candidate 或判断条件已满足。
+
+Phase 8R 不给 legacy fixture 补 InteractionType；它仍是 legacy structural fixture。
+正式三类由独立 `CrossLayerInteraction` 表达，并来自显式 annotation 或确定性输入。
 
 尚未实现 Component/Interface linking、Trigger/Precondition 满足性判断、Evidence
 Verification、Scoring、AttackChain 投影、Neo4j、API 或 GUI。

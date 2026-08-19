@@ -1,0 +1,43 @@
+{
+  "id": "cross-layer-interaction:arm:9300584f203ce4061121dfae900bf3b5346e40d523b2e0fbba997cf13e46a376",
+  "architecture": "arm",
+  "interaction_type": "firmware_vulnerability_to_hardware",
+  "direction": "software_to_hardware",
+  "source_layer": "driver",
+  "target_layer": "hardware",
+  "initiating_vulnerability_ids": [
+    "FW-VULN-FIXTURE"
+  ],
+  "target_vulnerability_ids": [
+    "HW-VULN-FIXTURE"
+  ],
+  "trigger_behavior_ids": [
+    "fixture-mmio-write"
+  ],
+  "propagation_behavior_ids": [
+    "fixture-controlled-command-sequence"
+  ],
+  "affected_execution_ids": [],
+  "fault_state_ids": [],
+  "hardware_resource_ids": [
+    "fixture-security-register"
+  ],
+  "security_mechanism_ids": [
+    "fixture-hardware-boundary-check"
+  ],
+  "evidence_ids": [
+    "fixture-type1-annotation"
+  ],
+  "referenced_architectures": [
+    "arm"
+  ],
+  "metadata": {
+    "fixture": true,
+    "synthetic": true,
+    "owned": true,
+    "classification_source": "explicit_fixture_annotation",
+    "purpose": "Phase 8R Type I data-contract testing",
+    "not_a_real_cve": true,
+    "not_a_benchmark": true
+  }
+}

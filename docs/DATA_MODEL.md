@@ -67,6 +67,53 @@ Phase 7 的只读解析、检索和解释契约位于 `src/chipchain/reasoning/`
 | `reasoning.py` | 单体 CandidateReasoner 与 citation post-validation |
 | `models.py` | Context、Document、Chunk、Query、Prompt、Assessment、Config、Result |
 
+Phase 8R 的正式跨层语义位于 `src/chipchain/models/cross_layer.py`：
+
+| 模型/枚举 | 语义 |
+| --- | --- |
+| `CrossLayerInteractionType` | 导师定义的 Type I / II / III，封闭且无 other/unknown |
+| `CrossLayerDirection` | software_to_hardware / hardware_to_software |
+| `CrossLayerLocationRole` | initiating root cause / trigger point / affected execution point |
+| `CrossLayerInteraction` | 独立、未验证的跨层 hypothesis/known scenario 数据契约 |
+| `SOFTWARE_SIDE_LAYERS` | firmware、driver、interface |
+| `HARDWARE_SIDE_LAYERS` | hardware |
+
+## CrossLayerInteraction
+
+三类约束为：
+
+1. Type I：软件侧 initiating vulnerability、trigger behavior、硬件侧 target
+   vulnerability 均非空，方向 software→hardware；
+2. Type II：initiating vulnerability 必须为空，trigger behavior 与硬件 target
+   vulnerability 非空，方向 software→hardware；
+3. Type III：硬件侧 initiating vulnerability 与 affected execution 非空，方向
+   hardware→software，target firmware vulnerability 允许为空。
+
+`fault_state_ids` 可显式引用 Type III 传播中的异常状态。所有 ID list 去重并排序；
+Interaction ID 对除 metadata 外的规范语义字段执行 canonical JSON + 完整 SHA-256。
+可选 `referenced_architectures` 只用于拒绝能够显式验证的跨架构引用；opaque ID 本身
+不会被猜测解析。
+
+`firmware_*` 类型名遵循正式分类，其中 firmware-side 表示现有 firmware/driver/
+interface 软件执行侧，不扩大到尚未建模的 OS/application。
+
+### 三种位置角色
+
+- `initiating_root_cause`：漏洞或异常真正起因；
+- `cross_layer_trigger_point`：使状态跨层传播的指令、接口、寄存器访问或硬件状态；
+- `affected_execution_point`：另一层实际受影响的执行位置。
+
+三者可能是不同实体。Type II 的 MMIO instruction 是 trigger point，不能自动称为
+firmware root cause；Type III 的 firmware branch 是 affected point，不能称为 software
+root cause。历史 `RootCause` 模型保持原义，未来 revised localization 再消费新角色。
+
+### 与既有对象的边界
+
+`VulnerabilitySample != CrossLayerInteraction`：前者继续表达一个原子漏洞/弱点，
+不会被强制增加 interaction 字段。`CrossGraphCandidate != CrossLayerInteraction`：
+前者保持 software→hardware exact-anchor primitive、原 API 和原 deterministic ID，
+不会自动分类 Type I/II，也不支持 Type III。
+
 ## 稳定枚举
 
 - Architecture：`arm`、`risc_v`、`powerpc`、`sparc`、`loongarch`
@@ -78,6 +125,11 @@ Phase 7 的只读解析、检索和解释契约位于 `src/chipchain/reasoning/`
 - BehaviorType：`call`、`syscall`、`ioctl`、`mmio_read`、`mmio_write`、`register_access`、`dma_read`、`dma_write`、`interrupt`、`privilege_transition`、`data_flow`
 - NodeKind：`vulnerability`、`function`、`driver_function`、`interface`、`register`、`hardware_resource`、`security_mechanism`、`weakness`、`impact`
 - RelationType：`calls`、`invokes`、`issues`、`data_flows_to`、`mmio_read`、`mmio_write`、`accesses`、`triggers`、`exploits`、`leads_to`
+- CrossLayerInteractionType：`firmware_vulnerability_to_hardware`、
+  `firmware_behavior_to_hardware`、`hardware_vulnerability_to_firmware`
+- CrossLayerDirection：`software_to_hardware`、`hardware_to_software`
+- CrossLayerLocationRole：`initiating_root_cause`、`cross_layer_trigger_point`、
+  `affected_execution_point`
 
 ## Evidence
 
@@ -290,3 +342,6 @@ Assessment，Phase 8 产生类型化 Multi-AgentReasoningResult；两者都不�
 后续阶段完成条件满足性和 Evidence Verification 后，才可
 讨论投影为 `AttackChain(status=candidate)`；当前不得把 Assessment 或 Retrieved
 文本解释成 Evidence 或已验证 AttackChain。
+
+Phase 8R 只新增 independent interaction semantics 和 search capability boundary；
+没有迁移旧 Phase 9A、没有评分/根因算法，也没有新增 hardware→software BehaviorEdge。

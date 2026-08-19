@@ -31,11 +31,16 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - 固定 Evidence Analyst → Security Reasoner → Critic 的类型化 Multi-Agent 推理
 - 确定性 Prompt、LLMProvider 抽象、Mock Provider 和结构化 Assessment 后校验
 - 可选 OpenAI-compatible Responses/Chat Completions 客户端和人工 smoke script
+- 导师三类 CrossLayerInteraction、双向 Direction 与三种 Location Role 严格契约
+- software→hardware exact-anchor / hardware→software not-implemented 搜索能力边界
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
 
 当前尚未实现通用跨块/跨函数地址分析、Candidate 到 AttackChain 的语义投影、
 Trigger/Precondition 满足性验证、Evidence Verification、最终评分或 API；这些能力会按
 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
+
+Phase 8R 只建立双向跨层语义。现有 Candidate/Search/RAG/Multi-Agent 仍工作在
+software→hardware structural primitive 上；Type III 检测与反向 Evidence 尚未实现。
 
 ## 环境要求
 
@@ -253,6 +258,8 @@ Coordinator 是确定性 Python 编排器；三 Agent 共识不等于 Evidence V
 - [Candidate Search](docs/CANDIDATE_SEARCH.md)
 - [RAG Reasoning](docs/RAG_REASONING.md)
 - [Multi-Agent Reasoning](docs/MULTI_AGENT_REASONING.md)
+- [Cross-Layer Semantics](docs/CROSS_LAYER_SEMANTICS.md)
+- [Phase 9A Migration](docs/PHASE9A_MIGRATION.md)
 - [评测设计](docs/EVALUATION.md)
 - [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)
 - [阶段计划](PLANS.md)

@@ -149,3 +149,7 @@ Phase 7 的 `CandidateReasoner` 继续作为单 Reasoner baseline。Phase 8 在�
 Retriever 和 Provider boundary 上增加固定类型化 Multi-Agent，设计见
 `MULTI_AGENT_REASONING.md`。两个路径都不实现 Embedding、FAISS、Chroma、LangChain、
 Evidence Verification、Scoring、AttackChain conversion、动态执行、Neo4j、API 或 GUI。
+
+Phase 8R 进一步明确：当前 CandidateContext/RAG 只消费 legacy software→hardware
+CrossGraphCandidate primitive。它不分类 Type I/II，也不支持 Type III；InteractionType
+必须来自显式 annotation 或确定性输入，不能由 LLM 自行决定。
