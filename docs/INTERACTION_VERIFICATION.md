@@ -38,3 +38,8 @@ interaction feature set，每个输出 feature 必须具有 structured provenanc
 状态；result 同时校验 TriggerFeatureSet 的 interaction ID、architecture、type 与 direction。
 每个 VerificationRecord collection 都拒绝重复 record ID，binding collection 还拒绝重复
 subject ID，避免输入顺序或后写覆盖造成歧义。
+
+Phase 9B0 不修改 `InteractionVerificationPipeline`。RuntimeObservation 归一化后的 Dynamic
+Evidence 没有 Interaction subject linkage，因此不会自动进入 required truth、score 或
+location。Phase 9B1/9B2 必须先设计 explicit dynamic binding 与 multi-verifier aggregation，
+不能让 runtime evidence 绕过 Phase 9A-R binding cardinality 或覆盖静态 VerificationRecord。

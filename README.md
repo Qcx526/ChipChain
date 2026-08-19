@@ -37,12 +37,15 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9A-R1 subject-linked Evidence、substantive status 和 supporting-evidence hardening
 - Phase 9A-R2 binding-aware transition、Evidence collision 与 vulnerability boundary
 - Phase 9A-R3 semantic binding cardinality 与 VerificationRecord uniqueness hardening
+- Phase 9B0 backend-neutral Runtime Trace/Observation/Intervention 与 Dynamic Evidence contract
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
 
 当前尚未实现通用跨块/跨函数地址分析、Candidate 到 AttackChain 的语义投影、
-动态条件观察、Type III hardware→software propagation verification 或 API。Phase 9A-R
+真实 QEMU runtime observer、Type III hardware→software propagation verification 或 API。
+Phase 9B0 只提供可审计运行时数据契约和 synthetic owned fixtures，不声称已采集真实 QEMU
+trace。Phase 9A-R
 的 score 是未校准客观证据支持度，不是攻击、利用或漏洞概率。
 
 Phase 9A-R 通过显式 adapter 使用 software→hardware legacy Candidate 支持 Type I/II；

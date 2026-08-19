@@ -362,3 +362,25 @@ Phase 9A-R3 将 binding cardinality 收紧为每个 semantic `(role, reference I
 source。不同 reference ID 可继续独立绑定；InteractionVerificationResult 的各
 VerificationRecord collection 另外执行 record ID uniqueness 校验，binding collection 同时
 校验 subject ID uniqueness。
+
+## Runtime Evidence Contract
+
+Phase 9B0 的 `chipchain.runtime` 是独立领域边界：
+
+- `RuntimeBackendManifest` 保存 backend kind/name/version、architecture、system-emulation
+  标志和唯一排序的 capability；metadata 不参与 canonical SHA-256 identity。
+- `RuntimeTraceManifest` 保存 run/scenario、backend、artifact SHA-256、machine/CPU/vCPU、
+  可选 Memory Map 与 input/environment fingerprint；不以 wall-clock 时间建立身份。
+- `RuntimeObservation` 使用全局 `sequence_index` 排序，并为 instruction、MMIO、interrupt/
+  exception discontinuity 和 DMA 执行事件特定校验。`address_space_id` 保留可选地址空间。
+- `RuntimeTrace` 使用 `chipchain_runtime_trace` version 1 envelope，重新校验 identity、
+  architecture、sequence、vCPU 和 backend capability，并确定性排序 observations。
+- `RuntimeIntervention` 表示受控 action；它与 Observation 使用不同 enum、模型和 ID 空间。
+
+Observation identity 包含 trace、sequence、architecture、event、vCPU 和全部事件语义字段；
+host timestamp 与 metadata 明确排除。物理地址不能被默认视为跨 address space 全局唯一；
+未来 resolver 在多地址空间场景必须同时使用 `address_space_id`。
+
+`RuntimeEvidenceNormalizer` 产生现有 `Evidence(type=dynamic_analysis)`。Evidence 的
+`source` 是 backend manifest ID，`artifact` 是 trace ID，metadata 保存 observation/event/
+sequence/vCPU 和事件字段，不写入 Interaction ID、reference ID 或 role。

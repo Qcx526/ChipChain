@@ -1,0 +1,105 @@
+{
+  "backend_manifest": {
+    "architecture": "arm",
+    "backend_kind": "owned_fixture",
+    "backend_name": "owned-arm-mmio-contract",
+    "backend_version": "phase-9b0-v1",
+    "capabilities": [
+      "instruction_execution",
+      "io_classification",
+      "memory_access",
+      "memory_value",
+      "physical_address"
+    ],
+    "id": "runtime-backend:2c2bc2299f2a16b11cea66dc1a8084595eaa276f9f1d23b7c86c51820a237d56",
+    "metadata": {
+      "fixture": true,
+      "not_benchmark": true,
+      "not_real_vulnerability": true,
+      "owned": true,
+      "synthetic": true
+    },
+    "system_emulation": true
+  },
+  "format": "chipchain_runtime_trace",
+  "format_version": 1,
+  "manifest": {
+    "architecture": "arm",
+    "artifact_id": "synthetic-arm-mmio-runtime-jsonl",
+    "artifact_sha256": "c53859b558c4a54291ab0796a74452baaecb2dd3bd4a4bb7ffdf70886c7f4a23",
+    "backend_manifest_id": "runtime-backend:2c2bc2299f2a16b11cea66dc1a8084595eaa276f9f1d23b7c86c51820a237d56",
+    "cpu": "arm926",
+    "environment_fingerprint": "owned-runtime-contract-environment-v1",
+    "id": "runtime-trace:8229b5d9aff160533c95ef79135756303bcdb8c254040b44a82e8aa2c5cfd12f",
+    "input_fingerprint": "owned-mmio-trigger-input-v1",
+    "machine": "synthetic-arm-mmio-machine",
+    "memory_map_id": "synthetic-arm-mmio-map",
+    "memory_map_sha256": "dee1c2ff78a80362d7d4fc216d4945d379be1ea60f4512473bf6df5bb9c77ccd",
+    "metadata": {
+      "capture_backend_simulated_for_contract": true,
+      "fixture": true,
+      "not_benchmark": true,
+      "not_real_vulnerability": true,
+      "owned": true,
+      "synthetic": true
+    },
+    "run_id": "owned-arm-mmio-trigger-run",
+    "run_mode": "trigger",
+    "scenario_id": "owned-arm-mmio-contract",
+    "vcpu_count": 1
+  },
+  "observations": [
+    {
+      "access_size": null,
+      "address_space_id": null,
+      "architecture": "arm",
+      "device_id": null,
+      "event_kind": "instruction_exec",
+      "from_pc": null,
+      "host_timestamp": null,
+      "id": "runtime-observation:b5c64d7175be28039c891392d61dd285d9061ae3fc24c0b47994eddbe132cd35",
+      "is_io": null,
+      "metadata": {
+        "capture_backend_simulated_for_contract": true
+      },
+      "pc": {
+        "value": "0x10008"
+      },
+      "physical_address": null,
+      "sequence_index": 0,
+      "to_pc": null,
+      "trace_id": "runtime-trace:8229b5d9aff160533c95ef79135756303bcdb8c254040b44a82e8aa2c5cfd12f",
+      "value": null,
+      "value_width_bits": null,
+      "vcpu_index": 0,
+      "virtual_address": null
+    },
+    {
+      "access_size": 4,
+      "address_space_id": "system-memory",
+      "architecture": "arm",
+      "device_id": null,
+      "event_kind": "mmio_write",
+      "from_pc": null,
+      "host_timestamp": null,
+      "id": "runtime-observation:9411e1aa319a398d501d4d63d99a702afa9de4c4e335a475a6c4db3cbe6f52a4",
+      "is_io": true,
+      "metadata": {
+        "capture_backend_simulated_for_contract": true
+      },
+      "pc": {
+        "value": "0x10008"
+      },
+      "physical_address": {
+        "value": "0x40000000"
+      },
+      "sequence_index": 1,
+      "to_pc": null,
+      "trace_id": "runtime-trace:8229b5d9aff160533c95ef79135756303bcdb8c254040b44a82e8aa2c5cfd12f",
+      "value": 1,
+      "value_width_bits": 32,
+      "vcpu_index": 0,
+      "virtual_address": null
+    }
+  ]
+}

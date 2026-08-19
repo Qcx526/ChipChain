@@ -1,0 +1,77 @@
+{
+  "backend_manifest": {
+    "architecture": "arm",
+    "backend_kind": "owned_fixture",
+    "backend_name": "owned-arm-interrupt-contract",
+    "backend_version": "phase-9b0-v1",
+    "capabilities": [
+      "interrupt_discontinuity"
+    ],
+    "id": "runtime-backend:d291e65635222e1a978f221d6b9ff74bd63d84a8fcde7497a7c4a56adf69ed11",
+    "metadata": {
+      "fixture": true,
+      "not_benchmark": true,
+      "not_real_vulnerability": true,
+      "owned": true,
+      "synthetic": true
+    },
+    "system_emulation": true
+  },
+  "format": "chipchain_runtime_trace",
+  "format_version": 1,
+  "manifest": {
+    "architecture": "arm",
+    "artifact_id": "synthetic-arm-interrupt-runtime-jsonl",
+    "artifact_sha256": "7910a0fb0e0c06107469daf83ee961815382c9f7ceccad03cc98a08ca8ff0f86",
+    "backend_manifest_id": "runtime-backend:d291e65635222e1a978f221d6b9ff74bd63d84a8fcde7497a7c4a56adf69ed11",
+    "cpu": "cortex-a9",
+    "environment_fingerprint": "owned-runtime-contract-environment-v1",
+    "id": "runtime-trace:08d0373ee55fda1d75cfa98845c3925d06b48ec10953442802f675f875906c16",
+    "input_fingerprint": "owned-interrupt-input-v1",
+    "machine": "synthetic-arm-interrupt-machine",
+    "memory_map_id": null,
+    "memory_map_sha256": null,
+    "metadata": {
+      "capture_backend_simulated_for_contract": true,
+      "fixture": true,
+      "not_benchmark": true,
+      "not_real_vulnerability": true,
+      "owned": true,
+      "synthetic": true
+    },
+    "run_id": "owned-arm-interrupt-run",
+    "run_mode": "trigger",
+    "scenario_id": "owned-arm-interrupt-contract",
+    "vcpu_count": 1
+  },
+  "observations": [
+    {
+      "access_size": null,
+      "address_space_id": null,
+      "architecture": "arm",
+      "device_id": null,
+      "event_kind": "interrupt_discontinuity",
+      "from_pc": {
+        "value": "0x11000"
+      },
+      "host_timestamp": null,
+      "id": "runtime-observation:fe22eba061cfc4c23d263f5f6be372264e4a027d3e99e096cefe6b41d440298e",
+      "is_io": null,
+      "metadata": {
+        "capture_backend_simulated_for_contract": true,
+        "meaning": "interrupt discontinuity shape only"
+      },
+      "pc": null,
+      "physical_address": null,
+      "sequence_index": 0,
+      "to_pc": {
+        "value": "0x12000"
+      },
+      "trace_id": "runtime-trace:08d0373ee55fda1d75cfa98845c3925d06b48ec10953442802f675f875906c16",
+      "value": null,
+      "value_width_bits": null,
+      "vcpu_index": 0,
+      "virtual_address": null
+    }
+  ]
+}

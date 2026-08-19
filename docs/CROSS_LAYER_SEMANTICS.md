@@ -91,3 +91,21 @@ referenced architecture provenance、metadata、verification result、score 与 
 Phase 9A-R 必须通过 `InteractionReferenceBinding` 把语义 reference 显式映射到 source
 fact。legacy Candidate 不能决定 Type I/II，也不能用于 Type III。
 
+## Phase 9B0 Runtime 语义边界
+
+Type I 的 runtime Evidence 可证明 trigger behavior、MMIO transition 或运行序列被观察，
+不能单独证明 initiating firmware vulnerability 或 target hardware vulnerability 存在。
+
+Type II 中 runtime sequence 是重要客观证据，但 normal behavior observed 不等于 hardware
+vulnerability confirmed；仍需独立 hardware vulnerability provenance 与 trigger condition。
+
+Type III 最终链条为 hardware vulnerability → controlled/observed fault state → propagation
+mechanism → affected firmware execution → security impact。Intervention、Observation、Inference
+和 Verification 必须分别建模。Phase 9B0 只定义前两者的数据合同，不输出因果或验证结论。
+
+未来 Type III causal support 至少需要可比的 baseline/intervention runs：相同 firmware、
+machine、input 与可控初始状态，仅 controlled intervention 不同；还要观察 intervention、
+propagation、affected execution，并确认 baseline 不出现等价 deviation。`A before B` 只表示
+时序，不能推出 `A causes B`。Affected execution point 应来自 instruction/discontinuity/
+control-flow observation，而不是 LLM 推断地址。
+
