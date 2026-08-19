@@ -4,6 +4,7 @@ from collections.abc import Iterable
 
 from chipchain.models import Evidence, EvidenceType
 from chipchain.verification.enums import RequiredFactCategory
+from chipchain.verification.errors import VerificationInputError
 from chipchain.verification.models import ObjectiveEvidenceInventory
 
 
@@ -55,3 +56,19 @@ class EvidenceCatalog:
             unknown_evidence_ids=unknown, rejected_evidence_ids=rejected,
             required_fact_categories=sorted(set(required_fact_categories), key=lambda x: x.value),
         )
+
+
+def merge_evidence(*collections: Iterable[Evidence]) -> list[Evidence]:
+    """Deterministically deduplicate equal Evidence and reject ID collisions."""
+
+    merged: dict[str, dict[str, object]] = {}
+    for collection in collections:
+        for item in collection:
+            serialized = item.model_dump(mode="json")
+            existing = merged.get(item.id)
+            if existing is not None and existing != serialized:
+                raise VerificationInputError(
+                    f"conflicting Evidence objects share ID {item.id!r}"
+                )
+            merged[item.id] = serialized
+    return [Evidence.model_validate(merged[item_id]) for item_id in sorted(merged)]

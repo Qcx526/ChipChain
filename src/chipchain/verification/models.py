@@ -407,6 +407,9 @@ class InteractionVerificationResult(DomainModel):
     knowledge_edge_verifications: list[VerificationRecord] = Field(default_factory=list)
     architecture_rule_verifications: list[VerificationRecord] = Field(default_factory=list)
     condition_assessments: list[ConditionAssessment] = Field(default_factory=list)
+    required_fact_statuses: dict[RequiredFactCategory, VerificationStatus] = Field(
+        default_factory=dict
+    )
     trigger_features: CrossLayerTriggerFeatureSet
     evidence_inventory: ObjectiveEvidenceInventory
     verification_score: UnitInterval | None = None
@@ -435,6 +438,10 @@ class InteractionVerificationResult(DomainModel):
             raise ValueError("partially supported capability cannot claim verified interaction")
         if self.trigger_features.interaction_id != self.interaction_id or self.trigger_features.architecture is not self.architecture:
             raise ValueError("trigger feature identity mismatch")
+        if self.trigger_features.interaction_type is not self.interaction_type:
+            raise ValueError("trigger feature interaction type mismatch")
+        if self.trigger_features.direction is not self.direction:
+            raise ValueError("trigger feature direction mismatch")
         records = [*self.binding_verifications, *self.behavior_edge_verifications,
                    *self.entity_link_verifications, *self.knowledge_edge_verifications,
                    *self.architecture_rule_verifications]

@@ -1,4 +1,4 @@
-"""Run the owned ARM ELF through Phase 9A-R Type II verification."""
+"""Run the owned ARM ELF through Phase 9A-R2 Type II verification."""
 
 from __future__ import annotations
 
@@ -11,12 +11,15 @@ from chipchain.graph import NetworkXGraphRepository
 from chipchain.knowledge import NetworkXKnowledgeGraphRepository, VulnerabilityKnowledgeBuilder
 from chipchain.models import Architecture, CrossLayerInteraction, Layer, RelationType, VulnerabilitySample
 from chipchain.reasoning import InMemoryEvidenceResolver
-from chipchain.verification import InteractionVerificationInput, InteractionVerificationPipeline
+from chipchain.verification import (
+    InteractionVerificationInput,
+    InteractionVerificationPipeline,
+    RequiredFactCategory,
+)
 
 
-def build_demo_result():
-    """Return the detached result and its explicitly typed input objects."""
-
+def build_demo_material():
+    """Build the owned repositories and explicit interaction verification input."""
     root = Path(__file__).resolve().parents[1]
     mmio = root / "tests" / "fixtures" / "angr" / "arm_mmio"
     memory_map = MemoryMap.model_validate_json((mmio / "memory_map.json").read_text(encoding="utf-8"))
@@ -38,14 +41,36 @@ def build_demo_result():
         "type2_arm_mmio_interaction.json").read_text(encoding="utf-8"))
     interaction = CrossLayerInteraction.model_validate(fixture["interaction"])
     verification_input = InteractionVerificationInput.model_validate(fixture["verification_input"])
-    result = InteractionVerificationPipeline().verify(interaction, verification_input,
-        behavior, knowledge, InMemoryEvidenceResolver(analysis.evidence), legacy_candidate=candidate)
+    return (
+        interaction,
+        verification_input,
+        candidate,
+        behavior,
+        knowledge,
+        InMemoryEvidenceResolver(analysis.evidence),
+    )
+
+
+def build_demo_result():
+    """Return the detached result and its explicitly typed input objects."""
+
+    interaction, verification_input, candidate, behavior, knowledge, resolver = (
+        build_demo_material()
+    )
+    result = InteractionVerificationPipeline().verify(
+        interaction,
+        verification_input,
+        behavior,
+        knowledge,
+        resolver,
+        legacy_candidate=candidate,
+    )
     return interaction, candidate, result
 
 
 def main() -> None:
     interaction, candidate, result = build_demo_result()
-    print("ChipChain Phase 9A-R interaction verification demo")
+    print("ChipChain Phase 9A-R2 interaction verification demo")
     print(f"Interaction ID: {interaction.id}")
     print(f"Interaction Type: {interaction.interaction_type.value}")
     print(f"Direction: {interaction.direction.value}")
@@ -55,6 +80,10 @@ def main() -> None:
         print(f"Behavior Verification: {record.subject_id} = {record.status.value}")
     trigger = next(item for item in result.binding_verifications if item.subject_id.startswith("trigger_behavior:"))
     print(f"Trigger Behavior: {trigger.status.value}")
+    print(
+        "Cross-Layer Transition: "
+        f"{result.required_fact_statuses[RequiredFactCategory.CROSS_LAYER_TRANSITION_SUPPORT].value}"
+    )
     print(f"Entity Link: {result.entity_link_verifications[0].status.value}")
     print("Target Hardware Vulnerability: unknown")
     print("Condition Status: unknown")

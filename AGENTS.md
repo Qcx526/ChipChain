@@ -36,12 +36,15 @@
 
 ## 当前阶段限制
 
-- Phase 0～8R、Phase 9A-R 与 Phase 9A-R1 Hardening 已完成。Verification 顶层 identity 是
+- Phase 0～8R、Phase 9A-R、R1 与 Phase 9A-R2 Final Integrity Hardening 已完成。
+  Verification 顶层 identity 是
   `CrossLayerInteraction`，legacy Candidate 只能作为显式 software→hardware evidence source。
 - Type I/II 当前只有部分客观验证能力；Type III 客观 hardware→software propagation
   verification 为 `not_implemented`，不得反转旧 GraphPath 或伪造反向 BehaviorEdge。
 - Evidence binding 必须具有结构化 subject linkage；Node existence 只能解析 reference；
   architecture/condition 不能单独产生 partial verification；定位只能使用 supporting Evidence。
+- Legacy Candidate facts 只有通过显式 Interaction binding 才能支持 required truth；Evidence
+  ID collision 必须拒绝；direct Evidence 不能独立验证 vulnerability participant。
 - 未经明确安排，不实现 Dynamic/QEMU Verification、DMA/interrupt/fault runtime trace、
   Verified AttackChain projection、Additional Architectures、FastAPI/GUI 或 Exploit Generation。
 

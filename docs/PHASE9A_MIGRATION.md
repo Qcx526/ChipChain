@@ -38,3 +38,9 @@ Type III 为 not_implemented，只提取 semantic features，不输出 verificat
 Behavior/Knowledge Node existence 降为 UNKNOWN；partial status 必须有 substantive security
 fact；partial capability 禁止 VERIFIED；features 限于 explicit scope 并要求完整 provenance；
 localization 与 inventory 只消费真正 supporting Evidence。
+
+## Phase 9A-R2 Final Integrity Hardening
+
+Transition truth 不再扫描所有 legacy facts，只消费 bound MMIO 与 bound、resource-matched
+EntityLink。CALLS 保留诊断作用但不构成 transition。Evidence merge 对同 ID 异内容立即失败；
+direct Evidence 不可独立验证漏洞参与者；结果模型进一步绑定 feature type/direction。

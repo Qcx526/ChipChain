@@ -23,3 +23,8 @@ Inventory 只收集 required interaction bindings 引用的 evidence，避免无
 `supporting_evidence_ids` 只包含真正通过 verifier contract 的 Evidence，且必须是前者子集。
 UNKNOWN/REJECTED record 的 supporting list 必须为空。Inventory 的正向计数以 supporting
 Evidence 为准。
+
+Phase 9A-R2 使用 deterministic merge：同 ID 且完整内容一致时安全去重，内容不同则抛出
+VerificationInputError，不存在 last-write-wins。对于 initiating/target vulnerability，
+generic direct Evidence 即使 subject linkage 正确也只能 UNKNOWN；正式 vulnerability
+provenance 继续通过 KnowledgeNode participant verifier 或未来专用 contract。

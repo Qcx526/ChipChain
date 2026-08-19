@@ -20,7 +20,7 @@ from chipchain.verification.enums import (ConditionStatus, InteractionReferenceR
     InteractionVerificationStatus, RequiredFactCategory, VerificationCapabilityStatus,
     VerificationStatus, VerificationSubjectKind)
 from chipchain.verification.errors import VerificationInputError
-from chipchain.verification.evidence import EvidenceCatalog
+from chipchain.verification.evidence import EvidenceCatalog, merge_evidence
 from chipchain.verification.features import CrossLayerTriggerFeatureExtractor
 from chipchain.verification.knowledge import KnowledgeRelationVerifier, VulnerabilityParticipantVerifier
 from chipchain.verification.localization import InteractionLocationLocalizer
@@ -74,15 +74,17 @@ class InteractionVerificationPipeline:
                 architecture_rule_verifications=architecture_records,
                 trigger_features=features, evidence_inventory=inventory,
                 verification_score=None, score_components={}, verification_status=None,
-                metadata={"phase": "9A-R1", "objective_reverse_verification": "not_implemented",
+                metadata={"phase": "9A-R2", "objective_reverse_verification": "not_implemented",
                           "dynamic_verification": False, "verified_attack_chain_created": False})
 
         context = self._legacy_context(interaction, verification_input, legacy_candidate,
             behavior_repository, knowledge_repository, behavior_evidence_resolver)
-        evidence = list(interaction_evidence)
-        if context: evidence.extend(context.evidence)
-        deduped = {item.id: item for item in evidence}
-        catalog = EvidenceCatalog(deduped.values())
+        catalog = EvidenceCatalog(
+            merge_evidence(
+                interaction_evidence,
+                context.evidence if context is not None else (),
+            )
+        )
         behavior_records = self._verify_behavior(interaction, context, catalog)
         entity_records = self._verify_entity(interaction, context)
         knowledge_records = self._verify_knowledge(interaction, context, catalog)
@@ -121,11 +123,12 @@ class InteractionVerificationPipeline:
             binding_verifications=binding_records, behavior_edge_verifications=behavior_records,
             entity_link_verifications=entity_records, knowledge_edge_verifications=knowledge_records,
             architecture_rule_verifications=architecture_records, condition_assessments=conditions,
+            required_fact_statuses=fact_statuses,
             trigger_features=features, evidence_inventory=inventory,
             verification_score=score.verification_score, score_components=score.score_components,
             location_findings=locations, verification_status=status,
             advisory_verification_steps=advisory,
-            metadata={"phase": "9A-R1", "dynamic_verification": False,
+            metadata={"phase": "9A-R2", "dynamic_verification": False,
                       "verified_attack_chain_created": False,
                       "score_meaning": "objective_evidence_support_not_probability",
                       "llm_objective_weight": 0.0})
@@ -178,9 +181,25 @@ class InteractionVerificationPipeline:
             elif binding.source_kind is InteractionSourceKind.ENTITY_LINK:
                 source_record = entity_by_id.get(binding.source_id)
             if source_record is not None:
-                records.append(_binding_record(interaction, binding, source_record.status,
-                    source_record.evidence_ids, ["explicit binding inherits verified source-fact status"],
-                    supporting_evidence_ids=source_record.supporting_evidence_ids)); continue
+                status = source_record.status
+                messages = ["explicit binding inherits verified source-fact status"]
+                if (
+                    binding.reference_role is InteractionReferenceRole.HARDWARE_RESOURCE
+                    and binding.source_kind is InteractionSourceKind.ENTITY_LINK
+                    and status is VerificationStatus.VERIFIED
+                    and not _entity_link_matches_hardware_reference(binding, context)
+                ):
+                    status = VerificationStatus.UNKNOWN
+                    messages = [
+                        "EntityLink is valid but lacks an exact mapping to the interaction hardware resource"
+                    ]
+                records.append(_binding_record(interaction, binding, status,
+                    source_record.evidence_ids, messages,
+                    supporting_evidence_ids=(
+                        source_record.supporting_evidence_ids
+                        if status is VerificationStatus.VERIFIED
+                        else []
+                    ))); continue
             if binding.source_kind is InteractionSourceKind.BEHAVIOR_NODE:
                 node = behavior_nodes.get(binding.source_id)
                 status = VerificationStatus.UNKNOWN if node is None else (
@@ -255,10 +274,9 @@ def _required_fact_statuses(interaction, bindings, binding_records, behavior, en
     def role(role):
         return [by_subject.get(f"{b.reference_role.value}:{b.interaction_reference_id}", VerificationStatus.UNKNOWN)
                 for b in bindings if b.reference_role is role]
-    mmio = [r.status for r in behavior if context and next((e for e in context.behavior_edges if e.id == r.subject_id), None)
-            and next(e for e in context.behavior_edges if e.id == r.subject_id).relation in {RelationType.MMIO_READ, RelationType.MMIO_WRITE}]
-    transition = _aggregate([*([r.status for r in entity] if entity else [VerificationStatus.UNKNOWN]),
-                             *(mmio if mmio else [VerificationStatus.UNKNOWN])])
+    transition = _bound_transition_status(
+        interaction, bindings, binding_records, context
+    )
     required_conditions = [c for c in conditions if c.required]
     cond = VerificationStatus.UNKNOWN if not required_conditions else (
         VerificationStatus.REJECTED if any(c.status is ConditionStatus.UNSATISFIED for c in required_conditions) else
@@ -271,6 +289,75 @@ def _required_fact_statuses(interaction, bindings, binding_records, behavior, en
         RequiredFactCategory.ARCHITECTURE_RULES: _aggregate([r.status for r in architecture]),
         RequiredFactCategory.CONDITIONS: cond,
     }
+
+
+def _bound_transition_status(interaction, bindings, binding_records, context):
+    if context is None:
+        return VerificationStatus.UNKNOWN
+    behavior_edges = {item.id: item for item in context.behavior_edges}
+    record_by_binding = list(zip(bindings, binding_records, strict=True))
+    trigger_statuses = [
+        record.status
+        for binding, record in record_by_binding
+        if binding.reference_role is InteractionReferenceRole.TRIGGER_BEHAVIOR
+        and binding.source_kind is InteractionSourceKind.BEHAVIOR_EDGE
+        and (edge := behavior_edges.get(binding.source_id)) is not None
+        and edge.relation in {RelationType.MMIO_READ, RelationType.MMIO_WRITE}
+    ]
+    trigger_status = _positive_or_conflict(trigger_statuses)
+    if not interaction.hardware_resource_ids:
+        return trigger_status
+    resource_statuses = [
+        record.status
+        for binding, record in record_by_binding
+        if binding.reference_role is InteractionReferenceRole.HARDWARE_RESOURCE
+        and binding.source_kind is InteractionSourceKind.ENTITY_LINK
+    ]
+    resource_status = _positive_or_conflict(resource_statuses)
+    if VerificationStatus.REJECTED in {trigger_status, resource_status}:
+        return VerificationStatus.REJECTED
+    if (
+        trigger_status is VerificationStatus.VERIFIED
+        and resource_status is VerificationStatus.VERIFIED
+    ):
+        return VerificationStatus.VERIFIED
+    return VerificationStatus.UNKNOWN
+
+
+def _positive_or_conflict(statuses):
+    if any(item is VerificationStatus.REJECTED for item in statuses):
+        return VerificationStatus.REJECTED
+    if any(item is VerificationStatus.VERIFIED for item in statuses):
+        return VerificationStatus.VERIFIED
+    return VerificationStatus.UNKNOWN
+
+
+def _entity_link_matches_hardware_reference(binding, context):
+    if context is None or binding.source_id != context.candidate.entity_link.id:
+        return False
+    behavior_nodes = {item.id: item for item in context.behavior_nodes}
+    knowledge_nodes = {item.id: item for item in context.knowledge_nodes}
+    link = context.candidate.entity_link
+    behavior_anchor = behavior_nodes.get(link.behavior_node_id)
+    knowledge_anchor = knowledge_nodes.get(link.knowledge_node_id)
+    if behavior_anchor is None or knowledge_anchor is None:
+        return False
+    exact_references = {
+        behavior_anchor.id,
+        knowledge_anchor.id,
+        *knowledge_anchor.external_ids,
+    }
+    for source in (behavior_anchor.metadata, knowledge_anchor.metadata):
+        for field in (
+            "hardware_resource_id",
+            "resource_id",
+            "memory_map_region",
+            "register_id",
+        ):
+            value = source.get(field)
+            if isinstance(value, str):
+                exact_references.add(value)
+    return binding.interaction_reference_id in exact_references
 
 
 def _score_components(interaction_type, facts):
@@ -351,6 +438,13 @@ def _evidence_binding_status(binding, evidence):
         return VerificationStatus.REJECTED, ["Evidence interaction reference role mismatch"], []
     if metadata_reference is None or metadata_role is None:
         return VerificationStatus.UNKNOWN, ["Evidence lacks structured interaction subject linkage"], []
+    if binding.reference_role in {
+        InteractionReferenceRole.INITIATING_VULNERABILITY,
+        InteractionReferenceRole.TARGET_VULNERABILITY,
+    }:
+        return VerificationStatus.UNKNOWN, [
+            "direct Evidence cannot independently verify a vulnerability participant in Phase 9A-R2"
+        ], []
     if evidence.type is EvidenceType.LLM_SEMANTIC or not evidence.verified:
         return VerificationStatus.UNKNOWN, ["subject-linked Evidence is not verified non-LLM Evidence"], []
     return VerificationStatus.VERIFIED, ["structured Evidence subject linkage matches binding"], [evidence.id]

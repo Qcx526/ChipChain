@@ -353,3 +353,7 @@ components；semantic feature 不等于 verified fact。没有新增 hardware→
 
 Phase 9A-R1 为 VerificationRecord 增加 supporting Evidence 子集约束，并要求
 CrossLayerTriggerFeatureSet 的每个重要输出 feature 至少具有一条 TriggerFeatureProvenance。
+
+Phase 9A-R2 为 InteractionVerificationResult 增加 required fact status map，并强化 feature
+type/direction identity；Evidence 合并拒绝同 ID 异内容碰撞。硬件资源 binding 必须通过
+EntityLink anchor 的 exact external/resource/Memory Map identity 对应 Interaction reference。
