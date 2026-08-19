@@ -357,3 +357,8 @@ CrossLayerTriggerFeatureSet 的每个重要输出 feature 至少具有一条 Tri
 Phase 9A-R2 为 InteractionVerificationResult 增加 required fact status map，并强化 feature
 type/direction identity；Evidence 合并拒绝同 ID 异内容碰撞。硬件资源 binding 必须通过
 EntityLink anchor 的 exact external/resource/Memory Map identity 对应 Interaction reference。
+
+Phase 9A-R3 将 binding cardinality 收紧为每个 semantic `(role, reference ID)` 至多一个
+source。不同 reference ID 可继续独立绑定；InteractionVerificationResult 的各
+VerificationRecord collection 另外执行 record ID uniqueness 校验，binding collection 同时
+校验 subject ID uniqueness。

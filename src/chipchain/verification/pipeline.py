@@ -74,7 +74,7 @@ class InteractionVerificationPipeline:
                 architecture_rule_verifications=architecture_records,
                 trigger_features=features, evidence_inventory=inventory,
                 verification_score=None, score_components={}, verification_status=None,
-                metadata={"phase": "9A-R2", "objective_reverse_verification": "not_implemented",
+                metadata={"phase": "9A-R3", "objective_reverse_verification": "not_implemented",
                           "dynamic_verification": False, "verified_attack_chain_created": False})
 
         context = self._legacy_context(interaction, verification_input, legacy_candidate,
@@ -128,7 +128,7 @@ class InteractionVerificationPipeline:
             verification_score=score.verification_score, score_components=score.score_components,
             location_findings=locations, verification_status=status,
             advisory_verification_steps=advisory,
-            metadata={"phase": "9A-R2", "dynamic_verification": False,
+            metadata={"phase": "9A-R3", "dynamic_verification": False,
                       "verified_attack_chain_created": False,
                       "score_meaning": "objective_evidence_support_not_probability",
                       "llm_objective_weight": 0.0})

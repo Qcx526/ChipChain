@@ -44,3 +44,10 @@ localization 与 inventory 只消费真正 supporting Evidence。
 Transition truth 不再扫描所有 legacy facts，只消费 bound MMIO 与 bound、resource-matched
 EntityLink。CALLS 保留诊断作用但不构成 transition。Evidence merge 对同 ID 异内容立即失败；
 direct Evidence 不可独立验证漏洞参与者；结果模型进一步绑定 feature type/direction。
+
+## Phase 9A-R3 Binding Cardinality Hardening
+
+每个 semantic `(reference_role, interaction_reference_id)` 在 MVP 中至多接受一个 source
+binding，与 source kind/source ID 无关；正反输入顺序都在 Input validation 失败，不存在
+last-write-wins。不同 semantic reference ID 保持可独立绑定。Result 层对每个
+VerificationRecord collection 强制 record ID 唯一，并额外要求 binding subject ID 唯一。

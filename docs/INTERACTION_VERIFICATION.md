@@ -5,7 +5,9 @@ type 与 direction 必须完全匹配；Repository 和 Python object 不进入 P
 
 `InteractionReferenceBinding` 将 interaction 中已有 semantic ID 显式映射到 Behavior、
 Knowledge、EntityLink 或 Evidence source。role/source kind 是封闭枚举，越权 reference
-立即失败。Legacy Candidate 只有显式 ID 才启用，不决定 Type I/II，且禁止用于 Type III。
+立即失败。同一 `(reference_role, interaction_reference_id)` 在 Phase 9A-R MVP 中最多只能有
+一个 source binding；不同 semantic reference ID 仍可分别绑定。Legacy Candidate 只有显式
+ID 才启用，不决定 Type I/II，且禁止用于 Type III。
 
 Legacy Candidate 只是 evidence source。Cross-layer transition 只在显式绑定的 verified
 MMIO trigger 与显式绑定、语义资源精确匹配的 verified EntityLink 同时存在时 VERIFIED。
@@ -34,3 +36,5 @@ interaction feature set，每个输出 feature 必须具有 structured provenanc
 
 `InteractionVerificationResult.required_fact_statuses` 显式保存 transition 等 required fact
 状态；result 同时校验 TriggerFeatureSet 的 interaction ID、architecture、type 与 direction。
+每个 VerificationRecord collection 都拒绝重复 record ID，binding collection 还拒绝重复
+subject ID，避免输入顺序或后写覆盖造成歧义。

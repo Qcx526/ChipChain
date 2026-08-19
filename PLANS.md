@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9A-R2 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
+Phase 0～Phase 9A-R3 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
 requirements/score、能力状态和角色化定位。下一步计划为 Phase 9B。
 
@@ -10,6 +10,8 @@ Phase 9A-R1 进一步收紧 Evidence subject linkage、Node binding、substantiv
 capability ceiling、feature scope/provenance 与 supporting-evidence localization。
 Phase 9A-R2 最终强化 binding-aware transition、Evidence collision、vulnerability Evidence
 boundary 与 result type/direction identity。
+Phase 9A-R3 强制每个 semantic interaction reference 至多一个 source binding，并对结果中
+各 VerificationRecord 集合增加 deterministic ID uniqueness 防御。
 
 ## Phase 0：工程初始化（已完成）
 

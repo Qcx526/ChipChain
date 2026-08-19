@@ -178,9 +178,11 @@ class InteractionVerificationInput(DomainModel):
 
     @model_validator(mode="after")
     def validate_unique_bindings(self) -> "InteractionVerificationInput":
-        keys = [(b.reference_role, b.interaction_reference_id, b.source_kind, b.source_id) for b in self.bindings]
+        keys = [(b.reference_role, b.interaction_reference_id) for b in self.bindings]
         if len(keys) != len(set(keys)):
-            raise ValueError("interaction reference bindings must be unique")
+            raise ValueError(
+                "each interaction reference may have only one source binding in Phase 9A-R MVP"
+            )
         condition_ids = [b.condition_node_id for b in self.condition_bindings]
         if len(condition_ids) != len(set(condition_ids)):
             raise ValueError("condition bindings must be unique")
@@ -442,9 +444,23 @@ class InteractionVerificationResult(DomainModel):
             raise ValueError("trigger feature interaction type mismatch")
         if self.trigger_features.direction is not self.direction:
             raise ValueError("trigger feature direction mismatch")
-        records = [*self.binding_verifications, *self.behavior_edge_verifications,
-                   *self.entity_link_verifications, *self.knowledge_edge_verifications,
-                   *self.architecture_rule_verifications]
+        record_collections = {
+            "binding verifications": self.binding_verifications,
+            "behavior edge verifications": self.behavior_edge_verifications,
+            "entity link verifications": self.entity_link_verifications,
+            "knowledge edge verifications": self.knowledge_edge_verifications,
+            "architecture rule verifications": self.architecture_rule_verifications,
+        }
+        for label, collection in record_collections.items():
+            record_ids = [record.id for record in collection]
+            if len(record_ids) != len(set(record_ids)):
+                raise ValueError(f"{label} must not contain duplicate VerificationRecord IDs")
+        binding_subject_ids = [record.subject_id for record in self.binding_verifications]
+        if len(binding_subject_ids) != len(set(binding_subject_ids)):
+            raise ValueError(
+                "binding verifications must not contain duplicate subject IDs"
+            )
+        records = [record for collection in record_collections.values() for record in collection]
         if any(r.interaction_id != self.interaction_id or r.architecture is not self.architecture for r in records):
             raise ValueError("verification record identity mismatch")
         if any(c.interaction_id != self.interaction_id or c.architecture is not self.architecture for c in self.condition_assessments):
