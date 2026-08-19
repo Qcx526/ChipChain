@@ -151,7 +151,16 @@ Retrieved document 被标为 reference data，不能覆盖固定 Prompt instruct
 
 ### Verification and Scoring
 
-验证器逐边检查图关系、静态证据、动态证据和架构规则。评分权重来自配置文件；缺失证据降低置信度并出现在解释中，LLM 置信度不能覆盖证据冲突。
+Phase 9A `CandidateVerificationPipeline` 直接从两个只读 Repository 和 EvidenceResolver
+解析事实。CALLS/MMIO verifier 核对证据归属、地址、relation 和 Memory Map；EntityLink
+重新计算 canonical keys；Knowledge verifier 区分“KG 记录存在”和“有非 LLM Evidence
+支持”；ARM rules 逐条产生 VerificationRecord。Missing Evidence 为 UNKNOWN，只有明确
+结构冲突才 REJECTED。
+
+条件评估、TriggerFeatureSet、Evidence Inventory、Scoring 和 RootCauseLocalizer 都是
+确定性 Python。`configs/verification_scoring_mvp.json` 五项等权且声明
+`engineering_mvp_uncalibrated`；LLM 权重恒为零。Multi-Agent 结果只能填充 advisory。
+Phase 9A 不消费动态执行，不投影 Verified AttackChain。
 
 ### Evaluation and Presentation
 
@@ -211,13 +220,13 @@ Program Analysis 路径在 Register/HardwareResource 观察处停止。Hardware 
 
 ## 当前实现边界
 
-Phase 0～8 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
+Phase 0～9A 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
 MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、可选 AngrAnalyzer、
 Analysis Ingestion，以及 synthetic ARM ELF 到 Function/CALLS/MMIO Hardware
 Node/GraphPath 的端到端闭环；另有独立 Vulnerability Knowledge Graph、确定性
 Sample 转换、Evidence 目录、canonical match keys、Exact Hardware EntityLink 和
 CrossGraphCandidate Search；Phase 7 增加只读 Context、Architecture RAG、Mock/
 optional compatible Provider 和 Semantic Assessment 后校验。通用地址分析、
-Candidate 到 AttackChain 投影、条件满足性、Evidence Verification/Scoring、
-以及 API 仍未实现。Phase 8 增加共享 Context/RAG、三个固定类型化 Agent、确定性
-Coordinator、Citation/Architecture/Condition 校验、失败隔离和 digest-only Trace。
+Candidate 到 AttackChain 投影、动态条件观测、校准评分、source-line 评测和 API 仍未
+实现。Phase 8 增加共享 Context/RAG 与三个类型化 Agent；Phase 9A 增加非 LLM 静态
+验证、条件三态、触发特征、支持度评分和根因候选定位。

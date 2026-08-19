@@ -1,0 +1,12 @@
+{
+  "behavior_evidence": 0.2,
+  "entity_link": 0.2,
+  "knowledge_evidence": 0.2,
+  "conditions": 0.2,
+  "architecture_rules": 0.2,
+  "metadata": {
+    "profile": "engineering_mvp_uncalibrated",
+    "meaning": "verification support, not attack probability",
+    "llm_weight": 0.0
+  }
+}

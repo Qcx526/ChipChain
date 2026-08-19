@@ -31,12 +31,14 @@
 
 ## 当前阶段限制
 
-- Phase 0～7R 已完成；当前执行 Phase 8：Typed Multi-Agent Collaborative Reasoning。
-- Phase 8 允许类型化 Agent Contract、Evidence Analyst、Security Reasoner、Critic、
-  deterministic Coordinator、Mock Multi-Agent 和可选真实 Qwen 人工验证。
-- 未经明确安排，不提前实现 Evidence Verification、Final Scoring、Verified
-  AttackChain、Dynamic Verification、FastAPI/GUI、Additional Architectures 或
-  Exploit Generation。
+- Phase 0～8 已完成；当前执行 Phase 9A：Non-LLM Evidence Verification、Condition
+  Assessment、Verification Scoring、Trigger Feature Extraction 与 Root-Cause
+  Localization MVP。
+- `LLM Output != Evidence`、`Agent Consensus != Verification`、`Semantic Status !=
+  Verification Status`。LLM / Multi-Agent 只能提供假设、证据缺口、验证问题和建议，
+  不得决定 Evidence、Condition、Root Cause、Candidate 或 verification score。
+- 未经明确安排，不提前实现 QEMU Dynamic Verification、Verified AttackChain、Final
+  Evaluation、Additional Architectures、FastAPI/GUI 或 Exploit Generation。
 
 ## 提交前检查
 

@@ -2,8 +2,9 @@
 
 ## 当前状态
 
-Phase 0～Phase 8 已完成。Phase 8 使用共享 CandidateContext/RAG、三个类型化 Agent
-和确定性 Coordinator 完成协同语义分析；全部结果仍为非验证状态。尚未开始 Phase 9。
+Phase 0～Phase 9A 已完成。Phase 9A 使用原始 Evidence、程序事实、Knowledge Graph
+和 ARM 架构规则完成确定性静态验证、条件三态、触发特征、支持度评分和二进制根因
+候选定位；LLM / Multi-Agent 仍只提供 advisory，不参与客观结论。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -207,12 +208,29 @@ Security Reasoner 和 Critic，保留引用、架构、条件与验证边界。
 Mock/真实 Provider 闭环和全部回归测试通过；未生成 Verified AttackChain，未实现
 Evidence Verification、Scoring 或 Root Cause 定位。
 
+## Phase 9A：Static Verification / Condition / Scoring / Localization（已完成）
+
+目标：在不依赖 LLM 的边界内验证 Candidate 的静态证据和结构事实，并产生保守的
+验证支持度与二进制根因候选。
+
+- [x] 独立 VerificationStatus、ConditionStatus、CandidateVerificationStatus
+- [x] CALLS/MMIO Evidence 归属、地址、relation、Memory Map 和非 LLM 类型检查
+- [x] EntityLink canonical key 重算、ARM 架构规则和 Knowledge Relation 验证
+- [x] Trigger/Precondition exact-evidence 三态与 deterministic TriggerFeatureSet
+- [x] 客观 Evidence Inventory 和配置化等权 verification_score
+- [x] ProgramAddress/HardwareAddress 分离和 MMIO sink 根因候选定位
+- [x] Multi-Agent advisory 隔离、source read-only 和真实 ARM ELF 端到端测试
+
+退出条件：当前 synthetic ARM fixture 的 Behavior/EntityLink/Architecture 通过，
+TARGETS_RESOURCE 与条件保持 UNKNOWN，Candidate 为 PARTIALLY_VERIFIED；不生成
+Verified AttackChain，不伪造 source line。
+
 ## 后续路线（尚未实施）
 
-### Phase 9：Evidence Verification / Scoring / Root Cause
+### Phase 9B：Dynamic Evidence Verification
 
-逐边验证静态、动态与架构证据；从配置加载评分权重并计算覆盖率、置信度和根因，
-LLM 语义置信度不得占主导。
+未来在明确授权的自有/fixture 环境讨论 QEMU、runtime MMIO trace、privilege state、
+trigger execution 和 precondition observation。本阶段尚未实现。
 
 ### Phase 10：Evaluation
 

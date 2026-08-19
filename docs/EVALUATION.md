@@ -48,6 +48,10 @@ F1        = 2 * Precision * Recall / (Precision + Recall)
 
 主要采用严格位置匹配的 top-1 accuracy；地址可按预先定义的函数范围或指令容差另报 relaxed accuracy。函数、寄存器和硬件资源分别统计，避免一个粗粒度正确结果掩盖精确定位失败。
 
+Phase 9A 的 owned ARM ELF 只有 binary instruction Ground Truth，没有 DWARF/source-line
+Ground Truth。因此 `0x10008` 只能评为指令地址候选；字节差或指令距离不得称为源码
+行误差，更不得用于宣称“<5 lines”。该指标留到冻结带 source line 的 Phase 10 数据集。
+
 ## 证据与验证指标
 
 - **Evidence Coverage**：链中具有至少一条可接受非 LLM 证据的必需边比例。
@@ -77,8 +81,12 @@ F1        = 2 * Precision * Recall / (Precision + Recall)
 
 ## 消融实验预留
 
-评分权重必须配置化，以便分别移除知识图证据、静态证据、动态证据、架构规则和 LLM 语义分量。消融使用相同数据划分和搜索预算，报告指标差异而不是只报告最终分数。
+评分权重必须配置化，以便分别移除知识图证据、静态证据、动态证据和架构规则。
+Phase 9A 的 LLM 权重固定为零，不作为正向消融分量。消融使用相同数据划分和搜索预算，
+报告指标差异而不是只报告最终分数。
 
 ## Phase 0/1 的评测工作
 
-已建立指标定义和未来接口约束，并完成模型校验、JSON round-trip 与结构化 ARM fixture 测试。当前 fixture 不是正式 Ground Truth Benchmark；Hit@K 等命中率实验仍须等待候选搜索实现后运行。
+已完成 Phase 9A verification contract、篡改测试和 owned ARM ELF 端到端检查。当前
+fixture 不是正式 Ground Truth Benchmark，0.20 等权配置也未经实验校准；Hit@K、TPR/FPR、
+root-cause source-line accuracy 和权重实验留到 Phase 10 冻结数据集后执行。

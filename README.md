@@ -31,11 +31,16 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - 固定 Evidence Analyst → Security Reasoner → Critic 的类型化 Multi-Agent 推理
 - 确定性 Prompt、LLMProvider 抽象、Mock Provider 和结构化 Assessment 后校验
 - 可选 OpenAI-compatible Responses/Chat Completions 客户端和人工 smoke script
+- 独立三态 Non-LLM Behavior/Knowledge/EntityLink/ARM Architecture Verification
+- Trigger/Precondition exact-evidence 三态与 provenance-aware TriggerFeatureSet
+- 外置等权配置的 verification support score（LLM 权重为零）
+- ProgramAddress/HardwareAddress 分离的 MMIO sink 根因候选定位
+- Phase 4B ARM ELF → Candidate → Phase 9A 的保守端到端验证 Demo
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
 
 当前尚未实现通用跨块/跨函数地址分析、Candidate 到 AttackChain 的语义投影、
-Trigger/Precondition 满足性验证、Evidence Verification、最终评分或 API；这些能力会按
-[PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
+QEMU/动态 Evidence Verification、正式校准评分、source-line Ground Truth 评测或 API；
+这些能力会按 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
 
 ## 环境要求
 
@@ -244,6 +249,20 @@ CandidateContext 和一次 ARM/global RAG。默认 Demo 完全离线：
 Coordinator 是确定性 Python 编排器；三 Agent 共识不等于 Evidence Verification。
 设计见 [Multi-Agent Reasoning](docs/MULTI_AGENT_REASONING.md)。
 
+## Non-LLM Verification Example
+
+Phase 9A 对同一自有 ARM ELF Candidate 重新解析 Evidence 并执行确定性验证：
+
+```powershell
+.\.venv\Scripts\python examples\arm_verification_demo.py
+```
+
+当前 fixture 的 CALLS/MMIO、EntityLink 和 ARM Rules 为 `verified`，但无 Evidence 的
+`TARGETS_RESOURCE` 及尚未观察的 Trigger/Precondition 为 `unknown`，因此 Candidate
+只能是 `partially_verified`。`verification_score` 表示验证支持度，不是攻击、漏洞或
+可利用概率。详见 [Evidence Verification](docs/EVIDENCE_VERIFICATION.md) 和
+[Root Cause Localization](docs/ROOT_CAUSE_LOCALIZATION.md)。
+
 ## 文档导航
 
 - [项目范围](docs/PROJECT_SCOPE.md)
@@ -253,6 +272,8 @@ Coordinator 是确定性 Python 编排器；三 Agent 共识不等于 Evidence V
 - [Candidate Search](docs/CANDIDATE_SEARCH.md)
 - [RAG Reasoning](docs/RAG_REASONING.md)
 - [Multi-Agent Reasoning](docs/MULTI_AGENT_REASONING.md)
+- [Evidence Verification](docs/EVIDENCE_VERIFICATION.md)
+- [Root Cause Localization](docs/ROOT_CAUSE_LOCALIZATION.md)
 - [评测设计](docs/EVALUATION.md)
 - [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)
 - [阶段计划](PLANS.md)

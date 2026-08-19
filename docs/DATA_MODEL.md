@@ -281,12 +281,31 @@ digest、状态和安全 error type；不保存时间戳参与 identity，也不
 或 reasoning content。`MultiAgentReasoningResult` 保留三份原始结构化输出、完整 Trace、
 全部 unresolved 条件和非验证 final semantic status，不包含 score/confidence/probability。
 
+## Phase 9A Verification Models
+
+`src/chipchain/verification/` 定义与 semantic status 分离的数据契约：
+
+- `VerificationStatus`：verified / rejected / unknown；
+- `ConditionStatus`：satisfied / unsatisfied / unknown；
+- `CandidateVerificationStatus`：verified / partially_verified /
+  insufficient_evidence / rejected；
+- `VerificationRecord`：稳定 ID、subject、verifier、Evidence/Rule 引用和消息；
+- `ConditionAssessment`：Trigger/Precondition 的支持与反证引用，不含 confidence；
+- `TriggerFeatureSet` / `TriggerFeatureProvenance`：结构化特征及逐项来源；
+- `ObjectiveEvidenceInventory`、`VerificationScoreConfig/Result`；
+- `ProgramAddress`、`HardwareAddress`、`RootCauseLocalizationResult`；
+- `CandidateVerificationResult`：Phase 9A 顶层结果，不是 AttackChain。
+
+`verification_score` 只表达当前 required fact 的验证支持度。模型 metadata 明确
+`llm_weight=0` 和 `root_cause_verified=false`。地址模型禁止用一个模糊字段同时表达
+程序指令与 MMIO resource。
+
 ## 当前边界
 
 模型只负责结构和明确的领域不变量，不执行真实漏洞检测或证据真实性判断。
 ProgramAnalyzer 生产程序观察，Behavior Graph 返回 GraphPath，Phase 5 Builder 生产
 独立漏洞知识，Phase 6 只生成 CrossGraphCandidate，Phase 7 产生单 Reasoner Semantic
-Assessment，Phase 8 产生类型化 Multi-AgentReasoningResult；两者都不可表达验证结论。
-后续阶段完成条件满足性和 Evidence Verification 后，才可
-讨论投影为 `AttackChain(status=candidate)`；当前不得把 Assessment 或 Retrieved
-文本解释成 Evidence 或已验证 AttackChain。
+Assessment，Phase 8 产生类型化 MultiAgentReasoningResult；两者都不可表达验证结论。
+Phase 9A 产生独立 CandidateVerificationResult，但仍不投影 AttackChain。QEMU 动态
+验证、正式权重校准和 Verified AttackChain 均属于后续明确设计；不得把 Assessment、
+Retrieved text 或 Agent 共识解释成 Evidence。
