@@ -33,6 +33,13 @@ def test_owned_arm_mmio_type2_verification_is_conservative_and_role_aware():
     assert location.instruction_address.value == "0x10008"
     assert location.hardware_address.value == "0x40000000"
     assert location.source_line is None
+    assert result.trigger_features.cwe_ids == []
+    assert result.trigger_features.capec_ids == []
+    provenance_ids = {item.feature_id for item in result.trigger_features.provenance}
+    assert "hardware_address:0x40000000" in provenance_ids
+    assert "memory_map_id:synthetic-arm-mmio-map" in provenance_ids
+    assert "memory_map_region:fixture-mmio-register" in provenance_ids
+    assert "mmio_access:mmio_write" in provenance_ids
 
 
 def test_type2_demo_prints_verification_boundaries():

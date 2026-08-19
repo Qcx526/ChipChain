@@ -241,7 +241,7 @@ def test_target_vulnerability_binding_rejects_software_layer(
 def test_contract_only_type1_does_not_infer_legacy_kg_vulnerability():
     interaction = _type1()
     result = InteractionVerificationPipeline().verify(interaction, InteractionVerificationInput.create(interaction))
-    assert result.verification_status is InteractionVerificationStatus.PARTIALLY_VERIFIED
+    assert result.verification_status is InteractionVerificationStatus.INSUFFICIENT_EVIDENCE
     assert not result.binding_verifications
     assert result.verification_score < 1.0
 

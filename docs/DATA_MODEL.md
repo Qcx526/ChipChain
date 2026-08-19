@@ -350,3 +350,6 @@ Phase 9A-R 新增独立 verification package：`InteractionReferenceBinding`、
 
 Type III 结果严格要求 `verification_status=None`、`verification_score=None`、空 score
 components；semantic feature 不等于 verified fact。没有新增 hardware→software BehaviorEdge。
+
+Phase 9A-R1 为 VerificationRecord 增加 supporting Evidence 子集约束，并要求
+CrossLayerTriggerFeatureSet 的每个重要输出 feature 至少具有一条 TriggerFeatureProvenance。

@@ -31,3 +31,10 @@ MMIO sink 当统一 root cause，不让空证据得满分，也不反转 GraphPa
 
 Type I/II 当前为 partially_supported；完整结果仍依赖 vulnerability/condition evidence。
 Type III 为 not_implemented，只提取 semantic features，不输出 verification status/score。
+
+## Phase 9A-R1 Hardening
+
+后续审查进一步移除五类宽松边界：Evidence binding 增加 deterministic subject linkage；
+Behavior/Knowledge Node existence 降为 UNKNOWN；partial status 必须有 substantive security
+fact；partial capability 禁止 VERIFIED；features 限于 explicit scope 并要求完整 provenance；
+localization 与 inventory 只消费真正 supporting Evidence。

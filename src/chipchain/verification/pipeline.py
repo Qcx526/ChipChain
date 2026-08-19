@@ -74,7 +74,7 @@ class InteractionVerificationPipeline:
                 architecture_rule_verifications=architecture_records,
                 trigger_features=features, evidence_inventory=inventory,
                 verification_score=None, score_components={}, verification_status=None,
-                metadata={"phase": "9A-R", "objective_reverse_verification": "not_implemented",
+                metadata={"phase": "9A-R1", "objective_reverse_verification": "not_implemented",
                           "dynamic_verification": False, "verified_attack_chain_created": False})
 
         context = self._legacy_context(interaction, verification_input, legacy_candidate,
@@ -95,13 +95,21 @@ class InteractionVerificationPipeline:
             binding_records, behavior_records, entity_records, architecture_records, conditions, context)
         component_statuses = _score_components(interaction.interaction_type, fact_statuses)
         score = self._scorer.score(interaction.interaction_type, component_statuses)
-        status = _interaction_status(requirements.required_facts, fact_statuses)
+        status = _interaction_status(
+            requirements.required_facts,
+            fact_statuses,
+            requirements.capability_status,
+        )
         required_evidence = _required_evidence_ids(verification_input.bindings, binding_records,
             behavior_records, entity_records, conditions)
         rejected_evidence = [e for record in [*binding_records, *behavior_records, *knowledge_records]
                              if record.status is VerificationStatus.REJECTED for e in record.evidence_ids]
         inventory = catalog.inventory(required_evidence,
-            required_fact_categories=requirements.required_facts, rejected_evidence_ids=rejected_evidence)
+            required_fact_categories=requirements.required_facts,
+            supporting_evidence_ids=_supporting_evidence_ids(
+                binding_records, conditions
+            ),
+            rejected_evidence_ids=rejected_evidence)
         features = self._features.extract(interaction, verification_input.bindings, conditions, context)
         locations = self._localizer.localize(interaction, verification_input.bindings,
             context, catalog, behavior_records)
@@ -117,7 +125,7 @@ class InteractionVerificationPipeline:
             verification_score=score.verification_score, score_components=score.score_components,
             location_findings=locations, verification_status=status,
             advisory_verification_steps=advisory,
-            metadata={"phase": "9A-R", "dynamic_verification": False,
+            metadata={"phase": "9A-R1", "dynamic_verification": False,
                       "verified_attack_chain_created": False,
                       "score_meaning": "objective_evidence_support_not_probability",
                       "llm_objective_weight": 0.0})
@@ -171,21 +179,26 @@ class InteractionVerificationPipeline:
                 source_record = entity_by_id.get(binding.source_id)
             if source_record is not None:
                 records.append(_binding_record(interaction, binding, source_record.status,
-                    source_record.evidence_ids, ["explicit binding inherits verified source-fact status"])); continue
+                    source_record.evidence_ids, ["explicit binding inherits verified source-fact status"],
+                    supporting_evidence_ids=source_record.supporting_evidence_ids)); continue
             if binding.source_kind is InteractionSourceKind.BEHAVIOR_NODE:
                 node = behavior_nodes.get(binding.source_id)
                 status = VerificationStatus.UNKNOWN if node is None else (
-                    VerificationStatus.VERIFIED if node.architecture is interaction.architecture else VerificationStatus.REJECTED)
-                records.append(_binding_record(interaction, binding, status, [], ["behavior node reference resolution"])); continue
+                    VerificationStatus.UNKNOWN if node.architecture is interaction.architecture else VerificationStatus.REJECTED)
+                records.append(_binding_record(interaction, binding, status, [], ["behavior node existence resolves a reference, not a behavior instance"])); continue
             if binding.source_kind is InteractionSourceKind.KNOWLEDGE_NODE:
                 node = knowledge_nodes.get(binding.source_id)
                 status = VerificationStatus.UNKNOWN if node is None else (
-                    VerificationStatus.VERIFIED if node.architecture in {None, interaction.architecture} else VerificationStatus.REJECTED)
-                records.append(_binding_record(interaction, binding, status, [], ["knowledge node reference resolution only"])); continue
+                    VerificationStatus.UNKNOWN if node.architecture in {None, interaction.architecture} else VerificationStatus.REJECTED)
+                records.append(_binding_record(interaction, binding, status, [], ["knowledge node existence resolves a reference, not a security fact"])); continue
             if binding.source_kind is InteractionSourceKind.EVIDENCE:
                 item = catalog.resolve(binding.source_id)
-                status = VerificationStatus.UNKNOWN if item is None or not item.verified or item.type is EvidenceType.LLM_SEMANTIC else VerificationStatus.VERIFIED
-                records.append(_binding_record(interaction, binding, status, [binding.source_id] if item else [], ["explicit Evidence binding"])); continue
+                status, messages, supporting = _evidence_binding_status(binding, item)
+                records.append(_binding_record(
+                    interaction, binding, status,
+                    [binding.source_id] if item else [], messages,
+                    supporting_evidence_ids=supporting,
+                )); continue
             records.append(_binding_record(interaction, binding, VerificationStatus.UNKNOWN, [], ["binding source could not be resolved"]));
         return records
 
@@ -217,11 +230,15 @@ class InteractionVerificationPipeline:
                            *result.critic_review.required_revisions]))
 
 
-def _binding_record(interaction, binding, status, evidence_ids, messages):
+def _binding_record(
+    interaction, binding, status, evidence_ids, messages, *,
+    supporting_evidence_ids=None,
+):
     return VerificationRecord.create(interaction_id=interaction.id, architecture=interaction.architecture,
         subject_kind=VerificationSubjectKind.INTERACTION_PARTICIPANT,
         subject_id=f"{binding.reference_role.value}:{binding.interaction_reference_id}",
         status=status, verifier="phase9ar_explicit_binding_v1", evidence_ids=evidence_ids,
+        supporting_evidence_ids=supporting_evidence_ids or [],
         rule_ids=["binding:explicit-role-source:v1"], messages=messages,
         metadata={"source_kind": binding.source_kind.value, "source_id": binding.source_id})
 
@@ -271,11 +288,33 @@ def _score_components(interaction_type, facts):
             "architecture_rules": v(RequiredFactCategory.ARCHITECTURE_RULES)}
 
 
-def _interaction_status(required, facts):
+_SUBSTANTIVE_FACTS = {
+    RequiredFactCategory.INITIATING_VULNERABILITY_SUPPORT,
+    RequiredFactCategory.TRIGGER_BEHAVIOR_SUPPORT,
+    RequiredFactCategory.CROSS_LAYER_TRANSITION_SUPPORT,
+    RequiredFactCategory.TARGET_VULNERABILITY_SUPPORT,
+    RequiredFactCategory.HARDWARE_FAULT_STATE_SUPPORT,
+    RequiredFactCategory.PROPAGATION_MECHANISM_SUPPORT,
+    RequiredFactCategory.AFFECTED_EXECUTION_SUPPORT,
+}
+
+
+def _interaction_status(required, facts, capability):
     statuses = [facts.get(item, VerificationStatus.UNKNOWN) for item in required]
     if any(s is VerificationStatus.REJECTED for s in statuses): return InteractionVerificationStatus.REJECTED
-    if statuses and all(s is VerificationStatus.VERIFIED for s in statuses): return InteractionVerificationStatus.VERIFIED
-    if any(s is VerificationStatus.VERIFIED for s in statuses): return InteractionVerificationStatus.PARTIALLY_VERIFIED
+    if statuses and all(s is VerificationStatus.VERIFIED for s in statuses):
+        return (
+            InteractionVerificationStatus.VERIFIED
+            if capability is VerificationCapabilityStatus.SUPPORTED
+            else InteractionVerificationStatus.PARTIALLY_VERIFIED
+        )
+    substantive_statuses = [
+        facts.get(item, VerificationStatus.UNKNOWN)
+        for item in required
+        if item in _SUBSTANTIVE_FACTS
+    ]
+    if any(s is VerificationStatus.VERIFIED for s in substantive_statuses):
+        return InteractionVerificationStatus.PARTIALLY_VERIFIED
     return InteractionVerificationStatus.INSUFFICIENT_EVIDENCE
 
 
@@ -284,3 +323,34 @@ def _required_evidence_ids(bindings, binding_records, behavior, entity, conditio
     ids = [e for r in binding_records if r.subject_id in required_subjects for e in r.evidence_ids]
     ids.extend(e for c in conditions if c.required for e in [*c.supporting_evidence_ids, *c.contradicting_evidence_ids])
     return sorted(set(ids))
+
+
+def _supporting_evidence_ids(binding_records, conditions):
+    ids = [
+        evidence_id
+        for record in binding_records
+        for evidence_id in record.supporting_evidence_ids
+    ]
+    ids.extend(
+        evidence_id
+        for condition in conditions
+        if condition.required
+        for evidence_id in condition.supporting_evidence_ids
+    )
+    return sorted(set(ids))
+
+
+def _evidence_binding_status(binding, evidence):
+    if evidence is None:
+        return VerificationStatus.UNKNOWN, ["explicit Evidence could not be resolved"], []
+    metadata_reference = evidence.metadata.get("interaction_reference_id")
+    metadata_role = evidence.metadata.get("reference_role")
+    if metadata_reference is not None and metadata_reference != binding.interaction_reference_id:
+        return VerificationStatus.REJECTED, ["Evidence interaction reference ID mismatch"], []
+    if metadata_role is not None and metadata_role != binding.reference_role.value:
+        return VerificationStatus.REJECTED, ["Evidence interaction reference role mismatch"], []
+    if metadata_reference is None or metadata_role is None:
+        return VerificationStatus.UNKNOWN, ["Evidence lacks structured interaction subject linkage"], []
+    if evidence.type is EvidenceType.LLM_SEMANTIC or not evidence.verified:
+        return VerificationStatus.UNKNOWN, ["subject-linked Evidence is not verified non-LLM Evidence"], []
+    return VerificationStatus.VERIFIED, ["structured Evidence subject linkage matches binding"], [evidence.id]

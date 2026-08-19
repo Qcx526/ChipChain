@@ -7,6 +7,9 @@ type 与 direction 必须完全匹配；Repository 和 Python object 不进入 P
 Knowledge、EntityLink 或 Evidence source。role/source kind 是封闭枚举，越权 reference
 立即失败。Legacy Candidate 只有显式 ID 才启用，不决定 Type I/II，且禁止用于 Type III。
 
+BehaviorNode/KnowledgeNode existence 只表示 source reference resolved，默认 UNKNOWN；只有
+relation-specific verified BehaviorEdge 或其他明确 Evidence contract 才能提供正向支持。
+
 - Type I：需要 initiating software vulnerability、trigger、transition、target hardware
   vulnerability、ARM rules 和 required conditions；当前部分支持。
 - Type II：无需 initiating vulnerability；其余同类 required facts 当前部分支持。
@@ -15,3 +18,11 @@ Knowledge、EntityLink 或 Evidence source。role/source kind 是封闭枚举，
 Score 来自 type-aware JSON profile。空 required component 为 0.0，LLM weight 为 0.0；它
 不是 attack/exploit/vulnerability probability。Owned Type II demo 缺独立硬件漏洞证据，
 因此保守输出 partially_verified。
+
+Architecture rules 和 Conditions 不是 substantive security facts，不能单独触发
+PARTIALLY_VERIFIED。当前 Type I/II capability 为 PARTIALLY_SUPPORTED，因此 status 上限
+也是 PARTIALLY_VERIFIED；只有未来 capability=SUPPORTED 才允许 VERIFIED。
+
+Trigger features 只从 Interaction、explicit bindings/conditions、其 source facts 与必要的
+bound legacy structural facts 提取。未绑定 legacy CWE/CAPEC/Trigger/Precondition 不进入
+interaction feature set，每个输出 feature 必须具有 structured provenance。

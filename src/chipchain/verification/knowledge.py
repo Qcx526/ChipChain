@@ -45,13 +45,18 @@ class KnowledgeRelationVerifier:
                 usable.append(evidence_id)
         status = VerificationStatus.VERIFIED if usable else VerificationStatus.UNKNOWN
         messages.append("knowledge relation provenance supported" if usable else "knowledge relation lacks verified non-LLM provenance")
-        return self._record(interaction_id, edge, status, resolved, messages)
+        return self._record(
+            interaction_id, edge, status, resolved, messages,
+            supporting_evidence_ids=usable,
+        )
 
     def _record(self, interaction_id: str, edge: KnowledgeEdge, status: VerificationStatus,
-                evidence_ids: list[str], messages: list[str]) -> VerificationRecord:
+                evidence_ids: list[str], messages: list[str], *,
+                supporting_evidence_ids: list[str] | None = None) -> VerificationRecord:
         return VerificationRecord.create(interaction_id=interaction_id, architecture=edge.architecture,
             subject_kind=VerificationSubjectKind.KNOWLEDGE_EDGE, subject_id=edge.id, status=status,
             verifier=self.verifier_name, evidence_ids=evidence_ids,
+            supporting_evidence_ids=supporting_evidence_ids or [],
             rule_ids=[f"knowledge:{edge.relation.value}:record-and-provenance:v1"], messages=messages)
 
 
@@ -94,5 +99,6 @@ class VulnerabilityParticipantVerifier:
             subject_kind=VerificationSubjectKind.INTERACTION_PARTICIPANT,
             subject_id=f"{binding.reference_role.value}:{binding.interaction_reference_id}",
             status=status, verifier=self.verifier_name, evidence_ids=resolved,
+            supporting_evidence_ids=usable if status is VerificationStatus.VERIFIED else [],
             rule_ids=["participant:vulnerability-role-layer-evidence:v1"], messages=messages,
             metadata={"source_id": node.id, "reference_role": binding.reference_role.value})

@@ -23,8 +23,10 @@ class EvidenceCatalog:
 
     def inventory(self, required_evidence_ids: Iterable[str], *,
                   required_fact_categories: Iterable[RequiredFactCategory] = (),
+                  supporting_evidence_ids: Iterable[str] = (),
                   rejected_evidence_ids: Iterable[str] = ()) -> ObjectiveEvidenceInventory:
         required = sorted(set(required_evidence_ids))
+        supporting = set(supporting_evidence_ids).intersection(required)
         rejected = sorted(set(rejected_evidence_ids).intersection(required))
         resolved: list[str] = []
         verified: list[str] = []
@@ -37,7 +39,11 @@ class EvidenceCatalog:
             resolved.append(evidence_id)
             if evidence_id in rejected:
                 continue
-            if item.type is EvidenceType.LLM_SEMANTIC or not item.verified:
+            if (
+                evidence_id not in supporting
+                or item.type is EvidenceType.LLM_SEMANTIC
+                or not item.verified
+            ):
                 unknown.append(evidence_id)
             else:
                 verified.append(evidence_id)

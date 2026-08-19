@@ -88,11 +88,12 @@ class VerificationRecord(DomainModel):
     status: VerificationStatus
     verifier: Identifier
     evidence_ids: list[Identifier] = Field(default_factory=list)
+    supporting_evidence_ids: list[Identifier] = Field(default_factory=list)
     rule_ids: list[Identifier] = Field(default_factory=list)
     messages: list[Identifier] = Field(default_factory=list)
     metadata: Metadata = Field(default_factory=dict)
 
-    @field_validator("evidence_ids", "rule_ids", "messages")
+    @field_validator("evidence_ids", "supporting_evidence_ids", "rule_ids", "messages")
     @classmethod
     def normalize_lists(cls, values: list[str]) -> list[str]:
         return _sorted_unique(values, "verification record lists")
@@ -103,19 +104,26 @@ class VerificationRecord(DomainModel):
             self.interaction_id, self.architecture, self.subject_kind, self.subject_id, self.verifier
         ):
             raise ValueError("VerificationRecord ID is not deterministic")
+        if not set(self.supporting_evidence_ids).issubset(self.evidence_ids):
+            raise ValueError("supporting Evidence IDs must be a subset of inspected Evidence IDs")
+        if self.status is not VerificationStatus.VERIFIED and self.supporting_evidence_ids:
+            raise ValueError("UNKNOWN or REJECTED records cannot have supporting Evidence")
         return self
 
     @classmethod
     def create(cls, *, interaction_id: str, architecture: Architecture,
                subject_kind: VerificationSubjectKind, subject_id: str,
                status: VerificationStatus, verifier: str,
-               evidence_ids: list[str] | None = None, rule_ids: list[str] | None = None,
+               evidence_ids: list[str] | None = None,
+               supporting_evidence_ids: list[str] | None = None,
+               rule_ids: list[str] | None = None,
                messages: list[str] | None = None, metadata: Metadata | None = None) -> "VerificationRecord":
         return cls(
             id=verification_record_id(interaction_id, architecture, subject_kind, subject_id, verifier),
             interaction_id=interaction_id, architecture=architecture, subject_kind=subject_kind,
             subject_id=subject_id, status=status, verifier=verifier,
-            evidence_ids=evidence_ids or [], rule_ids=rule_ids or [],
+            evidence_ids=evidence_ids or [],
+            supporting_evidence_ids=supporting_evidence_ids or [], rule_ids=rule_ids or [],
             messages=messages or [], metadata=metadata or {},
         )
 
@@ -263,6 +271,49 @@ class CrossLayerTriggerFeatureSet(DomainModel):
     def normalize_strings(cls, values: list[str]) -> list[str]:
         return _sorted_unique(values, "trigger feature lists")
 
+    @model_validator(mode="after")
+    def validate_complete_provenance(self) -> "CrossLayerTriggerFeatureSet":
+        keys = [
+            (item.feature_id, item.source_kind, item.source_id, item.source_field)
+            for item in self.provenance
+        ]
+        if len(keys) != len(set(keys)):
+            raise ValueError("trigger feature provenance entries must be unique")
+        covered = {item.feature_id for item in self.provenance}
+        required = {
+            *(f"trigger_behavior:{item}" for item in self.trigger_behavior_ids),
+            *(f"propagation_behavior:{item}" for item in self.propagation_behavior_ids),
+            *(f"fault_state:{item}" for item in self.fault_state_ids),
+            *(f"affected_execution:{item}" for item in self.affected_execution_ids),
+            *(f"behavior_relation:{item.value}" for item in self.behavior_relation_sequence),
+            *(f"interface:{item}" for item in self.interface_identifiers),
+            *(f"hardware_address:{item.value}" for item in self.hardware_addresses),
+            *(f"memory_map_id:{item}" for item in self.memory_map_ids),
+            *(f"memory_map_region:{item}" for item in self.memory_map_regions),
+            *(f"mmio_access:{item.value}" for item in self.mmio_access_types),
+            *(f"trigger_input:{item}" for item in self.trigger_inputs),
+            *(f"trigger_event:{item}" for item in self.trigger_events),
+            *(f"required_privilege:{item}" for item in self.required_privileges),
+            *(f"required_security_state:{item}" for item in self.required_security_states),
+            *(f"required_configuration:{item}" for item in self.required_configurations),
+            *(f"security_mechanism:{item}" for item in self.security_mechanism_ids),
+            *(f"cwe:{item}" for item in self.cwe_ids),
+            *(f"capec:{item}" for item in self.capec_ids),
+            *self.unresolved_feature_ids,
+        }
+        missing = required.difference(covered)
+        if missing:
+            raise ValueError("every trigger feature must have structured provenance")
+        self.provenance.sort(
+            key=lambda item: (
+                item.feature_id,
+                item.source_kind,
+                item.source_id,
+                item.source_field,
+            )
+        )
+        return self
+
 
 class ObjectiveEvidenceInventory(DomainModel):
     required_evidence_count: int = Field(ge=0)
@@ -377,6 +428,11 @@ class InteractionVerificationResult(DomainModel):
                 raise ValueError("not-implemented verification cannot expose status or score")
         elif self.verification_status is None or self.verification_score is None:
             raise ValueError("implemented verification requires status and score")
+        if (
+            self.capability_status is VerificationCapabilityStatus.PARTIALLY_SUPPORTED
+            and self.verification_status is InteractionVerificationStatus.VERIFIED
+        ):
+            raise ValueError("partially supported capability cannot claim verified interaction")
         if self.trigger_features.interaction_id != self.interaction_id or self.trigger_features.architecture is not self.architecture:
             raise ValueError("trigger feature identity mismatch")
         records = [*self.binding_verifications, *self.behavior_edge_verifications,

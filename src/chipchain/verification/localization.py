@@ -22,7 +22,16 @@ class InteractionLocationLocalizer:
             record = records.get(edge.id)
             if record is None or record.status is not VerificationStatus.VERIFIED: continue
             source, target = nodes[edge.source_id], nodes[edge.target_id]
-            evidence = next((catalog.resolve(i) for i in edge.evidence_ids if catalog.resolve(i) is not None), None)
+            evidence = next(
+                (
+                    item
+                    for evidence_id in record.supporting_evidence_ids
+                    if (item := catalog.resolve(evidence_id)) is not None
+                ),
+                None,
+            )
+            if evidence is None:
+                continue
             instruction = evidence.address if evidence else edge.metadata.get("instruction_address")
             source_file = evidence.metadata.get("source_file") if evidence else None
             source_line = evidence.metadata.get("source_line") if evidence else None
@@ -35,7 +44,7 @@ class InteractionLocationLocalizer:
                 hardware_address=HardwareAddress(value=target.address) if target.address else None,
                 source_file=source_file if isinstance(source_file, str) else None,
                 source_line=source_line if isinstance(source_line, int) and source_line > 0 else None,
-                supporting_evidence_ids=record.evidence_ids,
+                supporting_evidence_ids=record.supporting_evidence_ids,
                 rule_ids=["localization:verified-mmio-trigger-point:v1"],
                 reason_codes=["verified_mmio_is_cross_layer_trigger_point"],
                 metadata={"initiating_root_cause": False, "llm_used": False}))

@@ -89,13 +89,15 @@ class BehaviorEdgeVerifier:
             messages.append("verified static Evidence matches the referenced edge")
         return self._record(interaction_id, edge,
                             VerificationStatus.VERIFIED if usable else VerificationStatus.UNKNOWN,
-                            resolved, messages)
+                            resolved, messages, supporting_evidence_ids=usable)
 
     def _record(self, interaction_id: str, edge: BehaviorEdge, status: VerificationStatus,
-                evidence_ids: list[str], messages: list[str]) -> VerificationRecord:
+                evidence_ids: list[str], messages: list[str], *,
+                supporting_evidence_ids: list[str] | None = None) -> VerificationRecord:
         return VerificationRecord.create(interaction_id=interaction_id, architecture=edge.architecture,
             subject_kind=VerificationSubjectKind.BEHAVIOR_EDGE, subject_id=edge.id, status=status,
             verifier=self.verifier_name, evidence_ids=evidence_ids,
+            supporting_evidence_ids=supporting_evidence_ids or [],
             rule_ids=[f"behavior:{edge.relation.value}:static-v1"], messages=messages)
 
 
