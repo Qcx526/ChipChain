@@ -343,5 +343,10 @@ Assessment，Phase 8 产生类型化 Multi-AgentReasoningResult；两者都不�
 讨论投影为 `AttackChain(status=candidate)`；当前不得把 Assessment 或 Retrieved
 文本解释成 Evidence 或已验证 AttackChain。
 
-Phase 8R 只新增 independent interaction semantics 和 search capability boundary；
-没有迁移旧 Phase 9A、没有评分/根因算法，也没有新增 hardware→software BehaviorEdge。
+Phase 9A-R 新增独立 verification package：`InteractionReferenceBinding`、
+`InteractionConditionBinding`、`InteractionVerificationInput`、interaction-scoped
+`VerificationRecord` / `ConditionAssessment`、`CrossLayerTriggerFeatureSet`、
+`ObjectiveEvidenceInventory`、`CrossLayerLocationFinding` 和 `InteractionVerificationResult`。
+
+Type III 结果严格要求 `verification_status=None`、`verification_score=None`、空 score
+components；semantic feature 不等于 verified fact。没有新增 hardware→software BehaviorEdge。

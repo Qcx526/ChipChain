@@ -1,5 +1,5 @@
 {
-  "id": "cross-layer-interaction:arm:9300584f203ce4061121dfae900bf3b5346e40d523b2e0fbba997cf13e46a376",
+  "id": "cross-layer-interaction:arm:777feb3a9b5ee2a31e23b14b43e4117747f5c06f3014a783ae0f99bc02175da9",
   "architecture": "arm",
   "interaction_type": "firmware_vulnerability_to_hardware",
   "direction": "software_to_hardware",

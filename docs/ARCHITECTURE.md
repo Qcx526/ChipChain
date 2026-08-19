@@ -176,7 +176,14 @@ Retrieved document 被标为 reference data，不能覆盖固定 Prompt instruct
 
 ### Verification and Scoring
 
-验证器逐边检查图关系、静态证据、动态证据和架构规则。评分权重来自配置文件；缺失证据降低置信度并出现在解释中，LLM 置信度不能覆盖证据冲突。
+Phase 9A-R 以 `CrossLayerInteraction + InteractionVerificationInput` 为顶层入口。显式
+binding 把 interaction role 映射到 source fact；legacy Candidate 只通过只读 adapter 为
+Type I/II 提供 software→hardware facts。验证器逐字段检查 CALLS/MMIO 静态 Evidence、
+Exact EntityLink、KG provenance、participant layer 与 ARM rules。
+
+评分按 InteractionType 使用配置化 profile；空 required evidence 为 0.0，Type II 不包含
+initiating firmware vulnerability component，Type III profile disabled 且 score 为 None。
+该值只是 evidence support；LLM objective weight 固定为 0.0。
 
 ### Evaluation and Presentation
 
@@ -236,17 +243,17 @@ Program Analysis 路径在 Register/HardwareResource 观察处停止。Hardware 
 
 ## 当前实现边界
 
-Phase 0～8 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
+Phase 0～9A-R 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
 MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、可选 AngrAnalyzer、
 Analysis Ingestion，以及 synthetic ARM ELF 到 Function/CALLS/MMIO Hardware
 Node/GraphPath 的端到端闭环；另有独立 Vulnerability Knowledge Graph、确定性
 Sample 转换、Evidence 目录、canonical match keys、Exact Hardware EntityLink 和
 CrossGraphCandidate Search；Phase 7 增加只读 Context、Architecture RAG、Mock/
 optional compatible Provider 和 Semantic Assessment 后校验。通用地址分析、
-Candidate 到 AttackChain 投影、条件满足性、Evidence Verification/Scoring、
-以及 API 仍未实现。Phase 8 增加共享 Context/RAG、三个固定类型化 Agent、确定性
+Candidate 到 AttackChain 投影、动态条件观察以及 API 仍未实现。Phase 8 增加共享
+Context/RAG、三个固定类型化 Agent、确定性
 Coordinator、Citation/Architecture/Condition 校验、失败隔离和 digest-only Trace。
-Phase 8R 新增独立三类 CrossLayerInteraction、双向 Direction、Location Role 和
-direction-aware search capability boundary；现有 Candidate/Search/RAG/Multi-Agent API
-保持不变。Hardware→software detection、Evidence、Verification 与反向 BehaviorEdge
-仍未实现。
+Phase 8R 新增三类 CrossLayerInteraction。Phase 9A-R 增加 Type I/II 部分非 LLM
+Evidence Verification、显式 condition assessment、type-aware score 与 trigger-point
+localization；现有 Candidate/Search/RAG/Multi-Agent API 保持不变。Hardware→software
+detection、runtime propagation Verification 与反向 BehaviorEdge 仍未实现。

@@ -1,0 +1,30 @@
+{
+  "profile": "engineering_mvp_uncalibrated",
+  "llm_objective_weight": 0.0,
+  "profiles": {
+    "firmware_vulnerability_to_hardware": {
+      "enabled": true,
+      "weights": {
+        "initiating_vulnerability_support": 0.2,
+        "trigger_behavior_support": 0.2,
+        "cross_layer_transition_support": 0.2,
+        "target_vulnerability_support": 0.2,
+        "architecture_and_conditions": 0.2
+      }
+    },
+    "firmware_behavior_to_hardware": {
+      "enabled": true,
+      "weights": {
+        "trigger_behavior_support": 0.25,
+        "cross_layer_transition_support": 0.25,
+        "target_vulnerability_support": 0.2,
+        "conditions": 0.15,
+        "architecture_rules": 0.15
+      }
+    },
+    "hardware_vulnerability_to_firmware": {
+      "enabled": false,
+      "weights": {}
+    }
+  }
+}

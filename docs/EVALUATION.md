@@ -70,6 +70,11 @@ distance 或 instruction count 冒充 source-line error；“<5 lines”必须�
 - **Verifier TPR/FPR/FNR**：在包含正负边的验证集上评估验证器。
 - **Architecture Consistency Rate**：未出现跨架构专有节点或非法权限转换的预测比例。
 
+Verification metrics 与 Candidate Search Hit@K 必须分开报告，并分别统计 Type I、II、III。
+Type III 在 verifier 未实现期间报告 capability coverage，不能用 0 分冒充 evidence support。
+定位必须分别评测 initiating root cause、cross-layer trigger point 与 affected execution
+point；MMIO trigger instruction 不得计作 root-cause line。
+
 ## 80% 目标的报告方式
 
 “关联漏洞命中率 ≥80%”在基准冻结前暂定义为测试集 Hit@K 指标目标，并同时报告 Precision、Recall、F1、节点/边指标与置信区间。正式论文前需要明确 K、匹配规则、样本构成和统计不确定性，避免只选择最有利口径。
@@ -96,6 +101,6 @@ distance 或 instruction count 冒充 source-line error；“<5 lines”必须�
 
 ## 当前评测契约状态
 
-已建立总体与 Type I/II/III 分类型 Hit@K、结构指标、角色化位置 Ground Truth 和未来
-verification 指标约束。Phase 8R 的三份 semantic fixture 只验证数据契约，不是正式
-Ground Truth Benchmark；正式命中率、定位误差和统计实验留到 Phase 10。
+已建立总体与 Type I/II/III 分类型 Hit@K、结构指标、角色化位置 Ground Truth 和
+verification 指标约束。Phase 9A-R owned synthetic Type II fixture 只验证工程闭环，不是
+正式 Ground Truth Benchmark；权重校准、定位误差和统计实验留到 Phase 10。

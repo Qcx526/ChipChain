@@ -2,9 +2,9 @@
 
 ## 当前状态
 
-Phase 0～Phase 8R 已完成。Phase 8R Cross-Layer Semantics Refactor 在不改变
-Phase 4B～8 API 的前提下，引入导师定义的三类 interaction、双向 direction、定位角色、
-search capability boundary 和分类型评测契约。下一步计划为 Phase 9A-R。
+Phase 0～Phase 9A-R 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
+非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
+requirements/score、能力状态和角色化定位。下一步计划为 Phase 9B。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -226,12 +226,18 @@ Evidence Verification、Scoring 或 Root Cause 定位。
 
 ## 后续路线（尚未实施）
 
-### Phase 9A-R：Verification Migration to New Cross-Layer Semantics
+### Phase 9A-R：Verification Migration to New Cross-Layer Semantics（已完成）
 
-旧版 Phase 9A 完整保存在 `phase-9a-old-semantics`。下一阶段依据
-`docs/PHASE9A_MIGRATION.md` 迁移通用 verification primitives，并按 InteractionType /
-Direction / LocationRole 改造 pipeline、architecture rules、features 和 localization；
-不是从零重写，也不得直接 cherry-pick 方向绑定的顶层实现。
+- [x] Interaction identity 排除 Evidence/provenance/metadata
+- [x] 迁移三态、地址、Record、EvidenceCatalog 和 CALLS/MMIO/EntityLink verifier
+- [x] 建立 InteractionVerificationInput、Reference/Condition Binding 和 legacy adapter
+- [x] 建立 Type I/II/III requirements、capability、type-aware score 与 role-aware location
+- [x] 完成 owned synthetic ARM Type II ELF 端到端；Type III 保持 not implemented
+
+### Phase 9B：Dynamic / Reverse-Direction Evidence Verification
+
+规划真实 runtime observation、fault propagation 与 hardware→software verifier。进入前必须
+先定义可审计 Evidence contract；不得用 synthetic reverse edge 代替观察器。
 
 ### Phase 10：Evaluation
 

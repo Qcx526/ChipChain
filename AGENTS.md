@@ -36,13 +36,12 @@
 
 ## 当前阶段限制
 
-- Phase 0～8 已完成；当前执行 Phase 8R：Cross-Layer Semantics Refactor。
-- Phase 8R 只允许三类 Interaction/Direction/Location Role 数据契约、search capability
-  boundary、纯语义 fixture、兼容测试和评测/迁移文档。
-- 未经明确安排，不实现或迁移 Evidence Verification、Scoring、Root Cause algorithm、
-  Dynamic/QEMU Analysis、Hardware→Firmware synthetic BehaviorEdge、LLM Type
-  Classification、新 Agent、AttackChain projection、FastAPI/GUI、Additional
-  Architectures 或 Exploit Generation。
+- Phase 0～8R 与 Phase 9A-R 已完成。Verification 顶层 identity 是
+  `CrossLayerInteraction`，legacy Candidate 只能作为显式 software→hardware evidence source。
+- Type I/II 当前只有部分客观验证能力；Type III 客观 hardware→software propagation
+  verification 为 `not_implemented`，不得反转旧 GraphPath 或伪造反向 BehaviorEdge。
+- 未经明确安排，不实现 Dynamic/QEMU Verification、DMA/interrupt/fault runtime trace、
+  Verified AttackChain projection、Additional Architectures、FastAPI/GUI 或 Exploit Generation。
 
 ## 提交前检查
 
