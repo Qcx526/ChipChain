@@ -11,10 +11,21 @@ from chipchain.runtime.errors import RuntimeCapabilityError, RuntimePersistenceE
 from chipchain.runtime.models import RuntimeTrace
 
 
+def revalidate_runtime_trace(trace: RuntimeTrace) -> RuntimeTrace:
+    """Return a detached snapshot after rerunning every runtime invariant.
+
+    The JSON-mode dump is intentional: validating an existing Pydantic model
+    instance may reuse that instance and miss post-validation container
+    mutations.
+    """
+
+    return RuntimeTrace.model_validate(trace.model_dump(mode="json"))
+
+
 def serialize_runtime_trace(trace: RuntimeTrace) -> str:
     """Serialize a validated trace to canonical, human-readable JSON."""
 
-    validated = RuntimeTrace.model_validate(trace.model_dump(mode="json"))
+    validated = revalidate_runtime_trace(trace)
     return json.dumps(
         validated.model_dump(mode="json"),
         ensure_ascii=False,

@@ -8,6 +8,7 @@ import json
 from chipchain.models import Evidence, EvidenceType
 from chipchain.runtime.enums import RuntimeBackendKind, RuntimeEventKind
 from chipchain.runtime.models import RuntimeObservation, RuntimeTrace
+from chipchain.runtime.trace import revalidate_runtime_trace
 
 
 class RuntimeEvidenceNormalizer:
@@ -20,12 +21,22 @@ class RuntimeEvidenceNormalizer:
     ) -> Evidence:
         """Preserve runtime provenance without assigning interaction truth."""
 
-        trace_observation = next(
-            (item for item in trace.observations if item.id == observation.id), None
+        validated_trace = revalidate_runtime_trace(trace)
+        validated_observation = RuntimeObservation.model_validate(
+            observation.model_dump(mode="json")
         )
-        if trace_observation is None or trace_observation != observation:
+        trace_observation = next(
+            (
+                item
+                for item in validated_trace.observations
+                if item.id == validated_observation.id
+            ),
+            None,
+        )
+        if trace_observation is None or trace_observation != validated_observation:
             raise ValueError("runtime Evidence requires an observation from the validated trace")
-        backend = trace.backend_manifest
+        observation = trace_observation
+        backend = validated_trace.backend_manifest
         identity_payload = [observation.id, backend.id]
         digest = hashlib.sha256(
             json.dumps(identity_payload, separators=(",", ":")).encode("utf-8")

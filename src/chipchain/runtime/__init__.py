@@ -29,6 +29,7 @@ from chipchain.runtime.models import (
 )
 from chipchain.runtime.trace import (
     load_runtime_trace,
+    revalidate_runtime_trace,
     save_runtime_trace,
     serialize_runtime_trace,
 )
@@ -51,6 +52,7 @@ __all__ = [
     "RuntimeTrace",
     "RuntimeTraceManifest",
     "load_runtime_trace",
+    "revalidate_runtime_trace",
     "runtime_backend_manifest_id",
     "runtime_intervention_id",
     "runtime_observation_id",

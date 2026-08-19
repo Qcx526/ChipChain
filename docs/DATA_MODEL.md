@@ -384,3 +384,12 @@ host timestamp 与 metadata 明确排除。物理地址不能被默认视为跨 
 `RuntimeEvidenceNormalizer` 产生现有 `Evidence(type=dynamic_analysis)`。Evidence 的
 `source` 是 backend manifest ID，`artifact` 是 trace ID，metadata 保存 observation/event/
 sequence/vCPU 和事件字段，不写入 Interaction ID、reference ID 或 role。
+
+Phase 9B0-R1 增加 `revalidate_runtime_trace()`。它强制经 JSON-mode model snapshot 创建新的
+RuntimeTrace，供 persistence 与 Normalizer 共用，以阻止 `observations.append()`、
+`capabilities.append()` 或 metadata flag 原地修改绕过 nested validators。Normalizer 同时
+detached-validate 调用方 Observation，并只使用重新验证 snapshot 中的成员生成 Evidence。
+
+当前 RuntimeObservation 的 `virtual_address` 暂时复用 `HardwareAddress` 的规范十六进制
+包装器，但其领域含义是 guest virtual address；后续 runtime-specific address namespace
+应单独建模，不能因包装类型名称把它解释为 MMIO physical address。

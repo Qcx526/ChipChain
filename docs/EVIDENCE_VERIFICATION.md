@@ -45,3 +45,7 @@ interaction-agnostic，后续 verifier 必须经显式 binding 匹配。Backend 
 同一 Observation/backend 的 Evidence ID 与 JSON 确定；event semantic field 改变会改变 ID，
 metadata 顺序或 host timestamp 不改变 ID。未来同一 fact 的 Static/Dynamic VerificationRecord
 必须进入 multi-verifier aggregation；任何一方都不能覆盖另一方，本阶段不定义 conflict policy。
+
+Phase 9B0-R1 要求 Normalizer 在生成 `verified=true` 前重新序列化并验证整个 RuntimeTrace，
+再 detached-validate 调用方 Observation，并只消费新 snapshot 的 Observation/backend。
+先前已校验的 mutable object、list membership 或相同 ID 均不能单独建立 integrity trust。

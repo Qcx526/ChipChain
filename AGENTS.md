@@ -36,7 +36,8 @@
 
 ## 当前阶段限制
 
-- Phase 0～8R、Phase 9A-R1/R2/R3 与 Phase 9B0 Runtime Evidence Contract 已完成。
+- Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0 与 Phase 9B0-R1 Runtime Snapshot
+  Integrity Hardening 已完成。
   Verification 顶层 identity 是
   `CrossLayerInteraction`，legacy Candidate 只能作为显式 software→hardware evidence source。
 - Type I/II 当前只有部分客观验证能力；Type III 客观 hardware→software propagation
@@ -49,6 +50,8 @@
   VerificationResult 的各 VerificationRecord 集合不得包含重复 ID。
 - RuntimeObservation 与 RuntimeIntervention 必须分离；事件顺序不等于因果，Dynamic
   Evidence verified 只表示 observation contract/integrity 已验证，不表示漏洞或 Interaction。
+- 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
+  snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式
   Interaction binding。9B1 前不实现真实 QEMU observer，9B2 前不实现 reverse verifier。
 - 未经明确安排，不实现 QEMU mutation/fault/interrupt/DMA injection、Verified AttackChain

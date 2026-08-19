@@ -35,6 +35,19 @@ architecture 一致、vCPU index 有效，并按 sequence 排序。JSON envelope
 `chipchain_runtime_trace` / version 1；load 会重新执行全部 Pydantic、identity、ordering 与
 capability 校验，不信任磁盘内容。
 
+### Snapshot Revalidation
+
+Runtime models 继承可变 `DomainModel`，因此 list/dict 的原地 mutation 不会自动重跑整个
+Trace contract。Phase 9B0-R1 规定所有 persistence 与 verified Dynamic Evidence upgrade
+必须调用同一 `revalidate_runtime_trace()`：先 `model_dump(mode="json")`，再从序列化数据
+创建新的 `RuntimeTrace`。直接 `RuntimeTrace.model_validate(existing_model)` 不满足此要求，
+因为 Pydantic 可能复用已有 instance。
+
+Normalizer 还会对调用方 Observation 做独立 serialized snapshot validation，再以 ID 和完整
+模型相等性匹配 detached Trace 成员。Evidence 的 Observation/backend 均取自新 snapshot，
+不继续信任原始 mutable object。该路径重新检查 backend/manifest/observation identity、fixture
+provenance、event semantics、sequence/ID、architecture/vCPU 和 backend capability。
+
 ## Event Contract
 
 | Event | Required semantic fields | Required backend capability |
@@ -63,6 +76,10 @@ source=backend manifest ID，artifact=trace ID，
 并保存 observation ID、event kind、sequence、vCPU 与相应地址/value/discontinuity 字段。
 Evidence 保持 interaction-agnostic，不含 reference role/ID。`verified=true` 只表示 runtime
 observation contract/integrity verified，不表示 vulnerability、causality 或 attack chain。
+
+当前 `virtual_address` 为复用规范十六进制校验而使用 `HardwareAddress` wrapper；字段语义仍是
+guest virtual memory address，而不是硬件/MMIO namespace。未来可引入独立
+`RuntimeMemoryAddress`，但 R1 不修改稳定 Verification address API。
 
 ## Future Interaction Semantics
 

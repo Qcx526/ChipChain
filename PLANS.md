@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B0 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
+Phase 0～Phase 9B0-R1 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
 requirements/score、能力状态和角色化定位。下一步计划为 Phase 9B。
 
@@ -14,6 +14,9 @@ Phase 9A-R3 强制每个 semantic interaction reference 至多一个 source bind
 各 VerificationRecord 集合增加 deterministic ID uniqueness 防御。Phase 9B0 已建立独立、
 backend-neutral Runtime Trace/Observation/Intervention contract 与 Dynamic Evidence normalization；
 下一步为 Phase 9B1 QEMU Passive Runtime Observer。
+
+Phase 9B0-R1 为 Persistence 与 Dynamic Evidence normalization 建立统一 detached snapshot
+revalidation，阻断 RuntimeTrace/backend container 的 post-validation mutation 绕过。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -253,6 +256,7 @@ Evidence Verification、Scoring 或 Root Cause 定位。
 - [x] Interaction-agnostic Dynamic Evidence normalization 与 owned fixture provenance
 - [x] ARM MMIO、interrupt、Type III intervention contract fixtures 和离线 demo
 - [x] Type I/II runtime meaning、Type III causal minimum 和 QEMU capability plan 文档
+- [x] R1：mutable trace/backend 在 persistence 或 Evidence upgrade 前统一 detached revalidation
 
 ### Phase 9B1：QEMU Passive Runtime Observer（下一阶段）
 
