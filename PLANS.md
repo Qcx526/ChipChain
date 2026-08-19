@@ -2,9 +2,8 @@
 
 ## 当前状态
 
-Phase 0～Phase 7R 已完成。Phase 7R 在不改变离线默认测试的前提下，完成可选真实
-Provider 人工验证、显式 `.env` smoke-test 体验、CandidateContext 分类契约和自由文本
-验证边界强化。尚未开始 Phase 8。
+Phase 0～Phase 8 已完成。Phase 8 使用共享 CandidateContext/RAG、三个类型化 Agent
+和确定性 Coordinator 完成协同语义分析；全部结果仍为非验证状态。尚未开始 Phase 9。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -184,12 +183,31 @@ Provider 可离线完成结构化语义解释；幻觉引用被拒绝；源图�
 退出条件：离线回归通过；真实连接和完整 Reasoning 均由人工脚本成功验证；真实响应
 通过 JSON、Pydantic 和 CandidateReasoner 后校验；密钥不进入日志；未开始 Phase 8。
 
+## Phase 8：Typed Multi-Agent Collaborative Reasoning（已完成）
+
+目标：在一次 Context Assembly 与一次 ARM RAG 上固定执行 Evidence Analyst、
+Security Reasoner 和 Critic，保留引用、架构、条件与验证边界。
+
+- [x] 实现 MultiAgentContext，共享同一 CandidateContext/query/chunks
+- [x] 实现 EvidenceAnalysis、SecurityReasoningAssessment、SemanticHypothesis
+- [x] 实现 CriticReview 和三组封闭非验证状态枚举
+- [x] 实现三个独立 Prompt Contract 和 strict JSON Schema
+- [x] 实现 StructuredOutputProvider，复用 Phase 7 OpenAI-compatible transport
+- [x] 保持 Phase 7 LLMProvider.generate() 和 CandidateReasoner 兼容
+- [x] 实现 Evidence/Chunk/Condition/Hypothesis 跨 Agent 引用校验
+- [x] 统一 Phase 7/8 forbidden verification claim validator
+- [x] 实现固定三角色 deterministic Coordinator 和透明 final-status 规则
+- [x] 实现失败即停、无 Agent retry、无 fallback 的 AgentExecutionError
+- [x] 实现无时间戳参与身份的 SHA-256 AgentExecutionRecord
+- [x] 实现 deterministic MockStructuredOutputProvider 与 ARM 端到端 Demo
+- [x] 完成真实 qwen3.8-max 三次串行 Agent 人工验证
+- [x] 保留全部 unresolved Trigger/Precondition 和只读 Source Repository
+
+退出条件：三个类型化 Agent、共享 RAG、引用/架构/条件校验、固定 Trace、失败隔离、
+Mock/真实 Provider 闭环和全部回归测试通过；未生成 Verified AttackChain，未实现
+Evidence Verification、Scoring 或 Root Cause 定位。
+
 ## 后续路线（尚未实施）
-
-### Phase 8：Multi-Agent
-
-在稳定单体 Pipeline 上拆分候选生成、知识检索和验证职责；不得通过 Agent
-边界绕过领域模型和证据校验。
 
 ### Phase 9：Evidence Verification / Scoring / Root Cause
 

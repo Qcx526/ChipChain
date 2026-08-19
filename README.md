@@ -28,13 +28,13 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 4B ARM ELF + Phase 5 Knowledge Fixture 的端到端未验证候选 Demo
 - CandidateContext、完整 Evidence Resolution 和只读事实组装
 - architecture-first ARM/global Local Lexical RAG 与 RISC-V leakage 防护
+- 固定 Evidence Analyst → Security Reasoner → Critic 的类型化 Multi-Agent 推理
 - 确定性 Prompt、LLMProvider 抽象、Mock Provider 和结构化 Assessment 后校验
 - 可选 OpenAI-compatible Responses/Chat Completions 客户端和人工 smoke script
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
 
 当前尚未实现通用跨块/跨函数地址分析、Candidate 到 AttackChain 的语义投影、
-Trigger/Precondition 满足性验证、Evidence Verification、最终评分、Multi-Agent
-或 API；这些能力会按
+Trigger/Precondition 满足性验证、Evidence Verification、最终评分或 API；这些能力会按
 [PLANS.md](PLANS.md) 的阶段退出条件逐步加入。
 
 ## 环境要求
@@ -66,9 +66,10 @@ Phase 7 的真实 OpenAI-compatible 客户端同样是可选能力；默认测�
 .\.venv\Scripts\python -m pip install -e ".[llm]"
 .\.venv\Scripts\python scripts\check_llm_provider.py
 .\.venv\Scripts\python scripts\check_real_reasoning.py
+.\.venv\Scripts\python scripts\check_real_multi_agent.py
 ```
 
-配置字段见 `.env.example`，真实 API Key 不得写入仓库。只有这两个人工脚本显式
+配置字段见 `.env.example`，真实 API Key 不得写入仓库。只有这些人工脚本显式
 加载根目录 `.env`；核心 Provider 和默认 pytest 不读取该文件。
 
 Qwen 3.8 Max 的 reasoning effort 和 completion limit 也必须由用户显式配置；
@@ -231,6 +232,18 @@ Context Assembler 会解析完整 Node/Edge/Evidence，Local Retriever 在评分
 内容只作为 reference data，LLM interpretation 不等于 Evidence 或 Verification。
 设计见 [RAG Reasoning](docs/RAG_REASONING.md)。
 
+## Typed Multi-Agent Reasoning Example
+
+Phase 8 只执行固定的 Evidence Analyst → Security Reasoner → Critic，并共享一次
+CandidateContext 和一次 ARM/global RAG。默认 Demo 完全离线：
+
+```powershell
+.\.venv\Scripts\python examples\arm_multi_agent_demo.py
+```
+
+Coordinator 是确定性 Python 编排器；三 Agent 共识不等于 Evidence Verification。
+设计见 [Multi-Agent Reasoning](docs/MULTI_AGENT_REASONING.md)。
+
 ## 文档导航
 
 - [项目范围](docs/PROJECT_SCOPE.md)
@@ -239,6 +252,7 @@ Context Assembler 会解析完整 Node/Edge/Evidence，Local Retriever 在评分
 - [实体链接契约](docs/ENTITY_LINKING.md)
 - [Candidate Search](docs/CANDIDATE_SEARCH.md)
 - [RAG Reasoning](docs/RAG_REASONING.md)
+- [Multi-Agent Reasoning](docs/MULTI_AGENT_REASONING.md)
 - [评测设计](docs/EVALUATION.md)
 - [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)
 - [阶段计划](PLANS.md)

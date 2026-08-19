@@ -237,6 +237,17 @@ class PromptRequest(DomainModel):
     reasoning_input: CandidateReasoningInput
 
 
+class StructuredPromptRequest(DomainModel):
+    """Generic strict-output request shared by typed Phase 8 agents."""
+
+    candidate_id: Identifier
+    architecture: Architecture
+    role: Identifier
+    schema_name: Identifier
+    system_prompt: Identifier
+    user_prompt: Identifier
+
+
 class CandidateSemanticAssessment(DomainModel):
     """Structured LLM interpretation that cannot express verification or confidence."""
 

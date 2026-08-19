@@ -6,7 +6,7 @@ import json
 import os
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, TypeVar
 
 from pydantic import ValidationError
 
@@ -19,7 +19,23 @@ from chipchain.reasoning.models import (
     CandidateSemanticAssessment,
     LLMProviderConfig,
     PromptRequest,
+    StructuredPromptRequest,
 )
+from chipchain.models.common import DomainModel
+
+StructuredModelT = TypeVar("StructuredModelT", bound=DomainModel)
+
+
+class StructuredOutputProvider(ABC):
+    """Vendor-neutral transport for one strict JSON→Pydantic output model."""
+
+    @abstractmethod
+    def generate_structured(
+        self,
+        request: StructuredPromptRequest,
+        output_type: type[StructuredModelT],
+    ) -> StructuredModelT:
+        """Return one validated structured object for the requested schema."""
 
 
 class LLMProvider(ABC):
@@ -30,7 +46,7 @@ class LLMProvider(ABC):
         """Return a strict assessment without modifying candidate facts."""
 
 
-class OpenAICompatibleLLMProvider(LLMProvider):
+class OpenAICompatibleLLMProvider(LLMProvider, StructuredOutputProvider):
     """Optional explicit Responses or Chat Completions compatible client."""
 
     def __init__(
@@ -127,7 +143,26 @@ class OpenAICompatibleLLMProvider(LLMProvider):
         return cls(config=config, api_key=api_key, client=client)
 
     def generate(self, request: PromptRequest) -> CandidateSemanticAssessment:
-        """Make the configured protocol call and strictly parse assessment JSON."""
+        """Preserve the Phase 7 semantic-assessment API."""
+
+        return self.generate_structured(
+            StructuredPromptRequest(
+                candidate_id=request.candidate_id,
+                architecture=request.architecture,
+                role="candidate_reasoner",
+                schema_name="CandidateSemanticAssessment",
+                system_prompt=request.system_prompt,
+                user_prompt=request.user_prompt,
+            ),
+            CandidateSemanticAssessment,
+        )
+
+    def generate_structured(
+        self,
+        request: StructuredPromptRequest,
+        output_type: type[StructuredModelT],
+    ) -> StructuredModelT:
+        """Make one configured protocol call and validate its declared model."""
 
         try:
             if self._config.api_style is LLMAPIStyle.RESPONSES:
@@ -172,7 +207,7 @@ class OpenAICompatibleLLMProvider(LLMProvider):
                     )
                 response = self._client.chat.completions.create(**kwargs)
                 content = response.choices[0].message.content
-            return _parse_assessment(content)
+            return _parse_structured_output(content, output_type)
         except LLMProviderResponseError:
             raise
         except Exception as exc:
@@ -232,7 +267,10 @@ def _parse_boolean(value: str) -> bool:
     raise ValueError("boolean configuration must be true or false")
 
 
-def _parse_assessment(content: object) -> CandidateSemanticAssessment:
+def _parse_structured_output(
+    content: object,
+    output_type: type[StructuredModelT],
+) -> StructuredModelT:
     if not isinstance(content, str):
         raise LLMProviderResponseError(
             "LLM provider returned non-text output",
@@ -242,14 +280,14 @@ def _parse_assessment(content: object) -> CandidateSemanticAssessment:
         payload = json.loads(content)
     except json.JSONDecodeError:
         raise LLMProviderResponseError(
-            "LLM provider returned invalid assessment JSON",
+            "LLM provider returned invalid structured output JSON",
             stage="json_parse",
         ) from None
     try:
-        return CandidateSemanticAssessment.model_validate(payload)
+        return output_type.model_validate(payload)
     except ValidationError:
         raise LLMProviderResponseError(
-            "LLM provider returned invalid assessment JSON",
+            "LLM provider returned invalid structured output JSON",
             stage="pydantic_validation",
         ) from None
 

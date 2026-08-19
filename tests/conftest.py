@@ -27,11 +27,14 @@ from chipchain.models import (
     RelationType,
     VulnerabilitySample,
 )
+from chipchain.multi_agent import MultiAgentContext
 from chipchain.reasoning import (
     ArchitectureKnowledgeDocument,
     CandidateContext,
     CandidateContextAssembler,
+    CandidateRetrievalQueryBuilder,
     InMemoryEvidenceResolver,
+    LocalLexicalKnowledgeRetriever,
     load_architecture_knowledge_documents,
 )
 
@@ -196,6 +199,29 @@ def rag_fixture_documents() -> list[ArchitectureKnowledgeDocument]:
     """Load the owned Phase 7 ARM/global/RISC-V retrieval corpus."""
 
     return load_architecture_knowledge_documents(FIXTURE_DIRECTORY / "rag")
+
+
+@pytest.fixture
+def multi_agent_context(
+    reasoning_context: CandidateContext,
+    rag_fixture_documents: list[ArchitectureKnowledgeDocument],
+) -> MultiAgentContext:
+    """Build one shared architecture-filtered context for all Phase 8 agents."""
+
+    query = CandidateRetrievalQueryBuilder().build(reasoning_context)
+    retrieval = LocalLexicalKnowledgeRetriever(rag_fixture_documents).retrieve(
+        query,
+        architecture=reasoning_context.architecture,
+        top_k=3,
+    )
+    return MultiAgentContext(
+        candidate_id=reasoning_context.candidate_id,
+        architecture=reasoning_context.architecture,
+        candidate_context=reasoning_context,
+        retrieval_query=query,
+        retrieved_chunks=retrieval.chunks,
+        metadata={"fixture": True, "shared_context": True},
+    )
 
 
 @pytest.fixture

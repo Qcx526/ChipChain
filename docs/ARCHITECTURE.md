@@ -21,7 +21,7 @@
                          │
                   Architecture RAG
                          │
-                  LLM 协作推理（可选）
+           Typed Multi-Agent 协作推理（可选）
                          │
                          ▼
                 Candidate Attack Chains
@@ -37,6 +37,11 @@
 ```
 
 候选搜索先于 LLM。验证器只消费结构化候选链和证据，不信任自然语言结论。
+
+Phase 8 的协作推理固定复用一次 CandidateContext Assembly 和一次 ARM/global RAG，
+依次执行 Evidence Analyst、Security Reasoner、Critic。Coordinator 是确定性 Python
+编排器，不是第四个 LLM；Agent 输出、共识和 Critic Review 均不等于 Evidence 或
+Verification。详细契约见 `docs/MULTI_AGENT_REASONING.md`。
 
 ## 分层与职责
 
@@ -206,7 +211,7 @@ Program Analysis 路径在 Register/HardwareResource 观察处停止。Hardware 
 
 ## 当前实现边界
 
-Phase 0～7 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
+Phase 0～8 已实现 Python 包、CLI、严格领域模型、GraphRepository、NetworkX
 MultiDiGraph、JSON 图快照、ProgramAnalyzer、DemoAnalyzer、可选 AngrAnalyzer、
 Analysis Ingestion，以及 synthetic ARM ELF 到 Function/CALLS/MMIO Hardware
 Node/GraphPath 的端到端闭环；另有独立 Vulnerability Knowledge Graph、确定性
@@ -214,4 +219,5 @@ Sample 转换、Evidence 目录、canonical match keys、Exact Hardware EntityLi
 CrossGraphCandidate Search；Phase 7 增加只读 Context、Architecture RAG、Mock/
 optional compatible Provider 和 Semantic Assessment 后校验。通用地址分析、
 Candidate 到 AttackChain 投影、条件满足性、Evidence Verification/Scoring、
-Multi-Agent 和 API 仍未实现。
+以及 API 仍未实现。Phase 8 增加共享 Context/RAG、三个固定类型化 Agent、确定性
+Coordinator、Citation/Architecture/Condition 校验、失败隔离和 digest-only Trace。

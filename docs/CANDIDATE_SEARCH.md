@@ -120,5 +120,8 @@ Phase 7 可以把 Candidate 的引用解析为只读 `CandidateContext`，并用
 和 LLMProvider 生成 `CandidateSemanticAssessment`；这不会改变 Candidate 的上述
 有限语义。详细契约见 `RAG_REASONING.md`。
 
+Phase 8 可以把 Candidate 交给固定的类型化 Multi-Agent 协作分析，但所有 Agent
+继续消费同一个只读 CandidateContext，不能修改 Candidate 或判断条件已满足。
+
 尚未实现 Component/Interface linking、Trigger/Precondition 满足性判断、Evidence
-Verification、Scoring、AttackChain 投影、Multi-Agent、Neo4j、API 或 GUI。
+Verification、Scoring、AttackChain 投影、Neo4j、API 或 GUI。

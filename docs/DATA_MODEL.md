@@ -259,16 +259,34 @@ contextually_inconsistent
 confidence 字段。Reasoner 进一步检查 Candidate/Architecture 身份、citation 子集，
 并要求 Phase 7 中所有 Trigger/Precondition 保持 unresolved。
 
-`LLMProviderConfig` 只保存 base URL、model、显式 API style、JSON mode 和 timeout；
+`LLMProviderConfig` 只保存 base URL、model、显式 API style、JSON mode、timeout 和
+可选 reasoning/output limit；
 API Key 不属于模型，不能出现在 repr/model_dump/metadata。
 
 Demo Evidence 固定 `type=static_analysis`、`source=demo_analyzer`、`verified=true`、`metadata.fixture=true`。其中 confidence 1.0 只表示该关系由确定性 fixture 明确给出，不表示真实漏洞或攻击可信度。
+
+## Typed Multi-Agent Models
+
+`MultiAgentContext` 保存一次解析的 CandidateContext、一次确定性 retrieval query 和
+同一批 ARM/global chunks。三个 Agent 共用该对象，不各自检索。
+
+`EvidenceAnalysis` 记录已观察 Behavior/Knowledge Evidence ID、Evidence gap、缺失
+Evidence 标志和全部 unresolved Trigger/Precondition。`SecurityReasoningAssessment`
+包含一个或多个 `SemanticHypothesis`；Hypothesis 仍是待验证解释，不是 Fact、Evidence
+或 AttackChain Edge。`CriticReview` 记录 bounded review issue，并显式引用当前
+Evidence、Chunk、Condition 和 Hypothesis ID。
+
+`AgentExecutionRecord` 只保存固定 sequence/role、身份、SHA-256 input/prompt/output
+digest、状态和安全 error type；不保存时间戳参与 identity，也不保存 Prompt、原始响应
+或 reasoning content。`MultiAgentReasoningResult` 保留三份原始结构化输出、完整 Trace、
+全部 unresolved 条件和非验证 final semantic status，不包含 score/confidence/probability。
 
 ## 当前边界
 
 模型只负责结构和明确的领域不变量，不执行真实漏洞检测或证据真实性判断。
 ProgramAnalyzer 生产程序观察，Behavior Graph 返回 GraphPath，Phase 5 Builder 生产
-独立漏洞知识，Phase 6 只生成 CrossGraphCandidate，Phase 7 只产生不可表达验证状态
-的 Semantic Assessment。后续阶段完成条件满足性和 Evidence Verification 后，才可
+独立漏洞知识，Phase 6 只生成 CrossGraphCandidate，Phase 7 产生单 Reasoner Semantic
+Assessment，Phase 8 产生类型化 Multi-AgentReasoningResult；两者都不可表达验证结论。
+后续阶段完成条件满足性和 Evidence Verification 后，才可
 讨论投影为 `AttackChain(status=candidate)`；当前不得把 Assessment 或 Retrieved
 文本解释成 Evidence 或已验证 AttackChain。

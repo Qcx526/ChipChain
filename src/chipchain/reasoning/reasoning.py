@@ -18,13 +18,7 @@ from chipchain.reasoning.prompts import CandidatePromptBuilder
 from chipchain.reasoning.provider import LLMProvider
 from chipchain.reasoning.query import CandidateRetrievalQueryBuilder
 from chipchain.reasoning.retrieval import KnowledgeRetriever
-
-_FORBIDDEN_CLAIMS = (
-    "verified attack chain",
-    "vulnerability confirmed",
-    "exploit confirmed",
-    "privilege escalation confirmed",
-)
+from chipchain.reasoning.validation import validate_verification_boundary
 
 
 class CandidateReasoner:
@@ -126,15 +120,11 @@ class CandidateReasoner:
             raise LLMOutputValidationError(
                 "all precondition nodes must remain unresolved in Phase 7"
             )
-        searchable_text = " ".join(
+        validate_verification_boundary(
             [
                 assessment.summary,
                 *assessment.missing_information,
                 *assessment.contradictions,
                 *assessment.recommended_verification_steps,
             ]
-        ).lower()
-        if any(claim in searchable_text for claim in _FORBIDDEN_CLAIMS):
-            raise LLMOutputValidationError(
-                "provider output contains a forbidden verification claim"
-            )
+        )

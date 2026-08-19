@@ -145,5 +145,7 @@ Embedding、FAISS、Chroma 或 LangChain。
 
 ## 当前限制
 
-Phase 7 不实现 Embedding、FAISS、Chroma、LangChain、Multi-Agent、Evidence
-Verification、Scoring、AttackChain conversion、动态执行、Neo4j、API 或 GUI。
+Phase 7 的 `CandidateReasoner` 继续作为单 Reasoner baseline。Phase 8 在其稳定 Context、
+Retriever 和 Provider boundary 上增加固定类型化 Multi-Agent，设计见
+`MULTI_AGENT_REASONING.md`。两个路径都不实现 Embedding、FAISS、Chroma、LangChain、
+Evidence Verification、Scoring、AttackChain conversion、动态执行、Neo4j、API 或 GUI。

@@ -17,7 +17,9 @@ from chipchain.reasoning import (
     LLMProviderResponseError,
     LocalLexicalKnowledgeRetriever,
     OpenAICompatibleLLMProvider,
+    StructuredPromptRequest,
 )
+from chipchain.multi_agent import EvidenceAnalysis
 
 
 class FakeEndpoint:
@@ -315,7 +317,7 @@ def test_provider_rejects_invalid_or_schema_incomplete_json(
         client=FakeClient(content),
     )
 
-    with pytest.raises(LLMProviderResponseError, match="invalid assessment JSON"):
+    with pytest.raises(LLMProviderResponseError, match="invalid structured output JSON"):
         provider.generate(request)
 
 
@@ -343,3 +345,39 @@ def test_api_key_is_absent_from_configuration_and_error_text(
     assert secret not in str(exc_info.value)
     assert exc_info.value.__cause__ is None
     assert secret not in repr(provider.config)
+
+
+def test_generic_structured_transport_reuses_chat_client_for_phase8_model() -> None:
+    """Phase 8 schemas use the same JSON/Pydantic transport as Phase 7."""
+
+    content = EvidenceAnalysis(
+        candidate_id="fixture-candidate",
+        architecture="arm",
+        missing_behavior_evidence=False,
+        missing_knowledge_evidence=False,
+        analysis_status="context_ready",
+    ).model_dump_json()
+    client = FakeClient(content)
+    provider = OpenAICompatibleLLMProvider(
+        config=LLMProviderConfig(
+            base_url="https://fixture.invalid/v1",
+            model="fixture-model",
+            api_style="chat_completions",
+        ),
+        api_key="fixture-secret",
+        client=client,
+    )
+    request = StructuredPromptRequest(
+        candidate_id="fixture-candidate",
+        architecture="arm",
+        role="evidence_analyst",
+        schema_name="EvidenceAnalysis",
+        system_prompt="Return strict JSON only.",
+        user_prompt="{}",
+    )
+
+    result = provider.generate_structured(request, EvidenceAnalysis)
+
+    assert isinstance(result, EvidenceAnalysis)
+    assert result.analysis_status.value == "context_ready"
+    assert len(client.chat.completions.calls) == 1

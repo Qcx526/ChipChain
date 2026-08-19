@@ -30,11 +30,16 @@ from chipchain.reasoning.models import (
     CandidateSemanticAssessment,
     LLMProviderConfig,
     PromptRequest,
+    StructuredPromptRequest,
     RetrievalResult,
     RetrievedKnowledgeChunk,
 )
 from chipchain.reasoning.prompts import CandidatePromptBuilder
-from chipchain.reasoning.provider import LLMProvider, OpenAICompatibleLLMProvider
+from chipchain.reasoning.provider import (
+    LLMProvider,
+    OpenAICompatibleLLMProvider,
+    StructuredOutputProvider,
+)
 from chipchain.reasoning.query import CandidateRetrievalQueryBuilder
 from chipchain.reasoning.reasoning import CandidateReasoner
 from chipchain.reasoning.retrieval import (
@@ -70,6 +75,8 @@ __all__ = [
     "MockLLMProvider",
     "OpenAICompatibleLLMProvider",
     "PromptRequest",
+    "StructuredOutputProvider",
+    "StructuredPromptRequest",
     "ReasoningError",
     "RetrievalError",
     "RetrievalResult",
