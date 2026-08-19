@@ -22,6 +22,9 @@
 
 “匹配”必须预先定义。建议主结果使用完整边序列匹配，另报告允许别名归一化的匹配，不能只凭自然语言相似度判断。
 
+最终 Cross-Layer Hit Rate 除总体值外必须分别报告 Type I Hit@K、Type II Hit@K 和
+Type III Hit@K，并给出每类样本数与置信区间。总体 ≥80% 不能掩盖任一类别完全失效。
+
 ## 集合指标
 
 对预测为有关联的样本对或攻击链计算：
@@ -47,6 +50,18 @@ F1        = 2 * Precision * Recall / (Precision + Recall)
 ### Root Cause Accuracy
 
 主要采用严格位置匹配的 top-1 accuracy；地址可按预先定义的函数范围或指令容差另报 relaxed accuracy。函数、寄存器和硬件资源分别统计，避免一个粗粒度正确结果掩盖精确定位失败。
+
+Ground Truth 不再使用单一 `root_cause_line`，而是按适用样本分别记录：
+
+- `software_root_cause_line`；
+- `trigger_site_line`；
+- `affected_firmware_line`；
+- `hardware_root_cause_module`；
+- `hardware_root_cause_rtl_line`。
+
+不同样本不要求五类标签全部存在。没有源码/RTL line Ground Truth 时，不得把 byte
+distance 或 instruction count 冒充 source-line error；“<5 lines”必须按对应角色和
+同一 line namespace 计算。
 
 ## 证据与验证指标
 
@@ -79,6 +94,8 @@ F1        = 2 * Precision * Recall / (Precision + Recall)
 
 评分权重必须配置化，以便分别移除知识图证据、静态证据、动态证据、架构规则和 LLM 语义分量。消融使用相同数据划分和搜索预算，报告指标差异而不是只报告最终分数。
 
-## Phase 0/1 的评测工作
+## 当前评测契约状态
 
-已建立指标定义和未来接口约束，并完成模型校验、JSON round-trip 与结构化 ARM fixture 测试。当前 fixture 不是正式 Ground Truth Benchmark；Hit@K 等命中率实验仍须等待候选搜索实现后运行。
+已建立总体与 Type I/II/III 分类型 Hit@K、结构指标、角色化位置 Ground Truth 和未来
+verification 指标约束。Phase 8R 的三份 semantic fixture 只验证数据契约，不是正式
+Ground Truth Benchmark；正式命中率、定位误差和统计实验留到 Phase 10。

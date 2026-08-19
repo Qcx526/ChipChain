@@ -1,10 +1,16 @@
 """Public exact entity-linking and cross-graph candidate API."""
 
+from chipchain.candidate.capabilities import (
+    CrossLayerSearchStrategy,
+    require_supported_search_strategy,
+    search_strategy_for_direction,
+)
 from chipchain.candidate.enums import EntityLinkMethod
 from chipchain.candidate.errors import (
     CandidateArchitectureMismatchError,
     CandidateError,
     InvalidKnowledgeContextError,
+    UnsupportedCrossLayerSearchError,
 )
 from chipchain.candidate.linking import ExactHardwareEntityLinker
 from chipchain.candidate.models import (
@@ -27,11 +33,15 @@ __all__ = [
     "CandidateError",
     "CrossGraphCandidate",
     "CrossGraphCandidateSearcher",
+    "CrossLayerSearchStrategy",
     "EntityLink",
     "EntityLinkMethod",
     "EntityLinkResult",
     "ExactHardwareEntityLinker",
     "InvalidKnowledgeContextError",
+    "UnsupportedCrossLayerSearchError",
     "cross_graph_candidate_id",
     "entity_link_id",
+    "require_supported_search_strategy",
+    "search_strategy_for_direction",
 ]

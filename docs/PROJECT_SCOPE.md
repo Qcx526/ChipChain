@@ -2,26 +2,32 @@
 
 ## 项目定义
 
-ChipChain（Evidence-Guided LLM Collaboration for Cross-Layer Chip Vulnerability Chain Detection）是一个防御性科研系统。它把上游给出的离散漏洞结果，与目标程序中的真实行为、层间接口、硬件资源和安全机制关联起来，发现并验证同一芯片架构内部的跨层攻击链。
+ChipChain（Evidence-Guided LLM Collaboration for Cross-Layer Chip Vulnerability Chain Detection）是一个防御性科研系统。它关联同一芯片架构内的软件漏洞、正常程序行为、
+硬件漏洞或异常状态、真实层间接口及安全影响。
 
-系统关注的问题不是漏洞描述是否相似，而是一个安全问题能否沿真实存在的调用、数据流、权限变化、寄存器访问或硬件交互，到达并利用另一层的安全弱点。
+系统关注的问题不是描述是否相似，而是安全状态能否沿真实指令执行、数据流、控制流、
+MMIO/寄存器、DMA、中断、权限状态或共享内存传播到另一层，触发、放大或传播安全弱点。
 
 ## “跨层”的定义
 
-一条跨层链可包含漏洞节点和正常行为节点，例如：
+正式 Cross-Layer Semantics 包含三类：
 
 ```text
-攻击入口 → 固件漏洞 → 固件函数 → ioctl → 驱动函数
-         → MMIO_WRITE → 安全寄存器 → 硬件弱点 → 安全影响
+Type I   firmware-side vulnerability → cross-layer behavior → hardware vulnerability
+Type II  normal firmware-side behavior → cross-layer trigger → hardware vulnerability
+Type III hardware vulnerability/fault → propagation → firmware-side execution affected
 ```
 
-有效关联必须由知识图谱、程序分析证据、运行证据或架构规则支持。只有 LLM 推测而没有验证的结果称为候选攻击链。
+因此漏洞不是所有跨层链的必需起点。这里 `firmware-side` 泛指当前已有的 firmware、
+driver、interface 软件执行侧。Type II 不得伪造软件漏洞；Type III 不得把既有路径反转
+当作证据。有效关联最终必须由知识图、程序/运行证据或架构规则支持。
 
 ## “非跨架构”的定义
 
 研究对象是单一架构内部的纵向跨层关系。ARM 固件、ARM 驱动、ARM 特权接口和 ARM 硬件安全机制可以组成一条链；ARM、RISC-V、PowerPC 等架构的专有节点不得拼接成同一条链。
 
-当前阶段只建设 ARM MVP。未来不同架构共享上层框架，但使用各自隔离的 Adapter、Rules 和 Knowledge。
+当前阶段只建设 ARM MVP。未来不同架构共享上层分析框架，但 Adapter、Rules、Knowledge
+和底层传播机制保持隔离，即“统一分析框架，不统一底层架构语义”。
 
 ## 研究目标
 

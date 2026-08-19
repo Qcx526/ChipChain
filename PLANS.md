@@ -2,8 +2,9 @@
 
 ## 当前状态
 
-Phase 0～Phase 8 已完成。Phase 8 使用共享 CandidateContext/RAG、三个类型化 Agent
-和确定性 Coordinator 完成协同语义分析；全部结果仍为非验证状态。尚未开始 Phase 9。
+Phase 0～Phase 8R 已完成。Phase 8R Cross-Layer Semantics Refactor 在不改变
+Phase 4B～8 API 的前提下，引入导师定义的三类 interaction、双向 direction、定位角色、
+search capability boundary 和分类型评测契约。下一步计划为 Phase 9A-R。
 
 ## Phase 0：工程初始化（已完成）
 
@@ -207,12 +208,30 @@ Security Reasoner 和 Critic，保留引用、架构、条件与验证边界。
 Mock/真实 Provider 闭环和全部回归测试通过；未生成 Verified AttackChain，未实现
 Evidence Verification、Scoring 或 Root Cause 定位。
 
+## Phase 8R：Cross-Layer Semantics Refactor（已完成）
+
+目标：把跨层对象从默认的“软件漏洞→硬件弱点”扩展为严格的三类双向领域语义，
+同时保留现有 software→hardware Candidate primitive。
+
+- [x] CrossLayerInteractionType、CrossLayerDirection 与确定映射
+- [x] 独立 CrossLayerInteraction、稳定 SHA-256 ID 和三类约束
+- [x] Initiating Root Cause / Trigger Point / Affected Execution Point 角色
+- [x] software→hardware exact-anchor / hardware→software not-implemented capability
+- [x] 三份 owned synthetic semantic fixture 和 legacy Candidate identity 测试
+- [x] 三分类 Hit@K 与分角色位置 Ground Truth 评测契约
+- [x] 只读审计 `phase-9a-old-semantics` 并形成迁移矩阵
+
+退出条件：导师三类进入领域模型；Type II 不伪造软件漏洞；Type III 不要求固件漏洞；
+旧 Candidate/Search/RAG/Multi-Agent 不变；不迁移 Verification、不创建反向 BehaviorEdge。
+
 ## 后续路线（尚未实施）
 
-### Phase 9：Evidence Verification / Scoring / Root Cause
+### Phase 9A-R：Verification Migration to New Cross-Layer Semantics
 
-逐边验证静态、动态与架构证据；从配置加载评分权重并计算覆盖率、置信度和根因，
-LLM 语义置信度不得占主导。
+旧版 Phase 9A 完整保存在 `phase-9a-old-semantics`。下一阶段依据
+`docs/PHASE9A_MIGRATION.md` 迁移通用 verification primitives，并按 InteractionType /
+Direction / LocationRole 改造 pipeline、architecture rules、features 和 localization；
+不是从零重写，也不得直接 cherry-pick 方向绑定的顶层实现。
 
 ### Phase 10：Evaluation
 

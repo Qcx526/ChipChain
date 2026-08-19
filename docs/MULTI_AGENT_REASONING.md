@@ -89,6 +89,10 @@ privilege escalation confirmed
 Agent Prompt 禁止请求 chain-of-thought；Execution Trace 不保存 reasoning content、
 Prompt 原文、HTTP Response、API Key、Authorization 或 endpoint。
 
+Phase 8R 不改变 Agent 数量、顺序或 Prompt。现有三个 Agent 只解释已有
+software→hardware CrossGraphCandidate，不承担 InteractionType 分类，也不生成
+hardware→software propagation facts。
+
 ## Deterministic Coordinator and Final Status
 
 Coordinator 不是第四个 LLM。它只负责固定调度、post-validation、failure handling、

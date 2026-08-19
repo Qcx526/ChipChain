@@ -1,0 +1,40 @@
+{
+  "id": "cross-layer-interaction:arm:e9e4401a172c7d62788f52be385603968a1b140070335034a017f2f4d07a607b",
+  "architecture": "arm",
+  "interaction_type": "firmware_behavior_to_hardware",
+  "direction": "software_to_hardware",
+  "source_layer": "firmware",
+  "target_layer": "hardware",
+  "initiating_vulnerability_ids": [],
+  "target_vulnerability_ids": [
+    "HW-VULN-FIXTURE-TYPE2"
+  ],
+  "trigger_behavior_ids": [
+    "fixture-normal-mmio-sequence"
+  ],
+  "propagation_behavior_ids": [
+    "fixture-instruction-sequence"
+  ],
+  "affected_execution_ids": [],
+  "fault_state_ids": [],
+  "hardware_resource_ids": [
+    "fixture-timing-sensitive-register"
+  ],
+  "security_mechanism_ids": [],
+  "evidence_ids": [
+    "fixture-type2-annotation"
+  ],
+  "referenced_architectures": [
+    "arm"
+  ],
+  "metadata": {
+    "fixture": true,
+    "synthetic": true,
+    "owned": true,
+    "classification_source": "explicit_fixture_annotation",
+    "purpose": "Phase 8R Type II data-contract testing",
+    "normal_firmware_behavior": true,
+    "not_a_real_cve": true,
+    "not_a_benchmark": true
+  }
+}

@@ -11,3 +11,7 @@ class CandidateArchitectureMismatchError(CandidateError):
 
 class InvalidKnowledgeContextError(CandidateError):
     """Raised when TARGETS_RESOURCE does not originate at a vulnerability."""
+
+
+class UnsupportedCrossLayerSearchError(CandidateError):
+    """Raised when a requested cross-layer direction has no search implementation."""

@@ -2,6 +2,16 @@
 
 from chipchain.models.behavior import Behavior, Interface
 from chipchain.models.chain import AttackChain, AttackChainEdge, AttackChainNode
+from chipchain.models.cross_layer import (
+    HARDWARE_SIDE_LAYERS,
+    SOFTWARE_SIDE_LAYERS,
+    CrossLayerDirection,
+    CrossLayerInteraction,
+    CrossLayerInteractionType,
+    CrossLayerLocationRole,
+    cross_layer_interaction_id,
+    direction_for_interaction_type,
+)
 from chipchain.models.enums import (
     Architecture,
     BehaviorType,
@@ -39,10 +49,15 @@ __all__ = [
     "BehaviorType",
     "ChainStatus",
     "Component",
+    "CrossLayerDirection",
+    "CrossLayerInteraction",
+    "CrossLayerInteractionType",
+    "CrossLayerLocationRole",
     "EdgeVerificationStatus",
     "Evidence",
     "EvidenceType",
     "HardwareResource",
+    "HARDWARE_SIDE_LAYERS",
     "Impact",
     "Interface",
     "Layer",
@@ -52,6 +67,9 @@ __all__ = [
     "RootCause",
     "SampleType",
     "SecurityMechanism",
+    "SOFTWARE_SIDE_LAYERS",
     "Trigger",
     "VulnerabilitySample",
+    "cross_layer_interaction_id",
+    "direction_for_interaction_type",
 ]
