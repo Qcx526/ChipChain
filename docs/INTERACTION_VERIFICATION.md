@@ -39,7 +39,19 @@ interaction feature set，每个输出 feature 必须具有 structured provenanc
 每个 VerificationRecord collection 都拒绝重复 record ID，binding collection 还拒绝重复
 subject ID，避免输入顺序或后写覆盖造成歧义。
 
-Phase 9B0 不修改 `InteractionVerificationPipeline`。RuntimeObservation 归一化后的 Dynamic
+Phase 9B0/9B1 不修改 `InteractionVerificationPipeline`。RuntimeObservation 归一化后的 Dynamic
 Evidence 没有 Interaction subject linkage，因此不会自动进入 required truth、score 或
-location。Phase 9B1/9B2 必须先设计 explicit dynamic binding 与 multi-verifier aggregation，
-不能让 runtime evidence 绕过 Phase 9A-R binding cardinality 或覆盖静态 VerificationRecord。
+location。
+
+Phase 9B2A 通过独立 `DynamicTriggerFact` 和 `DynamicTriggerObservationBinding` 显式连接
+Interaction trigger reference 与运行时 provenance。Dynamic verifier 只生成 subject 为
+`DYNAMIC_TRIGGER_OBSERVATION` 的三态 `VerificationRecord`；其中 VERIFIED 只表示 runtime
+observation matches explicit trigger fact，不表示 vulnerability 或 Interaction 已验证。
+
+`StaticDynamicFactAggregation` 只读聚合一条 Phase 9A-R trigger participant Record 与一条或
+多条 Dynamic Record。它保留静态、动态双方的 Record/Evidence ID 并应用独立 conflict policy，
+不会覆盖原 Record，不会回写 `InteractionVerificationResult`、required truth、status、score 或
+location，也不会创建 BehaviorEdge、AttackChain 或 causality。Type III objective
+hardware→software propagation verification 仍为 `not_implemented`。
+
+完整边界见 [Dynamic Interaction Verification](DYNAMIC_INTERACTION_VERIFICATION.md)。

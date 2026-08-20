@@ -41,16 +41,18 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9B0-R1 detached Runtime snapshot revalidation 与 mutation-bypass 防护
 - Phase 9B1 R2 raw v2 physical observer、同进程 QMP FlatView capture 与 topology classifier
 - path-neutral memory map ID、exact topology SHA、分类差异 metadata 与 owned STRB ELF
+- Phase 9B2A 显式 DynamicTriggerFact/Observation Binding、detached Dynamic Verification
+- Static/Dynamic 八态 aggregation、multi-record conflict 与分离 Evidence provenance
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
 
 当前尚未实现通用跨块/跨函数地址分析、Candidate 到 AttackChain 的语义投影、
-真实 QEMU R2 observer 的本机复验、Type III hardware→software propagation verification
-或 API。Phase 9B1 R2 已完成离线合同与实现，但当前缺少 matching QEMU、supported plugin
-build environment 和 plugin headers，绝不
-把 offline fixture 或 mock 结果声称为真实 QEMU trace。Phase 9A-R
-的 score 是未校准客观证据支持度，不是攻击、利用或漏洞概率。
+Type III hardware→software propagation verification 或 API。Phase 9B1 已在 Ubuntu 22.04、
+QEMU 11.0.3、ARM32 `virt` / `cortex-a15` / 单 vCPU 环境通过 real acceptance，并由
+`phase-9b1-stable` 封存。Ubuntu 是 canonical development/runtime validation 环境；Windows
+只用于 secondary portability regression。Phase 9A-R 的 score 是未校准客观证据支持度，
+不是攻击、利用或漏洞概率。
 
 Phase 9A-R 通过显式 adapter 使用 software→hardware legacy Candidate 支持 Type I/II；
 Type III 的 semantic feature 可提取，但 verifier 与反向 Evidence 明确未实现。
@@ -96,13 +98,12 @@ Phase 7R 结构化 smoke test 使用 `none` / `2048`，Provider 不会自动改�
 Phase 9B1 R2 的真实 smoke test 是显式可选能力，不会自动下载 QEMU、编译器或 headers。
 它在同一进程中先通过 QMP 捕获 `info mtree -f`，再继续 owned guest；PL011 trace 仅作独立 oracle：
 
-```powershell
-$env:CHIPCHAIN_QEMU_SYSTEM_ARM = 'C:\path\to\qemu-system-arm.exe'
-$env:QEMU_PLUGIN_INCLUDE = 'C:\path\to\qemu\include'
-$env:CHIPCHAIN_QEMU_PLUGIN_CC = 'C:\path\to\gcc.exe'
-.\.venv\Scripts\python.exe tools\qemu_plugins\build.py
-$env:CHIPCHAIN_QEMU_PLUGIN = 'C:\path\to\chipchain_runtime_observer.dll'
-.\.venv\Scripts\python.exe scripts\qemu_phase9b1_smoke.py
+```bash
+export CHIPCHAIN_QEMU_SYSTEM_ARM="$HOME/chipchain-tools/qemu-11.0.3/build/qemu-system-arm"
+export QEMU_PLUGIN_INCLUDE="$HOME/chipchain-tools/qemu-11.0.3/include/plugins"
+.venv/bin/python tools/qemu_plugins/build.py
+export CHIPCHAIN_QEMU_PLUGIN="$HOME/ChipChain/tools/qemu_plugins/chipchain_runtime_observer.so"
+.venv/bin/python scripts/qemu_phase9b1_smoke.py
 ```
 
 参考验证环境为 QEMU 11.0.3，但代码按实际 executable version 和 plugin API probe 记录
@@ -289,6 +290,33 @@ verifier。该示例完全离线，不调用真实 Provider：
 输出的 MMIO 位置是 `cross_layer_trigger_point`，不是 initiating root cause；结果也不会
 投影为 verified AttackChain。
 
+## Dynamic Interaction Verification
+
+Phase 9B2A 在 Phase 9B1 Runtime Evidence 与 Phase 9A-R 静态 trigger record 之间增加显式、
+只读的 Dynamic Trigger Observation Verification：
+
+```text
+Phase 9B1 Runtime Evidence
+            |
+            v
+     DynamicTriggerFact
+            |
+            v
+   Dynamic Verification
+            |
+            v
+Static/Dynamic Aggregation
+```
+
+Dynamic verifier 会 detached revalidate RuntimeTrace、按 ID 解析 Observation，并使用未修改的
+`RuntimeEvidenceNormalizer` 重新生成 Evidence 后做精确比较。成功产生的
+`VerificationRecord(status=VERIFIED, subject_kind=DYNAMIC_TRIGGER_OBSERVATION)` 只表示
+runtime observation matches explicit trigger fact；它不表示 vulnerability 或 Interaction 已验证，
+不修改 Phase 9A-R status/scoring，也不创建 BehaviorEdge、AttackChain 或 causality。
+
+完整合同与八态 conflict policy 见
+[Dynamic Interaction Verification](docs/DYNAMIC_INTERACTION_VERIFICATION.md)。
+
 ## 文档导航
 
 - [项目范围](docs/PROJECT_SCOPE.md)
@@ -302,6 +330,7 @@ verifier。该示例完全离线，不调用真实 Provider：
 - [Phase 9A Migration](docs/PHASE9A_MIGRATION.md)
 - [Interaction Verification](docs/INTERACTION_VERIFICATION.md)
 - [Evidence Verification](docs/EVIDENCE_VERIFICATION.md)
+- [Dynamic Interaction Verification](docs/DYNAMIC_INTERACTION_VERIFICATION.md)
 - [QEMU Passive Observer](docs/QEMU_PASSIVE_OBSERVER.md)
 - [QEMU MMIO Classification](docs/QEMU_MMIO_CLASSIFICATION.md)
 - [Role-Aware Localization](docs/ROOT_CAUSE_LOCALIZATION.md)

@@ -43,8 +43,9 @@ interaction-agnostic，后续 verifier 必须经显式 binding 匹配。Backend 
 有能力捕获某类事件；若没有实际 Observation，不能推出该事件发生。
 
 同一 Observation/backend 的 Evidence ID 与 JSON 确定；event semantic field 改变会改变 ID，
-metadata 顺序或 host timestamp 不改变 ID。未来同一 fact 的 Static/Dynamic VerificationRecord
-必须进入 multi-verifier aggregation；任何一方都不能覆盖另一方，本阶段不定义 conflict policy。
+metadata 顺序或 host timestamp 不改变 ID。Phase 9B2A 不修改 Normalizer 或 Runtime Evidence；
+它在独立 binding/verifier 层引用 Evidence ID，并要求输入 Evidence 与从 detached Trace snapshot
+重新生成的 Evidence 完全一致。
 
 Phase 9B0-R1 要求 Normalizer 在生成 `verified=true` 前重新序列化并验证整个 RuntimeTrace，
 再 detached-validate 调用方 Observation，并只消费新 snapshot 的 Observation/backend。
@@ -55,3 +56,31 @@ Phase 9B1 的 strict QEMU parser 与 adapter 不改变这层含义。来自真�
 schema/capability 和 detached Trace revalidation 全部通过后，才能规范化为 Dynamic Evidence。
 这仍然没有创建 Interaction binding，也不会进入 Phase 9A-R verifier/scoring。观察到 UART
 MMIO 不等于观察到 hardware vulnerability；instruction→MMIO 的顺序也不建立因果结论。
+
+## Phase 9B2A Dynamic Trigger Verification
+
+`DynamicTriggerFact` 声明一个已有 Interaction `trigger_behavior_ids` 中的 ARM Type I/II
+software→hardware MMIO trigger fact；`DynamicTriggerObservationBinding` 显式引用 fact、
+Dynamic Evidence、RuntimeTrace 与 RuntimeObservation。绑定不会向 Evidence 写入
+`interaction_id`、`interaction_reference_id` 或 verdict。
+
+Dynamic verifier detached revalidate Trace，从 snapshot 按 ID 找到 Observation，调用未修改的
+`RuntimeEvidenceNormalizer` 重新生成 Evidence，并要求完整相等；随后精确检查 architecture、
+event kind、PC、physical address、access size、memory map 与 address space。只有全部匹配才生成：
+
+```text
+VerificationRecord(
+    subject_kind=DYNAMIC_TRIGGER_OBSERVATION,
+    status=VERIFIED,
+)
+```
+
+该 VERIFIED 只表示 runtime observation matches explicit trigger fact。它不表示 vulnerability、
+Interaction、causality 或 AttackChain 已验证，也不修改 Phase 9A-R status/scoring。
+
+`StaticDynamicFactAggregation` 保留静态与动态 Record/Evidence ID，并以独立八态结果表达
+`corroborated`、`static_only`、`dynamic_only`、`insufficient`、`conflict`、
+`static_rejected`、`dynamic_rejected` 或 `both_rejected`。任何一方都不会覆盖另一方；
+VERIFIED/REJECTED 并存及多 Dynamic Record 的相反结论均 fail closed 为 `conflict`。
+
+完整架构见 [Dynamic Interaction Verification](DYNAMIC_INTERACTION_VERIFICATION.md)。

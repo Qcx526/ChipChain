@@ -36,10 +36,11 @@
 
 ## 当前阶段限制
 
-- Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0 与 Phase 9B0-R1 Runtime Snapshot
-  Integrity Hardening 已完成。Phase 9B1 R2 topology-grounded observer 的实现与离线验证已完成；
-  当前开发机尚未重跑 matching QEMU/plugin 的 real acceptance，阶段状态仍为 real blocked。
-  Verification 顶层 identity 是
+- Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1 与
+  Phase 9B2A 已完成。Phase 9B1 已在 Ubuntu 22.04、QEMU 11.0.3、ARM32
+  `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
+  `phase-9b1-stable` 封存；Ubuntu 是 canonical development/runtime validation
+  环境，Windows 只承担 secondary portability regression。Verification 顶层 identity 是
   `CrossLayerInteraction`，legacy Candidate 只能作为显式 software→hardware evidence source。
 - Type I/II 当前只有部分客观验证能力；Type III 客观 hardware→software propagation
   verification 为 `not_implemented`，不得反转旧 GraphPath 或伪造反向 BehaviorEdge。
@@ -51,6 +52,10 @@
   VerificationResult 的各 VerificationRecord 集合不得包含重复 ID。
 - RuntimeObservation 与 RuntimeIntervention 必须分离；事件顺序不等于因果，Dynamic
   Evidence verified 只表示 observation contract/integrity 已验证，不表示漏洞或 Interaction。
+- Phase 9B2A 只验证 runtime observation 是否匹配显式 `DynamicTriggerFact`。其 Dynamic
+  `VerificationRecord(status=VERIFIED)` 不表示 vulnerability、Interaction、causality 或
+  AttackChain 已验证，也不得修改 Phase 9A-R status/score。Static/Dynamic aggregation 是
+  独立只读结果，不得覆盖静态 Record、写入 Evidence、创建 BehaviorEdge 或投影 AttackChain。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式
