@@ -36,6 +36,7 @@ class VerificationSubjectKind(str, Enum):
     KNOWLEDGE_EDGE = "knowledge_edge"
     ARCHITECTURE_RULE = "architecture_rule"
     CONDITION = "condition"
+    DYNAMIC_TRIGGER_OBSERVATION = "dynamic_trigger_observation"
 
 
 class InteractionReferenceRole(str, Enum):
