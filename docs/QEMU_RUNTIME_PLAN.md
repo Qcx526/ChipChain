@@ -31,7 +31,9 @@ memory value, register, discontinuity, DMA, or active capability is claimed.
 The offline gate covers raw v2, QMP IDs/order, exact topology SHA, semantic map
 ID, unique I/O/RAM/boundary/overflow/ambiguous handling, sequence gaps, ELF
 header cleanup, RuntimeTrace revalidation, Dynamic Evidence, and security
-boundaries.
+boundaries. Firmware input provenance is checked against exact bytes before any
+QEMU process executes and checked again after a successful run before a
+RuntimeTrace can be constructed.
 
 The real gate must independently establish all of the following in QEMU 11.0.3:
 
@@ -48,6 +50,11 @@ The real gate must independently establish all of the following in QEMU 11.0.3:
 This development host cannot execute that gate because the matching external
 components are unavailable. Reference evidence motivated and validates the
 design, but no local rerun is fabricated.
+
+The repository's current topology text is a reconstructed FlatView contract
+fixture, not a retained real `info mtree -f` capture. Ubuntu QEMU 11.0.3
+same-process acceptance must generate the complete real output before its exact
+bytes, SHA-256, and real-capture provenance can be committed as such.
 
 ## Next stage
 

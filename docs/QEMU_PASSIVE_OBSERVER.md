@@ -12,6 +12,12 @@ binary, headers, build environment, and compiled plugin. Supplied reference
 evidence established the R2 root cause, but it is not reported as a new local
 `REAL_QEMU_STATUS = PASS`.
 
+The checked-in topology text is an owned/sanitized/reconstructed contract
+fixture based on the QEMU 11.0.3 FlatView printer and validated reference
+topology facts. It is not a retained real `info mtree -f` capture. The complete
+real output remains pending Ubuntu same-process QMP acceptance; only an artifact
+actually generated there may later be recorded as a real sanitized capture.
+
 ## Observation and classification boundary
 
 The key R2 rule is:
@@ -100,6 +106,12 @@ The owned/synthetic firmware keeps the audited A32 word `0xE5C01000`
 The PL011 device trace is enabled only by the reference smoke/integration
 configuration. It independently checks offset 0, value `0x41`, register `DR`.
 It never participates in production classification or identity.
+
+Before even probing or launching QEMU, the runner hashes the exact firmware
+bytes and requires equality with the caller-supplied `firmware_sha256`. After a
+successful QEMU exit it hashes the file again and requires pre-run, post-run,
+and configured fingerprints to match. A mismatch is an explicit fail-closed
+error; the runner never replaces an incorrect caller fingerprint silently.
 
 ## Build and real validation
 

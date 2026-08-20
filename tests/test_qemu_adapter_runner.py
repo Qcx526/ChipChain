@@ -202,11 +202,13 @@ class _MockProcess:
         timeout: bool = False,
         returncode: int = 0,
         stderr: str = "",
+        mutate_firmware: bool = False,
     ) -> None:
         self.raw_source = raw_source
         self.timeout = timeout
         self.returncode = returncode
         self.stderr = stderr
+        self.mutate_firmware = mutate_firmware
         self.calls: list[tuple[list[str], dict[str, object]]] = []
 
     @staticmethod
@@ -236,6 +238,12 @@ class _MockProcess:
         plugin_arg = argv[argv.index("-plugin") + 1]
         output = Path(plugin_arg.split(",out=", 1)[1].rsplit(",run_id=", 1)[0])
         shutil.copyfile(self.raw_source, output)
+        if self.mutate_firmware:
+            loader_arg = argv[argv.index("-device") + 1]
+            firmware = Path(
+                loader_arg.split("loader,file=", 1)[1].rsplit(",cpu-num=0", 1)[0]
+            )
+            firmware.write_bytes(b"modified-during-qemu-run")
         return subprocess.CompletedProcess(
             argv, 0, stdout=self._qmp_stdout(), stderr=""
         )
@@ -247,6 +255,9 @@ def test_mock_runner_builds_complete_runtime_result(tmp_path: Path) -> None:
     result = QemuPassiveRuntimeRunner(process_runner=process).run(config)
 
     assert result.environment.qemu_version == "11.0.3"
+    assert result.runtime_trace.manifest.input_fingerprint == hashlib.sha256(
+        config.firmware_elf.read_bytes()
+    ).hexdigest()
     assert len(result.runtime_trace.observations) == 3
     assert result.topology.id == result.runtime_trace.manifest.memory_map_id
     assert all(call[1]["shell"] is False for call in process.calls)
@@ -255,6 +266,28 @@ def test_mock_runner_builds_complete_runtime_result(tmp_path: Path) -> None:
     assert command_stream.index("qmp_capabilities") < command_stream.index(
         "human-monitor-command"
     ) < command_stream.index('"cont"')
+
+
+def test_wrong_firmware_fingerprint_rejects_before_any_qemu_process(
+    tmp_path: Path,
+) -> None:
+    process = _MockProcess(VALID_RAW)
+    config = _config(tmp_path)
+    config.firmware_sha256 = "0" * 64
+
+    with pytest.raises(QemuRunnerError, match="before QEMU launch"):
+        QemuPassiveRuntimeRunner(process_runner=process).run(config)
+
+    assert process.calls == []
+
+
+def test_firmware_mutation_during_run_fails_closed(tmp_path: Path) -> None:
+    process = _MockProcess(VALID_RAW, mutate_firmware=True)
+
+    with pytest.raises(QemuRunnerError, match="changed during QEMU run"):
+        QemuPassiveRuntimeRunner(process_runner=process).run(_config(tmp_path))
+
+    assert any("-qmp" in argv for argv, _ in process.calls)
 
 
 def test_timeout_cannot_produce_dynamic_evidence(tmp_path: Path) -> None:

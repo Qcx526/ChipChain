@@ -58,7 +58,7 @@ def _event(address: int, size: int = 1, kind: str = "memory_write") -> QemuRawEv
     )
 
 
-def test_captured_qemu_11_flatview_parses_pl011_and_code_ram() -> None:
+def test_qemu_11_flatview_contract_fixture_parses_pl011_and_code_ram() -> None:
     snapshot = _snapshot()
 
     assert snapshot.address_space_name == "memory"

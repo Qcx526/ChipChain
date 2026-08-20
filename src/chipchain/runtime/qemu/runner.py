@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 import subprocess
 from collections.abc import Callable
@@ -35,6 +36,20 @@ _SECRET_ASSIGNMENT = re.compile(
 _SECRET_TOKEN = re.compile(r"\bsk-[A-Za-z0-9_-]{12,}\b")
 _WINDOWS_PATH = re.compile(r"(?i)\b[A-Z]:[\\/][^\s\"']+")
 _POSIX_PATH = re.compile(r"(?<![\w.])/(?:[^/\s]+/)+[^\s\"']*")
+_HASH_CHUNK_SIZE = 1024 * 1024
+
+
+def _sha256_file(path: Path) -> str:
+    """Hash exact file bytes without loading an arbitrary firmware at once."""
+
+    digest = hashlib.sha256()
+    try:
+        with path.open("rb") as firmware:
+            for chunk in iter(lambda: firmware.read(_HASH_CHUNK_SIZE), b""):
+                digest.update(chunk)
+    except OSError as exc:
+        raise QemuRunnerError("owned firmware ELF could not be hashed") from exc
+    return digest.hexdigest()
 
 
 def _stderr_diagnostic_summary(stderr: str | None) -> str:
@@ -115,6 +130,12 @@ class QemuPassiveRuntimeRunner:
         """Execute QEMU with a timeout and fail closed on incomplete output."""
 
         self._require_inputs(config)
+        actual_pre_sha256 = _sha256_file(config.firmware_elf)
+        if actual_pre_sha256 != config.firmware_sha256:
+            raise QemuRunnerError(
+                "owned firmware SHA-256 does not match configured fingerprint "
+                "before QEMU launch"
+            )
         executable = self._probe.probe_executable(str(config.qemu_executable))
         raw_path = config.raw_trace_path.resolve()
         topology_path = config.topology_artifact_path.resolve()
@@ -151,6 +172,12 @@ class QemuPassiveRuntimeRunner:
                 f"QEMU passive observer exited with code {completed.returncode}; "
                 f"stderr: {diagnostic}"
             )
+        actual_post_sha256 = _sha256_file(config.firmware_elf)
+        if (
+            actual_post_sha256 != actual_pre_sha256
+            or actual_post_sha256 != config.firmware_sha256
+        ):
+            raise QemuRunnerError("owned firmware changed during QEMU run")
         if not raw_path.is_file():
             raise QemuRunnerError("QEMU passive observer produced no raw trace")
         if reference_trace_path is not None and not reference_trace_path.is_file():
