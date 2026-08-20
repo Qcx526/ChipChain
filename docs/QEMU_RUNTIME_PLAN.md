@@ -1,70 +1,68 @@
 # QEMU Runtime Plan
 
-本文只规划 Phase 9B1，不表示当前已实现、编译或运行 QEMU plugin。
+Phase 9B0's backend-neutral runtime contract is sealed. Phase 9B1 R2 replaces
+the pre-stable plugin-boolean MMIO rule with topology-grounded classification
+without changing RuntimeEventKind, RuntimeObservation, persistence, scoring,
+RelationType, or Phase 9A-R verification.
 
-## Version and Capability Probe
-
-具体 QEMU TCG plugin API 必须按实际版本进行 compile/runtime capability probe。不能假定所有
-版本都支持 interrupt callback、register access/mutation、guest memory mutation、device DMA
-visibility 或 physical-address translation。Probe 结果写入 `RuntimeBackendManifest` 的明确
-version/capability，不以 backend 名称猜能力。
-
-首个 observer 只依赖优先级最高的 passive subset：instruction callback、memory callback、
-physical address 和 IO classification。Memory value、interrupt/exception discontinuity 与 DMA
-只有 probe 成功并有 owned validation 后才启用。9B1 不启用 active capabilities。
-
-## Proposed Structure
+## Implemented R2 path
 
 ```text
-runtime/qemu/
-  capability_probe
-  trace_parser
-  observer_adapter
-
-external C plugin
-  → stable JSONL raw events only
-
-Python
-  → schema validation
-  → RuntimeObservation normalization
-  → trace/capability validation
-  → Dynamic Evidence generation
+Owned ARM32 ELF
+  → qemu-system-arm / virt / cortex-a15 / TCG / 1 vCPU
+  → same process paused with -S and QMP
+  ├─ info mtree -f → exact topology artifact + SHA-256
+  └─ cont → passive TCG plugin raw v2
+       ├─ instruction_exec
+       └─ memory_read / memory_write + physical address
+  → unique resolved FlatView classifier
+  → Phase 9B0 instruction/MMIO RuntimeTrace
+  → detached revalidation
+  → interaction-agnostic Dynamic Evidence
 ```
 
-C plugin 保持 dumb observer，不输出 vulnerability ID、interaction ID、verification status、
-score 或自然语言推理，也不包含 Verification logic。
+Capabilities remain instruction execution, memory access, physical address,
+and I/O classification. Their sources are respectively the TCG callbacks,
+memory callbacks, hardware-address API, and captured machine topology. No
+memory value, register, discontinuity, DMA, or active capability is claimed.
 
-## Raw JSONL Shape
+## Completion gates
 
-未来 raw event 的最小逻辑字段为：
+The offline gate covers raw v2, QMP IDs/order, exact topology SHA, semantic map
+ID, unique I/O/RAM/boundary/overflow/ambiguous handling, sequence gaps, ELF
+header cleanup, RuntimeTrace revalidation, Dynamic Evidence, and security
+boundaries. Firmware input provenance is checked against exact bytes before any
+QEMU process executes and checked again after a successful run before a
+RuntimeTrace can be constructed.
 
-```json
-{
-  "run_id": "owned-run-id",
-  "sequence_index": 0,
-  "vcpu": 0,
-  "event_kind": "mmio_write",
-  "pc": "0x10008",
-  "vaddr": null,
-  "paddr": "0x40000000",
-  "is_io": true,
-  "access_size": 4,
-  "value": null
-}
-```
+The real gate must independently establish all of the following in QEMU 11.0.3:
 
-Parser 必须把 raw event 与已知 TraceManifest/backend manifest 组合后才创建严格 Observation；
-不得信任 raw ID、顺序或 architecture。
+1. matching plugin loads and reports API 2..6/build 6;
+2. the six expected owned-fixture instruction PCs execute;
+3. target PC `0x40200008` emits raw `memory_write`, paddr `0x09000000`, width 1,
+   including the observed `plugin_is_io=false`/`RAM` diagnostics;
+4. the same-process FlatView uniquely maps the target to I/O leaf `pl011`;
+5. RuntimeTrace promotes it to `MMIO_WRITE`, `is_io=true`, with map provenance;
+6. trace revalidation and Dynamic Evidence succeed;
+7. independent `pl011_write` confirms offset 0, value `0x41`, register `DR`;
+8. QEMU exits cleanly and the opt-in real integration test passes without skip.
 
-## Single-vCPU MVP
+This development host cannot execute that gate because the matching external
+components are unavailable. Reference evidence motivated and validates the
+design, but no local rerun is fabricated.
 
-首个 ARM QEMU observer 固定单 vCPU，以提供清晰、可复现的全局 sequence ordering。多 vCPU
-需要单独设计 per-vCPU order、global merge/clock 与并发语义，不能把 host timestamp 当作
-确定性排序依据。
+The repository's current topology text is a reconstructed FlatView contract
+fixture, not a retained real `info mtree -f` capture. Its multi-view form now
+models the exact `  No rendered FlatView` syntax observed for an unrelated
+empty view in real Ubuntu QEMU 11.0.3 output. The selected `AS "memory"` view
+must remain non-empty; only that view determines the semantic map ID, while the
+complete exact artifact determines its SHA-256. Ubuntu QEMU 11.0.3 same-process
+acceptance must generate the complete real output before its exact bytes,
+SHA-256, and real-capture provenance can be committed as such.
 
-## Phase 9B1 Exit Direction
+## Next stage
 
-9B1 应在 owned ARM program 上证明 passive trace 可重复采集、parser fail-closed、manifest
-version/capability 准确、MMIO observation 与现有 Memory Map 一致，并保持 Evidence
-interaction-agnostic。它仍不实现 intervention、causal inference、reverse BehaviorEdge 或
-完整 Interaction verification；这些属于后续 9B2 设计。
+Phase 9B2 may begin only after a real R2 smoke PASS and human audit. Its scope
+would be explicit Dynamic Evidence binding, fact verification, and
+Static/Dynamic aggregation/conflict policy. A single MMIO observation or event
+order still cannot establish Type III propagation or causality.

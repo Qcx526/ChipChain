@@ -24,3 +24,6 @@ Thumbs.db
 # Local outputs
 reports/
 artifacts/
+tools/qemu_plugins/chipchain_runtime_observer.dll
+tools/qemu_plugins/chipchain_runtime_observer.dylib
+tools/qemu_plugins/chipchain_runtime_observer.so

@@ -91,3 +91,28 @@ execution 且 baseline 无等价 deviation。单纯 `A before B` 不构成 causa
 
 未来同一 fact 可同时拥有 Static 与 Dynamic VerificationRecord。两者不得互相覆盖；需要
 显式 multi-verifier aggregation 和 conflict policy，Phase 9B0 不实现。
+
+## Phase 9B1 QEMU adapter
+
+Phase 9B1 在稳定合同外增加 ARM-specific adapter，不修改 Phase 9B0 identity 或 persistence。
+`qemu-system-arm --version` executable probe 与 plugin `qemu_info_t` header 合并为 backend
+manifest；只有 plugin runtime header 能证明 target、system mode、单 vCPU 和 plugin API。
+
+Raw `chipchain_qemu_raw_trace` v2 始终是不可信输入。Strict parser 验证 header/event/end、
+唯一性、顺序、事件字段和 clean shutdown。Plugin 发出 instruction 与带可靠 paddr 的 raw
+memory events；`plugin_is_io`/device name 只是诊断，不是分类真值。v1 是未稳定开发 schema，
+R2 不兼容保留。
+
+Runner 在同一 QEMU process 中使用 `-S` + ID-matched QMP 获取 `info mtree -f` 后再 `cont`。
+Exact topology artifact SHA-256 与 canonical semantic memory map ID 成对写入 Trace manifest。
+只有 full range 落入唯一 resolved I/O leaf 的 raw memory event 才映射成 MMIO；RAM 被过滤但
+raw sequence gap 不重编号。Adapter 再次调用 `revalidate_runtime_trace()`。
+R2 Runtime MMIO 的 `is_io=true` 表示 captured topology 已验证该物理范围；不表示
+`qemu_plugin_hwaddr_is_io()` 返回 true。Observation metadata 保留两者不一致的事实。
+Timeout、kill、nonzero exit、missing end 或 sequence gap 都不能生成完整 RuntimeTrace/Evidence。
+
+QEMU backend 只声明 instruction/memory/physical-address/IO-classification capability；其中
+IO classification 来自 captured machine topology，不来自 plugin diagnostic boolean。它不声明
+memory value、register、interrupt、exception、DMA 或 active capability。MMIO 的
+`address_space_id` 保持 null；paddr 在多 address-space 环境可能不唯一，后续 resolver 不得
+把它当作全局唯一硬件身份。

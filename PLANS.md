@@ -13,7 +13,7 @@ boundary 与 result type/direction identity。
 Phase 9A-R3 强制每个 semantic interaction reference 至多一个 source binding，并对结果中
 各 VerificationRecord 集合增加 deterministic ID uniqueness 防御。Phase 9B0 已建立独立、
 backend-neutral Runtime Trace/Observation/Intervention contract 与 Dynamic Evidence normalization；
-下一步为 Phase 9B1 QEMU Passive Runtime Observer。
+Phase 9B1 R2 topology-grounded 合同与离线实现已完成，下一步是匹配环境的真实复验与人工审计。
 
 Phase 9B0-R1 为 Persistence 与 Dynamic Evidence normalization 建立统一 detached snapshot
 revalidation，阻断 RuntimeTrace/backend container 的 post-validation mutation 绕过。
@@ -258,17 +258,29 @@ Evidence Verification、Scoring 或 Root Cause 定位。
 - [x] Type I/II runtime meaning、Type III causal minimum 和 QEMU capability plan 文档
 - [x] R1：mutable trace/backend 在 persistence 或 Evidence upgrade 前统一 detached revalidation
 
-### Phase 9B1：QEMU Passive Runtime Observer（下一阶段）
+### Phase 9B1 R2：Topology-Grounded QEMU MMIO（离线完成，真实复验阻塞）
 
-按版本探测 QEMU TCG plugin capability，首个 ARM observer 仅运行单 vCPU，优先采集
-instruction、memory access、physical address 和 IO classification。C plugin 只输出稳定
-JSONL raw event；Python 负责 schema、normalization 和 Evidence。不得实现 mutation。
+- [x] ARM32 `virt` / `cortex-a15` / 单 vCPU strict environment 与两层 probe contract
+- [x] dumb passive TCG plugin source：instruction 与带可靠 paddr 的 raw memory callback
+- [x] `chipchain_qemu_raw_trace` v2 header/event/end JSONL strict parser
+- [x] `-S` + QMP 同进程 `info mtree -f`、严格 ID 响应与 raw topology SHA-256
+- [x] 唯一 `memory` FlatView 选择、semantic memory map ID 与 full-range classifier
+- [x] RAM 不晋升、boundary/overflow/ambiguous/malformed fail closed、raw sequence gap 保留
+- [x] raw/topology provenance、RuntimeTrace adapter 与 detached revalidation
+- [x] safe argv/timeout fail-closed runner 与 interaction-agnostic Dynamic Evidence
+- [x] owned synthetic STRB ELF、无 section table header、ground truth 和 offline tests
+- [x] PL011 trace 仅作 reference fixture independent oracle，不参与生产分类
+- [ ] 在 matching QEMU 11.0.3 环境重编 plugin 并完成 R2 smoke + real integration
 
-### Phase 9B2：Hardware→Firmware Causal Verification
+当前环境缺少 matching `qemu-system-arm`、supported GCC/Clang + GLib build environment、
+`qemu-plugin.h` 和已编译 plugin，因此状态是
+`R2_IMPLEMENTATION_COMPLETE_REAL_REVALIDATION_BLOCKED`，不能伪造 smoke PASS。
 
-在 baseline/intervention 可比性、实际 propagation observation 和 affected execution evidence
-具备后设计 reverse-direction verifier。不得仅用 temporal order 声称 causality，也不得用
-synthetic reverse edge 代替实际证据。
+### Phase 9B2：Dynamic Interaction Fact Verification / Static-Dynamic Aggregation
+
+只在 Phase 9B1 real observer 验证完成后，设计显式 Dynamic Evidence binding、动态事实
+verifier 和 Static/Dynamic aggregation/conflict policy。Type III causal verification 可在更晚
+阶段完成；不得由 temporal order、单次 MMIO observation 或 synthetic reverse edge 推出因果。
 
 ### Phase 10：Evaluation
 
