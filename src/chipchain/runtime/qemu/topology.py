@@ -29,6 +29,7 @@ _ADDRESS_SPACE = re.compile(
     r'(?:, alias (?P<alias>[^\r\n]+))?$'
 )
 _ROOT = re.compile(r"^ Root memory region: (?P<root>[^\r\n]+)$")
+_NO_RENDERED_FLATVIEW = re.compile(r"^  No rendered FlatView$")
 _REGION = re.compile(
     r"^  (?P<start>[0-9a-f]{16})-(?P<end>[0-9a-f]{16}) "
     r"\(prio (?P<priority>-?[0-9]+), "
@@ -103,6 +104,10 @@ class QemuMemoryTopologyParser:
                 "QEMU topology must contain one unique CPU physical AS named memory"
             )
         view = selected[0]
+        if view["no_rendered_flatview"] or not view["regions"]:
+            raise QemuTopologyError(
+                "selected CPU physical FlatView must contain rendered regions"
+            )
         address_spaces = view["address_spaces"]
         root_by_as = view["root_by_as"]
         assert isinstance(address_spaces, list)
@@ -148,6 +153,7 @@ class QemuMemoryTopologyParser:
                     "root_by_as": {},
                     "root": None,
                     "regions": [],
+                    "no_rendered_flatview": False,
                 }
                 continue
             if current is None:
@@ -170,9 +176,28 @@ class QemuMemoryTopologyParser:
                     raise QemuTopologyError("duplicate FlatView root")
                 current["root"] = match.group("root")
                 continue
+            if _NO_RENDERED_FLATVIEW.fullmatch(line):
+                if current["root"] is None:
+                    raise QemuTopologyError(
+                        "No rendered FlatView marker precedes FlatView root"
+                    )
+                if current["no_rendered_flatview"]:
+                    raise QemuTopologyError("duplicate No rendered FlatView marker")
+                regions = current["regions"]
+                assert isinstance(regions, list)
+                if regions:
+                    raise QemuTopologyError(
+                        "No rendered FlatView marker cannot coexist with regions"
+                    )
+                current["no_rendered_flatview"] = True
+                continue
             if match := _REGION.fullmatch(line):
                 if current["root"] is None:
                     raise QemuTopologyError("QEMU region precedes FlatView root")
+                if current["no_rendered_flatview"]:
+                    raise QemuTopologyError(
+                        "QEMU region follows No rendered FlatView marker"
+                    )
                 raw_kind = match.group("kind")
                 readonly = raw_kind in {"rom", "romd"}
                 regions = current["regions"]
@@ -206,8 +231,14 @@ class QemuMemoryTopologyParser:
 
     @staticmethod
     def _finish_view(view: dict[str, object]) -> None:
-        if not view["address_spaces"] or view["root"] is None or not view["regions"]:
+        if not view["address_spaces"] or view["root"] is None:
             raise QemuTopologyError("QEMU FlatView is incomplete")
+        regions = view["regions"]
+        assert isinstance(regions, list)
+        no_rendered = view["no_rendered_flatview"]
+        assert isinstance(no_rendered, bool)
+        if bool(regions) == no_rendered:
+            raise QemuTopologyError("QEMU FlatView content is incomplete or inconsistent")
 
 
 class QemuTopologyClassifier:

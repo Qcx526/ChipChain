@@ -15,8 +15,10 @@ classifier.
 
 The topology source is QEMU 11.0.3 `info mtree -f` obtained through ID-matched
 QMP before `cont`. The parser selects exactly one FlatView containing AS
-`memory`, stores exact source SHA-256, and derives a path-neutral semantic map
-ID from the selected root and resolved regions.
+`memory`, which must contain rendered regions. Other QEMU 11.0.3 FlatViews may
+be explicitly empty using the exact `  No rendered FlatView` marker. The parser
+stores the complete artifact's exact SHA-256 and derives a path-neutral
+semantic map ID only from the selected root and resolved regions.
 
 Only a full access range inside one unique `i/o` leaf is promoted. RAM and RAM
 device ranges are omitted from RuntimeTrace but remain auditable in raw v2.

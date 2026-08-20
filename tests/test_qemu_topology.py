@@ -88,6 +88,25 @@ def test_topology_id_is_semantic_while_raw_sha_tracks_exact_artifact(
     assert first.artifact_sha256 != second.artifact_sha256
 
 
+def test_unrelated_empty_view_changes_artifact_sha_but_not_semantic_id(
+    tmp_path: Path,
+) -> None:
+    full = _snapshot()
+    selected_only_path = tmp_path / "selected-memory-flatview.txt"
+    selected_view = TOPOLOGY.read_text("utf-8").split(
+        "FlatView #1\n", maxsplit=1
+    )[1]
+    selected_only_path.write_text(
+        f"FlatView #1\n{selected_view}",
+        encoding="utf-8",
+    )
+
+    selected_only = _snapshot(selected_only_path)
+
+    assert full.id == selected_only.id
+    assert full.artifact_sha256 != selected_only.artifact_sha256
+
+
 def test_unique_io_and_ram_classification_are_distinct() -> None:
     classifier = QemuTopologyClassifier()
     snapshot = _snapshot()
@@ -162,6 +181,55 @@ def test_malformed_or_non_unique_cpu_physical_flatview_is_rejected(
     path.write_text(text, encoding="utf-8")
 
     with pytest.raises(QemuTopologyError):
+        _snapshot(path)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        (
+            'FlatView #0\n AS "gpex-root", root: bus master container\n'
+            "  No rendered FlatView\n Root memory region: (none)\n"
+        ),
+        (
+            'FlatView #0\n AS "gpex-root", root: bus master container\n'
+            " Root memory region: (none)\n"
+            "  0000000000000000-0000000000000fff (prio 0, i/o): one\n"
+            "  No rendered FlatView\n"
+        ),
+        (
+            'FlatView #0\n AS "gpex-root", root: bus master container\n'
+            " Root memory region: (none)\n"
+            "  No rendered FlatView\n"
+            "  0000000000000000-0000000000000fff (prio 0, i/o): one\n"
+        ),
+        (
+            'FlatView #0\n AS "gpex-root", root: bus master container\n'
+            " Root memory region: (none)\n"
+            "  No rendered FlatView\n"
+            "  No rendered FlatView\n"
+        ),
+    ],
+)
+def test_empty_flatview_marker_ordering_and_exclusivity_are_strict(
+    tmp_path: Path, text: str
+) -> None:
+    path = tmp_path / "invalid-empty-view.txt"
+    path.write_text(text, encoding="utf-8")
+
+    with pytest.raises(QemuTopologyError):
+        _snapshot(path)
+
+
+def test_selected_cpu_physical_flatview_cannot_be_empty(tmp_path: Path) -> None:
+    path = tmp_path / "empty-memory-view.txt"
+    path.write_text(
+        'FlatView #0\n AS "memory", root: system\n'
+        " Root memory region: system\n  No rendered FlatView\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(QemuTopologyError, match="must contain rendered regions"):
         _snapshot(path)
 
 

@@ -52,9 +52,13 @@ components are unavailable. Reference evidence motivated and validates the
 design, but no local rerun is fabricated.
 
 The repository's current topology text is a reconstructed FlatView contract
-fixture, not a retained real `info mtree -f` capture. Ubuntu QEMU 11.0.3
-same-process acceptance must generate the complete real output before its exact
-bytes, SHA-256, and real-capture provenance can be committed as such.
+fixture, not a retained real `info mtree -f` capture. Its multi-view form now
+models the exact `  No rendered FlatView` syntax observed for an unrelated
+empty view in real Ubuntu QEMU 11.0.3 output. The selected `AS "memory"` view
+must remain non-empty; only that view determines the semantic map ID, while the
+complete exact artifact determines its SHA-256. Ubuntu QEMU 11.0.3 same-process
+acceptance must generate the complete real output before its exact bytes,
+SHA-256, and real-capture provenance can be committed as such.
 
 ## Next stage
 

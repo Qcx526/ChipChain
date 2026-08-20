@@ -69,14 +69,21 @@ ID-matched response are validated. The exact HMP return string is persisted as
 the raw topology artifact before it is parsed.
 
 The strict parser follows QEMU 11.0.3's official FlatView output shape and
-requires exactly one FlatView containing address space `memory`. Missing or
-multiple matches fail closed. The selected address-space label identifies the
-captured view only; RuntimeObservation `address_space_id` remains null because
-R2 does not invent a globally stable identity.
+accepts its exact `  No rendered FlatView` marker for an otherwise empty view.
+Real Ubuntu QEMU 11.0.3 output can contain such empty, unrelated FlatViews
+before the CPU physical view. The marker is valid only after a root and cannot
+be duplicated or coexist with rendered regions. The parser requires exactly
+one FlatView containing address space `memory`, and that selected view must be
+non-empty. Missing, empty, or multiple matches fail closed. The selected
+address-space label identifies the captured view only; RuntimeObservation
+`address_space_id` remains null because R2 does not invent a globally stable
+identity.
 
-`memory_map_id` hashes canonical resolved region semantics and excludes paths,
-users, timestamps, and raw formatting. `memory_map_sha256` hashes the exact
-same-process topology artifact. Both are written to `RuntimeTraceManifest`.
+`memory_map_id` hashes only the selected CPU physical view's canonical root and
+resolved region semantics; unrelated empty views, paths, users, timestamps, and
+raw formatting do not affect it. `memory_map_sha256` hashes the complete exact
+same-process topology artifact, including unrelated views. Both are written to
+`RuntimeTraceManifest`.
 
 ## Topology classifier and Runtime mapping
 

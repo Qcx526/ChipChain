@@ -3,7 +3,10 @@
 This is an owned, sanitized, reconstructed QEMU 11.0.3 FlatView contract
 fixture for `virt`, `cortex-a15`, and `smp=1`. Its text shape follows the QEMU
 11.0.3 `memory.c` FlatView printer contract. Its PL011 and RAM facts come from
-the validated reference topology/configuration. It is **not yet a retained real
+the validated reference topology/configuration. Its multi-view structure and
+exact `  No rendered FlatView` empty-view syntax reflect behavior observed in
+real Ubuntu QEMU 11.0.3 output. This checked-in file remains reconstructed: it
+is **not yet a retained real
 `info mtree -f` capture**, an ARM address rule, a benchmark, or a claim about
 other QEMU versions or machines.
 
