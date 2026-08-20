@@ -78,13 +78,22 @@ def test_qemu_11_flatview_contract_fixture_parses_pl011_and_code_ram() -> None:
 def test_topology_id_is_semantic_while_raw_sha_tracks_exact_artifact(
     tmp_path: Path,
 ) -> None:
-    crlf = tmp_path / "topology.txt"
-    crlf.write_bytes(TOPOLOGY.read_bytes().replace(b"\n", b"\r\n"))
+    logical_lines = TOPOLOGY.read_bytes().splitlines()
+    lf_bytes = b"\n".join(logical_lines) + b"\n"
+    crlf_bytes = b"\r\n".join(logical_lines) + b"\r\n"
+    assert lf_bytes != crlf_bytes
 
-    first = _snapshot()
+    lf = tmp_path / "topology-lf.txt"
+    crlf = tmp_path / "topology-crlf.txt"
+    lf.write_bytes(lf_bytes)
+    crlf.write_bytes(crlf_bytes)
+
+    first = _snapshot(lf)
     second = _snapshot(crlf)
 
     assert first.id == second.id
+    assert first.artifact_sha256 == hashlib.sha256(lf_bytes).hexdigest()
+    assert second.artifact_sha256 == hashlib.sha256(crlf_bytes).hexdigest()
     assert first.artifact_sha256 != second.artifact_sha256
 
 

@@ -33,8 +33,21 @@ def _write(tmp_path: Path, records: list[dict[str, object]]) -> Path:
     return path
 
 
-def test_valid_raw_trace_parses_header_events_end_and_sha256() -> None:
-    parsed = QemuRawTraceParser().parse(VALID)
+def test_valid_raw_trace_lf_and_crlf_preserve_semantics_but_not_sha256(
+    tmp_path: Path,
+) -> None:
+    logical_lines = VALID.read_bytes().splitlines()
+    lf_bytes = b"\n".join(logical_lines) + b"\n"
+    crlf_bytes = b"\r\n".join(logical_lines) + b"\r\n"
+    assert lf_bytes != crlf_bytes
+
+    lf_path = tmp_path / "raw-lf.jsonl"
+    crlf_path = tmp_path / "raw-crlf.jsonl"
+    lf_path.write_bytes(lf_bytes)
+    crlf_path.write_bytes(crlf_bytes)
+
+    parsed = QemuRawTraceParser().parse(lf_path)
+    crlf_trace = QemuRawTraceParser().parse(crlf_path)
 
     assert parsed.header.target_name == "arm"
     assert parsed.header.plugin_build_api_version == 6
@@ -50,7 +63,12 @@ def test_valid_raw_trace_parses_header_events_end_and_sha256() -> None:
     assert parsed.events[3].plugin_is_io is False
     assert parsed.events[3].plugin_device_name == "RAM"
     assert parsed.end.clean_shutdown is True
-    assert parsed.artifact_sha256 == hashlib.sha256(VALID.read_bytes()).hexdigest()
+    assert parsed.header == crlf_trace.header
+    assert parsed.events == crlf_trace.events
+    assert parsed.end == crlf_trace.end
+    assert parsed.artifact_sha256 == hashlib.sha256(lf_bytes).hexdigest()
+    assert crlf_trace.artifact_sha256 == hashlib.sha256(crlf_bytes).hexdigest()
+    assert parsed.artifact_sha256 != crlf_trace.artifact_sha256
 
 
 @pytest.mark.parametrize(
@@ -66,7 +84,7 @@ def test_malformed_raw_fixtures_fail_closed(fixture: str) -> None:
         QemuRawTraceParser().parse(FIXTURES / fixture)
 
 
-def test_missing_or_duplicate_header_is_rejected(tmp_path: Path) -> None:
+def test_missing_duplicate_header_or_blank_record_is_rejected(tmp_path: Path) -> None:
     records = _records()
     with pytest.raises(QemuRawTraceError, match="header must be the first"):
         QemuRawTraceParser().parse(_write(tmp_path, records[1:]))
@@ -75,6 +93,13 @@ def test_missing_or_duplicate_header_is_rejected(tmp_path: Path) -> None:
     records.insert(1, dict(records[0]))
     with pytest.raises(QemuRawTraceError, match="exactly one header"):
         QemuRawTraceParser().parse(_write(tmp_path, records))
+
+    logical_lines = VALID.read_bytes().splitlines()
+    malformed = b"\n".join([logical_lines[0], b"", *logical_lines[1:]]) + b"\n"
+    blank_record = tmp_path / "blank-record.jsonl"
+    blank_record.write_bytes(malformed)
+    with pytest.raises(QemuRawTraceError, match="blank records"):
+        QemuRawTraceParser().parse(blank_record)
 
 
 def test_trailing_record_after_end_is_rejected(tmp_path: Path) -> None:

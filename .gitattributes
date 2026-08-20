@@ -1,0 +1,2 @@
+tests/fixtures/qemu_raw/*.jsonl text eol=lf
+tests/fixtures/qemu_topology/*.txt text eol=lf

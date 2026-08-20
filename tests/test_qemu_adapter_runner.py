@@ -148,11 +148,23 @@ def test_real_path_dynamic_evidence_remains_interaction_agnostic(tmp_path: Path)
 
 
 def test_raw_artifact_hash_changes_trace_manifest_identity(tmp_path: Path) -> None:
+    original_bytes = VALID_RAW.read_bytes()
+    mutated_bytes = original_bytes.replace(
+        b'"format_version":2,',
+        b'"format_version":2 ,',
+        1,
+    )
+    assert mutated_bytes != original_bytes
+
     copy = tmp_path / "copy.jsonl"
-    copy.write_bytes(VALID_RAW.read_bytes().replace(b"\n", b" \n", 1))
+    copy.write_bytes(mutated_bytes)
     first, first_environment = _environment()
     second, second_environment = _environment(copy)
     config = _config(tmp_path)
+
+    assert first.header == second.header
+    assert first.events == second.events
+    assert first.end == second.end
 
     first_trace = QemuRawTraceAdapter().build_runtime_trace(
         first, first_environment, config, _topology()
