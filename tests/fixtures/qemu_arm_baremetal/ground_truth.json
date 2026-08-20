@@ -8,14 +8,14 @@
     "not_benchmark"
   ],
   "cpu": "cortex-a15",
-  "entry_point": 1073741824,
+  "entry_point": 1075838976,
   "expected_mmio": {
     "access_size": 1,
     "event_kind": "mmio_write",
-    "instruction_address": 1073741832,
+    "instruction_address": 1075838984,
     "physical_address": 150994944
   },
-  "firmware_sha256": "4e75288b7bd506948707206f37c9dd358bd09ecd4d07c6d7b59041cc3d2caa5e",
+  "firmware_sha256": "005e156c98293564e0ea0d99c08250e8b33066f4f31d1085fe285e9425ffe989",
   "machine": "virt",
   "reference_qemu_version": "11.0.3",
   "vcpu_count": 1

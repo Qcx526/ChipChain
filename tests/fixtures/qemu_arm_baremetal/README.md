@@ -4,11 +4,17 @@ This directory is an **owned, synthetic fixture**. It is not a real
 vulnerability and not a benchmark. It exists only to validate the Phase 9B1
 passive observation path.
 
-The A32 firmware starts at `0x40000000`, executes a byte store to the QEMU
-`virt` UART0 address, then exits through Arm semihosting `SYS_EXIT`. The UART
+QEMU `virt` RAM starts at `0x40000000`. For this bare-metal boot path QEMU places
+its generated DTB at the start of RAM, so linking the firmware there creates an
+overlap. The Phase 9B1 fixture therefore intentionally starts at `0x40200000`;
+it must not be linked at `0x40000000`.
+
+The A32 firmware executes a byte store to the QEMU `virt` UART0 address, then
+exits through Arm semihosting `SYS_EXIT`. The UART
 address `0x09000000` is ground truth only for the version-pinned QEMU 11.0.3
 fixture. It is not an ARM architecture rule or a general MMIO heuristic, and
-device addresses may differ in other QEMU versions or machines.
+device addresses may differ in other QEMU versions or machines. Likewise,
+`0x40200000` is only owned-fixture placement, not an ARM architecture rule.
 
 `generate_fixture.py` constructs a minimal deterministic ELF32 file from the
 machine words annotated in `arm_qemu_mmio.S`. This avoids an unaudited binary

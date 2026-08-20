@@ -8,7 +8,7 @@ import struct
 from pathlib import Path
 
 
-BASE_ADDRESS = 0x40000000
+BASE_ADDRESS = 0x40200000
 UART0_ADDRESS = 0x09000000
 WORDS = (
     0xE59F0014,  # ldr r0, [pc, #20] -> UART literal

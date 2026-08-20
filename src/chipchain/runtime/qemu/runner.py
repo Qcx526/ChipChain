@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import subprocess
 from collections.abc import Callable
 from pathlib import Path
@@ -21,6 +22,30 @@ from chipchain.runtime.qemu.raw import QemuRawTraceParser
 
 
 ProcessRunner = Callable[..., subprocess.CompletedProcess[str]]
+_DIAGNOSTIC_LIMIT = 800
+_CONTROL_CHARACTERS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+_SECRET_ASSIGNMENT = re.compile(
+    r"(?i)\b(api[_-]?key|authorization|password|secret|token)\s*[:=]\s*\S+"
+)
+_SECRET_TOKEN = re.compile(r"\bsk-[A-Za-z0-9_-]{12,}\b")
+_WINDOWS_PATH = re.compile(r"(?i)\b[A-Z]:[\\/][^\s\"']+")
+_POSIX_PATH = re.compile(r"(?<![\w.])/(?:[^/\s]+/)+[^\s\"']*")
+
+
+def _stderr_diagnostic_summary(stderr: str | None) -> str:
+    """Return a bounded diagnostic with common secrets and host paths removed."""
+
+    cleaned = _CONTROL_CHARACTERS.sub(" ", stderr or "")
+    cleaned = _SECRET_ASSIGNMENT.sub(r"\1=<redacted>", cleaned)
+    cleaned = _SECRET_TOKEN.sub("<redacted-token>", cleaned)
+    cleaned = _WINDOWS_PATH.sub("<host-path>", cleaned)
+    cleaned = _POSIX_PATH.sub("<host-path>", cleaned)
+    cleaned = " ".join(cleaned.split())
+    if not cleaned:
+        return "stderr unavailable"
+    if len(cleaned) > _DIAGNOSTIC_LIMIT:
+        return f"{cleaned[: _DIAGNOSTIC_LIMIT - 3]}..."
+    return cleaned
 
 
 def build_qemu_arm_passive_command(config: QemuArmPassiveRunConfig) -> list[str]:
@@ -93,8 +118,10 @@ class QemuPassiveRuntimeRunner:
         except OSError as exc:
             raise QemuRunnerError("QEMU passive observer could not be launched") from exc
         if completed.returncode != 0:
+            diagnostic = _stderr_diagnostic_summary(completed.stderr)
             raise QemuRunnerError(
-                f"QEMU passive observer exited with code {completed.returncode}"
+                f"QEMU passive observer exited with code {completed.returncode}; "
+                f"stderr: {diagnostic}"
             )
         if not raw_path.is_file():
             raise QemuRunnerError("QEMU passive observer produced no raw trace")

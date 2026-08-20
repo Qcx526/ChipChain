@@ -57,9 +57,12 @@ def test_real_owned_arm_qemu_observation_to_dynamic_evidence() -> None:
         item
         for item in result.runtime_trace.observations
         if item.event_kind is RuntimeEventKind.MMIO_WRITE
+        and item.pc is not None
+        and item.pc.value == "0x40200008"
         and item.physical_address is not None
         and item.physical_address.value == "0x9000000"
     )
+    assert mmio.is_io is True
     evidence = RuntimeEvidenceNormalizer().normalize(mmio, result.runtime_trace)
     assert evidence.verified is True
     assert evidence.type.value == "dynamic_analysis"

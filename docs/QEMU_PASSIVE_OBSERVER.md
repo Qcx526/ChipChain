@@ -65,6 +65,10 @@ synthetic、fixture、not-real-vulnerability 和 non-benchmark input provenance�
 生成器从有注释的 A32 machine words 构造 deterministic ELF32：执行正常指令、向 reference
 QEMU `virt` UART0 写一个 byte，再用 Arm semihosting `SYS_EXIT` 正常退出。
 
+QEMU `virt` RAM 从 `0x40000000` 开始，bare-metal 启动时生成的 DTB 位于 RAM 起始区域。
+因此 Phase 9B1 owned fixture 有意链接/加载到 `0x40200000`，不得链接回 `0x40000000`。
+`0x40200000` 只是 QEMU 11.0.3 owned-fixture placement，不是 ARM architecture rule。
+
 `0x09000000` 只属于 QEMU 11.0.3 version-pinned fixture ground truth；它不是 ARM 通用 MMIO
 规则，device address 可随 QEMU version/machine 改变。Semihosting 只允许该 trusted owned
 fixture，不能对 untrusted firmware 开启。

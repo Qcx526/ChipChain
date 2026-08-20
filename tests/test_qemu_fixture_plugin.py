@@ -34,12 +34,23 @@ def test_owned_qemu_fixture_is_deterministic_and_matches_provenance() -> None:
     assert ground_truth["expected_mmio"]["physical_address"] == 0x09000000
 
 
-def test_fixture_is_arm32_little_endian_executable() -> None:
+def test_qemu_virt_bare_metal_dtb_collision_prevention() -> None:
     elf = (FIXTURE / "arm_qemu_mmio.elf").read_bytes()
+    ground_truth = json.loads((FIXTURE / "ground_truth.json").read_text("utf-8"))
 
     assert elf[:7] == b"\x7fELF\x01\x01\x01"
     assert int.from_bytes(elf[18:20], "little") == 40
-    assert int.from_bytes(elf[24:28], "little") == 0x40000000
+    assert int.from_bytes(elf[24:28], "little") == 0x40200000
+    program_header_offset = int.from_bytes(elf[28:32], "little")
+    assert int.from_bytes(
+        elf[program_header_offset + 8 : program_header_offset + 12], "little"
+    ) == 0x40200000
+    assert int.from_bytes(
+        elf[program_header_offset + 12 : program_header_offset + 16], "little"
+    ) == 0x40200000
+    assert ground_truth["entry_point"] == 0x40200000
+    assert ground_truth["expected_mmio"]["instruction_address"] == 0x40200008
+    assert ground_truth["expected_mmio"]["physical_address"] == 0x09000000
 
 
 def test_observer_uses_required_passive_qemu_apis_only() -> None:

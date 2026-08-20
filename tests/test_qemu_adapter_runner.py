@@ -19,6 +19,7 @@ from chipchain.runtime.qemu import (
     QemuRawTraceError,
     QemuRawTraceParser,
     QemuRunnerTimeoutError,
+    QemuRunnerError,
     QemuRuntimeProbe,
     build_qemu_arm_passive_command,
 )
@@ -81,7 +82,7 @@ def test_raw_adapter_constructs_revalidated_runtime_trace(tmp_path: Path) -> Non
     assert trace.observations[0].event_kind.value == "instruction_exec"
     mmio = trace.observations[1]
     assert mmio.event_kind.value == "mmio_write"
-    assert mmio.pc.value == "0x40000008"
+    assert mmio.pc.value == "0x40200008"
     assert mmio.physical_address.value == "0x9000000"
     assert mmio.is_io is True
     assert mmio.address_space_id is None
@@ -155,9 +156,18 @@ def test_config_requires_path_neutral_raw_artifact_identity(tmp_path: Path) -> N
 
 
 class _MockProcess:
-    def __init__(self, raw_source: Path, *, timeout: bool = False) -> None:
+    def __init__(
+        self,
+        raw_source: Path,
+        *,
+        timeout: bool = False,
+        returncode: int = 0,
+        stderr: str = "",
+    ) -> None:
         self.raw_source = raw_source
         self.timeout = timeout
+        self.returncode = returncode
+        self.stderr = stderr
         self.calls: list[tuple[list[str], dict[str, object]]] = []
 
     def __call__(
@@ -170,6 +180,10 @@ class _MockProcess:
             )
         if self.timeout:
             raise subprocess.TimeoutExpired(argv, kwargs.get("timeout", 1))
+        if self.returncode:
+            return subprocess.CompletedProcess(
+                argv, self.returncode, stdout="", stderr=self.stderr
+            )
         plugin_arg = argv[argv.index("-plugin") + 1]
         output = Path(plugin_arg.split(",out=", 1)[1].rsplit(",run_id=", 1)[0])
         shutil.copyfile(self.raw_source, output)
@@ -196,6 +210,26 @@ def test_incomplete_raw_output_fails_closed(tmp_path: Path) -> None:
     process = _MockProcess(MISSING_END)
     with pytest.raises(QemuRawTraceError):
         QemuPassiveRuntimeRunner(process_runner=process).run(_config(tmp_path))
+
+
+def test_nonzero_qemu_exit_exposes_bounded_sanitized_stderr(tmp_path: Path) -> None:
+    stderr = (
+        "QEMU ROM regions overlap at 0x40000000; "
+        "firmware=C:\\private\\owned.elf token=super-secret-value "
+        + "x" * 1200
+    )
+    process = _MockProcess(VALID_RAW, returncode=1, stderr=stderr)
+
+    with pytest.raises(QemuRunnerError) as captured:
+        QemuPassiveRuntimeRunner(process_runner=process).run(_config(tmp_path))
+
+    message = str(captured.value)
+    assert "exited with code 1" in message
+    assert "ROM regions overlap at 0x40000000" in message
+    assert "<host-path>" in message
+    assert "token=<redacted>" in message
+    assert "super-secret-value" not in message
+    assert len(message) < 900
 
 
 def test_phase9b1_does_not_change_relation_types() -> None:

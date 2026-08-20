@@ -1,6 +1,6 @@
 /*
  * Owned synthetic ARM A32 Phase 9B1 fixture; not a vulnerability or benchmark.
- * Link/load address: 0x40000000 for the version-pinned QEMU virt scenario.
+ * Link/load address: 0x40200000 for the version-pinned QEMU virt scenario.
  */
 
     .syntax unified

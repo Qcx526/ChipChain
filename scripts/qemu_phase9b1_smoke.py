@@ -16,6 +16,8 @@ from chipchain.runtime.qemu import QemuArmPassiveRunConfig, QemuPassiveRuntimeRu
 
 ROOT = Path(__file__).resolve().parents[1]
 FIRMWARE = ROOT / "tests" / "fixtures" / "qemu_arm_baremetal" / "arm_qemu_mmio.elf"
+EXPECTED_MMIO_PC = "0x40200008"
+EXPECTED_MMIO_PADDR = "0x9000000"
 
 
 def _default_plugin() -> Path:
@@ -65,12 +67,15 @@ def main() -> int:
                 item
                 for item in result.runtime_trace.observations
                 if item.event_kind is RuntimeEventKind.MMIO_WRITE
+                and item.pc is not None
+                and item.pc.value == EXPECTED_MMIO_PC
                 and item.physical_address is not None
-                and item.physical_address.value == "0x9000000"
+                and item.physical_address.value == EXPECTED_MMIO_PADDR
             ),
             None,
         )
-        if expected_mmio is None:
+        instruction_count = counts[RuntimeEventKind.INSTRUCTION_EXEC]
+        if instruction_count <= 0 or expected_mmio is None:
             print("REAL_QEMU_STATUS = FAILED_EXPECTED_OBSERVATION_MISSING")
             return 1
         evidence = RuntimeEvidenceNormalizer().normalize(
@@ -84,9 +89,10 @@ def main() -> int:
         )
         print(
             "instruction_event_count = "
-            f"{counts[RuntimeEventKind.INSTRUCTION_EXEC]}"
+            f"{instruction_count}"
         )
         print(f"mmio_write_count = {counts[RuntimeEventKind.MMIO_WRITE]}")
+        print(f"mmio_pc = {expected_mmio.pc.value}")
         print(f"mmio_paddr = {expected_mmio.physical_address.value}")
         print(f"evidence_id = {evidence.id}")
         print(f"evidence_type = {evidence.type.value}")

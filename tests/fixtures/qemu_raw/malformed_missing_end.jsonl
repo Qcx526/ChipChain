@@ -1,2 +1,2 @@
 {"record_type":"header","format":"chipchain_qemu_raw_trace","format_version":1,"plugin_name":"chipchain-qemu-passive-observer","plugin_build_api_version":6,"target_name":"arm","plugin_api_min":2,"plugin_api_current":6,"system_emulation":true,"smp_vcpus":1,"max_vcpus":1,"run_id":"owned-qemu-mmio-run"}
-{"record_type":"event","schema_version":1,"sequence_index":0,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40000008"}}
+{"record_type":"event","schema_version":1,"sequence_index":0,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40200008"}}
