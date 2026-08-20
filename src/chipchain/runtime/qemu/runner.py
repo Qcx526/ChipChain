@@ -18,7 +18,12 @@ from chipchain.runtime.qemu.models import (
 )
 from chipchain.runtime.qemu.parser import QemuRawTraceAdapter
 from chipchain.runtime.qemu.probe import QemuRuntimeProbe
+from chipchain.runtime.qemu.qmp import (
+    build_qmp_command_stream,
+    parse_qmp_topology_response,
+)
 from chipchain.runtime.qemu.raw import QemuRawTraceParser
+from chipchain.runtime.qemu.topology import QemuMemoryTopologyParser
 
 
 ProcessRunner = Callable[..., subprocess.CompletedProcess[str]]
@@ -54,7 +59,7 @@ def build_qemu_arm_passive_command(config: QemuArmPassiveRunConfig) -> list[str]
     plugin_option = (
         f"{config.plugin_path},out={config.raw_trace_path},run_id={config.run_id}"
     )
-    return [
+    command = [
         str(config.qemu_executable),
         "-M",
         config.machine,
@@ -68,8 +73,9 @@ def build_qemu_arm_passive_command(config: QemuArmPassiveRunConfig) -> list[str]
         "none",
         "-serial",
         "null",
-        "-monitor",
-        "none",
+        "-S",
+        "-qmp",
+        "stdio",
         "-semihosting-config",
         "enable=on,target=native",
         "-device",
@@ -77,6 +83,14 @@ def build_qemu_arm_passive_command(config: QemuArmPassiveRunConfig) -> list[str]
         "-plugin",
         plugin_option,
     ]
+    if config.reference_pl011_trace_path is not None:
+        command.extend(
+            [
+                "-trace",
+                f"enable=pl011_write,file={config.reference_pl011_trace_path}",
+            ]
+        )
+    return command
 
 
 class QemuPassiveRuntimeRunner:
@@ -88,11 +102,13 @@ class QemuPassiveRuntimeRunner:
         probe: QemuRuntimeProbe | None = None,
         parser: QemuRawTraceParser | None = None,
         adapter: QemuRawTraceAdapter | None = None,
+        topology_parser: QemuMemoryTopologyParser | None = None,
         process_runner: ProcessRunner = subprocess.run,
     ) -> None:
         self._probe = probe or QemuRuntimeProbe(process_runner)
         self._parser = parser or QemuRawTraceParser()
         self._adapter = adapter or QemuRawTraceAdapter()
+        self._topology_parser = topology_parser or QemuMemoryTopologyParser()
         self._process_runner = process_runner
 
     def run(self, config: QemuArmPassiveRunConfig) -> QemuPassiveRunResult:
@@ -101,15 +117,27 @@ class QemuPassiveRuntimeRunner:
         self._require_inputs(config)
         executable = self._probe.probe_executable(str(config.qemu_executable))
         raw_path = config.raw_trace_path.resolve()
+        topology_path = config.topology_artifact_path.resolve()
+        reference_trace_path = (
+            config.reference_pl011_trace_path.resolve()
+            if config.reference_pl011_trace_path is not None
+            else None
+        )
         try:
             raw_path.unlink(missing_ok=True)
+            topology_path.unlink(missing_ok=True)
+            if reference_trace_path is not None:
+                reference_trace_path.unlink(missing_ok=True)
             completed = self._process_runner(
                 build_qemu_arm_passive_command(config),
                 check=False,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="strict",
                 shell=False,
                 timeout=config.timeout_seconds,
+                input=build_qmp_command_stream(),
             )
         except subprocess.TimeoutExpired as exc:
             raise QemuRunnerTimeoutError(
@@ -125,14 +153,29 @@ class QemuPassiveRuntimeRunner:
             )
         if not raw_path.is_file():
             raise QemuRunnerError("QEMU passive observer produced no raw trace")
+        if reference_trace_path is not None and not reference_trace_path.is_file():
+            raise QemuRunnerError("QEMU produced no requested PL011 reference trace")
+        topology_text = parse_qmp_topology_response(completed.stdout)
+        try:
+            topology_path.write_bytes(topology_text.encode("utf-8"))
+        except OSError as exc:
+            raise QemuRunnerError("QEMU topology artifact could not be retained") from exc
         parsed = self._parser.parse(raw_path)
         environment = self._probe.combine_plugin_probe(executable, parsed.header)
+        topology = self._topology_parser.parse(
+            topology_path,
+            qemu_version=environment.qemu_version,
+            machine=config.machine,
+            cpu=config.cpu,
+            vcpu_count=config.vcpu_count,
+        )
         trace = revalidate_runtime_trace(
-            self._adapter.build_runtime_trace(parsed, environment, config)
+            self._adapter.build_runtime_trace(parsed, environment, config, topology)
         )
         return QemuPassiveRunResult(
             environment=environment,
             parsed_trace=parsed,
+            topology=topology,
             runtime_trace=trace,
         )
 
@@ -147,4 +190,12 @@ class QemuPassiveRuntimeRunner:
                 raise QemuRunnerError(f"{label} does not exist")
         if config.raw_trace_path.exists() and config.raw_trace_path.is_dir():
             raise QemuRunnerError("raw trace output path is a directory")
+        if (
+            config.topology_artifact_path.exists()
+            and config.topology_artifact_path.is_dir()
+        ):
+            raise QemuRunnerError("topology artifact output path is a directory")
         config.raw_trace_path.parent.mkdir(parents=True, exist_ok=True)
+        config.topology_artifact_path.parent.mkdir(parents=True, exist_ok=True)
+        if config.reference_pl011_trace_path is not None:
+            config.reference_pl011_trace_path.parent.mkdir(parents=True, exist_ok=True)

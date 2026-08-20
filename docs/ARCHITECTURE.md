@@ -208,22 +208,26 @@ plugin、fault injection 或 causal verifier，也没有修改 9A-R Pipeline。D
 
 ### ARM QEMU Passive Adapter
 
-Phase 9B1 在 runtime core 外增加 `runtime/qemu` adapter：两层 capability probe、backend-specific
-strict JSONL parser、RuntimeTrace mapping 和 safe subprocess runner。C plugin 保持 dumb observer，
-只报告 execution 与 QEMU 自身 IO-classified MMIO；Python 才执行 schema/identity/capability
-validation 和 Evidence normalization。Raw trace 与 RuntimeTrace 都不进入 Behavior Graph。
+Phase 9B1 R2 在 runtime core 外增加 `runtime/qemu` adapter：两层 capability probe、backend-specific
+raw v2 parser、同进程 QMP FlatView capture、topology classifier、RuntimeTrace mapping 和 safe
+subprocess runner。C plugin 只报告 execution 与 raw physical memory access；plugin IO boolean
+只是诊断。Python 以 captured resolved topology 分类 MMIO，再执行 identity/capability validation
+和 Evidence normalization。Raw trace 与 RuntimeTrace 都不进入 Behavior Graph。
 
 ```text
-owned ARM32 ELF → QEMU TCG plugin → untrusted raw JSONL
-                                      ↓ strict parse + SHA-256
+owned ARM32 ELF → QEMU -S/QMP → info mtree -f artifact
+                    ↓ cont                 ↓ semantic ID + SHA-256
+                 TCG plugin → untrusted raw v2 physical events
+                                      ↓ strict parse + topology classify
                  RuntimeBackendManifest + RuntimeTraceManifest
                                       ↓ detached revalidation
                     RuntimeObservation → Dynamic Evidence
 ```
 
 该 adapter 固定 ARM32 `virt`/`cortex-a15`/单 vCPU，不声明 memory value、register、
-discontinuity、DMA 或 active capability。当前离线实现完整，但本机 real QEMU/plugin validation
-受工具链缺失阻塞；因此还不能把它记作真实 runtime 能力验证完成。
+discontinuity、DMA 或 active capability。只有完整访问落入唯一 I/O leaf 才产生 Runtime MMIO；
+RAM、boundary、overflow、ambiguous 和 malformed 输入均 fail closed。当前离线实现完整，但
+本机 matching QEMU/plugin R2 revalidation 受工具链缺失阻塞。
 
 ### Evaluation and Presentation
 
@@ -297,6 +301,7 @@ Phase 8R 新增三类 CrossLayerInteraction。Phase 9A-R 增加 Type I/II 部分
 Evidence Verification、显式 condition assessment、type-aware score 与 trigger-point
 localization；现有 Candidate/Search/RAG/Multi-Agent API 保持不变。Phase 9B0 新增独立
 Runtime backend/trace/observation/intervention contract、v1 persistence 与 Dynamic Evidence
-normalization。Phase 9B1 已实现 ARM QEMU passive observer source、strict raw parser、adapter、
-runner 与 owned bare-metal fixture；真实 QEMU observation 仍因本机 QEMU/headers/supported build environment
-缺失而未验证。Hardware→software causal Verification 与反向 BehaviorEdge 仍未实现。
+normalization。Phase 9B1 R2 已实现 ARM QEMU raw physical observer、same-process FlatView、
+topology classifier、adapter、runner 与 owned STRB fixture；真实 R2 acceptance 仍因本机缺少
+matching QEMU/headers/build environment 而未复验。Hardware→software causal Verification 与
+反向 BehaviorEdge 仍未实现。

@@ -1,0 +1,7 @@
+FlatView #0
+ AS "memory", root: system
+ AS "cpu-memory-0", root: system
+ Root memory region: system
+  0000000009000000-0000000009000fff (prio 0, i/o): pl011
+  0000000040000000-0000000047ffffff (prio 0, ram): mach-virt.ram
+

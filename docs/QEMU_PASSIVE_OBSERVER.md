@@ -2,85 +2,109 @@
 
 ## Scope and status
 
-Phase 9B1 只支持 ARM 32-bit system emulation、`virt`、`cortex-a15`、TCG 和一个 vCPU。
-QEMU 11.0.3（plugin API v6）是首个 reproducible reference environment。核心逻辑始终 probe 并记录实际
-QEMU/version/plugin API，不以 `version == 11.0.3` 放行其他环境。
+Phase 9B1 R2 supports ARM32 system emulation on `virt`, `cortex-a15`, TCG, and
+one vCPU. QEMU 11.0.3 with plugin API 6 is the reproducible reference; runtime
+version and plugin API are always probed rather than inferred from a filename.
 
-当前仓库状态是 `IMPLEMENTATION_COMPLETE_REAL_VALIDATION_BLOCKED`：Python contracts、C
-source、owned ELF、offline tests 与 smoke runner 已实现；当前开发机缺少
-`qemu-system-arm`、supported GCC/Clang + GLib build environment、`qemu-plugin.h` 和
-compiled plugin，未产生真实 trace。
+The R2 implementation, fixtures, and offline tests are complete. The current
+development host cannot rerun the real gate because it lacks the matching QEMU
+binary, headers, build environment, and compiled plugin. Supplied reference
+evidence established the R2 root cause, but it is not reported as a new local
+`REAL_QEMU_STATUS = PASS`.
 
-## Trust boundary
+## Observation and classification boundary
 
-C plugin 是 dumb observer。它只复制 translation-time instruction PC，并在 memory callback
-中查询 QEMU 的 hardware-address handle。只有 QEMU 返回 handle 且
-`qemu_plugin_hwaddr_is_io()` 为 true 才输出 `mmio_read`/`mmio_write`。Store/load、physical
-address 和 access size 分别来自 memory-info、`qemu_plugin_hwaddr_phys_addr()` 与
-`qemu_plugin_mem_size_shift()`；没有 opcode parsing 或地址范围猜测。
+The key R2 rule is:
 
-Plugin API 返回的 paddr 在多 address-space 环境可能不唯一。Phase 9B1 无可靠
-address-space semantic identity，所以 `address_space_id=null`；不得发明 `system-memory`。
-RAM access 不转成 RuntimeObservation，memory value/value width 保持 null。
+```text
+Plugin Physical Observation != Plugin IO Classification Truth
 
-Plugin 不输出 vulnerability、CVE、interaction、reference role、verification、score 或 root
-cause，不调用 register/memory/PC mutation API，也不观察或注入 interrupt、exception、DMA、
-fault。即使真实 MMIO 被观察到，也只表示该运行中发生了 IO-classified memory access。
+Physical Access + Captured QEMU Machine Topology
+  = Topology-Grounded MMIO Observation
+```
 
-## Raw JSONL v1
+The C plugin emits instruction execution plus every memory read/write for which
+`qemu_plugin_get_hwaddr()` returns a handle. It obtains read/write, physical
+address, and width from QEMU APIs. `plugin_is_io` and `plugin_device_name` are
+retained only as non-authoritative diagnostics; `plugin_is_io=false` never
+causes the raw event to be dropped. The plugin reads no register or memory
+value and never mutates PC, registers, memory, interrupts, DMA, or faults.
 
-Raw artifact format 是 `chipchain_qemu_raw_trace` version 1，不是 RuntimeTrace JSON。它严格为：
+For the validated QEMU 11.0.3 ARM `virt` fixture, the target store retained
+physical address `0x09000000` but the plugin reported `is_io=false` and device
+`RAM`. The same process's resolved FlatView mapped `0x09000000–0x09000fff` to
+the `pl011` I/O leaf, and the independent `pl011_write` device trace confirmed
+dispatch. This is a version-pinned observation, not a claim about all QEMU
+versions.
 
-1. 唯一且首条 `header`：plugin identity/build API、target、runtime API min/current、system
-   emulation、vCPU facts 和 run ID；QEMU executable version 由 Python 独立 probe。
-2. 零到多个 `event`：连续全局 `sequence_index=0..N-1`。Instruction 只有 PC；MMIO 还含
-   virtual/physical address、`is_io=true` 与 byte access size。
-3. 唯一且末条 clean `end`：event count、last sequence 和 `clean_shutdown=true`。
+## Raw JSONL v2
 
-Parser 将文件视为 untrusted input，拒绝 malformed JSON、blank/trailing/unknown records、额外
-字段、wrong plugin/target/mode/vCPU/API、未知 event、缺失 paddr、`is_io=false`、duplicate/gap
-sequence 和缺失 end。原始字节 SHA-256 进入 RuntimeTraceManifest provenance；合法的字节变化
-也会改变 manifest identity。
+`chipchain_qemu_raw_trace` version 2 is backend-local and untrusted:
 
-## Runtime mapping
+1. A unique header records plugin identity/build API, target, runtime API
+   min/current, system mode, vCPU facts, and run ID.
+2. Contiguous events are `instruction_exec`, `memory_read`, or `memory_write`.
+   Memory events require PC, virtual/physical address, and byte width; optional
+   plugin IO/device fields are diagnostic only.
+3. A unique clean end record binds event count and last sequence.
 
-Executable probe 与已验证 plugin header 合成 path-independent environment identity。
-`RuntimeBackendManifest` 使用 `qemu_tcg_plugin`，只声明：
+Version 1 was a pre-stable Phase 9B1 development schema and is intentionally
+not accepted after the semantic change. The parser rejects malformed JSON,
+unknown fields/events, missing physical addresses, sequence gaps, incompatible
+plugin facts, and missing/unclean end records. Exact raw bytes retain their own
+SHA-256.
 
-- `instruction_execution`
-- `memory_access`
-- `physical_address`
-- `io_classification`
+## Same-process topology capture
 
-Adapter 映射 instruction/MMIO 事件，设置 `value=null`、`value_width_bits=null`、
-`address_space_id=null`，然后调用 `revalidate_runtime_trace()`。只有该 detached RuntimeTrace
-中的 Observation 才能交给 `RuntimeEvidenceNormalizer`。Trace manifest 明确保留 owned、
-synthetic、fixture、not-real-vulnerability 和 non-benchmark input provenance。生成的
-`Evidence(type=dynamic_analysis, verified=true)` 表示 observation contract/integrity verified；
-不表示漏洞、Interaction、因果、触发、可利用性或攻击链成立。
+The runner starts the owned guest paused with `-S -qmp stdio`. Its structured
+QMP stream uses IDs for `qmp_capabilities`, `human-monitor-command` with
+`info mtree -f`, and `cont`, in that order. The greeting and every required
+ID-matched response are validated. The exact HMP return string is persisted as
+the raw topology artifact before it is parsed.
 
-## Owned fixture and runner
+The strict parser follows QEMU 11.0.3's official FlatView output shape and
+requires exactly one FlatView containing address space `memory`. Missing or
+multiple matches fail closed. The selected address-space label identifies the
+captured view only; RuntimeObservation `address_space_id` remains null because
+R2 does not invent a globally stable identity.
 
-`tests/fixtures/qemu_arm_baremetal` 是 owned/synthetic/fixture，明确不是真实漏洞或 Benchmark。
-生成器从有注释的 A32 machine words 构造 deterministic ELF32：执行正常指令、向 reference
-QEMU `virt` UART0 写一个 byte，再用 Arm semihosting `SYS_EXIT` 正常退出。
+`memory_map_id` hashes canonical resolved region semantics and excludes paths,
+users, timestamps, and raw formatting. `memory_map_sha256` hashes the exact
+same-process topology artifact. Both are written to `RuntimeTraceManifest`.
 
-QEMU `virt` RAM 从 `0x40000000` 开始，bare-metal 启动时生成的 DTB 位于 RAM 起始区域。
-因此 Phase 9B1 owned fixture 有意链接/加载到 `0x40200000`，不得链接回 `0x40000000`。
-`0x40200000` 只是 QEMU 11.0.3 owned-fixture placement，不是 ARM architecture rule。
+## Topology classifier and Runtime mapping
 
-`0x09000000` 只属于 QEMU 11.0.3 version-pinned fixture ground truth；它不是 ARM 通用 MMIO
-规则，device address 可随 QEMU version/machine 改变。Semihosting 只允许该 trusted owned
-fixture，不能对 untrusted firmware 开启。
+A raw access is promoted only if its full inclusive range
+`[paddr, paddr + access_size - 1]` lies inside one unique resolved I/O leaf.
+RAM/RAM-device accesses stay only in the raw artifact. Unmapped, overflowing,
+boundary-crossing, ambiguous, or malformed cases fail closed and are not MMIO.
 
-Runner 使用 argv list 与 `shell=False`，固定 `virt`/`cortex-a15`/`smp 1`/TCG/generic loader，
-拒绝会破坏 QEMU comma-delimited options 的路径和 run ID。Timeout、nonzero exit、missing raw
-file 或 missing clean end 全部 fail closed，不能产生 Evidence。
+Promoted observations preserve the original raw sequence index; filtered RAM
+events can therefore leave gaps. They use the sealed Phase 9B0
+`MMIO_READ/MMIO_WRITE` kinds and `is_io=true`, meaning topology verification,
+not the diagnostic plugin boolean. Metadata preserves classification source,
+plugin diagnostics, topology region name, and any disagreement. `device_id`
+and `address_space_id` remain null.
+
+Dynamic Evidence remains interaction-agnostic. `verified=true` means the
+observation and trace integrity contracts were verified; it does not verify a
+vulnerability, interaction, causality, exploitability, or attack chain.
+
+## Owned fixture and independent oracle
+
+The owned/synthetic firmware keeps the audited A32 word `0xE5C01000`
+(`strb r1, [r0]`), entry `0x40200000`, target PC `0x40200008`, target address
+`0x09000000`, and width 1. Its ELF header explicitly declares no section table
+(`e_shoff=e_shentsize=e_shnum=e_shstrndx=0`); instructions are unchanged.
+
+The PL011 device trace is enabled only by the reference smoke/integration
+configuration. It independently checks offset 0, value `0x41`, register `DR`.
+It never participates in production classification or identity.
 
 ## Build and real validation
 
-项目不会下载或安装 QEMU、compiler、headers、GLib 或预编译 plugin。准备同一版本的
-QEMU runtime/SDK 后：
+The project does not download QEMU, compilers, headers, GLib, or plugins.
+With a matching environment:
 
 ```powershell
 $env:CHIPCHAIN_QEMU_SYSTEM_ARM = 'C:\path\to\qemu-system-arm.exe'
@@ -93,5 +117,7 @@ $env:CHIPCHAIN_RUN_QEMU_TESTS = '1'
 .\.venv\Scripts\python.exe -m pytest tests\test_qemu_real_integration.py -q
 ```
 
-成功报告必须来自真实 plugin header/events/end，并记录 QEMU version、plugin API、event counts、
-MMIO paddr 与 Evidence ID。缺任一组件时必须报告 `REAL_QEMU_STATUS = BLOCKED`。
+Only real QEMU, plugin load/API facts, complete instruction/raw access events,
+same-process topology, topology-classified MMIO, clean shutdown, revalidation,
+Dynamic Evidence, and the independent PL011 oracle together permit
+`REAL_QEMU_STATUS = PASS`.

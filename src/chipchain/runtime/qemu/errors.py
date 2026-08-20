@@ -13,6 +13,18 @@ class QemuRawTraceError(QemuRuntimeError):
     """Raised when untrusted observer JSONL violates its strict contract."""
 
 
+class QemuQmpError(QemuRuntimeError):
+    """Raised when QMP greeting, command order, or responses are invalid."""
+
+
+class QemuTopologyError(QemuRuntimeError):
+    """Raised when a QEMU FlatView artifact violates the strict contract."""
+
+
+class QemuTopologyClassificationError(QemuTopologyError):
+    """Raised when a physical access cannot be classified unambiguously."""
+
+
 class QemuRunnerError(QemuRuntimeError):
     """Raised when a passive QEMU run cannot produce a complete trace."""
 

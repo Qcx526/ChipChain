@@ -149,11 +149,11 @@ class QemuRuntimeEnvironment(DomainModel):
 
 
 class QemuRawEventKind(str, Enum):
-    """The only event kinds emitted by the Phase 9B1 passive plugin."""
+    """Backend-local event kinds emitted by the Phase 9B1 R2 plugin."""
 
     INSTRUCTION_EXEC = "instruction_exec"
-    MMIO_READ = "mmio_read"
-    MMIO_WRITE = "mmio_write"
+    MEMORY_READ = "memory_read"
+    MEMORY_WRITE = "memory_write"
 
 
 class QemuRawHeader(DomainModel):
@@ -161,7 +161,7 @@ class QemuRawHeader(DomainModel):
 
     record_type: Literal["header"] = "header"
     format: Literal["chipchain_qemu_raw_trace"] = "chipchain_qemu_raw_trace"
-    format_version: Literal[1] = 1
+    format_version: Literal[2] = 2
     plugin_name: Literal["chipchain-qemu-passive-observer"]
     plugin_build_api_version: NonNegativeCount
     target_name: Identifier
@@ -201,18 +201,19 @@ class QemuRawHeader(DomainModel):
 
 
 class QemuRawEvent(DomainModel):
-    """One untrusted but strictly shaped instruction or IO-classified MMIO event."""
+    """One untrusted instruction or physical-memory observation."""
 
     record_type: Literal["event"] = "event"
-    schema_version: Literal[1] = 1
+    schema_version: Literal[2] = 2
     sequence_index: NonNegativeCount
     vcpu_index: NonNegativeCount
     event_kind: QemuRawEventKind
     pc: ProgramAddress
     virtual_address: HardwareAddress | None = None
     physical_address: HardwareAddress | None = None
-    is_io: bool | None = None
     access_size: PositiveCount | None = None
+    plugin_is_io: bool | None = None
+    plugin_device_name: Identifier | None = None
 
     @model_validator(mode="after")
     def validate_event(self) -> "QemuRawEvent":
@@ -224,8 +225,9 @@ class QemuRawEvent(DomainModel):
                 for value in (
                     self.virtual_address,
                     self.physical_address,
-                    self.is_io,
                     self.access_size,
+                    self.plugin_is_io,
+                    self.plugin_device_name,
                 )
             ):
                 raise ValueError("instruction raw event cannot contain memory fields")
@@ -235,9 +237,9 @@ class QemuRawEvent(DomainModel):
                 or self.physical_address is None
                 or self.access_size is None
             ):
-                raise ValueError("raw MMIO event requires virtual/physical address and access size")
-            if self.is_io is not True:
-                raise ValueError("raw MMIO event requires plugin is_io=true")
+                raise ValueError(
+                    "raw memory event requires virtual/physical address and access size"
+                )
         return self
 
 
@@ -245,7 +247,7 @@ class QemuRawEnd(DomainModel):
     """Required final JSONL record proving a clean, complete observer shutdown."""
 
     record_type: Literal["end"] = "end"
-    schema_version: Literal[1] = 1
+    schema_version: Literal[2] = 2
     event_count: NonNegativeCount
     last_sequence_index: NonNegativeCount | None = None
     clean_shutdown: Literal[True] = True
@@ -290,6 +292,8 @@ class QemuArmPassiveRunConfig(DomainModel):
     plugin_path: Path
     firmware_elf: Path
     raw_trace_path: Path
+    topology_artifact_path: Path
+    reference_pl011_trace_path: Path | None = None
     run_id: Identifier
     scenario_id: Identifier
     artifact_id: Identifier
@@ -324,12 +328,165 @@ class QemuArmPassiveRunConfig(DomainModel):
     def validate_plugin_paths(self) -> "QemuArmPassiveRunConfig":
         if any(
             "," in str(path)
-            for path in (self.plugin_path, self.firmware_elf, self.raw_trace_path)
+            for path in (
+                self.plugin_path,
+                self.firmware_elf,
+                self.raw_trace_path,
+                self.topology_artifact_path,
+                self.reference_pl011_trace_path,
+            )
+            if path is not None
         ):
             raise ValueError("QEMU option paths must not contain commas")
-        if self.raw_trace_path in {self.plugin_path, self.firmware_elf}:
-            raise ValueError("raw trace output must not overwrite an input artifact")
+        paths = {
+            self.plugin_path,
+            self.firmware_elf,
+            self.raw_trace_path,
+            self.topology_artifact_path,
+        }
+        expected_path_count = 4
+        if self.reference_pl011_trace_path is not None:
+            paths.add(self.reference_pl011_trace_path)
+            expected_path_count += 1
+        if len(paths) != expected_path_count:
+            raise ValueError("QEMU inputs and output artifacts must use distinct paths")
         return self
+
+
+class QemuMemoryRegionKind(str, Enum):
+    """Region types printed by QEMU's resolved flat memory view."""
+
+    RAM = "ram"
+    RAM_DEVICE = "ramd"
+    IO = "i/o"
+    ROM = "rom"
+    ROM_DEVICE = "romd"
+    CONTAINER = "container"
+
+
+class QemuMemoryRegion(DomainModel):
+    """One inclusive resolved leaf range from a QEMU FlatView."""
+
+    start: Annotated[int, Field(ge=0, le=(1 << 64) - 1)]
+    end: Annotated[int, Field(ge=0, le=(1 << 64) - 1)]
+    kind: QemuMemoryRegionKind
+    name: Identifier
+    priority: int
+    nonvolatile: bool = False
+    readonly: bool = False
+    offset_in_region: Annotated[int, Field(ge=0, le=(1 << 64) - 1)] | None = None
+    resolved: Literal[True] = True
+
+    @model_validator(mode="after")
+    def validate_range(self) -> "QemuMemoryRegion":
+        if self.end < self.start:
+            raise ValueError("QEMU memory region end precedes start")
+        return self
+
+
+def qemu_memory_topology_id(
+    *, address_space_name: str, root_region_name: str, regions: list[QemuMemoryRegion]
+) -> str:
+    """Build a path- and capture-independent semantic topology identity."""
+
+    return _semantic_id(
+        "qemu-memory-topology",
+        {
+            "address_space_name": address_space_name,
+            "regions": [
+                item.model_dump(mode="json")
+                for item in sorted(
+                    regions,
+                    key=lambda region: (
+                        region.start,
+                        region.end,
+                        region.kind.value,
+                        region.name,
+                        region.priority,
+                        region.nonvolatile,
+                        region.readonly,
+                        region.offset_in_region if region.offset_in_region is not None else -1,
+                    ),
+                )
+            ],
+            "root_region_name": root_region_name,
+        },
+    )
+
+
+class QemuMemoryTopologySnapshot(DomainModel):
+    """Strict same-process QEMU FlatView snapshot with raw provenance."""
+
+    id: Identifier
+    format: Literal["qemu_info_mtree_flatview"] = "qemu_info_mtree_flatview"
+    format_version: Literal[1] = 1
+    qemu_version: Identifier
+    machine: Identifier
+    cpu: Identifier
+    vcpu_count: PositiveCount
+    address_space_name: Literal["memory"] = "memory"
+    root_region_name: Identifier
+    regions: list[QemuMemoryRegion]
+    artifact_sha256: Identifier
+
+    @field_validator("artifact_sha256")
+    @classmethod
+    def validate_artifact_sha256(cls, value: str) -> str:
+        if not _SHA256.fullmatch(value):
+            raise ValueError("topology artifact hash must be lowercase SHA-256")
+        return value
+
+    @field_validator("regions")
+    @classmethod
+    def normalize_regions(
+        cls, values: list[QemuMemoryRegion]
+    ) -> list[QemuMemoryRegion]:
+        return sorted(
+            values,
+            key=lambda region: (
+                region.start,
+                region.end,
+                region.kind.value,
+                region.name,
+                region.priority,
+                region.nonvolatile,
+                region.readonly,
+                region.offset_in_region if region.offset_in_region is not None else -1,
+            ),
+        )
+
+    @model_validator(mode="after")
+    def validate_snapshot(self) -> "QemuMemoryTopologySnapshot":
+        if not self.regions:
+            raise ValueError("QEMU memory topology requires resolved regions")
+        expected = qemu_memory_topology_id(
+            address_space_name=self.address_space_name,
+            root_region_name=self.root_region_name,
+            regions=self.regions,
+        )
+        if self.id != expected:
+            raise ValueError("QEMU memory topology ID is not deterministic")
+        return self
+
+    @classmethod
+    def create(cls, **values: object) -> "QemuMemoryTopologySnapshot":
+        """Create a snapshot with semantic identity independent of raw bytes."""
+
+        values = dict(values)
+        raw_regions = values.get("regions")
+        if not isinstance(raw_regions, list):
+            raise ValueError("QEMU memory topology regions must be a list")
+        regions = [
+            item if isinstance(item, QemuMemoryRegion) else QemuMemoryRegion.model_validate(item)
+            for item in raw_regions
+        ]
+        values["regions"] = regions
+        identity = qemu_memory_topology_id(
+            address_space_name=str(values.get("address_space_name", "memory")),
+            root_region_name=str(values["root_region_name"]),
+            regions=regions,
+        )
+        return cls(id=identity, **values)
 
 
 class QemuPassiveRunResult(DomainModel):
@@ -337,4 +494,5 @@ class QemuPassiveRunResult(DomainModel):
 
     environment: QemuRuntimeEnvironment
     parsed_trace: QemuParsedRawTrace
+    topology: QemuMemoryTopologySnapshot
     runtime_trace: RuntimeTrace

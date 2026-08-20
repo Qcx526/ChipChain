@@ -13,7 +13,7 @@ boundary 与 result type/direction identity。
 Phase 9A-R3 强制每个 semantic interaction reference 至多一个 source binding，并对结果中
 各 VerificationRecord 集合增加 deterministic ID uniqueness 防御。Phase 9B0 已建立独立、
 backend-neutral Runtime Trace/Observation/Intervention contract 与 Dynamic Evidence normalization；
-Phase 9B1 的离线合同与实现已完成，下一步是补齐真实 QEMU reference validation。
+Phase 9B1 R2 topology-grounded 合同与离线实现已完成，下一步是匹配环境的真实复验与人工审计。
 
 Phase 9B0-R1 为 Persistence 与 Dynamic Evidence normalization 建立统一 detached snapshot
 revalidation，阻断 RuntimeTrace/backend container 的 post-validation mutation 绕过。
@@ -258,19 +258,23 @@ Evidence Verification、Scoring 或 Root Cause 定位。
 - [x] Type I/II runtime meaning、Type III causal minimum 和 QEMU capability plan 文档
 - [x] R1：mutable trace/backend 在 persistence 或 Evidence upgrade 前统一 detached revalidation
 
-### Phase 9B1：QEMU Passive Runtime Observer（离线实现完成，真实验证阻塞）
+### Phase 9B1 R2：Topology-Grounded QEMU MMIO（离线完成，真实复验阻塞）
 
 - [x] ARM32 `virt` / `cortex-a15` / 单 vCPU strict environment 与两层 probe contract
-- [x] dumb passive TCG plugin source：instruction callback 与 QEMU IO-classified MMIO
-- [x] `chipchain_qemu_raw_trace` v1 header/event/end JSONL strict parser
-- [x] raw SHA-256 provenance、RuntimeTrace adapter 与 detached revalidation
+- [x] dumb passive TCG plugin source：instruction 与带可靠 paddr 的 raw memory callback
+- [x] `chipchain_qemu_raw_trace` v2 header/event/end JSONL strict parser
+- [x] `-S` + QMP 同进程 `info mtree -f`、严格 ID 响应与 raw topology SHA-256
+- [x] 唯一 `memory` FlatView 选择、semantic memory map ID 与 full-range classifier
+- [x] RAM 不晋升、boundary/overflow/ambiguous/malformed fail closed、raw sequence gap 保留
+- [x] raw/topology provenance、RuntimeTrace adapter 与 detached revalidation
 - [x] safe argv/timeout fail-closed runner 与 interaction-agnostic Dynamic Evidence
-- [x] owned synthetic bare-metal ELF、auditable generator、ground truth 和 offline tests
-- [ ] 在 QEMU 11.0.3 环境编译/加载 plugin，执行 owned ELF 并观察真实 MMIO callback
+- [x] owned synthetic STRB ELF、无 section table header、ground truth 和 offline tests
+- [x] PL011 trace 仅作 reference fixture independent oracle，不参与生产分类
+- [ ] 在 matching QEMU 11.0.3 环境重编 plugin 并完成 R2 smoke + real integration
 
-当前环境缺少 `qemu-system-arm`、supported GCC/Clang + GLib build environment、
+当前环境缺少 matching `qemu-system-arm`、supported GCC/Clang + GLib build environment、
 `qemu-plugin.h` 和已编译 plugin，因此状态是
-`IMPLEMENTATION_COMPLETE_REAL_VALIDATION_BLOCKED`，不能称 Phase 9B1 complete。
+`R2_IMPLEMENTATION_COMPLETE_REAL_REVALIDATION_BLOCKED`，不能伪造 smoke PASS。
 
 ### Phase 9B2：Dynamic Interaction Fact Verification / Static-Dynamic Aggregation
 

@@ -42,9 +42,13 @@ def test_valid_raw_trace_parses_header_events_end_and_sha256() -> None:
     assert parsed.header.plugin_api_current == 6
     assert parsed.header.system_emulation is True
     assert parsed.header.smp_vcpus == 1
-    assert [item.sequence_index for item in parsed.events] == [0, 1]
+    assert parsed.header.format_version == 2
+    assert [item.sequence_index for item in parsed.events] == [0, 1, 2, 3]
     assert parsed.events[0].event_kind is QemuRawEventKind.INSTRUCTION_EXEC
-    assert parsed.events[1].event_kind is QemuRawEventKind.MMIO_WRITE
+    assert parsed.events[1].event_kind is QemuRawEventKind.MEMORY_READ
+    assert parsed.events[3].event_kind is QemuRawEventKind.MEMORY_WRITE
+    assert parsed.events[3].plugin_is_io is False
+    assert parsed.events[3].plugin_device_name == "RAM"
     assert parsed.end.clean_shutdown is True
     assert parsed.artifact_sha256 == hashlib.sha256(VALID.read_bytes()).hexdigest()
 
@@ -103,6 +107,7 @@ def test_unsupported_header_runtime_is_rejected(
         {"event_kind": "memory_access"},
         {"event_kind": "dma_write"},
         {"physical_address": None},
+        {"access_size": 0},
         {"is_io": False},
         {"vulnerability_id": "CVE-NOT-ALLOWED"},
     ],
@@ -111,14 +116,14 @@ def test_invalid_or_security_enriched_mmio_event_is_rejected(
     tmp_path: Path, mutation: dict[str, object]
 ) -> None:
     records = _records()
-    records[2].update(mutation)
+    records[4].update(mutation)
     with pytest.raises(QemuRawTraceError):
         QemuRawTraceParser().parse(_write(tmp_path, records))
 
 
 def test_duplicate_sequence_is_rejected(tmp_path: Path) -> None:
     records = _records()
-    records[2]["sequence_index"] = 0
+    records[1]["sequence_index"] = 1
     with pytest.raises(QemuRawTraceError):
         QemuRawTraceParser().parse(_write(tmp_path, records))
 

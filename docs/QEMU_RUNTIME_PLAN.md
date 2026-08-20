@@ -1,52 +1,57 @@
 # QEMU Runtime Plan
 
-Phase 9B0 的 backend-neutral runtime contract 已完成。Phase 9B1 的 ARM passive observer
-离线实现、fixture 和测试已完成；当前机器没有 QEMU、supported GCC/Clang + GLib build
-environment、plugin headers 或已编译 plugin，因此真实 observer validation 明确为
-`BLOCKED`，不能声称阶段完成。
+Phase 9B0's backend-neutral runtime contract is sealed. Phase 9B1 R2 replaces
+the pre-stable plugin-boolean MMIO rule with topology-grounded classification
+without changing RuntimeEventKind, RuntimeObservation, persistence, scoring,
+RelationType, or Phase 9A-R verification.
 
-## Phase 9B1 implemented boundary
+## Implemented R2 path
 
 ```text
 Owned ARM32 ELF
   → qemu-system-arm / virt / cortex-a15 / TCG / 1 vCPU
-  → dumb passive TCG plugin
-  → chipchain_qemu_raw_trace v1 JSONL
-  → strict Python parser
-  → RuntimeTrace detached revalidation
+  → same process paused with -S and QMP
+  ├─ info mtree -f → exact topology artifact + SHA-256
+  └─ cont → passive TCG plugin raw v2
+       ├─ instruction_exec
+       └─ memory_read / memory_write + physical address
+  → unique resolved FlatView classifier
+  → Phase 9B0 instruction/MMIO RuntimeTrace
+  → detached revalidation
   → interaction-agnostic Dynamic Evidence
 ```
 
-两层 probe 分离职责：Python 执行 `qemu-system-arm --version`，只证明 executable 可运行并
-记录 version；plugin header 从 `qemu_info_t` 证明 target=`arm`、system emulation、单 vCPU
-以及 API min/current。不能从 binary name 推断 plugin capability。QEMU 11.0.3 是首个计划
-验证的 reference environment，不是硬编码 allow-list。
-
-Plugin 仅声明 instruction execution、memory access、physical address 和 IO classification。
-它使用 instruction/memory callbacks，只在 `qemu_plugin_hwaddr_is_io()` 为 true 时发出 MMIO，
-并从 QEMU API 获取 physical address、read/write 和 access size。不读 memory value/register，
-不注入 interrupt/DMA/fault，不修改 PC、register 或 memory。
+Capabilities remain instruction execution, memory access, physical address,
+and I/O classification. Their sources are respectively the TCG callbacks,
+memory callbacks, hardware-address API, and captured machine topology. No
+memory value, register, discontinuity, DMA, or active capability is claimed.
 
 ## Completion gates
 
-Offline contract gate 已实现：strict models/parser、raw SHA-256 provenance、RuntimeTrace adapter、
-safe argv runner、timeout/incomplete fail-closed、owned deterministic ELF、mocked subprocess tests
-和文档。默认 pytest 不读取 QEMU 环境变量，也不要求网络或外部工具。
+The offline gate covers raw v2, QMP IDs/order, exact topology SHA, semantic map
+ID, unique I/O/RAM/boundary/overflow/ambiguous handling, sequence gaps, ELF
+header cleanup, RuntimeTrace revalidation, Dynamic Evidence, and security
+boundaries.
 
-Real observer gate 仍需在一个一致的 QEMU SDK/runtime 环境完成：
+The real gate must independently establish all of the following in QEMU 11.0.3:
 
-1. 编译并加载 passive plugin；
-2. 运行 owned ARM ELF 并正常 semihosting exit；
-3. 观察真实 instruction callback；
-4. 观察 QEMU IO-classified UART MMIO write 和 physical address；
-5. 解析真实 JSONL，构造 RuntimeTrace 和 Dynamic Evidence。
+1. matching plugin loads and reports API 2..6/build 6;
+2. the six expected owned-fixture instruction PCs execute;
+3. target PC `0x40200008` emits raw `memory_write`, paddr `0x09000000`, width 1,
+   including the observed `plugin_is_io=false`/`RAM` diagnostics;
+4. the same-process FlatView uniquely maps the target to I/O leaf `pl011`;
+5. RuntimeTrace promotes it to `MMIO_WRITE`, `is_io=true`, with map provenance;
+6. trace revalidation and Dynamic Evidence succeed;
+7. independent `pl011_write` confirms offset 0, value `0x41`, register `DR`;
+8. QEMU exits cleanly and the opt-in real integration test passes without skip.
 
-只有两个 gate 都通过才能称 Phase 9B1 complete。真实测试由
-`CHIPCHAIN_RUN_QEMU_TESTS=1` 显式开启。
+This development host cannot execute that gate because the matching external
+components are unavailable. Reference evidence motivated and validates the
+design, but no local rerun is fabricated.
 
 ## Next stage
 
-Phase 9B2 候选范围是 Dynamic Interaction Fact Verification 与 Static/Dynamic Aggregation：
-显式 binding、事实 verifier、聚合和 conflict policy。Type III causal verification 不自动承诺
-在 9B2 完成；它仍需要可比 baseline/intervention、实际 propagation 与 affected execution，
-不能从事件先后次序推出。
+Phase 9B2 may begin only after a real R2 smoke PASS and human audit. Its scope
+would be explicit Dynamic Evidence binding, fact verification, and
+Static/Dynamic aggregation/conflict policy. A single MMIO observation or event
+order still cannot establish Type III propagation or causality.

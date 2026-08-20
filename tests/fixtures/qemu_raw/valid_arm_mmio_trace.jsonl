@@ -1,4 +1,6 @@
-{"record_type":"header","format":"chipchain_qemu_raw_trace","format_version":1,"plugin_name":"chipchain-qemu-passive-observer","plugin_build_api_version":6,"target_name":"arm","plugin_api_min":2,"plugin_api_current":6,"system_emulation":true,"smp_vcpus":1,"max_vcpus":1,"run_id":"owned-qemu-mmio-run"}
-{"record_type":"event","schema_version":1,"sequence_index":0,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40200008"}}
-{"record_type":"event","schema_version":1,"sequence_index":1,"vcpu_index":0,"event_kind":"mmio_write","pc":{"value":"0x40200008"},"virtual_address":{"value":"0x9000000"},"physical_address":{"value":"0x9000000"},"is_io":true,"access_size":1}
-{"record_type":"end","schema_version":1,"event_count":2,"last_sequence_index":1,"clean_shutdown":true}
+{"record_type":"header","format":"chipchain_qemu_raw_trace","format_version":2,"plugin_name":"chipchain-qemu-passive-observer","plugin_build_api_version":6,"target_name":"arm","plugin_api_min":2,"plugin_api_current":6,"system_emulation":true,"smp_vcpus":1,"max_vcpus":1,"run_id":"owned-qemu-mmio-run"}
+{"record_type":"event","schema_version":2,"sequence_index":0,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40200000"}}
+{"record_type":"event","schema_version":2,"sequence_index":1,"vcpu_index":0,"event_kind":"memory_read","pc":{"value":"0x40200000"},"virtual_address":{"value":"0x4020001c"},"physical_address":{"value":"0x4020001c"},"access_size":4,"plugin_is_io":false,"plugin_device_name":"RAM"}
+{"record_type":"event","schema_version":2,"sequence_index":2,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40200008"}}
+{"record_type":"event","schema_version":2,"sequence_index":3,"vcpu_index":0,"event_kind":"memory_write","pc":{"value":"0x40200008"},"virtual_address":{"value":"0x9000000"},"physical_address":{"value":"0x9000000"},"access_size":1,"plugin_is_io":false,"plugin_device_name":"RAM"}
+{"record_type":"end","schema_version":2,"event_count":4,"last_sequence_index":3,"clean_shutdown":true}

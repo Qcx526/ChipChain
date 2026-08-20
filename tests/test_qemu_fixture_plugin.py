@@ -41,6 +41,10 @@ def test_qemu_virt_bare_metal_dtb_collision_prevention() -> None:
     assert elf[:7] == b"\x7fELF\x01\x01\x01"
     assert int.from_bytes(elf[18:20], "little") == 40
     assert int.from_bytes(elf[24:28], "little") == 0x40200000
+    assert int.from_bytes(elf[32:36], "little") == 0
+    assert int.from_bytes(elf[46:48], "little") == 0
+    assert int.from_bytes(elf[48:50], "little") == 0
+    assert int.from_bytes(elf[50:52], "little") == 0
     program_header_offset = int.from_bytes(elf[28:32], "little")
     assert int.from_bytes(
         elf[program_header_offset + 8 : program_header_offset + 12], "little"
@@ -65,6 +69,7 @@ def test_observer_uses_required_passive_qemu_apis_only() -> None:
         "qemu_plugin_get_hwaddr",
         "qemu_plugin_hwaddr_is_io",
         "qemu_plugin_hwaddr_phys_addr",
+        "qemu_plugin_hwaddr_device_name",
         "qemu_plugin_mem_is_store",
         "qemu_plugin_mem_size_shift",
     }
@@ -81,6 +86,9 @@ def test_observer_uses_required_passive_qemu_apis_only() -> None:
     assert all(name not in source for name in forbidden)
     assert "QEMU_PLUGIN_CB_NO_REGS" in source
     assert "qemu_plugin_hwaddr_is_io(hwaddr)" in source
+    assert "hwaddr == NULL || !qemu_plugin_hwaddr_is_io" not in source
+    assert '"memory_write" : "memory_read"' in source
+    assert '"format_version\\\":2' in source
     assert "translate_block(qemu_plugin_id_t id" in source
     assert "observer_exit(qemu_plugin_id_t id" in source
     assert all(

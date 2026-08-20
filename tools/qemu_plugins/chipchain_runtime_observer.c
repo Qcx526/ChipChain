@@ -1,7 +1,8 @@
 /*
  * ChipChain Phase 9B1 passive ARM runtime observer.
  *
- * This plugin only reports instruction execution and QEMU-classified MMIO.
+ * This plugin reports instruction execution and raw physical memory access.
+ * QEMU FlatView topology, not qemu_plugin_hwaddr_is_io(), classifies MMIO.
  * It never reads values or registers and never mutates guest state.
  */
 
@@ -83,7 +84,7 @@ static void emit_instruction(unsigned int vcpu_index, void *userdata)
     g_mutex_lock(&output_lock);
     g_string_append_printf(
         record,
-        "{\"record_type\":\"event\",\"schema_version\":1,"
+        "{\"record_type\":\"event\",\"schema_version\":2,"
         "\"sequence_index\":%" PRIu64 ",\"vcpu_index\":%u,"
         "\"event_kind\":\"instruction_exec\","
         "\"pc\":{\"value\":\"0x%" PRIx64 "\"}}",
@@ -102,10 +103,12 @@ static void emit_memory(unsigned int vcpu_index, qemu_plugin_meminfo_t info,
     unsigned int size_shift;
     uint64_t access_size;
     const char *event_kind;
+    const char *device_name;
+    bool plugin_is_io;
     GString *record;
 
     hwaddr = qemu_plugin_get_hwaddr(info, vaddr);
-    if (hwaddr == NULL || !qemu_plugin_hwaddr_is_io(hwaddr)) {
+    if (hwaddr == NULL) {
         return;
     }
     size_shift = qemu_plugin_mem_size_shift(info);
@@ -115,20 +118,30 @@ static void emit_memory(unsigned int vcpu_index, qemu_plugin_meminfo_t info,
     }
     access_size = UINT64_C(1) << size_shift;
     paddr = qemu_plugin_hwaddr_phys_addr(hwaddr);
-    event_kind = qemu_plugin_mem_is_store(info) ? "mmio_write" : "mmio_read";
+    plugin_is_io = qemu_plugin_hwaddr_is_io(hwaddr);
+    device_name = qemu_plugin_hwaddr_device_name(hwaddr);
+    event_kind = qemu_plugin_mem_is_store(info) ? "memory_write" : "memory_read";
     record = g_string_new(NULL);
 
     g_mutex_lock(&output_lock);
     g_string_append_printf(
         record,
-        "{\"record_type\":\"event\",\"schema_version\":1,"
+        "{\"record_type\":\"event\",\"schema_version\":2,"
         "\"sequence_index\":%" PRIu64 ",\"vcpu_index\":%u,"
         "\"event_kind\":\"%s\","
         "\"pc\":{\"value\":\"0x%" PRIx64 "\"},"
         "\"virtual_address\":{\"value\":\"0x%" PRIx64 "\"},"
         "\"physical_address\":{\"value\":\"0x%" PRIx64 "\"},"
-        "\"is_io\":true,\"access_size\":%" PRIu64 "}",
-        next_sequence++, vcpu_index, event_kind, pc, vaddr, paddr, access_size);
+        "\"access_size\":%" PRIu64 ",\"plugin_is_io\":%s,"
+        "\"plugin_device_name\":",
+        next_sequence++, vcpu_index, event_kind, pc, vaddr, paddr, access_size,
+        plugin_is_io ? "true" : "false");
+    if (device_name == NULL) {
+        g_string_append(record, "null");
+    } else {
+        append_json_string(record, device_name);
+    }
+    g_string_append_c(record, '}');
     write_record_locked(record);
     g_mutex_unlock(&output_lock);
     g_string_free(record, TRUE);
@@ -163,7 +176,7 @@ static void observer_exit(qemu_plugin_id_t id, void *userdata)
     g_mutex_lock(&output_lock);
     g_string_append_printf(
         record,
-        "{\"record_type\":\"end\",\"schema_version\":1,"
+        "{\"record_type\":\"end\",\"schema_version\":2,"
         "\"event_count\":%" PRIu64 ",\"last_sequence_index\":",
         next_sequence);
     if (next_sequence == 0) {
@@ -238,7 +251,7 @@ QEMU_PLUGIN_EXPORT int qemu_plugin_install(qemu_plugin_id_t id,
     g_mutex_init(&output_lock);
     header = g_string_new(
         "{\"record_type\":\"header\","
-        "\"format\":\"chipchain_qemu_raw_trace\",\"format_version\":1,"
+        "\"format\":\"chipchain_qemu_raw_trace\",\"format_version\":2,"
         "\"plugin_name\":");
     append_json_string(header, plugin_name);
     g_string_append_printf(
