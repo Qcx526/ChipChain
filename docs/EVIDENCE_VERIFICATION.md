@@ -49,3 +49,9 @@ metadata 顺序或 host timestamp 不改变 ID。未来同一 fact 的 Static/Dy
 Phase 9B0-R1 要求 Normalizer 在生成 `verified=true` 前重新序列化并验证整个 RuntimeTrace，
 再 detached-validate 调用方 Observation，并只消费新 snapshot 的 Observation/backend。
 先前已校验的 mutable object、list membership 或相同 ID 均不能单独建立 integrity trust。
+
+Phase 9B1 的 strict QEMU parser 与 adapter 不改变这层含义。来自真实 QEMU 的 observation
+只有在 executable probe、plugin runtime header、clean raw end、SHA-256 provenance、event
+schema/capability 和 detached Trace revalidation 全部通过后，才能规范化为 Dynamic Evidence。
+这仍然没有创建 Interaction binding，也不会进入 Phase 9A-R verifier/scoring。观察到 UART
+MMIO 不等于观察到 hardware vulnerability；instruction→MMIO 的顺序也不建立因果结论。

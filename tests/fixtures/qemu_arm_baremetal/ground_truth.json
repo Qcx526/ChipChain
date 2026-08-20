@@ -1,0 +1,22 @@
+{
+  "architecture": "arm",
+  "classification": [
+    "owned",
+    "synthetic",
+    "fixture",
+    "not_real_vulnerability",
+    "not_benchmark"
+  ],
+  "cpu": "cortex-a15",
+  "entry_point": 1073741824,
+  "expected_mmio": {
+    "access_size": 1,
+    "event_kind": "mmio_write",
+    "instruction_address": 1073741832,
+    "physical_address": 150994944
+  },
+  "firmware_sha256": "4e75288b7bd506948707206f37c9dd358bd09ecd4d07c6d7b59041cc3d2caa5e",
+  "machine": "virt",
+  "reference_qemu_version": "11.0.3",
+  "vcpu_count": 1
+}

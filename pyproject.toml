@@ -50,4 +50,5 @@ addopts = "-ra"
 testpaths = ["tests"]
 markers = [
   "angr: requires the optional angr backend and auditable ARM binary fixture",
+  "qemu: requires explicit real QEMU system ARM and passive plugin opt-in",
 ]

@@ -91,3 +91,19 @@ execution 且 baseline 无等价 deviation。单纯 `A before B` 不构成 causa
 
 未来同一 fact 可同时拥有 Static 与 Dynamic VerificationRecord。两者不得互相覆盖；需要
 显式 multi-verifier aggregation 和 conflict policy，Phase 9B0 不实现。
+
+## Phase 9B1 QEMU adapter
+
+Phase 9B1 在稳定合同外增加 ARM-specific adapter，不修改 Phase 9B0 identity 或 persistence。
+`qemu-system-arm --version` executable probe 与 plugin `qemu_info_t` header 合并为 backend
+manifest；只有 plugin runtime header 能证明 target、system mode、单 vCPU 和 plugin API。
+
+Raw `chipchain_qemu_raw_trace` v1 始终是不可信输入。Strict parser 验证 header/event/end、
+唯一性、顺序、事件字段和 clean shutdown，raw bytes SHA-256 进入 Trace manifest。Adapter
+只映射 instruction 与 QEMU IO-classified MMIO，并再次调用 `revalidate_runtime_trace()`。
+Timeout、kill、nonzero exit、missing end 或 sequence gap 都不能生成完整 RuntimeTrace/Evidence。
+
+QEMU backend 只声明 instruction/memory/physical-address/IO-classification capability，不声明
+memory value、register、interrupt、exception、DMA 或 active capability。MMIO 的
+`address_space_id` 保持 null；paddr 在多 address-space 环境可能不唯一，后续 resolver 不得
+把它当作全局唯一硬件身份。
