@@ -7,7 +7,8 @@ from typing import ClassVar
 
 from pydantic import Field, field_validator, model_validator
 
-from chipchain.models import Architecture
+from chipchain.knowledge.models import KnowledgeRetrievalResult
+from chipchain.models import Architecture, CrossLayerInteraction
 from chipchain.models.common import DomainModel, Identifier, Metadata
 from chipchain.reasoning.enums import (
     EvidenceCategory,
@@ -23,6 +24,7 @@ from chipchain.reasoning.hypothesis import (
     _validate_non_verdict_metadata,
 )
 from chipchain.reasoning.reasoning_result import ReasoningResult
+from chipchain.runtime.models import RuntimeObservation
 
 
 def reasoning_context_id(
@@ -35,22 +37,29 @@ def reasoning_context_id(
     knowledge_entry_ids: list[str],
     dynamic_trigger_fact_reference: str | None,
     attack_pattern_reference: str | None,
+    cross_layer_interaction_id: str | None = None,
+    runtime_observation_ids: list[str] | None = None,
+    knowledge_retrieval_result_id: str | None = None,
 ) -> str:
     """Build deterministic context identity without mutable metadata."""
 
-    return _canonical_reasoning_id(
-        "reasoning-context",
-        {
-            "architecture": architecture.value,
-            "attack_pattern_reference": attack_pattern_reference,
-            "affected_components": sorted(affected_components),
-            "available_evidence_ids": sorted(available_evidence_ids),
-            "dynamic_trigger_fact_reference": dynamic_trigger_fact_reference,
-            "knowledge_entry_ids": sorted(knowledge_entry_ids),
-            "observed_fact_ids": sorted(observed_fact_ids),
-            "subject_id": subject_id,
-        },
-    )
+    payload: dict[str, object] = {
+        "architecture": architecture.value,
+        "attack_pattern_reference": attack_pattern_reference,
+        "affected_components": sorted(affected_components),
+        "available_evidence_ids": sorted(available_evidence_ids),
+        "dynamic_trigger_fact_reference": dynamic_trigger_fact_reference,
+        "knowledge_entry_ids": sorted(knowledge_entry_ids),
+        "observed_fact_ids": sorted(observed_fact_ids),
+        "subject_id": subject_id,
+    }
+    if cross_layer_interaction_id is not None:
+        payload["cross_layer_interaction_id"] = cross_layer_interaction_id
+    if runtime_observation_ids:
+        payload["runtime_observation_ids"] = sorted(runtime_observation_ids)
+    if knowledge_retrieval_result_id is not None:
+        payload["knowledge_retrieval_result_id"] = knowledge_retrieval_result_id
+    return _canonical_reasoning_id("reasoning-context", payload)
 
 
 class ReasoningContext(DomainModel):
@@ -65,6 +74,9 @@ class ReasoningContext(DomainModel):
     knowledge_entry_ids: list[Identifier] = Field(default_factory=list)
     dynamic_trigger_fact_reference: Identifier | None = None
     attack_pattern_reference: Identifier | None = None
+    cross_layer_interaction: CrossLayerInteraction | None = None
+    runtime_observations: list[RuntimeObservation] = Field(default_factory=list)
+    knowledge_retrieval_result: KnowledgeRetrievalResult | None = None
     metadata: Metadata = Field(default_factory=dict)
 
     @field_validator(
@@ -78,6 +90,18 @@ class ReasoningContext(DomainModel):
         if len(values) != len(set(values)):
             raise ValueError("reasoning context lists must not contain duplicates")
         return sorted(values)
+
+    @field_validator("runtime_observations")
+    @classmethod
+    def normalize_runtime_observations(
+        cls, values: list[RuntimeObservation]
+    ) -> list[RuntimeObservation]:
+        if len(values) != len({item.id for item in values}):
+            raise ValueError("reasoning runtime observation IDs must be unique")
+        return sorted(
+            values,
+            key=lambda item: (item.trace_id, item.sequence_index, item.id),
+        )
 
     @field_validator("metadata")
     @classmethod
@@ -95,9 +119,59 @@ class ReasoningContext(DomainModel):
             knowledge_entry_ids=self.knowledge_entry_ids,
             dynamic_trigger_fact_reference=self.dynamic_trigger_fact_reference,
             attack_pattern_reference=self.attack_pattern_reference,
+            cross_layer_interaction_id=(
+                self.cross_layer_interaction.id
+                if self.cross_layer_interaction is not None
+                else None
+            ),
+            runtime_observation_ids=[
+                item.id for item in self.runtime_observations
+            ],
+            knowledge_retrieval_result_id=(
+                self.knowledge_retrieval_result.id
+                if self.knowledge_retrieval_result is not None
+                else None
+            ),
         )
         if self.id != expected_id:
             raise ValueError("ReasoningContext ID is not deterministic")
+        if (
+            self.cross_layer_interaction is not None
+            and self.cross_layer_interaction.architecture is not self.architecture
+        ):
+            raise ValueError("reasoning interaction architecture mismatch")
+        if any(
+            item.architecture is not self.architecture
+            for item in self.runtime_observations
+        ):
+            raise ValueError("reasoning runtime observation architecture mismatch")
+        if (
+            self.knowledge_retrieval_result is not None
+            and self.knowledge_retrieval_result.query.architecture
+            is not self.architecture
+        ):
+            raise ValueError("reasoning knowledge architecture mismatch")
+        if self.knowledge_retrieval_result is not None and (
+            self.knowledge_entry_ids
+            != sorted(self.knowledge_retrieval_result.knowledge_entry_ids)
+        ):
+            raise ValueError("reasoning knowledge references do not match retrieval")
+        if self.cross_layer_interaction is not None and (
+            self.cross_layer_interaction.metadata
+        ):
+            raise ValueError("reasoning interaction snapshot metadata must be empty")
+        if any(
+            item.metadata or item.host_timestamp is not None
+            for item in self.runtime_observations
+        ):
+            raise ValueError(
+                "reasoning runtime observation snapshots must exclude metadata and time"
+            )
+        if self.knowledge_retrieval_result is not None and (
+            self.knowledge_retrieval_result.metadata
+            or self.knowledge_retrieval_result.query.metadata
+        ):
+            raise ValueError("reasoning knowledge snapshot metadata must be empty")
         return self
 
     @classmethod
@@ -112,6 +186,9 @@ class ReasoningContext(DomainModel):
         knowledge_entry_ids: list[str] | None = None,
         dynamic_trigger_fact_reference: str | None = None,
         attack_pattern_reference: str | None = None,
+        cross_layer_interaction: CrossLayerInteraction | None = None,
+        runtime_observations: list[RuntimeObservation] | None = None,
+        knowledge_retrieval_result: KnowledgeRetrievalResult | None = None,
         metadata: Metadata | None = None,
     ) -> "ReasoningContext":
         """Create a detached-reference context without resolving domain objects."""
@@ -123,9 +200,24 @@ class ReasoningContext(DomainModel):
         normalized_evidence = [
             item.strip() for item in (available_evidence_ids or [])
         ]
-        normalized_knowledge = [
+        normalized_knowledge = sorted(
             item.strip() for item in (knowledge_entry_ids or [])
+        )
+        interaction_snapshot = _snapshot_interaction(cross_layer_interaction)
+        runtime_snapshots = [
+            _snapshot_runtime_observation(item)
+            for item in (runtime_observations or [])
         ]
+        knowledge_snapshot = _snapshot_knowledge_result(
+            knowledge_retrieval_result
+        )
+        if knowledge_snapshot is not None:
+            retrieved_ids = sorted(knowledge_snapshot.knowledge_entry_ids)
+            if normalized_knowledge and normalized_knowledge != retrieved_ids:
+                raise ValueError(
+                    "knowledge_entry_ids must match knowledge retrieval result"
+                )
+            normalized_knowledge = retrieved_ids
         normalized_trigger_reference = (
             dynamic_trigger_fact_reference.strip()
             if dynamic_trigger_fact_reference is not None
@@ -145,6 +237,15 @@ class ReasoningContext(DomainModel):
             knowledge_entry_ids=normalized_knowledge,
             dynamic_trigger_fact_reference=normalized_trigger_reference,
             attack_pattern_reference=normalized_attack_reference,
+            cross_layer_interaction_id=(
+                interaction_snapshot.id
+                if interaction_snapshot is not None
+                else None
+            ),
+            runtime_observation_ids=[item.id for item in runtime_snapshots],
+            knowledge_retrieval_result_id=(
+                knowledge_snapshot.id if knowledge_snapshot is not None else None
+            ),
         )
         return cls(
             id=identity,
@@ -156,8 +257,51 @@ class ReasoningContext(DomainModel):
             knowledge_entry_ids=normalized_knowledge,
             dynamic_trigger_fact_reference=normalized_trigger_reference,
             attack_pattern_reference=normalized_attack_reference,
+            cross_layer_interaction=interaction_snapshot,
+            runtime_observations=runtime_snapshots,
+            knowledge_retrieval_result=knowledge_snapshot,
             metadata=metadata or {},
         )
+
+
+def _snapshot_interaction(
+    value: CrossLayerInteraction | None,
+) -> CrossLayerInteraction | None:
+    """Detach an interaction while excluding mutable, untrusted metadata."""
+
+    if value is None:
+        return None
+    if not isinstance(value, CrossLayerInteraction):
+        raise TypeError("cross-layer context must be a CrossLayerInteraction")
+    serialized = value.model_dump(mode="json")
+    serialized["metadata"] = {}
+    return CrossLayerInteraction.model_validate(serialized)
+
+
+def _snapshot_runtime_observation(value: RuntimeObservation) -> RuntimeObservation:
+    """Detach one observation without importing time or metadata into reasoning."""
+
+    if not isinstance(value, RuntimeObservation):
+        raise TypeError("runtime context items must be RuntimeObservation objects")
+    serialized = value.model_dump(mode="json")
+    serialized["host_timestamp"] = None
+    serialized["metadata"] = {}
+    return RuntimeObservation.model_validate(serialized)
+
+
+def _snapshot_knowledge_result(
+    value: KnowledgeRetrievalResult | None,
+) -> KnowledgeRetrievalResult | None:
+    """Detach one retrieval result without treating retrieval metadata as facts."""
+
+    if value is None:
+        return None
+    if not isinstance(value, KnowledgeRetrievalResult):
+        raise TypeError("knowledge context must be a KnowledgeRetrievalResult")
+    serialized = value.model_dump(mode="json")
+    serialized["metadata"] = {}
+    serialized["query"]["metadata"] = {}
+    return KnowledgeRetrievalResult.model_validate(serialized)
 
 
 def reasoning_agent_id(agent_type: ReasoningAgentType) -> str:
@@ -231,12 +375,32 @@ class DeterministicMockReasoningAgent(ReasoningAgent):
     def produce_hypothesis(self) -> AttackHypothesis:
         """Produce a deterministic role-specific, explicitly unverified hypothesis."""
 
+        description = self.hypothesis_template.format(
+            subject_id=self._context.subject_id
+        )
+        context_references: list[str] = []
+        if self._context.cross_layer_interaction is not None:
+            interaction = self._context.cross_layer_interaction
+            context_references.append(
+                f"interaction {interaction.id} ({interaction.interaction_type.value})"
+            )
+        context_references.extend(
+            f"runtime observation {item.id} ({item.event_kind.value})"
+            for item in self._context.runtime_observations
+        )
+        if self._context.knowledge_retrieval_result is not None:
+            context_references.append(
+                "knowledge retrieval "
+                f"{self._context.knowledge_retrieval_result.id}"
+            )
+        if context_references:
+            description += "; bounded context references: " + ", ".join(
+                context_references
+            )
         return AttackHypothesis.create(
             source=HypothesisSource.ANALYST,
             architecture=self._context.architecture,
-            description=self.hypothesis_template.format(
-                subject_id=self._context.subject_id
-            ),
+            description=description,
             affected_components=self._context.affected_components,
             attack_pattern_reference=self._context.attack_pattern_reference,
             required_evidence_types=list(self.evidence_types),
@@ -244,6 +408,9 @@ class DeterministicMockReasoningAgent(ReasoningAgent):
             metadata={
                 "agent_id": self.agent_id,
                 "agent_type": self.agent_type.value,
+                "context_binding_semantics": (
+                    "reasoning_input_only_not_verification"
+                ),
                 "reasoning_mode": "deterministic_mock",
             },
         )
@@ -252,32 +419,46 @@ class DeterministicMockReasoningAgent(ReasoningAgent):
         """Produce deterministic evidence requests without collecting Evidence."""
 
         hypothesis = self.produce_hypothesis()
-        return [
-            EvidenceRequest.create(
-                hypothesis,
-                evidence_type=evidence_type,
-                required_fact=required_fact.format(
-                    subject_id=self._context.subject_id
-                ),
-                priority=priority,
-                dynamic_trigger_fact_reference=(
-                    self._context.dynamic_trigger_fact_reference
-                    if use_dynamic_trigger_reference
-                    else None
-                ),
-                metadata={
-                    "agent_id": self.agent_id,
-                    "agent_type": self.agent_type.value,
-                    "reasoning_mode": "deterministic_mock",
-                },
+        requests: list[EvidenceRequest] = []
+        for (
+            evidence_type,
+            required_fact,
+            priority,
+            use_dynamic_trigger_reference,
+        ) in self.evidence_request_specs:
+            request_metadata: Metadata = {
+                "agent_id": self.agent_id,
+                "agent_type": self.agent_type.value,
+                "reasoning_mode": "deterministic_mock",
+            }
+            if (
+                evidence_type
+                in {
+                    EvidenceCategory.RUNTIME_OBSERVATION,
+                    EvidenceCategory.MMIO_ACCESS,
+                }
+                and not self._context.runtime_observations
+            ):
+                request_metadata["context_gap"] = (
+                    "runtime_observation_context_missing"
+                )
+            requests.append(
+                EvidenceRequest.create(
+                    hypothesis,
+                    evidence_type=evidence_type,
+                    required_fact=required_fact.format(
+                        subject_id=self._context.subject_id
+                    ),
+                    priority=priority,
+                    dynamic_trigger_fact_reference=(
+                        self._context.dynamic_trigger_fact_reference
+                        if use_dynamic_trigger_reference
+                        else None
+                    ),
+                    metadata=request_metadata,
+                )
             )
-            for (
-                evidence_type,
-                required_fact,
-                priority,
-                use_dynamic_trigger_reference,
-            ) in self.evidence_request_specs
-        ]
+        return requests
 
     def analyze(self, input_data: object) -> ReasoningResult:
         """Return deterministic reasoning over references in the bound context."""
@@ -300,7 +481,13 @@ class DeterministicMockReasoningAgent(ReasoningAgent):
             metadata={
                 "agent_id": self.agent_id,
                 "agent_type": self.agent_type.value,
+                "context_binding_semantics": (
+                    "reasoning_input_only_not_verification"
+                ),
                 "reasoning_mode": "deterministic_mock",
+                "runtime_observation_semantics": (
+                    "observation_context_only_not_verified_evidence"
+                ),
             },
         )
 

@@ -43,6 +43,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - path-neutral memory map ID、exact topology SHA、分类差异 metadata 与 owned STRB ELF
 - Phase 9B2A 显式 DynamicTriggerFact/Observation Binding、detached Dynamic Verification
 - Static/Dynamic 八态 aggregation、multi-record conflict 与分离 Evidence provenance
+- Phase 9B2B 非验证多 Agent reasoning contracts 与 Step 7 dynamic context binding
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -316,6 +317,18 @@ runtime observation matches explicit trigger fact；它不表示 vulnerability �
 
 完整合同与八态 conflict policy 见
 [Dynamic Interaction Verification](docs/DYNAMIC_INTERACTION_VERIFICATION.md)。
+
+## Dynamic Evidence Reasoning Context
+
+Phase 9B2B Step 7 将已有 `CrossLayerInteraction`、detached `RuntimeObservation`
+和 `KnowledgeRetrievalResult` 作为可选、同架构的 `ReasoningContext` 输入。这些
+对象只能影响未验证 hypothesis 和 evidence request；runtime observation ID 不会
+自动进入 `supporting_evidence_ids`。缺失 runtime context 时，Agent 只产生
+`EvidenceRequest`，不创建 Evidence 或 verification truth。
+
+Agent 输出仍限于 `Hypothesis`、`EvidenceRequest` 和 `ReasoningResult`。该绑定
+不修改 RuntimeEvidence、Phase 9A-R verification/scoring，也不产生 VerificationRecord、
+vulnerability judgement 或 AttackChain。
 
 ## 文档导航
 

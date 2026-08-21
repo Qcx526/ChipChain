@@ -93,6 +93,31 @@ Phase 8R 不改变 Agent 数量、顺序或 Prompt。现有三个 Agent 只解�
 software→hardware CrossGraphCandidate，不承担 InteractionType 分类，也不生成
 hardware→software propagation facts。
 
+## Phase 9B2B Dynamic Context Boundary
+
+Phase 9B2B 的新四角色 workflow 与 Phase 8 Coordinator 保持分离。Step 7 仅扩展
+`ReasoningContext` 输入，允许绑定同架构 `CrossLayerInteraction`、detached
+`RuntimeObservation` snapshots 和 `KnowledgeRetrievalResult`。Snapshot 排除 metadata 与
+host timestamp；Context identity 只纳入既有确定性 object ID。
+
+Runtime observation 可以改变未验证 Hypothesis 的输入描述，但 Observation 不等于
+Evidence，不会自动进入 `ReasoningResult.supporting_evidence_ids`。缺失 runtime
+observation 只会生成 `EvidenceRequest`。Knowledge retrieval 同样只提供参考上下文。
+
+```text
+CrossLayerInteraction + RuntimeObservation + KnowledgeRetrievalResult
+                              |
+                              v
+                      ReasoningContext
+                              |
+                              v
+             Hypothesis / EvidenceRequest / ReasoningResult
+```
+
+该路径不创建 Evidence、VerificationRecord、vulnerability judgement 或 AttackChain，
+也不修改 RuntimeEvidence contract、Phase 9A-R pipeline/status/score。Agent agreement 与
+reasoning confidence 仍不属于 verification truth。
+
 ## Deterministic Coordinator and Final Status
 
 Coordinator 不是第四个 LLM。它只负责固定调度、post-validation、failure handling、

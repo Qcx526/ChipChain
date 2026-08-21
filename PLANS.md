@@ -16,7 +16,9 @@ backend-neutral Runtime Trace/Observation/Intervention contract 与 Dynamic Evid
 Phase 9B1 topology-grounded observer 已在 Ubuntu 22.04、QEMU 11.0.3、ARM32
 `virt` / `cortex-a15` / 单 vCPU 环境通过 real acceptance，并由 `phase-9b1-stable` 封存。
 Phase 9B2A 已完成显式 Dynamic Trigger Fact/Observation Binding、detached runtime
-observation verification 与只读 Static/Dynamic aggregation。
+observation verification 与只读 Static/Dynamic aggregation。Phase 9B2B Step 1～7 已完成
+非验证 reasoning contracts、固定多 Agent 编排、离线知识检索、Mock reasoning engine、
+feedback loop 与 dynamic evidence context binding。
 
 Phase 9B0-R1 为 Persistence 与 Dynamic Evidence normalization 建立统一 detached snapshot
 revalidation，阻断 RuntimeTrace/backend container 的 post-validation mutation 绕过。
@@ -310,6 +312,21 @@ Dynamic VERIFIED 只表示 runtime observation matches explicit trigger fact。�
 vulnerability 或 Interaction，不修改 Phase 9A-R status/scoring，不创建 BehaviorEdge、
 AttackChain 或 causality。Type III causal verification 仍未实现；不得由 temporal order、
 单次 MMIO observation 或 synthetic reverse edge 推出因果。
+
+#### Phase 9B2B：Evidence-Guided Multi-Agent Reasoning Contracts（Step 1～7 已完成）
+
+- [x] 非验证 Hypothesis、EvidenceRequest 与 ReasoningResult contracts
+- [x] Code → Hardware → Vulnerability → AttackChain 固定顺序 deterministic mock workflow
+- [x] CVE/CWE/CAPEC 与 Hardware knowledge 的离线确定性 retrieval
+- [x] Provider/Prompt/Parser contract 与 evidence-guided feedback loop
+- [x] 多 Agent hypothesis/request/result 收集，conflict fail closed 且 confidence 保守聚合
+- [x] CrossLayerInteraction、RuntimeObservation 与 KnowledgeRetrievalResult 的 detached ReasoningContext 绑定
+- [x] runtime context 可影响未验证 hypothesis；缺失 runtime context 只产生 EvidenceRequest
+
+Step 7 不修改 RuntimeEvidence、Phase 9A-R verification 或 scoring。RuntimeObservation 不会
+自动进入 `supporting_evidence_ids`，knowledge hit 也不会升级为 Evidence。多 Agent 输出仍只有
+Hypothesis、EvidenceRequest 和 ReasoningResult；不生成 VerificationRecord、vulnerability
+judgement 或 AttackChain。
 
 ### Phase 10：Evaluation
 

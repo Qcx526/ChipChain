@@ -268,6 +268,29 @@ class ReasoningSession(DomainModel):
                 raise ValueError("reasoning result references an unknown hypothesis")
             result.validate_against(source_hypothesis)
         self.final_reasoning_result.validate_against(self.merged_hypothesis)
+
+        available_evidence_ids = set(
+            self.reasoning_context.available_evidence_ids
+        )
+        for result in (*self.reasoning_results, self.final_reasoning_result):
+            if not set(result.supporting_evidence_ids).issubset(
+                available_evidence_ids
+            ):
+                raise ValueError(
+                    "reasoning supporting evidence IDs must be reference-only "
+                    "IDs supplied by the reasoning context"
+                )
+        source_supporting_ids = {
+            evidence_id
+            for result in self.reasoning_results
+            for evidence_id in result.supporting_evidence_ids
+        }
+        if not set(
+            self.final_reasoning_result.supporting_evidence_ids
+        ).issubset(source_supporting_ids):
+            raise ValueError(
+                "final reasoning result cannot create supporting evidence references"
+            )
         for feedback in self.feedbacks:
             request = request_by_id.get(feedback.request_id)
             if request is None:

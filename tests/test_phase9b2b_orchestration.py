@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from chipchain.agents import (
+    AttackChainAgent,
     COORDINATOR_ID,
     AgentMessage,
     AgentMessageType,
@@ -18,7 +19,7 @@ from chipchain.agents import (
     ReasoningSession,
     reasoning_agent_id,
 )
-from chipchain.models import Architecture
+from chipchain.models import Architecture, AttackChain
 from chipchain.reasoning import (
     AttackHypothesis,
     EvidenceCategory,
@@ -142,6 +143,33 @@ def test_multi_agent_hypothesis_and_result_merge() -> None:
         "fixture-static-evidence",
     ]
     assert session.final_reasoning_result.confidence == 0.0
+    assert session.final_reasoning_result.metadata[
+        "supporting_evidence_semantics"
+    ] == "reference_only_not_verified_evidence"
+
+
+def test_reasoning_supporting_ids_cannot_escape_context_or_be_created() -> None:
+    session = _session()
+    source = session.reasoning_results[0]
+    hypothesis = next(
+        item for item in session.hypotheses if item.id == source.hypothesis_id
+    )
+    invented = ReasoningResult.create(
+        hypothesis,
+        reasoning_steps=source.reasoning_steps,
+        supporting_evidence_ids=[
+            *source.supporting_evidence_ids,
+            "invented-verified-evidence",
+        ],
+        missing_evidence=source.missing_evidence,
+        confidence=source.confidence,
+        metadata=source.metadata,
+    )
+    values = session.model_dump(mode="json")
+    values["reasoning_results"][0] = invented.model_dump(mode="json")
+
+    with pytest.raises(ValueError, match="reference-only"):
+        ReasoningSession.model_validate(values)
 
 
 def test_evidence_request_aggregation_is_unique_and_deterministic() -> None:
@@ -219,6 +247,58 @@ def test_feedback_is_propagated_to_the_request_source_agent() -> None:
     )
 
 
+def test_feedback_cannot_modify_confidence() -> None:
+    workflow = AgentWorkflow()
+    session = workflow.execute(_context())
+    request = session.evidence_requests[0]
+    hypothesis = next(
+        item for item in session.hypotheses if item.id == request.hypothesis_id
+    )
+    observation = ReasoningObservation.create(
+        source_observation_id="fixture-confidence-observation",
+        request=request,
+        architecture=Architecture.ARM,
+        observed_fact=request.required_fact,
+        relation=ObservationFeedbackRelation.MATCH,
+    )
+    feedback = EvidenceFeedback.create(hypothesis, request, [observation])
+
+    updated = workflow.propagate_feedback(session, [feedback])
+
+    assert updated.final_reasoning_result.confidence == (
+        session.final_reasoning_result.confidence
+    )
+
+
+def test_hypothesis_merge_uses_conservative_confidence() -> None:
+    coordinator = MultiAgentReasoningCoordinator()
+    common = {
+        "source": HypothesisSource.ANALYST,
+        "architecture": Architecture.ARM,
+        "affected_components": ["fixture-arm-driver"],
+        "required_evidence_types": [EvidenceCategory.STATIC_BEHAVIOR],
+        "attack_pattern_reference": "CAPEC-fixture-reference",
+    }
+    higher = AttackHypothesis.create(
+        **common,
+        description="Higher-confidence fixture hypothesis",
+        confidence=0.8,
+    )
+    lower = AttackHypothesis.create(
+        **common,
+        description="Lower-confidence fixture hypothesis",
+        confidence=0.2,
+    )
+
+    merged = coordinator.merge_hypotheses([higher, lower])
+
+    assert merged.confidence == 0.2
+    assert merged.confidence == min(higher.confidence, lower.confidence)
+    assert merged.metadata["confidence_semantics"] == (
+        "reasoning_only_not_verification_score"
+    )
+
+
 def test_conflicting_hypotheses_fail_closed_without_a_verdict() -> None:
     coordinator = MultiAgentReasoningCoordinator()
     common = {
@@ -240,6 +320,43 @@ def test_conflicting_hypotheses_fail_closed_without_a_verdict() -> None:
 
     with pytest.raises(HypothesisMergeConflict, match="references conflict"):
         coordinator.merge_hypotheses([first, second])
+
+
+def test_multi_agent_agreement_cannot_create_verification() -> None:
+    coordinator = MultiAgentReasoningCoordinator()
+    agreed = AttackHypothesis.create(
+        source=HypothesisSource.ANALYST,
+        architecture=Architecture.ARM,
+        description="Agreed fixture hypothesis",
+        affected_components=["fixture-arm-driver"],
+        required_evidence_types=[EvidenceCategory.RUNTIME_OBSERVATION],
+        confidence=0.7,
+        attack_pattern_reference="CAPEC-fixture-reference",
+    )
+
+    merged = coordinator.merge_hypotheses([agreed, agreed])
+    serialized = merged.model_dump(mode="json")
+
+    assert type(merged) is AttackHypothesis
+    assert merged.confidence == agreed.confidence
+    assert merged.metadata["domain_truth_creation"] is False
+    assert "verification_status" not in serialized
+    assert "vulnerability_verdict" not in serialized
+
+
+def test_attack_chain_agent_cannot_emit_attack_chain() -> None:
+    context = _context()
+    agent = AttackChainAgent(context)
+    outputs = [
+        agent.produce_hypothesis(),
+        *agent.request_evidence(),
+        agent.analyze(context),
+    ]
+
+    assert type(outputs[0]) is AttackHypothesis
+    assert all(type(item) is EvidenceRequest for item in outputs[1:-1])
+    assert type(outputs[-1]) is ReasoningResult
+    assert not any(isinstance(item, AttackChain) for item in outputs)
 
 
 def test_orchestration_has_no_verdict_or_attack_chain_creation() -> None:

@@ -36,8 +36,8 @@
 
 ## 当前阶段限制
 
-- Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1 与
-  Phase 9B2A 已完成。Phase 9B1 已在 Ubuntu 22.04、QEMU 11.0.3、ARM32
+- Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
+  Phase 9B2A 与 Phase 9B2B Step 1～7 已完成。Phase 9B1 已在 Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
   `phase-9b1-stable` 封存；Ubuntu 是 canonical development/runtime validation
   环境，Windows 只承担 secondary portability regression。Verification 顶层 identity 是
@@ -56,6 +56,11 @@
   `VerificationRecord(status=VERIFIED)` 不表示 vulnerability、Interaction、causality 或
   AttackChain 已验证，也不得修改 Phase 9A-R status/score。Static/Dynamic aggregation 是
   独立只读结果，不得覆盖静态 Record、写入 Evidence、创建 BehaviorEdge 或投影 AttackChain。
+- Phase 9B2B 只产生 Hypothesis、EvidenceRequest 和 ReasoningResult。Step 7 可将同架构
+  CrossLayerInteraction、detached RuntimeObservation 与 KnowledgeRetrievalResult 绑定到
+  ReasoningContext，但 observation/knowledge 只是 reasoning input，不是 verified Evidence。
+  Agent 一致、reasoning confidence 或 feedback 都不得产生 VerificationRecord、
+  vulnerability verdict 或 AttackChain。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

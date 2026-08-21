@@ -224,6 +224,9 @@ class MultiAgentReasoningCoordinator:
                 "confidence_semantics": "reasoning_only_not_verification_score",
                 "domain_truth_creation": False,
                 "merge_scope": "multi_agent_reasoning_only",
+                "supporting_evidence_semantics": (
+                    "reference_only_not_verified_evidence"
+                ),
                 "source_reasoning_result_ids": sorted(
                     item.id for item in result_snapshots
                 ),
