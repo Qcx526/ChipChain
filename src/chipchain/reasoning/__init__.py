@@ -1,4 +1,4 @@
-"""Public Phase 7 context, retrieval, prompting, and provider API."""
+"""Public semantic reasoning and non-verifying contract APIs."""
 
 from chipchain.reasoning.context import (
     CandidateContextAssembler,
@@ -6,10 +6,19 @@ from chipchain.reasoning.context import (
     InMemoryEvidenceResolver,
 )
 from chipchain.reasoning.documents import load_architecture_knowledge_documents
+from chipchain.reasoning.engine import ReasoningEngine
+from chipchain.reasoning.evidence_loop import (
+    EvidenceGuidedReasoningLoop,
+    EvidenceLoopOutput,
+)
 from chipchain.reasoning.enums import (
     ArchitectureKnowledgeScope,
     CandidateSemanticStatus,
+    EvidenceCategory,
+    EvidencePriority,
+    HypothesisSource,
     LLMAPIStyle,
+    ReasoningAgentType,
 )
 from chipchain.reasoning.errors import (
     CandidateContextError,
@@ -19,6 +28,17 @@ from chipchain.reasoning.errors import (
     LLMProviderResponseError,
     ReasoningError,
     RetrievalError,
+)
+from chipchain.reasoning.hypothesis import AttackHypothesis, attack_hypothesis_id
+from chipchain.reasoning.evidence_request import EvidenceRequest, evidence_request_id
+from chipchain.reasoning.feedback import (
+    EvidenceFeedback,
+    EvidenceFeedbackStatus,
+    ObservationFeedbackRelation,
+    ReasoningObservation,
+    evidence_feedback_id,
+    evidence_feedback_status,
+    reasoning_observation_id,
 )
 from chipchain.reasoning.mock_provider import MockLLMProvider
 from chipchain.reasoning.models import (
@@ -35,13 +55,32 @@ from chipchain.reasoning.models import (
     RetrievedKnowledgeChunk,
 )
 from chipchain.reasoning.prompts import CandidatePromptBuilder
+from chipchain.reasoning.prompts import (
+    RoleBasedReasoningPromptBuilder,
+    reasoning_role_contract,
+)
 from chipchain.reasoning.provider import (
     LLMProvider,
+    MockReasoningProvider,
     OpenAICompatibleLLMProvider,
+    ReasoningProvider,
     StructuredOutputProvider,
 )
 from chipchain.reasoning.query import CandidateRetrievalQueryBuilder
 from chipchain.reasoning.reasoning import CandidateReasoner
+from chipchain.reasoning.reasoning_result import (
+    REASONING_RESULT_BOUNDARY,
+    ReasoningResult,
+    reasoning_result_id,
+)
+from chipchain.reasoning.reasoning_memory import (
+    ReasoningMemory,
+    reasoning_memory_id,
+)
+from chipchain.reasoning.parser import (
+    ConstrainedReasoningOutputParser,
+    ParsedReasoningContracts,
+)
 from chipchain.reasoning.retrieval import (
     KnowledgeRetriever,
     LocalLexicalKnowledgeRetriever,
@@ -50,6 +89,7 @@ from chipchain.reasoning.retrieval import (
 __all__ = [
     "ArchitectureKnowledgeDocument",
     "ArchitectureKnowledgeScope",
+    "AttackHypothesis",
     "CandidateContext",
     "CandidateContextAssembler",
     "CandidateContextError",
@@ -61,10 +101,19 @@ __all__ = [
     "CandidateRetrievalQueryBuilder",
     "CandidateSemanticAssessment",
     "CandidateSemanticStatus",
+    "ConstrainedReasoningOutputParser",
     "EvidenceResolutionError",
+    "EvidenceCategory",
+    "EvidenceFeedback",
+    "EvidenceFeedbackStatus",
+    "EvidenceGuidedReasoningLoop",
+    "EvidenceLoopOutput",
+    "EvidencePriority",
+    "EvidenceRequest",
     "EvidenceResolver",
     "InMemoryEvidenceResolver",
     "KnowledgeRetriever",
+    "HypothesisSource",
     "LLMAPIStyle",
     "LLMOutputValidationError",
     "LLMProvider",
@@ -73,13 +122,32 @@ __all__ = [
     "LLMProviderResponseError",
     "LocalLexicalKnowledgeRetriever",
     "MockLLMProvider",
+    "MockReasoningProvider",
+    "ObservationFeedbackRelation",
     "OpenAICompatibleLLMProvider",
     "PromptRequest",
     "StructuredOutputProvider",
     "StructuredPromptRequest",
     "ReasoningError",
+    "ReasoningEngine",
+    "ReasoningAgentType",
+    "ReasoningProvider",
+    "ReasoningMemory",
+    "ReasoningObservation",
+    "ReasoningResult",
+    "REASONING_RESULT_BOUNDARY",
     "RetrievalError",
     "RetrievalResult",
     "RetrievedKnowledgeChunk",
+    "RoleBasedReasoningPromptBuilder",
+    "attack_hypothesis_id",
+    "evidence_request_id",
+    "evidence_feedback_id",
+    "evidence_feedback_status",
     "load_architecture_knowledge_documents",
+    "reasoning_result_id",
+    "reasoning_memory_id",
+    "reasoning_observation_id",
+    "reasoning_role_contract",
+    "ParsedReasoningContracts",
 ]

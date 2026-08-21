@@ -4,10 +4,17 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
+from collections.abc import Iterable
 from typing import Self
 
 from chipchain.knowledge.enums import KnowledgeNodeKind, KnowledgeRelationType
-from chipchain.knowledge.models import KnowledgeEdge, KnowledgeNode
+from chipchain.knowledge.models import (
+    HardwareKnowledgeEntry,
+    KnowledgeEdge,
+    KnowledgeNode,
+    RetrievableKnowledgeEntry,
+    VulnerabilityKnowledgeEntry,
+)
 from chipchain.models import Architecture, Evidence
 from chipchain.models.common import Metadata
 
@@ -86,3 +93,56 @@ class KnowledgeGraphRepository(ABC):
     @abstractmethod
     def load(cls, path: str | Path) -> Self:
         """Load and validate a knowledge graph snapshot."""
+
+
+class KnowledgeEntryRepository(ABC):
+    """Read-only local source for Phase 9B2B retrievable knowledge entries."""
+
+    @abstractmethod
+    def get_entry(self, entry_id: str) -> RetrievableKnowledgeEntry:
+        """Return one detached entry by deterministic ID."""
+
+    @abstractmethod
+    def list_entries(self) -> list[RetrievableKnowledgeEntry]:
+        """Return detached entries in deterministic ID order."""
+
+
+class InMemoryKnowledgeEntryRepository(KnowledgeEntryRepository):
+    """Offline deterministic repository with no database or network adapter."""
+
+    def __init__(self, entries: Iterable[RetrievableKnowledgeEntry]) -> None:
+        material = [_snapshot_entry(entry) for entry in entries]
+        entry_ids = [entry.id for entry in material]
+        if len(entry_ids) != len(set(entry_ids)):
+            raise ValueError("knowledge entry IDs must be unique")
+        self._entries = {entry.id: entry for entry in material}
+
+    def get_entry(self, entry_id: str) -> RetrievableKnowledgeEntry:
+        """Return a detached entry, failing closed for an unknown ID."""
+
+        try:
+            return _snapshot_entry(self._entries[entry_id])
+        except KeyError as exc:
+            raise KeyError(f"unknown knowledge entry {entry_id!r}") from exc
+
+    def list_entries(self) -> list[RetrievableKnowledgeEntry]:
+        """Return detached entries in deterministic ID order."""
+
+        return [
+            _snapshot_entry(self._entries[entry_id])
+            for entry_id in sorted(self._entries)
+        ]
+
+
+def _snapshot_entry(
+    entry: RetrievableKnowledgeEntry,
+) -> RetrievableKnowledgeEntry:
+    if isinstance(entry, VulnerabilityKnowledgeEntry):
+        return VulnerabilityKnowledgeEntry.model_validate(
+            entry.model_dump(mode="json")
+        )
+    if isinstance(entry, HardwareKnowledgeEntry):
+        return HardwareKnowledgeEntry.model_validate(entry.model_dump(mode="json"))
+    raise TypeError(
+        "knowledge entry repository accepts only vulnerability or hardware entries"
+    )

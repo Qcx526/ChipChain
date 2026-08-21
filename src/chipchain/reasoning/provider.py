@@ -10,7 +10,7 @@ from typing import Any, TypeVar
 
 from pydantic import ValidationError
 
-from chipchain.reasoning.enums import LLMAPIStyle
+from chipchain.reasoning.enums import LLMAPIStyle, ReasoningAgentType
 from chipchain.reasoning.errors import (
     LLMProviderConfigurationError,
     LLMProviderResponseError,
@@ -21,6 +21,7 @@ from chipchain.reasoning.models import (
     PromptRequest,
     StructuredPromptRequest,
 )
+from chipchain.reasoning.prompts import reasoning_role_contract
 from chipchain.models.common import DomainModel
 
 StructuredModelT = TypeVar("StructuredModelT", bound=DomainModel)
@@ -36,6 +37,93 @@ class StructuredOutputProvider(ABC):
         output_type: type[StructuredModelT],
     ) -> StructuredModelT:
         """Return one validated structured object for the requested schema."""
+
+
+class ReasoningProvider(ABC):
+    """Raw-output provider contract for the bounded Phase 9B2B engine."""
+
+    @abstractmethod
+    def generate(self, request: StructuredPromptRequest) -> str:
+        """Return one JSON string for constrained parsing."""
+
+    def generate_reasoning(self, request: StructuredPromptRequest) -> str:
+        """Explicit alias retained for callers that distinguish reasoning output."""
+
+        return self.generate(request)
+
+
+class MockReasoningProvider(ReasoningProvider):
+    """Deterministic offline provider with no transport or external dependency."""
+
+    def generate(self, request: StructuredPromptRequest) -> str:
+        """Generate a fixed role-specific proposal from bounded prompt references."""
+
+        if request.schema_name != "phase9b2b_reasoning_output_v1":
+            raise ValueError("unsupported reasoning output schema")
+        try:
+            payload = json.loads(request.user_prompt)
+            role = ReasoningAgentType(request.role)
+            if payload["role"] != role.value:
+                raise ValueError("reasoning prompt role mismatch")
+            context = payload["reasoning_context"]
+            if context["id"] != request.candidate_id:
+                raise ValueError("reasoning prompt context identity mismatch")
+            if context["architecture"] != request.architecture.value:
+                raise ValueError("reasoning prompt architecture mismatch")
+            contract = reasoning_role_contract(role)
+            if payload["role_contract"] != contract:
+                raise ValueError("reasoning prompt role contract mismatch")
+        except (KeyError, TypeError, json.JSONDecodeError) as exc:
+            raise ValueError("invalid deterministic reasoning prompt") from exc
+
+        subject_id = context["subject_id"]
+        requests = []
+        required_evidence_types: list[str] = []
+        for request_contract in contract["evidence_requests"]:
+            evidence_type = request_contract["evidence_type"]
+            if evidence_type not in required_evidence_types:
+                required_evidence_types.append(evidence_type)
+            requests.append(
+                {
+                    "dynamic_trigger_fact_reference": (
+                        context["dynamic_trigger_fact_reference"]
+                        if request_contract["use_dynamic_trigger_reference"]
+                        else None
+                    ),
+                    "evidence_type": evidence_type,
+                    "priority": request_contract["priority"],
+                    "required_fact": request_contract[
+                        "required_fact_template"
+                    ].format(subject_id=subject_id),
+                }
+            )
+        output = {
+            "evidence_requests": requests,
+            "hypothesis": {
+                "affected_components": context["affected_components"],
+                "attack_pattern_reference": context["attack_pattern_reference"],
+                "confidence": 0.0,
+                "description": contract["description_template"].format(
+                    subject_id=subject_id
+                ),
+                "required_evidence_types": required_evidence_types,
+            },
+            "reasoning_result": {
+                "confidence": 0.0,
+                "reasoning_steps": [
+                    contract["reasoning_step_template"].format(
+                        subject_id=subject_id
+                    )
+                ],
+                "supporting_evidence_ids": context["available_evidence_ids"],
+            },
+        }
+        return json.dumps(
+            output,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
 
 
 class LLMProvider(ABC):
