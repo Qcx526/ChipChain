@@ -18,18 +18,19 @@
 - Phase 9B2C strict real-provider bridge, fixed four-role provider-backed workflow, reduced semantic v2 contract, and observed release acceptance
 - Phase 9C Step 1 exact ARM A32 HardwareTriggerSignature contract with typed preconditions, hardware failure effect, and prior proof provenance
 - Phase 9C Step 2 content-bound exact A32 executable sequence matching over function-local structural CFG paths
+- Phase 9C Step 3A passive QEMU instruction-byte trace and exact contiguous runtime T confirmation
 
 ## Current Work
 
-Phase 9C Step 2 is complete. It establishes only whether an authorized ARM ELF contains an exact
-decoded A32 trigger sequence on a recovered, function-local, structurally reachable executable CFG
-path. Results bind actual artifact bytes by SHA-256 and exclude raw data matching. Static matches do
-not establish runtime execution, concrete path feasibility, precondition satisfaction, hardware
-failure reproduction, triggerability, verification, or a confirmed AttackChain.
+Phase 9C Step 3A is complete. It binds a complete dedicated QEMU instruction trace to the same ELF
+artifact ID/SHA-256 as Step 2, then confirms only consecutive exact `(PC, logical A32 word)` execution
+for one `StaticFirmwareTriggerMatch.id`. The observer copies instruction bytes from translated QEMU
+instruction metadata but emits events only on actual execution. This does not observe declared
+register/memory/privilege preconditions and does not reproduce the vulnerable RTL hardware failure.
 
 ## Remaining Work
 
-- Phase 9C Step 3 dynamic trigger execution confirmation
+- Phase 9C Step 3B precondition-state confirmation, only if required by real samples
 - Phase 9C Step 4 triggerability aggregation
 - Phase 10 evaluation, after the triggerability pipeline exists
 - Phase 11 API and visualization, only after core evaluation
@@ -47,3 +48,7 @@ The Step 3 observer records only role and Context ID; it stores no prompt, raw r
 endpoint, or header and does not change failure propagation. Type III objective propagation and
 Verified AttackChain projection remain unimplemented and outside Phase 9B2C.
 No secrets or machine-specific paths belong in this document.
+
+Phase 9C Step 3A does not modify Phase 9B1 raw v2, RuntimeObservation, DynamicTriggerFact,
+verification, scoring or reasoning. It creates no Evidence, VerificationRecord, BehaviorEdge,
+AttackChain or vulnerability/triggerability verdict.

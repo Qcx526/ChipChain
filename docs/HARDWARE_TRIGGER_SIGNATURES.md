@@ -141,8 +141,67 @@ static CFG match != hardware failure reproduced
 static CFG match != vulnerability or triggerability verified
 ```
 
-## Explicit Non-Goals
+## Runtime Trigger Sequence Confirmation
 
-Step 2 implements no runtime instruction trace, dynamic sequence match, precondition evaluation,
-triggerability aggregation, Evidence creation, VerificationRecord, AttackChain projection, score,
-LLM matching, exploit generation or Phase 10 evaluation.
+Phase 9C Step 3A adds a separate concrete-execution relation:
+
+```text
+one StaticFirmwareTriggerMatch.id
+        +
+same artifact ID and exact ELF SHA-256
+        +
+one complete passive instruction trace
+        |
+        v
+exact contiguous runtime occurrence of T
+```
+
+The Phase 9B1 observer and `chipchain_qemu_raw_trace` v2 remain unchanged. A dedicated
+`chipchain-qemu-trigger-sequence-observer` emits isolated
+`chipchain_qemu_trigger_sequence_trace` v1 JSONL. Translation records do not count as execution:
+the plugin copies `qemu_plugin_insn_vaddr()`, `qemu_plugin_insn_size()` and
+`qemu_plugin_insn_data()` output into plugin-owned metadata, and only its instruction execution
+callback emits an event. The callback uses `QEMU_PLUGIN_CB_NO_REGS`; no register, CPSR, guest-memory
+value, MMIO value or intervention API is used.
+
+The strict trace requires one ARM system-emulation/single-vCPU header, contiguous instruction event
+indexes from zero, and one clean end record with consistent counts. `instruction_bytes` is lowercase,
+prefix-free hexadecimal with exactly two digits per byte. Candidate A32 matching requires size four,
+then converts raw little-endian bytes to the same canonical logical word used by Steps 1/2:
+
+```text
+0100a0e3 -> 0xe3a00001
+```
+
+`RuntimeFirmwareTriggerMatcher` detached-revalidates both the normalized runtime trace and static
+result. Runtime and static artifact ID plus firmware SHA-256 must match. For each static occurrence,
+the matcher compares consecutive runtime events against every exact ordered `(PC, word)` pair. It
+does not allow gaps, subsequences, reordered events, PC-only identity, word-only identity, CFG
+reconstruction or cross-static-match splicing. Zero occurrences is valid and says only that this
+concrete run did not execute that exact static occurrence.
+
+`RuntimeFirmwareTriggerOccurrence.id` binds raw trace content SHA-256, firmware SHA-256, static match
+ID, signature ID, exact runtime indexes, PCs and words. It excludes metadata, host path, timestamp,
+QEMU/plugin paths and diagnostics. Public runtime results serialize no host paths or verdict fields.
+
+The owned runtime fixture contains two static exact T functions, but `_start` calls only one before
+semihosting exit. Static Step 2 therefore finds two occurrences while real Step 3A acceptance confirms
+one. This demonstrates only exact runtime T execution on synthetic code; QEMU is not the vulnerable
+RTL implementation.
+
+## Preconditions and Explicit Non-Goals
+
+Step 3A never evaluates declared P. In particular, it does not read r0-r15, CPSR/T-bit, privilege
+mode, guest memory or memory values. Non-empty P is neither satisfied nor rejected by this result.
+The immutable distinctions are:
+
+```text
+static T != runtime T
+runtime T != T + P
+T + P != hardware failure reproduced in QEMU
+```
+
+Step 3B precondition-state confirmation is planned only if required by real samples. Step 4
+triggerability aggregation is not implemented. Step 3A creates no Evidence, VerificationRecord,
+BehaviorEdge, AttackChain, vulnerability/triggerability verdict, score, LLM output, exploit or Phase
+10 evaluation result.

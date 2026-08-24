@@ -47,6 +47,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9B2C Step 1～3 strict-schema Provider bridge、固定四角色 workflow 与 release acceptance hardening
 - Phase 9C Step 1 ARM A32 exact HardwareTriggerSignature 与硬件侧 proof provenance contract
 - Phase 9C Step 2 executable decoded A32 exact-sequence 与 function-local CFG static matching
+- Phase 9C Step 3A 独立 QEMU instruction-byte trace 与 exact contiguous runtime T confirmation
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -401,8 +402,23 @@ Step 2 的 `FirmwareTriggerMatcher` 只在授权 ARM ELF 的 decoded executable 
 匹配 exact sequence，并要求 occurrence 位于同一 recovered function、从函数入口结构可达的 CFG
 path。真实 artifact bytes 以 SHA-256 绑定；不执行 raw ELF byte scan，因此非执行 `.data` 中的
 相同字节不会匹配。`StaticFirmwareTriggerMatch` 仍不表示实际 runtime execution、具体输入路径
-可行、任何 precondition 已满足、硬件失败重现或 triggerability/AttackChain 已验证。动态确认和
-聚合仍未实现。
+可行、任何 precondition 已满足、硬件失败重现或 triggerability/AttackChain 已验证。
+
+Step 3A 使用与 Phase 9B1 分离的 `chipchain_trigger_sequence_observer`。它在 QEMU translation
+callback 内通过 `qemu_plugin_insn_vaddr()`、`qemu_plugin_insn_size()` 与
+`qemu_plugin_insn_data()` 复制 PC/size/bytes，并只在 instruction execution callback 中写入 raw
+v1 event。Runner 对 ELF 做运行前后 SHA-256 检查；领域 matcher 再要求 runtime artifact ID/hash 与
+Step 2 result 相同，并按连续事件精确比较 `(PC, logical A32 word)`。PC-only 和 word-only 都不会匹配。
+
+```text
+static exact T occurrence != concrete runtime T execution
+concrete runtime T execution != declared T + P confirmation
+declared T + P contract != hardware failure reproduced in QEMU
+```
+
+Step 3A 不读取 register/CPSR 或 guest memory，不判断 privilege/register/memory preconditions，
+也不创建 Evidence、VerificationRecord、BehaviorEdge、AttackChain、score 或 vulnerability/
+triggerability verdict。Step 3B 与 Step 4 仍未实现。
 设计边界见 [Hardware Trigger Signatures](docs/HARDWARE_TRIGGER_SIGNATURES.md)。
 
 ## 文档导航

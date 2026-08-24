@@ -1,0 +1,10 @@
+{"record_type":"header","format":"chipchain_qemu_trigger_sequence_trace","format_version":1,"plugin_name":"chipchain-qemu-trigger-sequence-observer","plugin_build_api_version":6,"target_name":"arm","plugin_api_min":2,"plugin_api_current":6,"system_emulation":true,"smp_vcpus":1,"max_vcpus":1,"run_id":"owned-phase9c-trigger-runtime-run"}
+{"record_type":"event","schema_version":1,"sequence_index":0,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40200000"},"instruction_size":4,"instruction_bytes":"040000eb"}
+{"record_type":"event","schema_version":1,"sequence_index":1,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40200018"},"instruction_size":4,"instruction_bytes":"0100a0e3"}
+{"record_type":"event","schema_version":1,"sequence_index":2,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x4020001c"},"instruction_size":4,"instruction_bytes":"011080e2"}
+{"record_type":"event","schema_version":1,"sequence_index":3,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40200020"},"instruction_size":4,"instruction_bytes":"0120a0e1"}
+{"record_type":"event","schema_version":1,"sequence_index":4,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40200024"},"instruction_size":4,"instruction_bytes":"1eff2fe1"}
+{"record_type":"event","schema_version":1,"sequence_index":5,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40200004"},"instruction_size":4,"instruction_bytes":"1800a0e3"}
+{"record_type":"event","schema_version":1,"sequence_index":6,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x40200008"},"instruction_size":4,"instruction_bytes":"00109fe5"}
+{"record_type":"event","schema_version":1,"sequence_index":7,"vcpu_index":0,"event_kind":"instruction_exec","pc":{"value":"0x4020000c"},"instruction_size":4,"instruction_bytes":"563412ef"}
+{"record_type":"end","schema_version":1,"event_count":8,"last_sequence_index":7,"clean_shutdown":true}

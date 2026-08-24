@@ -31,3 +31,15 @@ class QemuRunnerError(QemuRuntimeError):
 
 class QemuRunnerTimeoutError(QemuRunnerError):
     """Raised when QEMU is terminated before a clean end record is produced."""
+
+
+class QemuTriggerRawTraceError(QemuRuntimeError):
+    """Raised when a Phase 9C trigger-sequence raw trace fails closed."""
+
+
+class QemuTriggerRunnerError(QemuRuntimeError):
+    """Raised when the isolated trigger-sequence run cannot complete safely."""
+
+
+class QemuTriggerRunnerTimeoutError(QemuTriggerRunnerError):
+    """Raised when a trigger-sequence run has no clean complete trace."""

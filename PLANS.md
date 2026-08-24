@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C 与 Phase 9C Step 1～2 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
+Phase 0～Phase 9B2C 与 Phase 9C Step 1～3A 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
 requirements/score、能力状态和角色化定位。
 
@@ -408,10 +408,25 @@ Step 2 只确认 firmware 中存在 exact T 的 function-local structural CFG oc
 runtime execution、具体输入可行性或任何 register/memory/privilege precondition，不创建 Evidence、
 VerificationRecord、AttackChain、vulnerability/triggerability verdict 或 score。
 
-#### Step 3：Dynamic Trigger Execution Confirmation（planned / not implemented）
+#### Step 3A：Runtime Trigger Sequence Confirmation（已完成）
 
-未来确认 firmware runtime execution 是否实际满足序列与前置条件；当前不修改 QEMU、
-RuntimeObservation 或 Dynamic Evidence。
+- [x] 独立 passive QEMU trigger observer，不修改 Phase 9B1 observer/raw v2/RuntimeObservation
+- [x] translation 阶段通过 `qemu_plugin_insn_vaddr/size/data` 复制 metadata，execution callback 才发事件
+- [x] `chipchain_qemu_trigger_sequence_trace` v1 strict header/event/end 与 exact raw SHA-256
+- [x] ARM A32 little-endian、`virt`/`cortex-a15`/单 vCPU/TCG strict runner 与前后 ELF hash binding
+- [x] path-neutral `RuntimeTriggerExecutionTrace` 与 exact contiguous `(PC, word)` matching
+- [x] occurrence 绑定 raw content、artifact SHA、signature 与 `StaticFirmwareTriggerMatch.id`
+- [x] owned ELF 两个 static exact occurrences、仅一个实际执行 occurrence 的 real QEMU acceptance
+
+Step 3A 只确认一个具体 runtime trace 实际执行 exact T。PC-only 不足以保存机器指令身份，因此
+地址和由 runtime raw little-endian bytes 转换的 logical A32 word 必须同时精确一致。它不读取 register、
+CPSR 或 guest memory，不判断 privilege/register/memory preconditions，也不表示 hardware failure、
+vulnerability、triggerability 或 AttackChain 已验证。
+
+#### Step 3B：Precondition-State Confirmation（planned / not implemented）
+
+仅当后续真实样本证明有必要时，另行设计 declared P 的 register/memory/privilege 被动确认。不得把
+Step 3A 的 exact T occurrence 当作 `T + P`，也不得把未观察的 P 标记为 satisfied 或 rejected。
 
 #### Step 4：Triggerability Aggregation（planned / not implemented）
 

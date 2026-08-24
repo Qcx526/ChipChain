@@ -1,0 +1,38 @@
+{
+  "architecture": "arm",
+  "execution_mode": "arm_a32",
+  "expected_effect": {
+    "assertion_description": "Synthetic expected failure for contract testing only",
+    "assertion_id": "synthetic-runtime-trigger-assertion",
+    "expected_value": null,
+    "kind": "assertion_violation",
+    "observed_value": null,
+    "register": null
+  },
+  "hardware_vulnerability_id": "synthetic-phase9c-runtime-trigger-contract",
+  "id": "hardware-trigger-signature:6c40f20a04baf56570c4f2994f1859e4b4012371300c78b43143829d16bd26ba",
+  "instruction_sequence": [
+    "0xe3a00001",
+    "0xe2801001",
+    "0xe1a02001"
+  ],
+  "metadata": {
+    "fixture": true,
+    "not_benchmark": true,
+    "not_real_vulnerability": true,
+    "owned": true,
+    "synthetic": true
+  },
+  "preconditions": {
+    "memory_preconditions": [],
+    "privilege_mode": null,
+    "register_preconditions": []
+  },
+  "proof": {
+    "description": "Owned synthetic prior proof for Step 3A fixture",
+    "kind": "assertion_violation",
+    "reference_ids": [
+      "fixture:phase9c:runtime-trigger:synthetic-proof"
+    ]
+  }
+}

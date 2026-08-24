@@ -1,4 +1,4 @@
-"""Build the Phase 9B1 observer with an explicitly installed QEMU SDK."""
+"""Build an observer with an explicitly installed QEMU plugin SDK."""
 
 from __future__ import annotations
 
@@ -38,8 +38,15 @@ def _glib_flags() -> list[str]:
     return shlex.split(completed.stdout, posix=os.name != "nt")
 
 
-def build(output: Path, include_dir: Path | None) -> None:
-    source = Path(__file__).with_name("chipchain_runtime_observer.c")
+def build(
+    output: Path,
+    include_dir: Path | None,
+    *,
+    source_name: str = "chipchain_runtime_observer.c",
+) -> None:
+    """Compile one explicitly selected checked-in observer source."""
+
+    source = Path(__file__).with_name(source_name)
     command = [_compiler(), "-O2", "-Wall", "-Wextra", "-Werror"]
     if os.name != "nt":
         command.append("-fPIC")
@@ -57,7 +64,13 @@ def main() -> int:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path(__file__).with_name(f"chipchain_runtime_observer{suffix}"),
+        default=None,
+    )
+    parser.add_argument(
+        "--observer",
+        choices=("runtime", "trigger-sequence"),
+        default="runtime",
+        help="observer contract to build (default preserves Phase 9B1)",
     )
     parser.add_argument(
         "--include-dir",
@@ -67,11 +80,21 @@ def main() -> int:
     )
     args = parser.parse_args()
     try:
-        build(args.output.resolve(), args.include_dir)
+        source_name = {
+            "runtime": "chipchain_runtime_observer.c",
+            "trigger-sequence": "chipchain_trigger_sequence_observer.c",
+        }[args.observer]
+        output = args.output or Path(__file__).with_name(
+            {
+                "runtime": f"chipchain_runtime_observer{suffix}",
+                "trigger-sequence": f"chipchain_trigger_sequence_observer{suffix}",
+            }[args.observer]
+        )
+        build(output.resolve(), args.include_dir, source_name=source_name)
     except (OSError, RuntimeError, subprocess.CalledProcessError) as exc:
         print(f"plugin build blocked: {exc}", file=sys.stderr)
         return 2
-    print(args.output.resolve())
+    print(output.resolve())
     return 0
 
 

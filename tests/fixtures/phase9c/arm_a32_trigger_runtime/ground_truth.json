@@ -1,0 +1,53 @@
+{
+  "architecture": "arm",
+  "artifact_id": "synthetic-owned-arm-a32-trigger-runtime-elf",
+  "artifact_sha256": "b02e525665617cf623bafed5092d4a1c82a07a6120f5e89a8872341c09da2b81",
+  "classification": [
+    "owned",
+    "synthetic",
+    "fixture",
+    "not_real_vulnerability",
+    "not_benchmark"
+  ],
+  "cpu": "cortex-a15",
+  "entry_point": "0x40200000",
+  "execution_mode": "arm_a32",
+  "expected_runtime_static_function": "executed_trigger",
+  "machine": "virt",
+  "not_executed_static_function": "not_called_trigger",
+  "reference_qemu_version": "11.0.3",
+  "signature_id": "hardware-trigger-signature:6c40f20a04baf56570c4f2994f1859e4b4012371300c78b43143829d16bd26ba",
+  "static_occurrences": [
+    {
+      "function": "executed_trigger",
+      "function_address": "0x40200018",
+      "id": "static-firmware-trigger-match:069987f861581eb35ec38f90c8c3fc27bd3091d2cf1d7fbdd96ab6aee3cf543f",
+      "instruction_addresses": [
+        "0x40200018",
+        "0x4020001c",
+        "0x40200020"
+      ],
+      "instruction_words": [
+        "0xe3a00001",
+        "0xe2801001",
+        "0xe1a02001"
+      ]
+    },
+    {
+      "function": "not_called_trigger",
+      "function_address": "0x40200028",
+      "id": "static-firmware-trigger-match:e05ba197df4ea563afe35e185d88b9ecda4483fda30b7b5b1d5b53094d14182c",
+      "instruction_addresses": [
+        "0x40200028",
+        "0x4020002c",
+        "0x40200030"
+      ],
+      "instruction_words": [
+        "0xe3a00001",
+        "0xe2801001",
+        "0xe1a02001"
+      ]
+    }
+  ],
+  "vcpu_count": 1
+}

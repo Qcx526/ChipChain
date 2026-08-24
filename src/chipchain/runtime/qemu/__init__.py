@@ -9,6 +9,9 @@ from chipchain.runtime.qemu.errors import (
     QemuRuntimeError,
     QemuTopologyClassificationError,
     QemuTopologyError,
+    QemuTriggerRawTraceError,
+    QemuTriggerRunnerError,
+    QemuTriggerRunnerTimeoutError,
 )
 from chipchain.runtime.qemu.models import (
     PHASE9B1_PASSIVE_CAPABILITIES,
@@ -44,6 +47,20 @@ from chipchain.runtime.qemu.topology import (
     QemuTopologyClassificationKind,
     QemuTopologyClassifier,
 )
+from chipchain.runtime.qemu.trigger_models import (
+    QemuArmTriggerSequenceRunConfig,
+    QemuParsedTriggerTrace,
+    QemuTriggerRawEnd,
+    QemuTriggerRawHeader,
+    QemuTriggerRawInstructionEvent,
+    QemuTriggerSequenceRunResult,
+    qemu_parsed_trigger_trace_id,
+)
+from chipchain.runtime.qemu.trigger_parser import QemuTriggerRawTraceParser
+from chipchain.runtime.qemu.trigger_runner import (
+    QemuTriggerSequenceRunner,
+    build_qemu_arm_trigger_sequence_command,
+)
 
 __all__ = [
     "PHASE9B1_PASSIVE_CAPABILITIES",
@@ -74,10 +91,23 @@ __all__ = [
     "QemuTopologyClassificationKind",
     "QemuTopologyClassifier",
     "QemuTopologyError",
+    "QemuArmTriggerSequenceRunConfig",
+    "QemuParsedTriggerTrace",
+    "QemuTriggerRawEnd",
+    "QemuTriggerRawHeader",
+    "QemuTriggerRawInstructionEvent",
+    "QemuTriggerRawTraceError",
+    "QemuTriggerRawTraceParser",
+    "QemuTriggerRunnerError",
+    "QemuTriggerRunnerTimeoutError",
+    "QemuTriggerSequenceRunResult",
+    "QemuTriggerSequenceRunner",
+    "build_qemu_arm_trigger_sequence_command",
     "build_qemu_arm_passive_command",
     "build_qmp_command_stream",
     "parse_qemu_version",
     "parse_qmp_topology_response",
     "qemu_memory_topology_id",
     "qemu_runtime_environment_id",
+    "qemu_parsed_trigger_trace_id",
 ]
