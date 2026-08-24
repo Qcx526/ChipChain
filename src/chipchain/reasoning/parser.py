@@ -1,4 +1,4 @@
-"""Constrained parser for Phase 9B2B reasoning-provider output."""
+"""Constrained parser for the Phase 9B2C reduced semantic provider DTO."""
 
 from __future__ import annotations
 

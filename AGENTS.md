@@ -37,7 +37,7 @@
 ## 当前阶段限制
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
-  Phase 9B2A、Phase 9B2B Step 1～7 与 Phase 9B2C Step 1～2 已完成。Phase 9B1 已在
+  Phase 9B2A、Phase 9B2B Step 1～7 与 Phase 9B2C Step 1～3 已完成。Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
   `phase-9b1-stable` 封存；Ubuntu 是 canonical development/runtime validation
@@ -74,6 +74,12 @@
   supporting Evidence ID 选择；component、attack pattern、Evidence category/priority 与 dynamic
   trigger 等身份由 typed Context/role contract 确定性绑定，这属于最小化模型权限而非修补输出。
   AttackChain 仍只贡献 Hypothesis；任一角色失败立即停止，无 retry、Provider 切换或 Mock fallback。
+- Phase 9B2C Step 3 将当前 reduced semantic provider contract 版本固定为
+  `phase9b2c_reasoning_semantic_output_v2`；不兼容的旧
+  `phase9b2b_reasoning_output_v1` 必须拒绝且不提供隐式兼容 parser。Provider strict schema 与
+  ChipChain constrained parser 仍是连续两道必经边界。四角色真实验收必须直接观测实际 Provider
+  调用并确认固定顺序、恰好四次及同一 Context；观测不得保存 prompt、raw response、secret、
+  endpoint 或 header，失败仍立即停止且无 retry/fallback。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

@@ -43,7 +43,7 @@ class StructuredOutputProvider(ABC):
 
 
 class ReasoningProvider(ABC):
-    """Raw-output provider contract for the bounded Phase 9B2B engine."""
+    """Raw-output provider contract for the bounded reasoning engine."""
 
     @abstractmethod
     def generate(self, request: StructuredPromptRequest) -> str:
@@ -61,7 +61,7 @@ class MockReasoningProvider(ReasoningProvider):
     def generate(self, request: StructuredPromptRequest) -> str:
         """Generate a fixed role-specific proposal from bounded prompt references."""
 
-        if request.schema_name != "phase9b2b_reasoning_output_v1":
+        if request.schema_name != REASONING_PROVIDER_SCHEMA_NAME:
             raise ValueError("unsupported reasoning output schema")
         try:
             payload = json.loads(request.user_prompt)
@@ -365,7 +365,7 @@ class OpenAICompatibleLLMProvider(LLMProvider, StructuredOutputProvider):
 
 
 class OpenAICompatibleReasoningProvider(ReasoningProvider):
-    """Bridge the Phase 9B2B raw-output contract to the existing transport."""
+    """Bridge the current reduced semantic contract to existing transport."""
 
     def __init__(self, transport: OpenAICompatibleLLMProvider) -> None:
         if not isinstance(transport, OpenAICompatibleLLMProvider):

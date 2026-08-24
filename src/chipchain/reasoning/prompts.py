@@ -254,7 +254,7 @@ You may generate only hypothesis.description, hypothesis.confidence, each eviden
 The evidence_requests array must contain exactly one semantic proposal for each role_contract.evidence_requests item, in the same order; each proposal contains only required_fact.
 For supporting_evidence_ids, select zero or more exact IDs from available_evidence_ids; use [] when no supplied evidence supports the reasoning.
 Do not emit affected_components, attack_pattern_reference, required_evidence_types, evidence_type, priority, or dynamic_trigger_fact_reference.
-Return exactly one JSON object matching phase9b2b_reasoning_output_v1, with no Markdown code fences and no text before or after the JSON.
+Return exactly one JSON object matching {schema_name}, with no Markdown code fences and no text before or after the JSON.
 Do not add fields outside the declared output contract.
 Allowed outputs are an unverified Hypothesis proposal, EvidenceRequest proposals, and a bounded ReasoningResult proposal.
 Never output Evidence, VerificationRecord, verification status or score, vulnerability verdict, causality, BehaviorEdge, or AttackChain.
@@ -301,6 +301,7 @@ class RoleBasedReasoningPromptBuilder:
             architecture=snapshot.architecture.value,
             role=normalized_role.value,
             role_instruction=role_instruction,
+            schema_name=REASONING_PROVIDER_SCHEMA_NAME,
         )
         payload = {
             "constraints": {

@@ -176,16 +176,21 @@ RoleBasedReasoningPromptBuilder
         -> AttackHypothesis / EvidenceRequest / ReasoningResult
 ```
 
-Strict schema 直接由 `ConstrainedReasoningOutputParser` 使用的 Pydantic provider-output DTO
-生成，没有第二份手写 schema，也没有 provider-specific normalization。Chat Completions 使用
+当前 reduced semantic contract 的 schema name 是
+`phase9b2c_reasoning_semantic_output_v2`。不兼容的旧
+`phase9b2b_reasoning_output_v1` 会在 Provider 边界拒绝，不以新 DTO 解释，也不提供 legacy
+parser。Strict schema 直接由 `ConstrainedReasoningOutputParser` 使用的 Pydantic
+provider-output DTO 生成，没有第二份手写 schema，也没有 provider-specific normalization。Chat Completions 使用
 `response_format={type: json_schema, json_schema: {name, strict, schema}}`；Responses 使用当前
 SDK 明确定义的 `text.format={type: json_schema, name, strict, schema}`。
 
 验证始终为两层且顺序固定：
 
-1. Provider-side schema 只约束字段、类型、枚举、可空值、区间和 unexpected properties。
-2. ChipChain parser 再检查 context reference、affected component、attack pattern、dynamic
-   trigger、role evidence category/cardinality/priority，以及 forbidden truth fields。
+1. Provider-side v2 schema 只允许 description/confidence、request `required_fact`、reasoning
+   steps 与 supporting Evidence reference 选择，并约束类型、区间和 unexpected properties。
+2. ChipChain parser 再检查 Context Evidence reference、request cardinality 与 forbidden truth，
+   并从可信 Context/role contract 确定性绑定 component、attack pattern、dynamic trigger、
+   Evidence category/priority 等身份字段。
 
 Bridge 不创建任何 verification/domain truth。非文本响应在 transport 边界 fail closed；非法
 JSON、错误引用或 verification/vulnerability 字段继续由 constrained parser 拒绝。Provider
@@ -228,3 +233,33 @@ provider tuple 会被解析并缓存，但 session 只接收其 Hypothesis；req
 
 `qwen3.8-max` Chat Completions strict-schema acceptance 已按四次串行调用通过。输出仍只是
 reasoning，不表示 vulnerability、causality、verification 或 confirmed AttackChain。
+
+## Phase 9B2C Step 3 Contract Versioning and Release Acceptance
+
+Step 3 将 Step 2 引入的不兼容 reduced semantic DTO 显式版本化为
+`phase9b2c_reasoning_semantic_output_v2`，并在 Prompt Builder、Mock Provider、真实
+OpenAI-compatible bridge 与 strict transport schema 中统一使用该标识。旧 v1 明确 fail closed；
+不会通过兼容分支、字段修补或降级绕过当前 parser。
+
+四角色真实验收使用透明 `ObservedReasoningProvider` 包装真实 Provider。包装器在转发原请求前
+只记录 `(role, context_id)`，原样返回 delegate 响应，不捕获异常、不 retry、不解析或修复输出，
+也不保存 prompt、raw response、secret、endpoint 或 header。验收从实际记录断言：
+
+```text
+Observed provider calls: 4
+Observed execution order:
+code -> hardware -> vulnerability -> attack_chain
+Same context across roles: yes
+```
+
+若第 N 个角色失败，记录只包含截至该角色的 N 次尝试，错误继续沿现有 fail-stop 边界传播。
+必需 release acceptance 顺序如下，任一失败即停止：
+
+```bash
+.venv/bin/python scripts/check_llm_provider.py
+.venv/bin/python scripts/check_real_phase9b2c_reasoning.py
+.venv/bin/python scripts/check_real_phase9b2c_multi_agent.py
+```
+
+这些检查只确认 Provider 连接、严格推理契约和固定工作流执行；不创建 Evidence、
+VerificationRecord、vulnerability verdict 或 AttackChain，也不修改任何 verification/scoring。

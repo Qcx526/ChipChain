@@ -14,8 +14,8 @@ from chipchain.reasoning.enums import (
 )
 
 
-REASONING_PROVIDER_SCHEMA_NAME = "phase9b2b_reasoning_output_v1"
-"""Stable schema name for constrained Phase 9B2B provider output."""
+REASONING_PROVIDER_SCHEMA_NAME = "phase9b2c_reasoning_semantic_output_v2"
+"""Current reduced semantic schema for Phase 9B2C provider output."""
 
 
 class CandidateContext(DomainModel):
@@ -242,7 +242,7 @@ class PromptRequest(DomainModel):
 
 
 class StructuredPromptRequest(DomainModel):
-    """Generic strict-output request shared by typed Phase 8 agents."""
+    """Generic strict-output request carrying an explicit schema version."""
 
     candidate_id: Identifier
     architecture: Architecture

@@ -27,6 +27,8 @@ from chipchain.reasoning import (
     OpenAICompatibleReasoningProvider,
     ReasoningAgentType,
     ReasoningEngine,
+    ReasoningProvider,
+    StructuredPromptRequest,
 )
 from chipchain.runtime import RuntimeEventKind, RuntimeObservation
 from chipchain.verification import HardwareAddress, ProgramAddress
@@ -41,6 +43,30 @@ ROLE_ORDER = (
 BOUNDARY_STATEMENT = (
     "This is reasoning output only, not verification or a confirmed vulnerability."
 )
+
+
+class ObservedReasoningProvider(ReasoningProvider):
+    """Transparently record only role and context identity for each call."""
+
+    __slots__ = ("_delegate", "_observed_calls")
+
+    def __init__(self, delegate: ReasoningProvider) -> None:
+        if not isinstance(delegate, ReasoningProvider):
+            raise TypeError("observed provider delegate must be a ReasoningProvider")
+        self._delegate = delegate
+        self._observed_calls: list[tuple[str, str]] = []
+
+    @property
+    def observed_calls(self) -> tuple[tuple[str, str], ...]:
+        """Return an immutable snapshot containing no prompts or responses."""
+
+        return tuple(self._observed_calls)
+
+    def generate(self, request: StructuredPromptRequest) -> str:
+        """Record the attempted call, then return the delegate result unchanged."""
+
+        self._observed_calls.append((request.role, request.candidate_id))
+        return self._delegate.generate(request)
 
 
 def _owned_synthetic_context() -> ReasoningContext:
@@ -107,16 +133,27 @@ def main() -> int:
         from dotenv import load_dotenv
 
         load_dotenv(project_root / ".env", override=False)
-        provider = OpenAICompatibleReasoningProvider.from_env()
-        if not provider.config.json_mode:
+        transport_provider = OpenAICompatibleReasoningProvider.from_env()
+        if not transport_provider.config.json_mode:
             raise LLMProviderConfigurationError(
                 "Phase 9B2C four-role acceptance requires strict JSON mode"
             )
+        provider = ObservedReasoningProvider(transport_provider)
+        context = _owned_synthetic_context()
         session = ProviderBackedAgentWorkflow(
             engine=ReasoningEngine(provider=provider)
-        ).execute(_owned_synthetic_context())
+        ).execute(context)
         if len(session.hypotheses) != 4 or len(session.reasoning_results) != 3:
             raise RuntimeError("provider-backed session contract mismatch")
+        observed_calls = provider.observed_calls
+        observed_roles = tuple(role for role, _ in observed_calls)
+        expected_roles = tuple(role.value for role in ROLE_ORDER)
+        if observed_roles != expected_roles:
+            raise RuntimeError("observed provider execution order mismatch")
+        if len(observed_calls) != 4:
+            raise RuntimeError("observed provider call count mismatch")
+        if {context_id for _, context_id in observed_calls} != {context.id}:
+            raise RuntimeError("provider roles did not share one reasoning context")
     except ProviderBackedWorkflowExecutionError as exc:
         print("Phase 9B2C four-role reasoning: FAILED")
         print(f"Failed role: {exc.failed_role.value}")
@@ -151,10 +188,12 @@ def main() -> int:
         return 1
 
     print("Phase 9B2C four-role reasoning: SUCCESS")
-    print(f"Provider model: {provider.config.model}")
-    print(f"API style: {provider.config.api_style.value}")
-    print(f"Provider calls: {len(ROLE_ORDER)}")
-    print("Execution order: " + " -> ".join(role.value for role in ROLE_ORDER))
+    print(f"Provider model: {transport_provider.config.model}")
+    print(f"API style: {transport_provider.config.api_style.value}")
+    print(f"Observed provider calls: {len(observed_calls)}")
+    print("Observed execution order:")
+    print(" -> ".join(role for role, _ in observed_calls))
+    print("Same context across roles: yes")
     print(f"Session ID: {session.session_id}")
     print(f"Hypothesis count: {len(session.hypotheses)}")
     print(f"Evidence request count: {len(session.evidence_requests)}")

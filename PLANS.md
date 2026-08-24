@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2A 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
+Phase 0～Phase 9B2C 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
 requirements/score、能力状态和角色化定位。
 
@@ -23,6 +23,8 @@ Phase 9B2C Step 1 已将现有 OpenAI-compatible transport 桥接到单角色 Re
 通过由 parser DTO 生成的 strict JSON Schema 完成 provider 结构约束，并在真实 CODE role
 acceptance 中通过 constrained parser。Step 2 已完成 provider-backed 四角色串行 workflow、
 LLM semantic proposal 与确定性 Context/role binding 分离，并通过真实四角色 acceptance。
+Step 3 已完成 reduced semantic contract v2 版本化、旧 v1 fail-closed 拒绝、实际 Provider
+调用观测与顺序/同 Context release acceptance hardening；Phase 9B2C 已完成。
 
 Phase 9B0-R1 为 Persistence 与 Dynamic Evidence normalization 建立统一 detached snapshot
 revalidation，阻断 RuntimeTrace/backend container 的 post-validation mutation 绕过。
@@ -362,11 +364,17 @@ judgement 或 AttackChain。
 - [x] 无 prior-agent free-text chaining、retry、Provider switch 或 Mock fallback
 - [x] `qwen3.8-max` Chat Completions strict-schema 四角色真实 acceptance 通过
 
-##### Step 3+：Acceptance Hardening / Evaluation（planned / not implemented）
+##### Step 3：Contract Versioning & Release Acceptance Hardening（已完成）
 
-- [ ] 后续范围须单独设计与批准；当前没有 retry、动态路由、投票或自动 Evidence collection
+- [x] 当前 reduced semantic provider schema 版本为 `phase9b2c_reasoning_semantic_output_v2`
+- [x] 不兼容旧 `phase9b2b_reasoning_output_v1` 在 Mock 与真实 Provider bridge 均 fail closed
+- [x] prompt、strict transport schema 与 constrained parser 使用同一当前版本契约
+- [x] 透明观测器只记录 role 与 Context ID，不保存 prompt、raw response、secret 或 transport 细节
+- [x] 四角色真实验收以实际调用断言恰好四次、固定顺序及同一 Context，不依赖静态计数
+- [x] 任一角色失败时观测截止到失败角色，不 retry、不恢复、不切换 Provider、不 fallback Mock
+- [x] Provider 连接、单角色 reasoning、四角色 workflow 三项 release acceptance 按序通过
 
-Step 1～2 不创建 Evidence、VerificationRecord、AttackChain 或 vulnerability verdict，不修改
+Step 1～3 不创建 Evidence、VerificationRecord、AttackChain 或 vulnerability verdict，不修改
 Phase 9A/9B2A verification/scoring，也不改变 legacy Phase 7/8 provider 公共行为。
 
 ### Phase 10：Evaluation

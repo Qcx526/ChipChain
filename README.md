@@ -44,7 +44,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9B2A 显式 DynamicTriggerFact/Observation Binding、detached Dynamic Verification
 - Static/Dynamic 八态 aggregation、multi-record conflict 与分离 Evidence provenance
 - Phase 9B2B 非验证多 Agent reasoning contracts 与 Step 7 dynamic context binding
-- Phase 9B2C Step 1～2 strict-schema Provider bridge 与固定四角色 provider-backed workflow
+- Phase 9B2C Step 1～3 strict-schema Provider bridge、固定四角色 workflow 与 release acceptance hardening
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -99,14 +99,18 @@ Agent workflow：
 .venv/bin/python scripts/check_real_phase9b2c_reasoning.py
 ```
 
-Step 2 的显式真实验收对同一 detached Context 固定串行调用四个角色：
+Phase 9B2C release acceptance 必须按以下顺序执行；任一命令失败即停止，不重试：
 
 ```bash
+.venv/bin/python scripts/check_llm_provider.py
+.venv/bin/python scripts/check_real_phase9b2c_reasoning.py
 .venv/bin/python scripts/check_real_phase9b2c_multi_agent.py
 ```
 
-脚本只打印 provider/model 的非敏感摘要、role 和输出 ID，不打印 endpoint、prompt 或 raw
-response。输出仍须经过 constrained parser，且只表示 reasoning，不表示 verification 或漏洞确认。
+四角色脚本直接观测实际 Provider 调用，并断言调用恰好四次、顺序为 Code → Hardware →
+Vulnerability → AttackChain 且全部使用同一 detached Context。脚本只打印 provider/model 的
+非敏感摘要、role、Context/输出 ID，不打印 endpoint、prompt 或 raw response。输出仍须经过
+constrained parser，且只表示 reasoning，不表示 verification 或漏洞确认。
 
 配置字段见 `.env.example`，真实 API Key 不得写入仓库。只有这些人工脚本显式
 加载根目录 `.env`；核心 Provider 和默认 pytest 不读取该文件。
@@ -362,7 +366,10 @@ RoleBasedReasoningPromptBuilder
     -> Hypothesis / EvidenceRequest / ReasoningResult
 ```
 
-该 bridge 从 constrained parser 使用的同一 Pydantic transport DTO 生成 strict JSON Schema。
+当前 reduced semantic provider contract 标识为
+`phase9b2c_reasoning_semantic_output_v2`；不兼容的旧
+`phase9b2b_reasoning_output_v1` 不会在新 DTO 下被接受，也没有 legacy parser。该 bridge 从
+constrained parser 使用的同一 Pydantic transport DTO 生成 strict JSON Schema。
 Provider schema 是第一道结构约束；`ConstrainedReasoningOutputParser` 仍是必须执行的第二道
 语义/引用约束。Bridge 不在 schema 被拒绝时降级到 JSON Object，不解析安全语义、不绕过
 Parser，也不在失败时 fallback 到 Mock。Legacy Phase 7/8 JSON mode 行为保持不变。Step 1
@@ -375,6 +382,11 @@ description/confidence、request `required_fact`、reasoning steps 和 Context �
 Evidence ID 选择。Component、attack-pattern identity、Evidence category/priority 和 dynamic
 trigger 由 ChipChain 从 typed Context/role contract 构造；这是 authority minimization，不是
 输出修补。AttackChain 仍为 hypothesis-only，任一失败立即停止且没有 retry 或 fallback。
+
+Step 3 使用透明 Provider wrapper 只记录每次实际调用的 role 与 Context ID，用于 release
+acceptance 断言；它不保存 prompt、raw response、secret、endpoint 或 header，也不修改请求、
+响应、解析和错误传播。观测到的 Agent 一致或完整执行不会升级 confidence，更不会产生
+Evidence、VerificationRecord、vulnerability verdict 或 AttackChain。
 
 ## 文档导航
 
