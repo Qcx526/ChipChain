@@ -1,0 +1,51 @@
+{
+  "id": "hardware-trigger-signature:ad8e4d41c15292796475122a07dc276aaee34b27433b6be3c6c4243a9d676d99",
+  "architecture": "arm",
+  "execution_mode": "arm_a32",
+  "hardware_vulnerability_id": "synthetic-owned-arm-a32-hardware-trigger-001",
+  "instruction_sequence": [
+    "0xe3a00001",
+    "0xe2801001",
+    "0xe1a02001"
+  ],
+  "preconditions": {
+    "privilege_mode": "supervisor",
+    "register_preconditions": [
+      {
+        "register": "r0",
+        "value": "0x00000001"
+      },
+      {
+        "register": "r1",
+        "value": "0x00000002"
+      }
+    ],
+    "memory_preconditions": [
+      {
+        "address": "0x00001000",
+        "access_size": 4,
+        "value": "0x12345678"
+      }
+    ]
+  },
+  "expected_effect": {
+    "kind": "register_mismatch",
+    "register": "r2",
+    "expected_value": "0x00000003",
+    "observed_value": "0x00000004"
+  },
+  "proof": {
+    "kind": "golden_model_mismatch",
+    "description": "Owned synthetic differential mismatch for a contract fixture; no real ARM hardware vulnerability is claimed",
+    "reference_ids": [
+      "owned-hardware-diff-run:case-001"
+    ]
+  },
+  "metadata": {
+    "fixture": true,
+    "synthetic": true,
+    "owned": true,
+    "real_hardware_vulnerability": false,
+    "purpose": "phase9c-step1-contract-validation-only"
+  }
+}

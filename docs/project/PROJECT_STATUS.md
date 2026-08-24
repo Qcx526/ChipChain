@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-9b2b-stable`
-- Stable commit: `7477fd8426fdfddf53076ba859696d2b0f4bc995`
-- Baseline: Phase 9B2C Step 1～3 complete
+- Stable tag: `phase-9b2c-stable`
+- Stable commit: `07b059eb65d65fe47991ed8783d513be6b1d4b74`
+- Baseline: Phase 9B2C complete
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -16,19 +16,21 @@
 - Phase 9B2A explicit dynamic trigger observation verification and read-only static/dynamic aggregation
 - Phase 9B2B non-verifying Hypothesis, EvidenceRequest, ReasoningResult, knowledge retrieval, feedback, deterministic four-role mock workflow, and dynamic reasoning context binding
 - Phase 9B2C strict real-provider bridge, fixed four-role provider-backed workflow, reduced semantic v2 contract, and observed release acceptance
+- Phase 9C Step 1 exact ARM A32 HardwareTriggerSignature contract with typed preconditions, hardware failure effect, and prior proof provenance
 
 ## Current Work
 
-Phase 9B2C is complete. Its current reduced semantic provider contract is
-`phase9b2c_reasoning_semantic_output_v2`; the incompatible old v1 identifier is rejected. The fixed
-CODE → HARDWARE → VULNERABILITY → ATTACK_CHAIN provider-backed workflow makes one call per role
-over the same detached context. Typed Context and role contracts deterministically supply immutable
-bindings after provider-output validation. Real `qwen3.8-max` Chat Completions provider connection,
-single-role reasoning, and observed strict-schema four-role acceptance passed in release order.
+Phase 9C Step 1 implements the standalone ARM A32 Hardware Trigger Signature contract. It records
+prior hardware-side knowledge that an exact ordered instruction sequence plus declared machine-state
+preconditions leads to a known primary hardware failure. It does not claim firmware reachability,
+execution, triggerability, verification, or a confirmed AttackChain.
 
 ## Remaining Work
 
-- Phase 10 evaluation
+- Phase 9C Step 2 static firmware trigger matching
+- Phase 9C Step 3 dynamic trigger execution confirmation
+- Phase 9C Step 4 triggerability aggregation
+- Phase 10 evaluation, after the triggerability pipeline exists
 - Phase 11 API and visualization, only after core evaluation
 - Phase 12 additional architectures, only after the ARM loop is stable and evaluated
 

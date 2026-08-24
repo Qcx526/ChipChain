@@ -45,6 +45,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Static/Dynamic 八态 aggregation、multi-record conflict 与分离 Evidence provenance
 - Phase 9B2B 非验证多 Agent reasoning contracts 与 Step 7 dynamic context binding
 - Phase 9B2C Step 1～3 strict-schema Provider bridge、固定四角色 workflow 与 release acceptance hardening
+- Phase 9C Step 1 ARM A32 exact HardwareTriggerSignature 与硬件侧 proof provenance contract
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -388,6 +389,14 @@ acceptance 断言；它不保存 prompt、raw response、secret、endpoint 或 h
 响应、解析和错误传播。观测到的 Agent 一致或完整执行不会升级 confidence，更不会产生
 Evidence、VerificationRecord、vulnerability verdict 或 AttackChain。
 
+## Hardware Trigger Signature
+
+Phase 9C Step 1 用独立 `HardwareTriggerSignature` 保存已有硬件侧 proof 支持的
+`exact ARM A32 instruction sequence + declared machine-state preconditions -> known hardware
+failure` 合同。它不证明任何 firmware 可执行该序列或满足前置条件，也不是 Evidence、
+VerificationRecord、AttackChain 或评分输入；静态匹配、动态确认和 triggerability 聚合尚未实现。
+设计边界见 [Hardware Trigger Signatures](docs/HARDWARE_TRIGGER_SIGNATURES.md)。
+
 ## 文档导航
 
 - [项目范围](docs/PROJECT_SCOPE.md)
@@ -402,6 +411,7 @@ Evidence、VerificationRecord、vulnerability verdict 或 AttackChain。
 - [Interaction Verification](docs/INTERACTION_VERIFICATION.md)
 - [Evidence Verification](docs/EVIDENCE_VERIFICATION.md)
 - [Dynamic Interaction Verification](docs/DYNAMIC_INTERACTION_VERIFICATION.md)
+- [Hardware Trigger Signatures](docs/HARDWARE_TRIGGER_SIGNATURES.md)
 - [QEMU Passive Observer](docs/QEMU_PASSIVE_OBSERVER.md)
 - [QEMU MMIO Classification](docs/QEMU_MMIO_CLASSIFICATION.md)
 - [Role-Aware Localization](docs/ROOT_CAUSE_LOCALIZATION.md)

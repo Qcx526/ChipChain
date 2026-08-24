@@ -37,7 +37,8 @@
 ## 当前阶段限制
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
-  Phase 9B2A、Phase 9B2B Step 1～7 与 Phase 9B2C Step 1～3 已完成。Phase 9B1 已在
+  Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3 与 Phase 9C Step 1 已完成。
+  Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
   `phase-9b1-stable` 封存；Ubuntu 是 canonical development/runtime validation
@@ -80,6 +81,12 @@
   ChipChain constrained parser 仍是连续两道必经边界。四角色真实验收必须直接观测实际 Provider
   调用并确认固定顺序、恰好四次及同一 Context；观测不得保存 prompt、raw response、secret、
   endpoint 或 header，失败仍立即停止且无 retry/fallback。
+- Phase 9C Step 1 的 `HardwareTriggerSignature` 只保存已有硬件侧证明支持的
+  `exact TriggerSequence + declared Preconditions -> known hardware failure` 合同。MVP 只允许
+  ARM A32、按序且地址无关的精确 32-bit instruction words；不支持 Thumb/AArch64、模糊/掩码/
+  语义等价或其他架构。签名不是 Evidence、VerificationRecord 或 AttackChain，也不表示任何
+  firmware 可执行该触发序列，不得修改 verification status/score。Step 2 静态匹配、Step 3
+  动态确认与 Step 4 triggerability aggregation 均未实现。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

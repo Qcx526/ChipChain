@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
+Phase 0～Phase 9B2C 与 Phase 9C Step 1 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
 requirements/score、能力状态和角色化定位。
 
@@ -376,6 +376,36 @@ judgement 或 AttackChain。
 
 Step 1～3 不创建 Evidence、VerificationRecord、AttackChain 或 vulnerability verdict，不修改
 Phase 9A/9B2A verification/scoring，也不改变 legacy Phase 7/8 provider 公共行为。
+
+### Phase 9C：Hardware Trigger Signature & Triggerability Verification
+
+#### Step 1：Hardware Trigger Signature Contract（已完成）
+
+- [x] 独立 `chipchain.hardware_trigger` 包，不重载通用 VulnerabilitySample Trigger/Precondition
+- [x] ARM-only、`arm_a32`、地址无关的有序精确 32-bit instruction word contract
+- [x] exact register、A32 privilege 与 exact memory-value typed preconditions
+- [x] register mismatch / assertion violation primary hardware failure effect
+- [x] golden-model mismatch / assertion violation hardware-side proof provenance
+- [x] 从 trigger semantic contract 生成并重校验 SHA-256 ID，排除 proof/metadata wording
+- [x] owned synthetic ARM A32 JSON fixture、严格负向测试与 round-trip
+
+Step 1 只记录已有硬件侧知识 `T + P -> known hardware failure`。签名不是 Evidence、
+VerificationRecord 或 AttackChain，也不证明 firmware 可以执行 T 或满足 P。
+
+#### Step 2：Static Firmware Trigger Matching（planned / not implemented）
+
+未来在授权 ARM firmware 中精确匹配机器级触发序列；当前没有 ELF/CFG/angr/Capstone matcher、
+instruction address 或 reachability result。
+
+#### Step 3：Dynamic Trigger Execution Confirmation（planned / not implemented）
+
+未来确认 firmware runtime execution 是否实际满足序列与前置条件；当前不修改 QEMU、
+RuntimeObservation 或 Dynamic Evidence。
+
+#### Step 4：Triggerability Aggregation（planned / not implemented）
+
+未来组合既有硬件侧 proof 与 firmware static/dynamic facts；当前不创建 triggerability result、
+VerificationRecord、AttackChain status 或 score。
 
 ### Phase 10：Evaluation
 
