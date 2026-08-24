@@ -50,6 +50,7 @@ from chipchain.reasoning.models import (
     CandidateSemanticAssessment,
     LLMProviderConfig,
     PromptRequest,
+    REASONING_PROVIDER_SCHEMA_NAME,
     StructuredPromptRequest,
     RetrievalResult,
     RetrievedKnowledgeChunk,
@@ -63,6 +64,7 @@ from chipchain.reasoning.provider import (
     LLMProvider,
     MockReasoningProvider,
     OpenAICompatibleLLMProvider,
+    OpenAICompatibleReasoningProvider,
     ReasoningProvider,
     StructuredOutputProvider,
 )
@@ -80,6 +82,7 @@ from chipchain.reasoning.reasoning_memory import (
 from chipchain.reasoning.parser import (
     ConstrainedReasoningOutputParser,
     ParsedReasoningContracts,
+    reasoning_provider_output_json_schema,
 )
 from chipchain.reasoning.retrieval import (
     KnowledgeRetriever,
@@ -125,6 +128,7 @@ __all__ = [
     "MockReasoningProvider",
     "ObservationFeedbackRelation",
     "OpenAICompatibleLLMProvider",
+    "OpenAICompatibleReasoningProvider",
     "PromptRequest",
     "StructuredOutputProvider",
     "StructuredPromptRequest",
@@ -136,6 +140,7 @@ __all__ = [
     "ReasoningObservation",
     "ReasoningResult",
     "REASONING_RESULT_BOUNDARY",
+    "REASONING_PROVIDER_SCHEMA_NAME",
     "RetrievalError",
     "RetrievalResult",
     "RetrievedKnowledgeChunk",
@@ -149,5 +154,6 @@ __all__ = [
     "reasoning_memory_id",
     "reasoning_observation_id",
     "reasoning_role_contract",
+    "reasoning_provider_output_json_schema",
     "ParsedReasoningContracts",
 ]

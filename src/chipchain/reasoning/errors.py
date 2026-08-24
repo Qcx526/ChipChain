@@ -38,3 +38,7 @@ class LLMProviderResponseError(ReasoningError):
 
 class LLMOutputValidationError(ReasoningError):
     """Raised when structured output cites facts absent from its input."""
+
+    def __init__(self, message: str, *, stage: str = "output_schema") -> None:
+        super().__init__(message)
+        self.stage = stage

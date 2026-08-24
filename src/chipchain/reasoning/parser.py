@@ -59,7 +59,7 @@ _FORBIDDEN_OUTPUT_FIELDS = frozenset(
 class _HypothesisProposal(DomainModel):
     description: Identifier
     affected_components: list[Identifier] = Field(min_length=1)
-    attack_pattern_reference: Identifier | None = None
+    attack_pattern_reference: Identifier | None
     required_evidence_types: list[EvidenceCategory] = Field(min_length=1)
     confidence: UnitInterval
 
@@ -74,13 +74,13 @@ class _HypothesisProposal(DomainModel):
 class _EvidenceRequestProposal(DomainModel):
     evidence_type: EvidenceCategory
     required_fact: Identifier
-    dynamic_trigger_fact_reference: Identifier | None = None
+    dynamic_trigger_fact_reference: Identifier | None
     priority: EvidencePriority
 
 
 class _ReasoningResultProposal(DomainModel):
     reasoning_steps: list[Identifier] = Field(min_length=1)
-    supporting_evidence_ids: list[Identifier] = Field(default_factory=list)
+    supporting_evidence_ids: list[Identifier]
     confidence: UnitInterval
 
     @field_validator("reasoning_steps", "supporting_evidence_ids")
@@ -95,6 +95,12 @@ class _ReasoningProviderOutput(DomainModel):
     hypothesis: _HypothesisProposal
     evidence_requests: list[_EvidenceRequestProposal] = Field(min_length=1)
     reasoning_result: _ReasoningResultProposal
+
+
+def reasoning_provider_output_json_schema() -> dict[str, object]:
+    """Derive a detached strict-output schema from the parser's transport DTO."""
+
+    return _ReasoningProviderOutput.model_json_schema(mode="validation")
 
 
 class ConstrainedReasoningOutputParser:
@@ -112,7 +118,10 @@ class ConstrainedReasoningOutputParser:
         from chipchain.agents.base import ReasoningContext
 
         if not isinstance(raw_output, str):
-            raise LLMOutputValidationError("reasoning provider output must be text")
+            raise LLMOutputValidationError(
+                "reasoning provider output must be text",
+                stage="response_content",
+            )
         if not isinstance(context, ReasoningContext):
             raise TypeError("parser context must be a ReasoningContext")
         snapshot = ReasoningContext.model_validate(context.model_dump(mode="json"))
@@ -122,18 +131,21 @@ class ConstrainedReasoningOutputParser:
             payload = json.loads(raw_output)
         except json.JSONDecodeError:
             raise LLMOutputValidationError(
-                "reasoning provider output is not valid JSON"
+                "reasoning provider output is not valid JSON",
+                stage="json_parse",
             ) from None
         if not isinstance(payload, dict):
             raise LLMOutputValidationError(
-                "reasoning provider output must be one JSON object"
+                "reasoning provider output must be one JSON object",
+                stage="output_schema",
             )
         _reject_forbidden_fields(payload)
         try:
             proposal = _ReasoningProviderOutput.model_validate(payload)
         except ValidationError:
             raise LLMOutputValidationError(
-                "reasoning provider output violates the constrained schema"
+                "reasoning provider output violates the constrained schema",
+                stage="output_schema",
             ) from None
 
         expected_requests = {
@@ -143,20 +155,23 @@ class ConstrainedReasoningOutputParser:
         proposed_types = proposal.hypothesis.required_evidence_types
         if set(proposed_types) != set(expected_requests):
             raise LLMOutputValidationError(
-                "hypothesis evidence categories violate role isolation"
+                "hypothesis evidence categories violate role isolation",
+                stage="role_evidence_category",
             )
         if sorted(proposal.hypothesis.affected_components) != (
             snapshot.affected_components
         ):
             raise LLMOutputValidationError(
-                "hypothesis affected components are outside reasoning context"
+                "hypothesis affected components are outside reasoning context",
+                stage="affected_component_reference",
             )
         if (
             proposal.hypothesis.attack_pattern_reference
             != snapshot.attack_pattern_reference
         ):
             raise LLMOutputValidationError(
-                "hypothesis attack-pattern reference mismatch"
+                "hypothesis attack-pattern reference mismatch",
+                stage="attack_pattern_reference",
             )
 
         hypothesis = AttackHypothesis.create(
@@ -187,7 +202,8 @@ class ConstrainedReasoningOutputParser:
         ).difference(snapshot.available_evidence_ids)
         if unknown_evidence_ids:
             raise LLMOutputValidationError(
-                "reasoning result cites evidence outside reasoning context"
+                "reasoning result cites evidence outside reasoning context",
+                stage="evidence_reference",
             )
         result = ReasoningResult.create(
             hypothesis,
@@ -216,12 +232,14 @@ class ConstrainedReasoningOutputParser:
     ) -> list[EvidenceRequest]:
         if len(proposals) != len(expected_requests):
             raise LLMOutputValidationError(
-                "evidence requests violate role contract cardinality"
+                "evidence requests violate role contract cardinality",
+                stage="request_cardinality",
             )
         proposal_types = [proposal.evidence_type for proposal in proposals]
         if len(proposal_types) != len(set(proposal_types)):
             raise LLMOutputValidationError(
-                "evidence request categories must be unique"
+                "evidence request categories must be unique",
+                stage="role_evidence_category",
             )
         requests: list[EvidenceRequest] = []
         for proposal in proposals:
@@ -229,13 +247,15 @@ class ConstrainedReasoningOutputParser:
                 request_contract = expected_requests[proposal.evidence_type]
             except KeyError:
                 raise LLMOutputValidationError(
-                    "evidence request violates role isolation"
+                    "evidence request violates role isolation",
+                    stage="role_evidence_category",
                 ) from None
             if proposal.priority is not EvidencePriority(
                 request_contract["priority"]
             ):
                 raise LLMOutputValidationError(
-                    "evidence request priority violates role contract"
+                    "evidence request priority violates role contract",
+                    stage="request_priority",
                 )
             permits_trigger = bool(
                 request_contract["use_dynamic_trigger_reference"]
@@ -244,7 +264,8 @@ class ConstrainedReasoningOutputParser:
                 proposal.dynamic_trigger_fact_reference is not None
             ):
                 raise LLMOutputValidationError(
-                    "evidence request leaked a dynamic trigger reference across roles"
+                    "evidence request leaked a dynamic trigger reference across roles",
+                    stage="dynamic_trigger_reference",
                 )
             if (
                 proposal.dynamic_trigger_fact_reference is not None
@@ -252,7 +273,8 @@ class ConstrainedReasoningOutputParser:
                 != context.dynamic_trigger_fact_reference
             ):
                 raise LLMOutputValidationError(
-                    "evidence request cites an unknown dynamic trigger fact"
+                    "evidence request cites an unknown dynamic trigger fact",
+                    stage="dynamic_trigger_reference",
                 )
             requests.append(
                 EvidenceRequest.create(
@@ -282,7 +304,8 @@ def _reject_forbidden_fields(payload: object) -> None:
             )
             if normalized_key in _FORBIDDEN_OUTPUT_FIELDS:
                 raise LLMOutputValidationError(
-                    "reasoning provider output contains a forbidden truth field"
+                    "reasoning provider output contains a forbidden truth field",
+                    stage="forbidden_truth_field",
                 )
             _reject_forbidden_fields(nested)
     elif isinstance(payload, list):

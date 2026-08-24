@@ -14,6 +14,10 @@ from chipchain.reasoning.enums import (
 )
 
 
+REASONING_PROVIDER_SCHEMA_NAME = "phase9b2b_reasoning_output_v1"
+"""Stable schema name for constrained Phase 9B2B provider output."""
+
+
 class CandidateContext(DomainModel):
     """Read-only resolved view of facts referenced by a CrossGraphCandidate."""
 

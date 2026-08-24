@@ -19,6 +19,9 @@ Phase 9B2A 已完成显式 Dynamic Trigger Fact/Observation Binding、detached r
 observation verification 与只读 Static/Dynamic aggregation。Phase 9B2B Step 1～7 已完成
 非验证 reasoning contracts、固定多 Agent 编排、离线知识检索、Mock reasoning engine、
 feedback loop 与 dynamic evidence context binding。
+Phase 9B2C Step 1 已将现有 OpenAI-compatible transport 桥接到单角色 ReasoningEngine，
+通过由 parser DTO 生成的 strict JSON Schema 完成 provider 结构约束，并在真实 CODE role
+acceptance 中通过 constrained parser；后续真实四角色编排仍未实现。
 
 Phase 9B0-R1 为 Persistence 与 Dynamic Evidence normalization 建立统一 detached snapshot
 revalidation，阻断 RuntimeTrace/backend container 的 post-validation mutation 绕过。
@@ -327,6 +330,36 @@ Step 7 不修改 RuntimeEvidence、Phase 9A-R verification 或 scoring。Runtime
 自动进入 `supporting_evidence_ids`，knowledge hit 也不会升级为 Evidence。多 Agent 输出仍只有
 Hypothesis、EvidenceRequest 和 ReasoningResult；不生成 VerificationRecord、vulnerability
 judgement 或 AttackChain。
+
+#### Phase 9B2C：Real LLM Reasoning Integration & Acceptance
+
+##### Step 1：Real LLM Reasoning Provider Bridge / Strict Schema Hardening（已完成）
+
+- [x] `OpenAICompatibleReasoningProvider` 实现现有 `ReasoningProvider` contract
+- [x] 复用 `OpenAICompatibleLLMProvider` 的 Chat Completions / Responses transport
+- [x] 复用既有 environment、timeout、JSON mode、reasoning effort 与 token limit 配置
+- [x] Provider 只返回 raw text，并强制经过 `ConstrainedReasoningOutputParser`
+- [x] strict JSON Schema 由 parser 使用的同一 Pydantic transport DTO 确定性生成
+- [x] Chat Completions 使用 `response_format.type=json_schema`；Responses 使用 SDK 明确定义的
+  `text.format.type=json_schema`，均设置 `strict=true`
+- [x] Provider schema 只承担结构约束；context reference、role isolation 与 forbidden truth
+  仍由 parser fail closed
+- [x] strict schema transport 失败时不降级到 JSON Object、不 fallback 到 Mock
+- [x] fake SDK client 离线覆盖两种协议、错误边界、legacy compatibility 与 CODE role 闭环
+- [x] 提供显式单角色真实 Provider smoke script，不自动加载 `.env` 到核心库
+- [x] `qwen3.8-max` Chat Completions 真实 CODE role acceptance 通过
+
+##### Step 2：Real Four-Role Workflow Integration（planned / not implemented）
+
+- [ ] 将真实 Provider 接入 Code → Hardware → Vulnerability → AttackChain workflow
+- [ ] 定义四次调用的失败隔离、审计与 acceptance；本步骤未实现
+
+##### Step 3+：Acceptance Hardening / Evaluation（planned / not implemented）
+
+- [ ] 后续范围须单独设计与批准；当前没有 retry、动态路由、投票或自动 Evidence collection
+
+Step 1 不创建 Evidence、VerificationRecord、AttackChain 或 vulnerability verdict，不修改
+Phase 9A/9B2A verification/scoring，也不改变 legacy Phase 7/8 provider 公共行为。
 
 ### Phase 10：Evaluation
 

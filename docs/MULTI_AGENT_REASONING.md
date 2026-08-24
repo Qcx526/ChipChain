@@ -157,3 +157,45 @@ JSON→Pydantic 校验，且不复制三套 HTTP Client。
 ```
 
 脚本显式 `load_dotenv(..., override=False)`，不打印 secret、endpoint、Prompt 或响应原文。
+
+## Phase 9B2C Step 1 Provider Bridge
+
+Phase 9B2C Step 1 新增 `OpenAICompatibleReasoningProvider`，将 Phase 9B2B 的 raw-text
+`ReasoningProvider` contract 组合到既有 `OpenAICompatibleLLMProvider` transport。它不实现
+第二套 HTTP/OpenAI client；Chat Completions、Responses、timeout、reasoning effort、
+completion limit 与错误边界全部复用既有实现。Phase 9B2C reasoning JSON mode 使用 strict
+JSON Schema；legacy Phase 7/8 JSON mode 仍使用 JSON Object。
+
+```text
+RoleBasedReasoningPromptBuilder
+        -> StructuredPromptRequest
+        -> OpenAICompatibleReasoningProvider.generate()
+        -> provider-side strict JSON Schema
+        -> raw provider text
+        -> ConstrainedReasoningOutputParser
+        -> AttackHypothesis / EvidenceRequest / ReasoningResult
+```
+
+Strict schema 直接由 `ConstrainedReasoningOutputParser` 使用的 Pydantic provider-output DTO
+生成，没有第二份手写 schema，也没有 provider-specific normalization。Chat Completions 使用
+`response_format={type: json_schema, json_schema: {name, strict, schema}}`；Responses 使用当前
+SDK 明确定义的 `text.format={type: json_schema, name, strict, schema}`。
+
+验证始终为两层且顺序固定：
+
+1. Provider-side schema 只约束字段、类型、枚举、可空值、区间和 unexpected properties。
+2. ChipChain parser 再检查 context reference、affected component、attack pattern、dynamic
+   trigger、role evidence category/cardinality/priority，以及 forbidden truth fields。
+
+Bridge 不创建任何 verification/domain truth。非文本响应在 transport 边界 fail closed；非法
+JSON、错误引用或 verification/vulnerability 字段继续由 constrained parser 拒绝。Provider
+拒绝 schema 时不会降级到 JSON Object，也没有 Mock fallback。
+
+Step 1 的真实 smoke 仅执行一次 CODE role：
+
+```bash
+.venv/bin/python scripts/check_real_phase9b2c_reasoning.py
+```
+
+真实四角色 Code → Hardware → Vulnerability → AttackChain workflow 接入在 Step 1 中明确
+未实现。Legacy Phase 8 `multi_agent` 实现保持独立且兼容。

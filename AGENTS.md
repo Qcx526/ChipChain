@@ -37,7 +37,8 @@
 ## 当前阶段限制
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
-  Phase 9B2A 与 Phase 9B2B Step 1～7 已完成。Phase 9B1 已在 Ubuntu 22.04、QEMU 11.0.3、ARM32
+  Phase 9B2A、Phase 9B2B Step 1～7 与 Phase 9B2C Step 1 已完成。Phase 9B1 已在
+  Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
   `phase-9b1-stable` 封存；Ubuntu 是 canonical development/runtime validation
   环境，Windows 只承担 secondary portability regression。Verification 顶层 identity 是
@@ -61,6 +62,12 @@
   ReasoningContext，但 observation/knowledge 只是 reasoning input，不是 verified Evidence。
   Agent 一致、reasoning confidence 或 feedback 都不得产生 VerificationRecord、
   vulnerability verdict 或 AttackChain。
+- Phase 9B2C Step 1 允许真实 OpenAI-compatible Provider 仅通过固定的
+  `Prompt -> ReasoningProvider -> ConstrainedReasoningOutputParser` 边界驱动单角色
+  `ReasoningEngine`。Provider-side strict JSON Schema 只是第一道结构约束，不能替代
+  ChipChain Parser 的语义/引用校验。真实输出仍只是 reasoning，不是 verification；不得绕过
+  Parser、从 `json_schema` 自动降级到 `json_object`、fallback 到 Mock 或接入四 Agent
+  workflow。默认 pytest 继续只用 Mock/fake client，保持离线。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

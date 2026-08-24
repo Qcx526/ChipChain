@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 import json
 import os
 from abc import ABC, abstractmethod
@@ -19,8 +20,10 @@ from chipchain.reasoning.models import (
     CandidateSemanticAssessment,
     LLMProviderConfig,
     PromptRequest,
+    REASONING_PROVIDER_SCHEMA_NAME,
     StructuredPromptRequest,
 )
+from chipchain.reasoning.parser import reasoning_provider_output_json_schema
 from chipchain.reasoning.prompts import reasoning_role_contract
 from chipchain.models.common import DomainModel
 
@@ -252,6 +255,17 @@ class OpenAICompatibleLLMProvider(LLMProvider, StructuredOutputProvider):
     ) -> StructuredModelT:
         """Make one configured protocol call and validate its declared model."""
 
+        content = self.generate_text(request)
+        return _parse_structured_output(content, output_type)
+
+    def generate_text(
+        self,
+        request: StructuredPromptRequest,
+        *,
+        strict_json_schema: Mapping[str, object] | None = None,
+    ) -> str:
+        """Make one configured protocol call and return its text unchanged."""
+
         try:
             if self._config.api_style is LLMAPIStyle.RESPONSES:
                 kwargs: dict[str, Any] = {
@@ -262,7 +276,16 @@ class OpenAICompatibleLLMProvider(LLMProvider, StructuredOutputProvider):
                     ],
                     "timeout": self._config.timeout,
                 }
-                if self._config.json_mode:
+                if strict_json_schema is not None:
+                    kwargs["text"] = {
+                        "format": {
+                            "type": "json_schema",
+                            "name": request.schema_name,
+                            "strict": True,
+                            "schema": deepcopy(dict(strict_json_schema)),
+                        }
+                    }
+                elif self._config.json_mode:
                     kwargs["text"] = {"format": {"type": "json_object"}}
                 if self._config.reasoning_effort is not None:
                     kwargs["reasoning"] = {
@@ -283,7 +306,16 @@ class OpenAICompatibleLLMProvider(LLMProvider, StructuredOutputProvider):
                     ],
                     "timeout": self._config.timeout,
                 }
-                if self._config.json_mode:
+                if strict_json_schema is not None:
+                    kwargs["response_format"] = {
+                        "type": "json_schema",
+                        "json_schema": {
+                            "name": request.schema_name,
+                            "strict": True,
+                            "schema": deepcopy(dict(strict_json_schema)),
+                        },
+                    }
+                elif self._config.json_mode:
                     kwargs["response_format"] = {"type": "json_object"}
                 if self._config.reasoning_effort is not None:
                     kwargs["extra_body"] = {
@@ -295,7 +327,7 @@ class OpenAICompatibleLLMProvider(LLMProvider, StructuredOutputProvider):
                     )
                 response = self._client.chat.completions.create(**kwargs)
                 content = response.choices[0].message.content
-            return _parse_structured_output(content, output_type)
+            return _require_text_output(content)
         except LLMProviderResponseError:
             raise
         except Exception as exc:
@@ -346,6 +378,54 @@ class OpenAICompatibleLLMProvider(LLMProvider, StructuredOutputProvider):
         return raw_response.parse()
 
 
+class OpenAICompatibleReasoningProvider(ReasoningProvider):
+    """Bridge the Phase 9B2B raw-output contract to the existing transport."""
+
+    def __init__(self, transport: OpenAICompatibleLLMProvider) -> None:
+        if not isinstance(transport, OpenAICompatibleLLMProvider):
+            raise TypeError(
+                "reasoning provider bridge requires OpenAICompatibleLLMProvider"
+            )
+        self._transport = transport
+
+    @property
+    def config(self) -> LLMProviderConfig:
+        """Return the transport's detached, non-secret configuration."""
+
+        return self._transport.config
+
+    @classmethod
+    def from_env(
+        cls,
+        environment: Mapping[str, str] | None = None,
+        *,
+        client: Any | None = None,
+    ) -> "OpenAICompatibleReasoningProvider":
+        """Build the bridge from the existing explicit environment contract."""
+
+        return cls(
+            OpenAICompatibleLLMProvider.from_env(
+                environment,
+                client=client,
+            )
+        )
+
+    def generate(self, request: StructuredPromptRequest) -> str:
+        """Return provider text for the existing constrained reasoning parser."""
+
+        if request.schema_name != REASONING_PROVIDER_SCHEMA_NAME:
+            raise ValueError("unsupported reasoning output schema")
+        strict_schema = (
+            reasoning_provider_output_json_schema()
+            if self._transport.config.json_mode
+            else None
+        )
+        return self._transport.generate_text(
+            request,
+            strict_json_schema=strict_schema,
+        )
+
+
 def _parse_boolean(value: str) -> bool:
     normalized = value.strip().lower()
     if normalized == "true":
@@ -359,13 +439,9 @@ def _parse_structured_output(
     content: object,
     output_type: type[StructuredModelT],
 ) -> StructuredModelT:
-    if not isinstance(content, str):
-        raise LLMProviderResponseError(
-            "LLM provider returned non-text output",
-            stage="response_content",
-        )
+    text = _require_text_output(content)
     try:
-        payload = json.loads(content)
+        payload = json.loads(text)
     except json.JSONDecodeError:
         raise LLMProviderResponseError(
             "LLM provider returned invalid structured output JSON",
@@ -378,6 +454,15 @@ def _parse_structured_output(
             "LLM provider returned invalid structured output JSON",
             stage="pydantic_validation",
         ) from None
+
+
+def _require_text_output(content: object) -> str:
+    if not isinstance(content, str):
+        raise LLMProviderResponseError(
+            "LLM provider returned non-text output",
+            stage="response_content",
+        )
+    return content
 
 
 def _status_code(exception: Exception) -> int | None:

@@ -44,6 +44,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9B2A 显式 DynamicTriggerFact/Observation Binding、detached Dynamic Verification
 - Static/Dynamic 八态 aggregation、multi-record conflict 与分离 Evidence provenance
 - Phase 9B2B 非验证多 Agent reasoning contracts 与 Step 7 dynamic context binding
+- Phase 9B2C Step 1 单角色 OpenAI-compatible `ReasoningProvider` bridge
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -89,6 +90,17 @@ Phase 7 的真实 OpenAI-compatible 客户端同样是可选能力；默认测�
 .\.venv\Scripts\python scripts\check_real_reasoning.py
 .\.venv\Scripts\python scripts\check_real_multi_agent.py
 ```
+
+Phase 9B2C Step 1 可显式执行一个 CODE role 的真实 Provider smoke；它要求目标
+provider/model 支持 OpenAI-compatible strict JSON Schema structured output，且不会启动四
+Agent workflow：
+
+```bash
+.venv/bin/python scripts/check_real_phase9b2c_reasoning.py
+```
+
+脚本只打印 provider/model 的非敏感摘要、role 和输出 ID，不打印 endpoint、prompt 或 raw
+response。输出仍须经过 constrained parser，且只表示 reasoning，不表示 verification 或漏洞确认。
 
 配置字段见 `.env.example`，真实 API Key 不得写入仓库。只有这些人工脚本显式
 加载根目录 `.env`；核心 Provider 和默认 pytest 不读取该文件。
@@ -329,6 +341,26 @@ Phase 9B2B Step 7 将已有 `CrossLayerInteraction`、detached `RuntimeObservati
 Agent 输出仍限于 `Hypothesis`、`EvidenceRequest` 和 `ReasoningResult`。该绑定
 不修改 RuntimeEvidence、Phase 9A-R verification/scoring，也不产生 VerificationRecord、
 vulnerability judgement 或 AttackChain。
+
+## Real Reasoning Provider Bridge
+
+Phase 9B2C Step 1 通过 `OpenAICompatibleReasoningProvider` 复用已有 Phase 7/8
+`OpenAICompatibleLLMProvider` transport。固定数据流为：
+
+```text
+RoleBasedReasoningPromptBuilder
+    -> StructuredPromptRequest
+    -> OpenAICompatibleReasoningProvider
+    -> raw JSON text
+    -> ConstrainedReasoningOutputParser
+    -> Hypothesis / EvidenceRequest / ReasoningResult
+```
+
+该 bridge 从 constrained parser 使用的同一 Pydantic transport DTO 生成 strict JSON Schema。
+Provider schema 是第一道结构约束；`ConstrainedReasoningOutputParser` 仍是必须执行的第二道
+语义/引用约束。Bridge 不在 schema 被拒绝时降级到 JSON Object，不解析安全语义、不绕过
+Parser，也不在失败时 fallback 到 Mock。Legacy Phase 7/8 JSON mode 行为保持不变。Step 1
+只支持显式单角色 `ReasoningEngine` smoke；真实四 Agent workflow 尚未接入。
 
 ## 文档导航
 
