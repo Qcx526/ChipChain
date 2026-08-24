@@ -1,0 +1,48 @@
+{
+  "fixture_type": "owned_synthetic",
+  "real_hardware_vulnerability": false,
+  "architecture": "ARM",
+  "execution_mode": "arm_a32",
+  "format": "ELF32 little-endian ARM A32",
+  "entry_point": "0x00010000",
+  "signature_id": "hardware-trigger-signature:ad8e4d41c15292796475122a07dc276aaee34b27433b6be3c6c4243a9d676d99",
+  "expected_match": {
+    "function": "synthetic_trigger_function",
+    "function_address": "0x00010000",
+    "instruction_addresses": [
+      "0x00010000",
+      "0x00010004",
+      "0x00010008"
+    ],
+    "instruction_words": [
+      "0xe3a00001",
+      "0xe2801001",
+      "0xe1a02001"
+    ],
+    "basic_block_path": [
+      "0x00010000"
+    ]
+  },
+  "near_miss": {
+    "name": "synthetic_near_miss",
+    "address": "0x00010010",
+    "size": 16,
+    "words": [
+      "0xe3a00001",
+      "0xe2801002",
+      "0xe1a02001",
+      "0xe12fff1e"
+    ]
+  },
+  "non_executable_copy": {
+    "section": ".data",
+    "address": "0x00020000",
+    "file_offset": "0x00000200",
+    "instruction_words": [
+      "0xe3a00001",
+      "0xe2801001",
+      "0xe1a02001"
+    ]
+  },
+  "artifact_sha256": "68a53d1b8acd389f3e4673f4b6250b62980a45a77a3eefce1b3cbe05a200dabb"
+}

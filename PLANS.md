@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C 与 Phase 9C Step 1 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
+Phase 0～Phase 9B2C 与 Phase 9C Step 1～2 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
 requirements/score、能力状态和角色化定位。
 
@@ -392,10 +392,21 @@ Phase 9A/9B2A verification/scoring，也不改变 legacy Phase 7/8 provider 公�
 Step 1 只记录已有硬件侧知识 `T + P -> known hardware failure`。签名不是 Evidence、
 VerificationRecord 或 AttackChain，也不证明 firmware 可以执行 T 或满足 P。
 
-#### Step 2：Static Firmware Trigger Matching（planned / not implemented）
+#### Step 2：Static Firmware Trigger Matching（已完成）
 
-未来在授权 ARM firmware 中精确匹配机器级触发序列；当前没有 ELF/CFG/angr/Capstone matcher、
-instruction address 或 reachability result。
+- [x] backend-neutral `FirmwareTriggerMatcher` detached input revalidation contract
+- [x] 私有 function/block/decoded-instruction CFG view，不扩展 `ProgramAnalysisResult`
+- [x] exact ordered A32 word finite matching，支持同 block 与合法 same-function successor
+- [x] function-entry structural reachability、loop state dedup 与 deterministic multi-match sorting
+- [x] `StaticInstructionLocation`、content-bound `StaticFirmwareTriggerMatch` 与 zero-match result
+- [x] artifact actual ELF bytes SHA-256 binding，不序列化 host path
+- [x] 可选 lazy `AngrFirmwareTriggerMatcher`：main-object executable A32 only、CFGFast normalize
+- [x] owned synthetic ELF：一个 exact executable occurrence、一个 near miss、一个 `.data` raw copy
+- [x] backend-neutral 离线测试与真实 angr owned-ELF integration
+
+Step 2 只确认 firmware 中存在 exact T 的 function-local structural CFG occurrence。它不确认实际
+runtime execution、具体输入可行性或任何 register/memory/privilege precondition，不创建 Evidence、
+VerificationRecord、AttackChain、vulnerability/triggerability verdict 或 score。
 
 #### Step 3：Dynamic Trigger Execution Confirmation（planned / not implemented）
 

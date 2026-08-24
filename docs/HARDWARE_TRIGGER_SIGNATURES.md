@@ -91,8 +91,58 @@ recomputes the identity and rejects a retained ID attached to modified trigger s
 Its instruction words are harmless A32 arithmetic/move material, and its claimed mismatch is
 synthetic. The fixture does not assert that real ARM hardware is vulnerable.
 
+## Firmware Static Matching
+
+Phase 9C Step 2 adds a separate static relation:
+
+```text
+authorized ARM ELF
+        |
+decoded executable A32 instructions
+        |
+function-local structurally reachable CFG path
+        v
+exact occurrence of TriggerSequence T
+```
+
+`FirmwareTriggerMatcher` first detached-revalidates the `ProgramArtifact` and
+`HardwareTriggerSignature`. `AngrFirmwareTriggerMatcher` then hashes the actual ELF bytes, loads only
+the main object with `auto_load_libs=False`, recovers `CFGFast(normalize=True)`, and builds a private
+function/block/instruction view. Public callers never receive raw angr objects, and the existing
+`ProgramAnalysisResult`/`AngrAnalyzer.analyze()` contracts remain unchanged.
+
+Matching compares logical uint32 words extracted from decoded 4-byte A32 instructions using the
+loaded architecture's instruction endianness. It never compares mnemonic or operand text and never
+searches raw ELF bytes. Blocks must be executable and explicitly non-Thumb. Identical bytes in data,
+rodata, symbols, padding or strings cannot enter the matching view.
+
+Within a block, matched instructions are consecutive. Across blocks, the next instruction must be
+the first instruction of a same-function sequence successor. The start block must be structurally
+reachable from that recovered function's entry. This is not global boot-entry reachability and not
+concrete input feasibility. Calls are not followed into callees; the bounded state walk consumes at
+most the finite signature length and deduplicates loop states.
+
+`StaticFirmwareTriggerMatch` records artifact ID/content SHA-256, signature/vulnerability references,
+ARM/A32 identity, function address/name, exact instruction locations and ordered basic-block path.
+Its deterministic ID excludes display-name wording, metadata, host path, timestamps, backend version
+and diagnostics. A zero-match result is valid and means only that this matcher established no exact
+static occurrence.
+
+The owned fixture in `tests/fixtures/phase9c/arm_a32_trigger_match/` contains one executable exact
+occurrence, one changed-word near miss and an identical raw byte copy in non-executable `.data`.
+
+The following distinctions are immutable:
+
+```text
+static CFG match != actual runtime execution
+static CFG match != concrete input/path feasibility
+static CFG match != register/memory/privilege preconditions satisfied
+static CFG match != hardware failure reproduced
+static CFG match != vulnerability or triggerability verified
+```
+
 ## Explicit Non-Goals
 
-Step 1 implements no firmware scanning, disassembly matching, CFG reachability, static match result,
-runtime instruction trace, dynamic sequence match, triggerability aggregation, VerificationRecord,
-AttackChain projection, score, LLM matching, exploit generation or Phase 10 evaluation.
+Step 2 implements no runtime instruction trace, dynamic sequence match, precondition evaluation,
+triggerability aggregation, Evidence creation, VerificationRecord, AttackChain projection, score,
+LLM matching, exploit generation or Phase 10 evaluation.

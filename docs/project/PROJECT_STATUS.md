@@ -17,17 +17,18 @@
 - Phase 9B2B non-verifying Hypothesis, EvidenceRequest, ReasoningResult, knowledge retrieval, feedback, deterministic four-role mock workflow, and dynamic reasoning context binding
 - Phase 9B2C strict real-provider bridge, fixed four-role provider-backed workflow, reduced semantic v2 contract, and observed release acceptance
 - Phase 9C Step 1 exact ARM A32 HardwareTriggerSignature contract with typed preconditions, hardware failure effect, and prior proof provenance
+- Phase 9C Step 2 content-bound exact A32 executable sequence matching over function-local structural CFG paths
 
 ## Current Work
 
-Phase 9C Step 1 implements the standalone ARM A32 Hardware Trigger Signature contract. It records
-prior hardware-side knowledge that an exact ordered instruction sequence plus declared machine-state
-preconditions leads to a known primary hardware failure. It does not claim firmware reachability,
-execution, triggerability, verification, or a confirmed AttackChain.
+Phase 9C Step 2 is complete. It establishes only whether an authorized ARM ELF contains an exact
+decoded A32 trigger sequence on a recovered, function-local, structurally reachable executable CFG
+path. Results bind actual artifact bytes by SHA-256 and exclude raw data matching. Static matches do
+not establish runtime execution, concrete path feasibility, precondition satisfaction, hardware
+failure reproduction, triggerability, verification, or a confirmed AttackChain.
 
 ## Remaining Work
 
-- Phase 9C Step 2 static firmware trigger matching
 - Phase 9C Step 3 dynamic trigger execution confirmation
 - Phase 9C Step 4 triggerability aggregation
 - Phase 10 evaluation, after the triggerability pipeline exists

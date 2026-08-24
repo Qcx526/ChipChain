@@ -37,7 +37,7 @@
 ## 当前阶段限制
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
-  Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3 与 Phase 9C Step 1 已完成。
+  Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3 与 Phase 9C Step 1～2 已完成。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -85,8 +85,15 @@
   `exact TriggerSequence + declared Preconditions -> known hardware failure` 合同。MVP 只允许
   ARM A32、按序且地址无关的精确 32-bit instruction words；不支持 Thumb/AArch64、模糊/掩码/
   语义等价或其他架构。签名不是 Evidence、VerificationRecord 或 AttackChain，也不表示任何
-  firmware 可执行该触发序列，不得修改 verification status/score。Step 2 静态匹配、Step 3
-  动态确认与 Step 4 triggerability aggregation 均未实现。
+  firmware 可执行该触发序列，不得修改 verification status/score。签名自身不执行 firmware
+  matching；Step 3 动态确认与 Step 4 triggerability aggregation 均未实现。
+- Phase 9C Step 2 只从授权 ARM ELF 的 decoded executable A32 instructions 中确认 exact
+  trigger sequence 位于 function-local、从函数入口结构可达的 CFG path。禁止 raw ELF byte
+  scan、mnemonic/fuzzy/LLM matching、跨函数拼接或 Thumb 推断；artifact bytes 必须绑定 SHA-256。
+  `StaticFirmwareTriggerMatch` 只是结构化静态分析事实，不表示实际 runtime execution、输入路径
+  可行、register/memory/privilege preconditions 已满足、硬件失败重现、漏洞/triggerability/
+  AttackChain 已验证，也不得创建 Evidence、VerificationRecord 或 score。Step 3 动态确认与
+  Step 4 aggregation 仍未实现。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

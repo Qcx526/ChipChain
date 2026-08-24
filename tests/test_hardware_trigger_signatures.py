@@ -530,8 +530,8 @@ def test_existing_vulnerability_sample_contract_is_unchanged() -> None:
     assert "hardware_trigger_signatures" not in schema_fields
 
 
-def test_public_api_contains_contracts_but_no_future_result_or_matcher() -> None:
-    assert set(hardware_trigger_api.__all__) == {
+def test_public_api_preserves_step1_and_excludes_step3_step4_contracts() -> None:
+    assert {
         "ArmExecutionMode",
         "ArmMemoryPrecondition",
         "ArmPrivilegeMode",
@@ -543,7 +543,9 @@ def test_public_api_contains_contracts_but_no_future_result_or_matcher() -> None
         "HardwareTriggerProofKind",
         "HardwareTriggerSignature",
         "hardware_trigger_signature_id",
-    }
+    }.issubset(hardware_trigger_api.__all__)
+    assert "DynamicTriggerExecutionMatch" not in hardware_trigger_api.__all__
+    assert "TriggerabilityVerificationResult" not in hardware_trigger_api.__all__
     serialized = json.dumps(_signature().model_dump(mode="json")).lower()
     for forbidden in (
         "firmware_id",

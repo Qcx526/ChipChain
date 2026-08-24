@@ -46,6 +46,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9B2B 非验证多 Agent reasoning contracts 与 Step 7 dynamic context binding
 - Phase 9B2C Step 1～3 strict-schema Provider bridge、固定四角色 workflow 与 release acceptance hardening
 - Phase 9C Step 1 ARM A32 exact HardwareTriggerSignature 与硬件侧 proof provenance contract
+- Phase 9C Step 2 executable decoded A32 exact-sequence 与 function-local CFG static matching
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -394,7 +395,14 @@ Evidence、VerificationRecord、vulnerability verdict 或 AttackChain。
 Phase 9C Step 1 用独立 `HardwareTriggerSignature` 保存已有硬件侧 proof 支持的
 `exact ARM A32 instruction sequence + declared machine-state preconditions -> known hardware
 failure` 合同。它不证明任何 firmware 可执行该序列或满足前置条件，也不是 Evidence、
-VerificationRecord、AttackChain 或评分输入；静态匹配、动态确认和 triggerability 聚合尚未实现。
+VerificationRecord、AttackChain 或评分输入。
+
+Step 2 的 `FirmwareTriggerMatcher` 只在授权 ARM ELF 的 decoded executable A32 instructions 上
+匹配 exact sequence，并要求 occurrence 位于同一 recovered function、从函数入口结构可达的 CFG
+path。真实 artifact bytes 以 SHA-256 绑定；不执行 raw ELF byte scan，因此非执行 `.data` 中的
+相同字节不会匹配。`StaticFirmwareTriggerMatch` 仍不表示实际 runtime execution、具体输入路径
+可行、任何 precondition 已满足、硬件失败重现或 triggerability/AttackChain 已验证。动态确认和
+聚合仍未实现。
 设计边界见 [Hardware Trigger Signatures](docs/HARDWARE_TRIGGER_SIGNATURES.md)。
 
 ## 文档导航
