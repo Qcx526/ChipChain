@@ -37,7 +37,7 @@
 ## 当前阶段限制
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
-  Phase 9B2A、Phase 9B2B Step 1～7 与 Phase 9B2C Step 1 已完成。Phase 9B1 已在
+  Phase 9B2A、Phase 9B2B Step 1～7 与 Phase 9B2C Step 1～2 已完成。Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
   `phase-9b1-stable` 封存；Ubuntu 是 canonical development/runtime validation
@@ -68,6 +68,12 @@
   ChipChain Parser 的语义/引用校验。真实输出仍只是 reasoning，不是 verification；不得绕过
   Parser、从 `json_schema` 自动降级到 `json_object`、fallback 到 Mock 或接入四 Agent
   workflow。默认 pytest 继续只用 Mock/fake client，保持离线。
+- Phase 9B2C Step 2 固定串行执行 Code → Hardware → Vulnerability → AttackChain，每个角色
+  对同一 detached `ReasoningContext` 至多调用 Provider 一次，不把前序 Agent 自由文本加入
+  后序 Prompt。LLM 只创作 description/confidence、required_fact、reasoning_steps 与白名单内
+  supporting Evidence ID 选择；component、attack pattern、Evidence category/priority 与 dynamic
+  trigger 等身份由 typed Context/role contract 确定性绑定，这属于最小化模型权限而非修补输出。
+  AttackChain 仍只贡献 Hypothesis；任一角色失败立即停止，无 retry、Provider 切换或 Mock fallback。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

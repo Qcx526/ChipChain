@@ -12,8 +12,14 @@ from chipchain.agents.coordinator import (
     HypothesisMergeConflict,
     MultiAgentReasoningCoordinator,
 )
+from chipchain.agents.errors import ProviderBackedWorkflowExecutionError
 from chipchain.agents.hardware_agent import HardwareAgent
 from chipchain.agents.orchestrator import MultiAgentReasoningOrchestrator
+from chipchain.agents.provider_agent import (
+    PROVIDER_BACKED_AGENT_CONTRACT,
+    ProviderBackedReasoningAgent,
+    provider_backed_reasoning_agent_id,
+)
 from chipchain.agents.state import (
     COORDINATOR_ID,
     AgentMessage,
@@ -23,7 +29,7 @@ from chipchain.agents.state import (
     reasoning_session_id,
 )
 from chipchain.agents.vulnerability_agent import VulnerabilityAgent
-from chipchain.agents.workflow import AgentWorkflow
+from chipchain.agents.workflow import AgentWorkflow, ProviderBackedAgentWorkflow
 
 __all__ = [
     "AttackChainAgent",
@@ -35,12 +41,17 @@ __all__ = [
     "HardwareAgent",
     "MultiAgentReasoningOrchestrator",
     "MultiAgentReasoningCoordinator",
+    "PROVIDER_BACKED_AGENT_CONTRACT",
+    "ProviderBackedAgentWorkflow",
+    "ProviderBackedReasoningAgent",
+    "ProviderBackedWorkflowExecutionError",
     "HypothesisMergeConflict",
     "ReasoningAgent",
     "ReasoningContext",
     "ReasoningSession",
     "VulnerabilityAgent",
     "reasoning_agent_id",
+    "provider_backed_reasoning_agent_id",
     "agent_message_id",
     "reasoning_context_id",
     "reasoning_session_id",

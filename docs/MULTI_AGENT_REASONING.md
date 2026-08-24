@@ -197,5 +197,34 @@ Step 1 的真实 smoke 仅执行一次 CODE role：
 .venv/bin/python scripts/check_real_phase9b2c_reasoning.py
 ```
 
-真实四角色 Code → Hardware → Vulnerability → AttackChain workflow 接入在 Step 1 中明确
-未实现。Legacy Phase 8 `multi_agent` 实现保持独立且兼容。
+Step 1 不接入真实四角色 workflow；该能力由下述 Step 2 显式实现。Legacy Phase 8
+`multi_agent` 实现保持独立且兼容。
+
+## Phase 9B2C Step 2 Provider-Backed Workflow
+
+Step 2 通过 `ProviderBackedReasoningAgent` 将既有角色接口组合到 `ReasoningEngine`。固定
+Code → Hardware → Vulnerability → AttackChain 顺序复用同一个 Coordinator；四个角色收到
+相同 detached `ReasoningContext`，每个角色的三个 Agent API 共享一次缓存的 Provider 解析结果。
+后序 Prompt 不包含前序 Agent 的自由文本。
+
+Provider transport DTO 遵守 authority minimization：LLM 只创作 hypothesis description/
+confidence、每个 request 的 `required_fact`、reasoning steps、reasoning confidence，以及从
+`available_evidence_ids` 中选择的 supporting references。Component identity、attack-pattern
+identity、required Evidence category、request category/priority 和 dynamic-trigger binding 不在
+Provider schema 中，而由 parser 在 typed provider DTO 校验后从 Context 和
+`reasoning_role_contract(role)` 确定性构造。这不是接受错误值再修补；模型若额外输出 immutable
+field，会因 `extra=forbid` 在 `output_schema` 阶段直接拒绝。
+
+Strict provider schema 与 ChipChain parser 仍为连续两道必经边界。Evidence whitelist、recursive
+forbidden truth scan、request cardinality 和最终领域模型校验保持有效。AttackChain role 的完整
+provider tuple 会被解析并缓存，但 session 只接收其 Hypothesis；request/result 不进入 session。
+任一角色失败立即停止，没有 retry、Provider switch、Mock fallback 或 partial successful session。
+
+真实四角色验收命令：
+
+```bash
+.venv/bin/python scripts/check_real_phase9b2c_multi_agent.py
+```
+
+`qwen3.8-max` Chat Completions strict-schema acceptance 已按四次串行调用通过。输出仍只是
+reasoning，不表示 vulnerability、causality、verification 或 confirmed AttackChain。

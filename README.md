@@ -44,7 +44,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9B2A 显式 DynamicTriggerFact/Observation Binding、detached Dynamic Verification
 - Static/Dynamic 八态 aggregation、multi-record conflict 与分离 Evidence provenance
 - Phase 9B2B 非验证多 Agent reasoning contracts 与 Step 7 dynamic context binding
-- Phase 9B2C Step 1 单角色 OpenAI-compatible `ReasoningProvider` bridge
+- Phase 9B2C Step 1～2 strict-schema Provider bridge 与固定四角色 provider-backed workflow
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -97,6 +97,12 @@ Agent workflow：
 
 ```bash
 .venv/bin/python scripts/check_real_phase9b2c_reasoning.py
+```
+
+Step 2 的显式真实验收对同一 detached Context 固定串行调用四个角色：
+
+```bash
+.venv/bin/python scripts/check_real_phase9b2c_multi_agent.py
 ```
 
 脚本只打印 provider/model 的非敏感摘要、role 和输出 ID，不打印 endpoint、prompt 或 raw
@@ -360,7 +366,15 @@ RoleBasedReasoningPromptBuilder
 Provider schema 是第一道结构约束；`ConstrainedReasoningOutputParser` 仍是必须执行的第二道
 语义/引用约束。Bridge 不在 schema 被拒绝时降级到 JSON Object，不解析安全语义、不绕过
 Parser，也不在失败时 fallback 到 Mock。Legacy Phase 7/8 JSON mode 行为保持不变。Step 1
-只支持显式单角色 `ReasoningEngine` smoke；真实四 Agent workflow 尚未接入。
+支持显式单角色 `ReasoningEngine` smoke。
+
+Step 2 增加 `ProviderBackedReasoningAgent` 与显式 provider-backed workflow，固定按 Code →
+Hardware → Vulnerability → AttackChain 执行。每个角色共享同一 detached Context 并至多调用
+Provider 一次；不会把前序 Agent 的自由文本传给后序角色。Provider DTO 只允许 LLM 创作
+description/confidence、request `required_fact`、reasoning steps 和 Context 白名单内的 supporting
+Evidence ID 选择。Component、attack-pattern identity、Evidence category/priority 和 dynamic
+trigger 由 ChipChain 从 typed Context/role contract 构造；这是 authority minimization，不是
+输出修补。AttackChain 仍为 hypothesis-only，任一失败立即停止且没有 retry 或 fallback。
 
 ## 文档导航
 

@@ -21,7 +21,8 @@ observation verification 与只读 Static/Dynamic aggregation。Phase 9B2B Step 
 feedback loop 与 dynamic evidence context binding。
 Phase 9B2C Step 1 已将现有 OpenAI-compatible transport 桥接到单角色 ReasoningEngine，
 通过由 parser DTO 生成的 strict JSON Schema 完成 provider 结构约束，并在真实 CODE role
-acceptance 中通过 constrained parser；后续真实四角色编排仍未实现。
+acceptance 中通过 constrained parser。Step 2 已完成 provider-backed 四角色串行 workflow、
+LLM semantic proposal 与确定性 Context/role binding 分离，并通过真实四角色 acceptance。
 
 Phase 9B0-R1 为 Persistence 与 Dynamic Evidence normalization 建立统一 detached snapshot
 revalidation，阻断 RuntimeTrace/backend container 的 post-validation mutation 绕过。
@@ -349,16 +350,23 @@ judgement 或 AttackChain。
 - [x] 提供显式单角色真实 Provider smoke script，不自动加载 `.env` 到核心库
 - [x] `qwen3.8-max` Chat Completions 真实 CODE role acceptance 通过
 
-##### Step 2：Real Four-Role Workflow Integration（planned / not implemented）
+##### Step 2：Real Four-Role Workflow Integration（已完成）
 
-- [ ] 将真实 Provider 接入 Code → Hardware → Vulnerability → AttackChain workflow
-- [ ] 定义四次调用的失败隔离、审计与 acceptance；本步骤未实现
+- [x] `ProviderBackedReasoningAgent` 缓存单次 `ReasoningEngine` 解析结果
+- [x] 固定 Code → Hardware → Vulnerability → AttackChain；每个角色一次调用且共享同一 detached Context
+- [x] 复用既有 Coordinator merge/dedup/min-confidence/feedback 语义，不复制编排器
+- [x] Provider DTO 只允许模型创作 description/confidence、required_fact、reasoning steps 与白名单 Evidence ID 选择
+- [x] component、attack pattern、Evidence category/priority、dynamic trigger 由 Context/role contract 确定性构造
+- [x] immutable field 额外输出、未知 Evidence、forbidden truth 或任一角色失败均 fail closed
+- [x] AttackChain 只进入 session hypotheses，其 request/result 被排除
+- [x] 无 prior-agent free-text chaining、retry、Provider switch 或 Mock fallback
+- [x] `qwen3.8-max` Chat Completions strict-schema 四角色真实 acceptance 通过
 
 ##### Step 3+：Acceptance Hardening / Evaluation（planned / not implemented）
 
 - [ ] 后续范围须单独设计与批准；当前没有 retry、动态路由、投票或自动 Evidence collection
 
-Step 1 不创建 Evidence、VerificationRecord、AttackChain 或 vulnerability verdict，不修改
+Step 1～2 不创建 Evidence、VerificationRecord、AttackChain 或 vulnerability verdict，不修改
 Phase 9A/9B2A verification/scoring，也不改变 legacy Phase 7/8 provider 公共行为。
 
 ### Phase 10：Evaluation

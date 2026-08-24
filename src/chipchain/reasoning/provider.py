@@ -81,20 +81,9 @@ class MockReasoningProvider(ReasoningProvider):
 
         subject_id = context["subject_id"]
         requests = []
-        required_evidence_types: list[str] = []
         for request_contract in contract["evidence_requests"]:
-            evidence_type = request_contract["evidence_type"]
-            if evidence_type not in required_evidence_types:
-                required_evidence_types.append(evidence_type)
             requests.append(
                 {
-                    "dynamic_trigger_fact_reference": (
-                        context["dynamic_trigger_fact_reference"]
-                        if request_contract["use_dynamic_trigger_reference"]
-                        else None
-                    ),
-                    "evidence_type": evidence_type,
-                    "priority": request_contract["priority"],
                     "required_fact": request_contract[
                         "required_fact_template"
                     ].format(subject_id=subject_id),
@@ -103,13 +92,10 @@ class MockReasoningProvider(ReasoningProvider):
         output = {
             "evidence_requests": requests,
             "hypothesis": {
-                "affected_components": context["affected_components"],
-                "attack_pattern_reference": context["attack_pattern_reference"],
                 "confidence": 0.0,
                 "description": contract["description_template"].format(
                     subject_id=subject_id
                 ),
-                "required_evidence_types": required_evidence_types,
             },
             "reasoning_result": {
                 "confidence": 0.0,

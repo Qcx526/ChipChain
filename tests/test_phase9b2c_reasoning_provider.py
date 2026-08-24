@@ -344,22 +344,11 @@ def test_generated_schema_is_deterministic_and_has_exact_required_fields() -> No
     expected = (
         (
             hypothesis,
-            {
-                "description",
-                "affected_components",
-                "attack_pattern_reference",
-                "required_evidence_types",
-                "confidence",
-            },
+            {"description", "confidence"},
         ),
         (
             request,
-            {
-                "evidence_type",
-                "required_fact",
-                "dynamic_trigger_fact_reference",
-                "priority",
-            },
+            {"required_fact"},
         ),
         (
             result,
@@ -372,44 +361,28 @@ def test_generated_schema_is_deterministic_and_has_exact_required_fields() -> No
         assert set(contract["required"]) == fields
 
 
-def test_generated_schema_preserves_enum_and_confidence_constraints() -> None:
-    schema, hypothesis, request, result = _nested_contracts()
-    definitions = schema["$defs"]
-    assert isinstance(definitions, dict)
+def test_generated_schema_preserves_confidence_constraints() -> None:
+    _, hypothesis, _, result = _nested_contracts()
 
-    assert definitions["EvidenceCategory"]["enum"] == [
-        "static_behavior",
-        "runtime_observation",
-        "mmio_access",
-        "privilege_transition",
-    ]
-    assert definitions["EvidencePriority"]["enum"] == [
-        "low",
-        "medium",
-        "high",
-        "critical",
-    ]
     for contract in (hypothesis, result):
         confidence = contract["properties"]["confidence"]
         assert confidence["minimum"] == 0.0
         assert confidence["maximum"] == 1.0
-    assert request["properties"]["evidence_type"] == {
-        "$ref": "#/$defs/EvidenceCategory"
-    }
-    assert request["properties"]["priority"] == {
-        "$ref": "#/$defs/EvidencePriority"
-    }
 
 
-def test_generated_schema_represents_nullable_references() -> None:
+def test_generated_schema_excludes_deterministic_binding_authority() -> None:
     _, hypothesis, request, _ = _nested_contracts()
 
-    for contract, field in (
-        (hypothesis, "attack_pattern_reference"),
-        (request, "dynamic_trigger_fact_reference"),
-    ):
-        alternatives = contract["properties"][field]["anyOf"]
-        assert {item.get("type") for item in alternatives} == {"string", "null"}
+    assert {
+        "affected_components",
+        "attack_pattern_reference",
+        "required_evidence_types",
+    }.isdisjoint(hypothesis["properties"])
+    assert {
+        "evidence_type",
+        "priority",
+        "dynamic_trigger_fact_reference",
+    }.isdisjoint(request["properties"])
 
 
 def test_prompt_requires_exact_unfenced_reference_bound_json() -> None:
@@ -420,9 +393,9 @@ def test_prompt_requires_exact_unfenced_reference_bound_json() -> None:
         "no Markdown code fences",
         "no text before or after",
         "Do not add fields",
-        "Preserve affected_components and attack_pattern_reference exactly",
-        "Cite only IDs from available_evidence_ids",
-        "exactly the EvidenceRequest categories",
+        "does not author context identity or role-contract fields",
+        "select zero or more exact IDs from available_evidence_ids",
+        "Do not emit affected_components",
     ):
         assert requirement in prompt.system_prompt
 
@@ -446,12 +419,9 @@ def test_structurally_invalid_provider_output_is_rejected_at_schema_stage() -> N
 
 @pytest.mark.parametrize(
     ("mutation", "expected_stage"),
-    [
-        ("evidence", "evidence_reference"),
-        ("component", "affected_component_reference"),
-    ],
+    [("evidence", "evidence_reference"), ("component", "output_schema")],
 )
-def test_structurally_valid_hallucinated_references_are_rejected_semantically(
+def test_hallucinated_references_or_immutable_fields_are_rejected(
     mutation: str,
     expected_stage: str,
 ) -> None:
@@ -461,9 +431,7 @@ def test_structurally_valid_hallucinated_references_are_rejected_semantically(
             "invented-evidence"
         )
     else:
-        payload["hypothesis"]["affected_components"].append(
-            "invented-component"
-        )
+        payload["hypothesis"]["affected_components"] = ["invented-component"]
     provider = OpenAICompatibleReasoningProvider.from_env(
         _environment("chat_completions"),
         client=FakeClient(json.dumps(payload)),

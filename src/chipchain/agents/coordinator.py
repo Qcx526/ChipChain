@@ -49,21 +49,34 @@ class MultiAgentReasoningCoordinator:
                 ReasoningResult | None,
             ]
         ] = []
-        for agent_class in workflow.agent_classes:
-            agent = agent_class(snapshot)
-            hypothesis = agent.produce_hypothesis()
-            if workflow.is_hypothesis_only(agent.agent_type):
-                requests: list[EvidenceRequest] = []
-                result = None
-            else:
-                requests = agent.request_evidence()
-                result = agent.analyze(snapshot)
-                for request in requests:
-                    request.validate_against(hypothesis)
-                result.validate_against(hypothesis)
+        completed_roles = []
+        execution_order = []
+        for agent in workflow.build_agents(snapshot):
+            execution_order.append(agent.agent_type)
+            try:
+                hypothesis = agent.produce_hypothesis()
+                if workflow.is_hypothesis_only(agent.agent_type):
+                    requests: list[EvidenceRequest] = []
+                    result = None
+                else:
+                    requests = agent.request_evidence()
+                    result = agent.analyze(snapshot)
+                    for request in requests:
+                        request.validate_against(hypothesis)
+                    result.validate_against(hypothesis)
+            except Exception as error:
+                wrapped = workflow.wrap_execution_error(
+                    failed_role=agent.agent_type,
+                    completed_roles=completed_roles,
+                    error=error,
+                )
+                if wrapped is error:
+                    raise
+                raise wrapped from None
             contributions.append(
                 (agent.agent_id, hypothesis, requests, result)
             )
+            completed_roles.append(agent.agent_type)
 
         agent_ids = [item[0] for item in contributions]
         session_id = reasoning_session_id(
@@ -104,10 +117,9 @@ class MultiAgentReasoningCoordinator:
                 "attack_chain_agent_scope": "hypothesis_only",
                 "domain_truth_creation": False,
                 "execution_order": [
-                    agent_class.role.value
-                    for agent_class in workflow.agent_classes
+                    role.value for role in execution_order
                 ],
-                "orchestration_mode": "deterministic_mock",
+                "orchestration_mode": workflow.orchestration_mode,
             },
         )
 

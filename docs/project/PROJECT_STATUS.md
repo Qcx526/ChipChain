@@ -18,15 +18,15 @@
 
 ## Current Work
 
-Phase 9B2C Step 1, Real LLM Reasoning Provider Bridge, connects the existing OpenAI-compatible
-transport to the single-role `ReasoningEngine` through the constrained Prompt → Provider → Parser
-boundary. Strict JSON Schema is generated from the parser's Pydantic transport DTO and applied as
-the first structural barrier; the parser remains the second semantic/reference barrier. The real
-`qwen3.8-max` Chat Completions CODE-role acceptance passed. Step 1 is complete.
+Phase 9B2C Step 1～2 are complete. Step 2 adds a fixed CODE → HARDWARE → VULNERABILITY →
+ATTACK_CHAIN provider-backed workflow with one call per role over the same detached context. The
+reduced provider DTO gives the LLM authority only over semantic proposal fields; typed Context and
+role contracts deterministically supply component, attack-pattern, Evidence category/priority, and
+dynamic-trigger bindings after provider-output validation. Real `qwen3.8-max` Chat Completions
+strict-schema four-role acceptance passed.
 
 ## Remaining Work
 
-- Phase 9B2C Step 2 real four-role workflow integration and acceptance: planned, not implemented
 - Later acceptance hardening and evaluation: planned, not implemented
 - Type III objective hardware-to-firmware causal verification: not implemented
 - Verified AttackChain projection and additional architectures: not implemented
@@ -36,5 +36,6 @@ the first structural barrier; the parser remains the second semantic/reference b
 Real or mock LLM output is reasoning only. It does not create Evidence, VerificationRecord,
 AttackChain, causality, verification status, scoring changes, or vulnerability verdicts. Step 1 has
 no retry loop, dynamic routing, voting, automatic evidence collection, API/GUI, or exploit generation.
-Strict-schema failures do not downgrade to JSON Object and do not fall back to a mock provider.
+Strict-schema or role failures do not retry, downgrade to JSON Object, switch providers, or fall back
+to a mock provider. AttackChain remains hypothesis-only and prior-agent free text is not chained.
 No secrets or machine-specific paths belong in this document.

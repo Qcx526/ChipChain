@@ -167,9 +167,9 @@ def test_parser_rejects_invented_references_and_role_leakage() -> None:
     raw = json.loads(MockReasoningProvider().generate(_prompt()))
 
     invented_component = json.loads(json.dumps(raw))
-    invented_component["hypothesis"]["affected_components"].append(
+    invented_component["hypothesis"]["affected_components"] = [
         "invented-component"
-    )
+    ]
     invented_evidence = json.loads(json.dumps(raw))
     invented_evidence["reasoning_result"]["supporting_evidence_ids"].append(
         "invented-evidence"
