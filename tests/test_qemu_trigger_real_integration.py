@@ -17,6 +17,8 @@ from chipchain.hardware_trigger import (
     AngrFirmwareTriggerMatcher,
     HardwareTriggerSignature,
     RuntimeFirmwareTriggerMatcher,
+    TriggerabilityAggregator,
+    TriggerabilityStatus,
 )
 from chipchain.models import Architecture
 from chipchain.runtime.qemu import (
@@ -76,12 +78,14 @@ def test_real_owned_runtime_confirms_only_executed_static_match() -> None:
             )
         )
     dynamic = RuntimeFirmwareTriggerMatcher().match(static, run.runtime_trace)
+    aggregation = TriggerabilityAggregator().aggregate(signature, static, dynamic)
 
     assert run.qemu_version == "11.0.3"
     assert run.firmware_sha256 == static.artifact_sha256 == truth["artifact_sha256"]
     assert run.parsed_trace.end.clean_shutdown is True
     assert len(static.matches) == 2
     assert len(dynamic.occurrences) == 1
+    assert aggregation.status is TriggerabilityStatus.TRIGGERABLE
     occurrence = dynamic.occurrences[0]
     assert occurrence.static_match_id == truth["static_occurrences"][0]["id"]
     assert occurrence.static_match_id != truth["static_occurrences"][1]["id"]

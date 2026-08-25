@@ -5,14 +5,23 @@ from chipchain.hardware_trigger.enums import (
     ArmPrivilegeMode,
     HardwareFailureEffectKind,
     HardwareTriggerProofKind,
+    TriggerabilityStatus,
 )
 from chipchain.hardware_trigger.errors import (
     HardwareTriggerMatchingError,
     InvalidRuntimeTriggerInputError,
+    InvalidTriggerabilityInputError,
     InvalidTriggerMatchingInputError,
     RuntimeTriggerBindingError,
     RuntimeTriggerMatchingError,
+    TriggerabilityAggregationError,
+    TriggerabilityBindingError,
     UnsupportedTriggerArtifactError,
+)
+from chipchain.hardware_trigger.aggregation import (
+    TriggerabilityAggregationResult,
+    TriggerabilityAggregator,
+    triggerability_aggregation_id,
 )
 from chipchain.hardware_trigger.angr_matcher import AngrFirmwareTriggerMatcher
 from chipchain.hardware_trigger.matcher import FirmwareTriggerMatcher
@@ -41,6 +50,7 @@ from chipchain.hardware_trigger.runtime_models import (
     raw_little_endian_a32_word,
     runtime_firmware_trigger_occurrence_id,
     runtime_trigger_execution_trace_id,
+    runtime_trigger_match_result_sha256,
     static_trigger_result_sha256,
 )
 
@@ -60,6 +70,7 @@ __all__ = [
     "HardwareTriggerMatchingError",
     "InvalidTriggerMatchingInputError",
     "InvalidRuntimeTriggerInputError",
+    "InvalidTriggerabilityInputError",
     "RuntimeFirmwareTriggerMatcher",
     "RuntimeFirmwareTriggerMatchResult",
     "RuntimeFirmwareTriggerOccurrence",
@@ -67,6 +78,11 @@ __all__ = [
     "RuntimeTriggerBindingError",
     "RuntimeTriggerExecutionTrace",
     "RuntimeTriggerMatchingError",
+    "TriggerabilityAggregationError",
+    "TriggerabilityAggregationResult",
+    "TriggerabilityAggregator",
+    "TriggerabilityBindingError",
+    "TriggerabilityStatus",
     "StaticFirmwareTriggerMatch",
     "StaticFirmwareTriggerMatchResult",
     "StaticInstructionLocation",
@@ -76,6 +92,8 @@ __all__ = [
     "raw_little_endian_a32_word",
     "runtime_firmware_trigger_occurrence_id",
     "runtime_trigger_execution_trace_id",
+    "runtime_trigger_match_result_sha256",
     "static_firmware_trigger_match_id",
     "static_trigger_result_sha256",
+    "triggerability_aggregation_id",
 ]

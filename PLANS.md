@@ -2,7 +2,8 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C 与 Phase 9C Step 1～3A 已完成。Phase 9A-R 在不改变 Phase 4B～8 API 的前提下，将旧版
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4 已完成；Step 3B 仍未实现。Phase 9A-R
+在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
 requirements/score、能力状态和角色化定位。
 
@@ -431,10 +432,24 @@ execution scope，不是对 CPSR.T 的动态观察；instrumentation overhead �
 仅当后续真实样本证明有必要时，另行设计 declared P 的 register/memory/privilege 被动确认。不得把
 Step 3A 的 exact T occurrence 当作 `T + P`，也不得把未观察的 P 标记为 satisfied 或 rejected。
 
-#### Step 4：Triggerability Aggregation（planned / not implemented）
+#### Step 4：Triggerability Aggregation（已完成）
 
-未来组合既有硬件侧 proof 与 firmware static/dynamic facts；当前不创建 triggerability result、
-VerificationRecord、AttackChain status 或 score。
+- [x] detached Signature / static result / runtime result 三方重校验与全量 cross-object binding
+- [x] exact signature↔static words、static semantic hash/ID set、runtime↔static PC+word 校验
+- [x] runtime result semantic SHA-256 与 deterministic `triggerability-aggregation:<sha256>` identity
+- [x] `triggerable`、`insufficient_precondition_evidence`、`not_observed_in_runtime`、
+  `no_static_trigger_match` 四态封闭策略
+- [x] typed declared-P policy；metadata/proof wording/diagnostics 不影响状态或 identity
+- [x] owned synthetic empty-P fixture 的 Step 1→2→3A→4 closure 与 real-QEMU opt-in acceptance
+
+`TRIGGERABLE` 仅表示 supplied firmware 已实际执行 prevalidated hardware-trigger contract 的 exact T，
+且该 Signature 没有 additional declared P。它不表示 QEMU 重现 hardware failure、hardware
+vulnerability 动态重现、CrossLayerInteraction/AttackChain verified 或漏洞确认。非空 P 保持
+`INSUFFICIENT_PRECONDITION_EVIDENCE`，等待未来 Step 3B 或另一个显式设计的客观 precondition oracle。
+
+Step 4 结果尚不是项目级“关联漏洞命中率 >= 80%”的分子。该指标需要 Phase 10 定义 finalized
+candidate-chain identity、Type I/II chain semantics、chain-level feasibility oracle 与 denominator；
+本步骤不计算 hit rate。
 
 ### Phase 10：Evaluation
 

@@ -19,23 +19,20 @@
 - Phase 9C Step 1 exact ARM A32 HardwareTriggerSignature contract with typed preconditions, hardware failure effect, and prior proof provenance
 - Phase 9C Step 2 content-bound exact A32 executable sequence matching over function-local structural CFG paths
 - Phase 9C Step 3A passive QEMU instruction-byte trace and exact contiguous runtime T confirmation
+- Phase 9C Step 4 detached triggerability aggregation with typed declared-precondition policy
 
 ## Current Work
 
-Phase 9C Step 3A is complete. It binds a complete dedicated QEMU instruction trace to the same ELF
-artifact ID/SHA-256 as Step 2, then confirms only consecutive exact `(PC, logical A32 word)` execution
-for one `StaticFirmwareTriggerMatch.id`. The observer copies instruction bytes from translated QEMU
-instruction metadata but emits events only on actual execution. This does not observe declared
-register/memory/privilege preconditions and does not reproduce the vulnerable RTL hardware failure.
-R1 removes invented fixture/synthetic provenance from the generic runner and adds bounded secret/path
-redaction for failed-QEMU stderr. A32 remains a declared runner/fixture scope rather than a dynamic
-CPSR.T observation; instrumentation overhead may affect timing, so no timing non-interference claim
-is made.
+Phase 9C Step 4 is complete. It cross-validates detached hardware Signature, static exact-T facts and
+runtime exact-T facts, then derives one of four closed triggerability states. `TRIGGERABLE` requires
+runtime exact T and zero typed declared P. Non-empty P remains
+`INSUFFICIENT_PRECONDITION_EVIDENCE`; Step 3B is still not implemented. The result does not mean QEMU
+reproduced the hardware failure and is not Evidence, VerificationRecord, vulnerability confirmation,
+Interaction verification, AttackChain verification or score.
 
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- Phase 9C Step 4 triggerability aggregation
 - Phase 10 evaluation, after the triggerability pipeline exists
 - Phase 11 API and visualization, only after core evaluation
 - Phase 12 additional architectures, only after the ARM loop is stable and evaluated
@@ -56,3 +53,7 @@ No secrets or machine-specific paths belong in this document.
 Phase 9C Step 3A does not modify Phase 9B1 raw v2, RuntimeObservation, DynamicTriggerFact,
 verification, scoring or reasoning. It creates no Evidence, VerificationRecord, BehaviorEdge,
 AttackChain or vulnerability/triggerability verdict.
+
+Step 4 triggerability is one firmware-to-hardware-contract component and is not yet the numerator for
+the project-level hit-rate target. Phase 10 has not started and must define the finalized chain-level
+oracle and denominator before any “关联漏洞命中率 >= 80%” calculation.

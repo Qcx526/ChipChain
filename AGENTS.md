@@ -37,7 +37,8 @@
 ## 当前阶段限制
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
-  Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3 与 Phase 9C Step 1～3A 已完成。
+  Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
+  与 Step 4 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -86,15 +87,16 @@
   ARM A32、按序且地址无关的精确 32-bit instruction words；不支持 Thumb/AArch64、模糊/掩码/
   语义等价或其他架构。签名不是 Evidence、VerificationRecord 或 AttackChain，也不表示任何
   firmware 可执行该触发序列，不得修改 verification status/score。签名自身不执行 firmware
-  matching；Step 3A 只确认 runtime T，Step 3B precondition-state confirmation 与 Step 4
-  triggerability aggregation 均未实现。
+  matching；Step 3A 只确认 runtime T，Step 3B precondition-state confirmation 仍未实现；
+  Step 4 只按显式的 static/runtime/P 合同聚合 triggerability。
 - Phase 9C Step 2 只从授权 ARM ELF 的 decoded executable A32 instructions 中确认 exact
   trigger sequence 位于 function-local、从函数入口结构可达的 CFG path。禁止 raw ELF byte
   scan、mnemonic/fuzzy/LLM matching、跨函数拼接或 Thumb 推断；artifact bytes 必须绑定 SHA-256。
   `StaticFirmwareTriggerMatch` 只是结构化静态分析事实，不表示实际 runtime execution、输入路径
   可行、register/memory/privilege preconditions 已满足、硬件失败重现、漏洞/triggerability/
   AttackChain 已验证，也不得创建 Evidence、VerificationRecord 或 score。Step 3A 的 runtime T
-  confirmation 是独立后续事实；Step 3B precondition confirmation 与 Step 4 aggregation 仍未实现。
+  confirmation 是独立后续事实；Step 3B precondition confirmation 仍未实现，Step 4 对非空
+  declared P 只能返回 `insufficient_precondition_evidence`。
 - Phase 9C Step 3A 只从独立 QEMU trigger observer 的 instruction execution callback 获取实际执行
   的 PC、size 与复制后的 instruction bytes，并将连续 `(PC, logical A32 word)` 精确匹配到同一
   firmware SHA-256 的某个 `StaticFirmwareTriggerMatch.id`。禁止 PC-only 或 word-only matching；
@@ -105,6 +107,15 @@
   不得根据 artifact/path/run/scenario 命名推断或写入 fixture/synthetic/owned/benchmark provenance；
   A32 是 runner/fixture 的 declared execution scope，不表示动态观察了 CPSR.T。Instrumentation
   callback 可能增加执行开销，Step 3A 不作 timing non-interference 声明。
+- Phase 9C Step 4 只组合 detached `HardwareTriggerSignature`、static match result 与 runtime
+  match result。`TRIGGERABLE` 必须同时具有 exact static T、对应的 exact runtime T，且 typed
+  Signature 不声明 privilege/register/memory P；非空 P 只能得到
+  `insufficient_precondition_evidence`，不会因 Step 3B 缬失而判为 not-triggerable。零 runtime
+  occurrence 仅是当前 scenario 的 `not_observed_in_runtime`；零 static match 是
+  `no_static_trigger_match`。所有 identity/hash/PC+word/artifact 矛盾必须抛异常，不得转成状态。
+  结果不是 Evidence、VerificationRecord、AttackChain、vulnerability verdict 或 score，也不表示
+  QEMU 重现了 hardware failure。它尚不是项目级“关联漏洞命中率 >= 80%”的分子；Phase 10 必须先
+  定义 chain-level oracle 与 denominator。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

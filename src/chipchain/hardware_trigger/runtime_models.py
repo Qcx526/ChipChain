@@ -427,3 +427,31 @@ class RuntimeFirmwareTriggerMatchResult(DomainModel):
             if actual != expected or occurrence.static_match_id not in allowed_static_ids:
                 raise ValueError("runtime trigger occurrence binding mismatch")
         return self
+
+
+def runtime_trigger_match_result_sha256(
+    result: RuntimeFirmwareTriggerMatchResult,
+) -> str:
+    """Hash semantic Step 3A result fields, excluding diagnostics/metadata."""
+
+    payload = {
+        "architecture": result.architecture.value,
+        "artifact_id": result.artifact_id,
+        "artifact_sha256": result.artifact_sha256,
+        "execution_mode": result.execution_mode.value,
+        "hardware_vulnerability_id": result.hardware_vulnerability_id,
+        "occurrence_ids": [item.id for item in result.occurrences],
+        "raw_trace_sha256": result.raw_trace_sha256,
+        "signature_id": result.signature_id,
+        "static_match_ids": result.static_match_ids,
+        "static_result_sha256": result.static_result_sha256,
+        "trace_id": result.trace_id,
+    }
+    return hashlib.sha256(
+        json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()

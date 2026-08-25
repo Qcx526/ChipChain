@@ -23,3 +23,15 @@ class InvalidRuntimeTriggerInputError(RuntimeTriggerMatchingError):
 
 class RuntimeTriggerBindingError(RuntimeTriggerMatchingError):
     """Raised when runtime and static artifact identities do not match."""
+
+
+class TriggerabilityAggregationError(HardwareTriggerMatchingError):
+    """Base class for fail-closed triggerability aggregation failures."""
+
+
+class InvalidTriggerabilityInputError(TriggerabilityAggregationError):
+    """Raised when a detached Step 4 input violates its own contract."""
+
+
+class TriggerabilityBindingError(TriggerabilityAggregationError):
+    """Raised when valid Step 1-3A contracts contradict each other."""

@@ -37,3 +37,14 @@ class HardwareTriggerProofKind(str, Enum):
 
     GOLDEN_MODEL_MISMATCH = "golden_model_mismatch"
     ASSERTION_VIOLATION = "assertion_violation"
+
+
+class TriggerabilityStatus(str, Enum):
+    """Closed Phase 9C Step 4 firmware-triggerability outcomes."""
+
+    TRIGGERABLE = "triggerable"
+    INSUFFICIENT_PRECONDITION_EVIDENCE = (
+        "insufficient_precondition_evidence"
+    )
+    NOT_OBSERVED_IN_RUNTIME = "not_observed_in_runtime"
+    NO_STATIC_TRIGGER_MATCH = "no_static_trigger_match"

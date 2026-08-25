@@ -208,7 +208,54 @@ runtime T != T + P
 T + P != hardware failure reproduced in QEMU
 ```
 
-Step 3B precondition-state confirmation is planned only if required by real samples. Step 4
-triggerability aggregation is not implemented. Step 3A creates no Evidence, VerificationRecord,
-BehaviorEdge, AttackChain, vulnerability/triggerability verdict, score, LLM output, exploit or Phase
-10 evaluation result.
+Step 3B precondition-state confirmation is planned only if required by real samples. Step 3A creates
+no Evidence, VerificationRecord, BehaviorEdge, AttackChain, vulnerability verdict, score, LLM output,
+exploit or Phase 10 evaluation result.
+
+## Triggerability Aggregation
+
+Phase 9C Step 4 is a deterministic, non-LLM composition of three detached contracts:
+
+```text
+HardwareTriggerSignature: prior T + declared P -> known hardware failure
+StaticFirmwareTriggerMatchResult: firmware structurally contains exact T
+RuntimeFirmwareTriggerMatchResult: one concrete trace executed exact T
+                              |
+                              v
+             TriggerabilityAggregationResult
+```
+
+The aggregator revalidates detached snapshots and then checks all cross-object bindings: architecture,
+execution mode, signature/vulnerability identity, artifact ID/SHA-256, current static semantic hash,
+the exact complete static-match ID set, signature/static ordered instruction words, and each runtime
+occurrence's exact static-match PC/word sequence. Contradictory inputs raise typed exceptions; invalid
+input and binding mismatch are never normal statuses.
+
+The four closed statuses are:
+
+- `triggerable`: at least one static exact T and corresponding runtime exact T exist, and the typed
+  Signature declares no privilege/register/memory P;
+- `insufficient_precondition_evidence`: static/runtime exact T exist, but one or more typed P remain
+  objectively unconfirmed because Step 3B is not implemented;
+- `not_observed_in_runtime`: static T exists, but this concrete trace/scenario has no occurrence;
+- `no_static_trigger_match`: this artifact/signature result has no static exact T and no runtime
+  occurrence.
+
+There is deliberately no broad `not_triggerable` state. Missing precondition observation does not
+make P false, and one trace not executing T does not prove firmware can never execute it. Declared P
+is determined only from typed Signature fields, never metadata, proof wording, addresses or LLM text.
+
+`runtime_trigger_match_result_sha256()` binds semantic Step 3A facts while excluding diagnostics and
+occurrence metadata. `TriggerabilityAggregationResult.id` binds both static/runtime semantic hashes,
+all contract/artifact/trace identities, exact match/occurrence IDs, declared-P presence and derived
+status. Metadata, diagnostics, prose, proof descriptions, paths and timestamps do not affect identity.
+
+For the owned synthetic empty-P fixture, the result is `TRIGGERABLE` under that declared synthetic
+hardware-trigger contract. This means the supplied firmware objectively executed exact T for a
+prevalidated contract with no additional declared P. It does not mean QEMU reproduced the hardware
+failure, a real ARM vulnerability was confirmed, or an AttackChain was verified.
+
+This Step 4 result is not yet the numerator for the project-level “关联漏洞命中率 >= 80%”. Phase 10
+must first define a finalized candidate-chain identity, complete Type I/II chain semantics, a
+chain-level feasibility oracle and denominator. Step 4 computes no hit rate; Phase 10 remains not
+started.

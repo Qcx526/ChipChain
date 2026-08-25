@@ -48,6 +48,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9C Step 1 ARM A32 exact HardwareTriggerSignature 与硬件侧 proof provenance contract
 - Phase 9C Step 2 executable decoded A32 exact-sequence 与 function-local CFG static matching
 - Phase 9C Step 3A 独立 QEMU instruction-byte trace 与 exact contiguous runtime T confirmation
+- Phase 9C Step 4 deterministic triggerability aggregation 与 declared-precondition fail-closed policy
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -423,7 +424,22 @@ artifact ID、path、run ID 或 scenario ID 发明 fixture/synthetic/owned/bench
 fixture 的 provenance 仍由其 fixture、Ground Truth、Signature 与 ProgramArtifact 显式提供。
 `declared_arm_a32` 只是当前 runner/fixture execution scope，不表示动态观察了 CPSR.T。Plugin
 instrumentation 可能增加执行开销，Step 3A 不作 timing non-interference 声明。Step 3B 与 Step 4
-仍未实现。
+的关系是：Step 3B 仍未实现，而 Step 4 对非空 declared P 保守返回
+`INSUFFICIENT_PRECONDITION_EVIDENCE`。
+
+Step 4 的 `TriggerabilityAggregator` detached-revalidate Signature、static result 与 runtime result，
+并交叉检查 signature/static exact words、artifact identity/hash、static semantic hash/完整 match ID
+集合，以及每个 runtime occurrence 对应 static match 的 exact PC+word sequence。四个正常状态为：
+
+- `TRIGGERABLE`：static T 与 runtime T 均存在，且 Signature 无 declared P；
+- `INSUFFICIENT_PRECONDITION_EVIDENCE`：static/runtime T 存在，但 typed Signature 声明了 P；
+- `NOT_OBSERVED_IN_RUNTIME`：static T 存在，但当前 concrete trace 未执行；
+- `NO_STATIC_TRIGGER_MATCH`：当前 artifact/signature 没有 static exact T。
+
+`TRIGGERABLE` 只表示“firmware 在无 additional declared P 的 prevalidated hardware-trigger contract
+下实际执行了 exact T”。它不表示 QEMU 重现 hardware failure，不验证 vulnerability、Interaction
+或 AttackChain，也不创建 Evidence、VerificationRecord 或 score。它还不是项目级“关联漏洞命中率
+>= 80%”的分子；Phase 10 必须先定义 chain-level oracle 与 denominator，且当前仍未开始。
 设计边界见 [Hardware Trigger Signatures](docs/HARDWARE_TRIGGER_SIGNATURES.md)。
 
 ## 文档导航
