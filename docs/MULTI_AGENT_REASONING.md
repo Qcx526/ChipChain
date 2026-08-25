@@ -273,3 +273,21 @@ Same context across roles: yes
 
 这些检查只确认 Provider 连接、严格推理契约和固定工作流执行；不创建 Evidence、
 VerificationRecord、vulnerability verdict 或 AttackChain，也不修改任何 verification/scoring。
+
+## Phase 10C Prompt Visibility Firewall
+
+`ReasoningPromptVisibility` 是显式 opt-in policy，默认 `FULL_CONTEXT` 路径保持既有
+`StructuredPromptRequest`、system prompt、user prompt、schema name 与 candidate ID。该 control
+可能向模型显示 `ReasoningContext.cross_layer_interaction`，因此其输出不得解释为模型独立发现链。
+
+`MASKED_CHAIN_CONTEXT` 仅替换 model-visible `reasoning_context` serialization：至少移除
+`cross_layer_interaction`、`attack_pattern_reference` 与 `dynamic_trigger_fact_reference`，并使用只由
+剩余可见字段生成的 `reasoning-prompt-view:<sha256>`。内部 `StructuredPromptRequest.candidate_id` 可继续
+绑定完整 Context，但该 ID 不进入实际 prompt。普通 subject/component/fact/evidence/knowledge/runtime
+输入保持可见。
+
+完整 detached Context 始终传给 `ConstrainedReasoningOutputParser`，并保留在 session 与 finalized
+candidate 中。Parser 继续执行 architecture、role、component、Evidence whitelist 等系统绑定，但不会
+从隐藏 Context 生成或修复 `ModelAuthoredChainClaim`。Mock 在 FULL/MASKED 下都保持 `chain_claim=null`；
+no-model baseline 也不伪造 authorship。Prompt visibility audit 是构造后的、exact-reference、
+non-interfering 实验检查，不属于 reasoning、Evidence 或 verification。

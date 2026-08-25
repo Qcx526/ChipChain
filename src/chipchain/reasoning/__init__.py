@@ -19,6 +19,7 @@ from chipchain.reasoning.enums import (
     HypothesisSource,
     LLMAPIStyle,
     ReasoningAgentType,
+    ReasoningPromptVisibility,
 )
 from chipchain.reasoning.errors import (
     CandidateContextError,
@@ -60,6 +61,10 @@ from chipchain.reasoning.models import (
     RetrievedKnowledgeChunk,
 )
 from chipchain.reasoning.prompts import CandidatePromptBuilder
+from chipchain.reasoning.prompt_view import (
+    ReasoningPromptView,
+    reasoning_prompt_view_id,
+)
 from chipchain.reasoning.prompts import (
     RoleBasedReasoningPromptBuilder,
     reasoning_role_contract,
@@ -140,10 +145,12 @@ __all__ = [
     "ReasoningError",
     "ReasoningEngine",
     "ReasoningAgentType",
+    "ReasoningPromptVisibility",
     "ReasoningProvider",
     "ReasoningMemory",
     "ReasoningObservation",
     "ReasoningResult",
+    "ReasoningPromptView",
     "REASONING_RESULT_BOUNDARY",
     "REASONING_PROVIDER_SCHEMA_NAME",
     "RetrievalError",
@@ -160,6 +167,7 @@ __all__ = [
     "reasoning_memory_id",
     "reasoning_observation_id",
     "reasoning_role_contract",
+    "reasoning_prompt_view_id",
     "reasoning_provider_output_json_schema",
     "ParsedReasoningContracts",
 ]

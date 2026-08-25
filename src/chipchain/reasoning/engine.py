@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from chipchain.reasoning.enums import ReasoningAgentType
+from chipchain.reasoning.enums import (
+    ReasoningAgentType,
+    ReasoningPromptVisibility,
+)
 from chipchain.reasoning.parser import (
     ConstrainedReasoningOutputParser,
     ParsedReasoningContracts,
@@ -25,12 +28,16 @@ class ReasoningEngine:
         provider: ReasoningProvider,
         prompt_builder: RoleBasedReasoningPromptBuilder | None = None,
         parser: ConstrainedReasoningOutputParser | None = None,
+        prompt_visibility: ReasoningPromptVisibility | str = (
+            ReasoningPromptVisibility.FULL_CONTEXT
+        ),
     ) -> None:
         if not isinstance(provider, ReasoningProvider):
             raise TypeError("reasoning engine requires a ReasoningProvider")
         self._provider = provider
         self._prompt_builder = prompt_builder or RoleBasedReasoningPromptBuilder()
         self._parser = parser or ConstrainedReasoningOutputParser()
+        self._prompt_visibility = ReasoningPromptVisibility(prompt_visibility)
 
     def reason(
         self,
@@ -40,6 +47,10 @@ class ReasoningEngine:
     ) -> ParsedReasoningContracts:
         """Return only Hypothesis, EvidenceRequest, and ReasoningResult contracts."""
 
-        prompt = self._prompt_builder.build(context, role=role)
+        prompt = self._prompt_builder.build(
+            context,
+            role=role,
+            visibility=self._prompt_visibility,
+        )
         raw_output = self._provider.generate(prompt)
         return self._parser.parse(raw_output, context=context, role=role)

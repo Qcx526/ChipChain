@@ -115,9 +115,18 @@ verifier-conditioned rate，但它不能替代 strict metric。还必须报告 `
 
 报告应给出数量、占比和代表案例，支持后续模块级改进。
 
-## 消融实验预留
+## Phase 10C 消融合同
 
-评分权重必须配置化，以便分别移除知识图证据、静态证据、动态证据、架构规则和 LLM 语义分量。消融使用相同数据划分和搜索预算，报告指标差异而不是只报告最终分数。
+当前已实现的消融不是评分权重重调，而是四个预声明条件：现有 full-context model、隐藏 typed
+chain-answer prompt context 的 masked model、无 model claim 的 no-model baseline，以及仅移除
+claim-alignment gate 的 Context/objective upper bound。FULL 是有意的 control，不代表模型独立发现；
+MASKED 只改变 model-visible view，完整 Context 仍留在 candidate-side evaluation，parser 不修复模型
+错误。Upper bound 仍要求 `CONFIRMED_FEASIBLE` 与 exact Ground Truth，negative 永不命中，并明确不是
+`VerificationHitRate` 或模型指标。
+
+所有条件绑定同一 manifest/version，普通条件原样消费 Phase 10B report；失败不可省略，coverage 必须
+显式比较，delta 保存 exact rational components。Prompt audit 只进行构造后的 exact-reference 检查，
+不进入 reasoning 或 metric。只能报告 observed ablation difference，不能声称 causal model effect。
 
 ## 当前评测契约状态
 
@@ -128,5 +137,5 @@ scope 与 versioned manifest contract。Step 2 已建立不读取 Ground Truth �
 assessment；缺失/不完整/错误 claim 分别保持可测量，不由 Context 或 Ground Truth 修复。Initial owned
 synthetic cases 不是真实 CVE 或正式 public Benchmark。Phase 10B 已实现 all-case accounting、post-hoc
 Ground Truth comparison、`VerificationHitRate`、`GroundTruthChainRecall`、negative-control FPR 与 primary
-coverage。Owned fixture 的 `1/2` 只验证合同；消融、真实模型比较与正式 benchmark expansion 仍未实现，
-没有得出“关联漏洞命中率 >=80%”结论。
+coverage。Phase 10C 已实现离线 ablation/prompt-firewall contracts；Owned fixture 的 `1/2` 仍只验证
+合同，真实模型比较与正式 benchmark expansion 未实现，没有得出“关联漏洞命中率 >=80%”结论。

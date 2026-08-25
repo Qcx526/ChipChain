@@ -11,7 +11,11 @@ from typing import Any, TypeVar
 
 from pydantic import ValidationError
 
-from chipchain.reasoning.enums import LLMAPIStyle, ReasoningAgentType
+from chipchain.reasoning.enums import (
+    LLMAPIStyle,
+    ReasoningAgentType,
+    ReasoningPromptVisibility,
+)
 from chipchain.reasoning.errors import (
     LLMProviderConfigurationError,
     LLMProviderResponseError,
@@ -69,8 +73,19 @@ class MockReasoningProvider(ReasoningProvider):
             if payload["role"] != role.value:
                 raise ValueError("reasoning prompt role mismatch")
             context = payload["reasoning_context"]
-            if context["id"] != request.candidate_id:
+            visibility = ReasoningPromptVisibility(
+                payload.get("prompt_visibility", "full_context")
+            )
+            if (
+                visibility is ReasoningPromptVisibility.FULL_CONTEXT
+                and context["id"] != request.candidate_id
+            ):
                 raise ValueError("reasoning prompt context identity mismatch")
+            if (
+                visibility is ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT
+                and not context["id"].startswith("reasoning-prompt-view:")
+            ):
+                raise ValueError("masked reasoning prompt view identity mismatch")
             if context["architecture"] != request.architecture.value:
                 raise ValueError("reasoning prompt architecture mismatch")
             contract = reasoning_role_contract(role)

@@ -1,4 +1,22 @@
-"""Public Phase 10A/10B evaluation contracts and aggregation runner."""
+"""Public Phase 10A/10B and experiment-only Phase 10C contracts."""
+
+from chipchain.evaluation.ablation import (
+    AblationComparisonBuilder,
+    ContextObjectiveUpperBoundEvaluator,
+    PromptVisibilityAuditor,
+)
+from chipchain.evaluation.ablation_models import (
+    PHASE10C_ABLATION_CONTRACT,
+    AblationComparisonReport,
+    AblationConditionExecutionFailure,
+    AblationConditionResult,
+    AblationConditionSpec,
+    AblationExperimentPlan,
+    AblationMetricDelta,
+    ContextObjectiveUpperBoundRate,
+    ContextObjectiveUpperBoundResult,
+    PromptVisibilityAudit,
+)
 
 from chipchain.evaluation.candidate import (
     FinalizedCandidateBuilder,
@@ -6,6 +24,9 @@ from chipchain.evaluation.candidate import (
     finalized_candidate_id,
 )
 from chipchain.evaluation.enums import (
+    AblationConditionFailureCode,
+    AblationConditionFailureStage,
+    AblationConditionKind,
     BenchmarkCaseLabel,
     BenchmarkCaseRunDisposition,
     BenchmarkExecutionFailureCode,
@@ -16,6 +37,7 @@ from chipchain.evaluation.enums import (
     EvaluationScope,
     EvaluationMetricName,
     ObjectiveFailureStage,
+    PromptVisibilityAuditStatus,
     ModelClaimBindingReason,
     ModelClaimBindingStatus,
 )
@@ -71,6 +93,16 @@ from chipchain.evaluation.benchmark_models import (
 from chipchain.evaluation.runner import BenchmarkEvaluationRunner
 
 __all__ = [
+    "AblationComparisonBuilder",
+    "AblationComparisonReport",
+    "AblationConditionExecutionFailure",
+    "AblationConditionFailureCode",
+    "AblationConditionFailureStage",
+    "AblationConditionKind",
+    "AblationConditionResult",
+    "AblationConditionSpec",
+    "AblationExperimentPlan",
+    "AblationMetricDelta",
     "BenchmarkArtifactReference",
     "BenchmarkCandidateAssessment",
     "BenchmarkCaseAccountingError",
@@ -91,6 +123,9 @@ __all__ = [
     "ChainFeasibilityOracle",
     "ChainFeasibilityReason",
     "ChainFeasibilityStatus",
+    "ContextObjectiveUpperBoundEvaluator",
+    "ContextObjectiveUpperBoundRate",
+    "ContextObjectiveUpperBoundResult",
     "CandidateEvaluationBundle",
     "EvaluationMetricName",
     "EvaluationMetricResult",
@@ -112,6 +147,10 @@ __all__ = [
     "ObjectiveEvaluationFailure",
     "ObjectiveFailureStage",
     "PHASE10B_RUNNER_CONTRACT",
+    "PHASE10C_ABLATION_CONTRACT",
+    "PromptVisibilityAudit",
+    "PromptVisibilityAuditStatus",
+    "PromptVisibilityAuditor",
     "benchmark_candidate_assessment_id",
     "benchmark_case_id",
     "benchmark_case_execution_failure_id",

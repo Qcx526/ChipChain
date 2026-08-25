@@ -66,3 +66,10 @@ class ReasoningAgentType(str, Enum):
     HARDWARE = "hardware"
     VULNERABILITY = "vulnerability"
     ATTACK_CHAIN = "attack_chain"
+
+
+class ReasoningPromptVisibility(str, Enum):
+    """Opt-in model-visible context policy for Phase 10C ablations."""
+
+    FULL_CONTEXT = "full_context"
+    MASKED_CHAIN_CONTEXT = "masked_chain_context"

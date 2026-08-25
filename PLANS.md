@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -453,7 +453,7 @@ Step 4 结果本身不是项目级“关联漏洞命中率 >= 80%”的分子。
 绑定的 Type II candidate-side objective path 中参与单条链 feasibility assessment；Phase 10B 还需
 claim alignment 与 exact Ground Truth match 才能计入 strict hit。
 
-### Phase 10：Evaluation（进行中；10A 与 10B 完成）
+### Phase 10：Evaluation（进行中；10A、10B 与 10C 完成）
 
 #### Phase 10A Step 1：Benchmark Ground Truth and Finalized Candidate Contracts（已完成）
 
@@ -519,7 +519,25 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] primary scope completeness、全 claim/feasibility status counts、confidence/metadata/input-order neutral IDs
 - [x] owned synthetic acceptance：`1/2`、`1/1`、`0/1`、`2/2`，仅验证合同且不产生 >=80% 结论
 
-后续工作：Phase 10C ablations、Phase 10D real-model comparison/report。`TRIGGERABLE` 仍不能脱离
+#### Phase 10C：Ablation Protocol and Prompt Visibility Firewall（已完成）
+
+- [x] 冻结 `FULL_CONTEXT_MODEL`、`MASKED_CHAIN_CONTEXT_MODEL`、`NO_MODEL_BASELINE`、
+  `CONTEXT_OBJECTIVE_UPPER_BOUND` 四条件与单次 repetition 的 deterministic plan
+- [x] 默认 FULL prompt byte-for-byte 保持既有行为；MASKED 只改变 model-visible serialization，
+  使用仅绑定可见字段的 `reasoning-prompt-view:<sha256>`，不暴露完整 Context ID
+- [x] masked prompt 至少隐藏 typed interaction、attack pattern 与 dynamic trigger reference；完整
+  Context 仍供 candidate finalization、claim binding 与 objective oracle 使用
+- [x] constrained parser 继续对完整 trusted Context 校验；错误、缺失或错误类型的 model claim
+  保持可测量，不由 Context 修复
+- [x] exact-reference `PromptVisibilityAudit` 只进行 post-construction PASS/LEAK_DETECTED 质量检查，
+  不干预 prompt、reasoning、candidate 或 Phase 10B metric
+- [x] 三个普通条件原样消费 frozen `BenchmarkEvaluationReport`；upper-bound diagnostic 仅移除
+  model-claim gate，仍要求 `CONFIRMED_FEASIBLE` 与 exact Ground Truth，negative 永不命中
+- [x] all-condition accounting、explicit execution failure、same-manifest/version/runner contract、
+  complete identical primary coverage 与 exact rational delta contracts
+- [x] 仅用 owned synthetic/offline fixture 验收；未运行真实模型、未计算 >=80%、未作因果效应声明
+
+后续工作：Phase 10D real-model comparison/report。`TRIGGERABLE` 仍不能脱离
 Type II exact candidate binding 被通用映射为
 `CONFIRMED_FEASIBLE`。
 

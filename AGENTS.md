@@ -38,7 +38,7 @@
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
   Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
-  与 Step 4、Phase 10A Step 1～3、Phase 10B 已完成；Step 3B 仍为 planned/not implemented。
+  与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -159,6 +159,16 @@
   failure 另由 `PrimaryCaseCoverage` 和 `primary_scope_complete` 暴露。Negative control 永不成为 hit，
   其 aligned+confirmed candidate 计为 false positive。Owned synthetic `1/2` 仅是合同验收，不是项目
   >=80% 结果；不得生成 threshold pass/fail 结论。
+- Phase 10C 只定义四条件 ablation protocol、model-visible prompt firewall 与确定性比较合同。
+  `FULL_CONTEXT_MODEL` 延续既有 prompt，因 typed chain Context 可能对模型可见，不得解释为模型
+  独立发现 interaction；`MASKED_CHAIN_CONTEXT_MODEL` 仅从 prompt 隐藏 interaction、attack-pattern
+  与 dynamic-trigger answer fields，完整 `ReasoningContext` 仍由 session/candidate/binder/oracle 持有。
+  Parser 始终以完整 trusted Context 校验输出，不得用隐藏值修复错误 claim；`NO_MODEL_BASELINE`
+  不得合成 model claim。`CONTEXT_OBJECTIVE_UPPER_BOUND` 只移除 claim-alignment gate，仍要求
+  `CONFIRMED_FEASIBLE` 与 exact Ground Truth match；它不是模型指标，也不是
+  `VerificationHitRate`。所有条件必须绑定同一 frozen manifest，失败必须显式记账，coverage 差异
+  必须可见。Prompt audit 只是非干预实验质量检查。不得把 ablation delta 称为因果效应，不运行真实
+  模型、不计算 >=80% 项目结论，且不得修改 Phase 10B metric semantics。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

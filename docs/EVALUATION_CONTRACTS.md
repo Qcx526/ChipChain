@@ -173,3 +173,34 @@ Phase 10A itself calculates no metric. Phase 10B also reports `GroundTruthChainR
 `NegativeControlFalsePositiveRate`, and `PrimaryCaseCoverage` as exact ID cohorts with explicit
 undefined zero-denominator results. The owned synthetic contract fixture yields `1/2`, `1/1`, `0/1`,
 and `2/2`; this is not a project performance result and no >=80% threshold conclusion is produced.
+
+## Phase 10C Ablation Contracts
+
+`AblationExperimentPlan` freezes exactly four conditions before outputs: full-context model,
+masked-chain-context model, no-model baseline, and context/objective upper bound. Version 1 fixes one
+repetition and does not add seeds or statistical inference. Full, masked, and no-model conditions
+consume an ordinary frozen Phase 10B `BenchmarkEvaluationReport`; Phase 10C neither copies nor
+recomputes its metrics.
+
+The full condition is the existing prompt control. It may expose candidate-side typed chain Context,
+so an aligned full-context claim is not evidence that the model independently discovered the
+interaction. The masked condition changes only provider-visible serialization. It hides the typed
+interaction, attack-pattern reference, dynamic-trigger-fact reference, and the full Context ID, while
+the trusted session, finalized candidate, binder, oracle, and constrained parser retain the complete
+Context. Wrong or absent provider claims remain wrong or absent and flow through existing
+`MISMATCHED`, `INCOMPLETE`, `UNBOUND`, or `MISSING` semantics. The no-model baseline never synthesizes
+Context into authorship.
+
+`ContextObjectiveUpperBoundRate` has all finalized PRIMARY_TARGET candidates as its denominator. Its
+numerator is restricted to positive candidates with `CONFIRMED_FEASIBLE` and the same exact
+interaction/optional attack-pattern/declared signature Ground Truth match used by Phase 10B. It
+removes only model-claim alignment. Negative controls cannot be hits. It is a Context/verifier
+diagnostic, not a model metric and not `VerificationHitRate`.
+
+`AblationComparisonReport` requires one explicit success or bounded execution failure for every plan
+condition, the same manifest/version and frozen Phase 10B runner contract, and exact integer cohort
+components for each delta. Coverage is comparable only when all conditions have identical, complete
+PRIMARY_TARGET case coverage. Prompt visibility audits search only exact separately supplied hidden
+references after construction; they do not modify prompts or evaluation and are not verification.
+Reported differences are observed ablation differences, never causal effects. Phase 10C performs no
+real-model run and produces no >=80% project conclusion.

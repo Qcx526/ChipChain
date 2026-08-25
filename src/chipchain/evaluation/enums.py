@@ -141,3 +141,39 @@ class EvaluationMetricName(str, Enum):
         "negative_control_false_positive_rate"
     )
     PRIMARY_CASE_COVERAGE = "primary_case_coverage"
+
+
+class AblationConditionKind(str, Enum):
+    """Closed Phase 10C experimental conditions."""
+
+    FULL_CONTEXT_MODEL = "full_context_model"
+    MASKED_CHAIN_CONTEXT_MODEL = "masked_chain_context_model"
+    NO_MODEL_BASELINE = "no_model_baseline"
+    CONTEXT_OBJECTIVE_UPPER_BOUND = "context_objective_upper_bound"
+
+
+class PromptVisibilityAuditStatus(str, Enum):
+    """Exact-reference prompt leakage audit outcomes."""
+
+    PASS = "pass"
+    LEAK_DETECTED = "leak_detected"
+
+
+class AblationConditionFailureStage(str, Enum):
+    """Bounded condition-level execution failure stages."""
+
+    PROVIDER = "provider"
+    ORCHESTRATION = "orchestration"
+    PROMPT_VISIBILITY = "prompt_visibility"
+    REPORT_ASSEMBLY = "report_assembly"
+
+
+class AblationConditionFailureCode(str, Enum):
+    """Stable condition execution failure categories."""
+
+    PROVIDER_UNAVAILABLE = "provider_unavailable"
+    CONDITION_ORCHESTRATION_FAILED = "condition_orchestration_failed"
+    PROMPT_VISIBILITY_CONSTRUCTION_FAILED = (
+        "prompt_visibility_construction_failed"
+    )
+    REPORT_ASSEMBLY_FAILED = "report_assembly_failed"

@@ -53,6 +53,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10A Step 2 Ground-Truth-free candidate-side objective chain feasibility oracle
 - Phase 10A Step 3 explicit model-authored chain claim 与 candidate-context binding assessment
 - Phase 10B deterministic all-case benchmark runner、exact Ground Truth comparison 与 exact-cohort metrics
+- Phase 10C 四条件 ablation protocol、prompt visibility firewall 与 deterministic comparison contracts
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -532,6 +533,25 @@ Companion metrics 为 `GroundTruthChainRecall`、`NegativeControlFalsePositiveRa
 `PrimaryCaseCoverage`。Negative control 永不成为 strict hit；若其 candidate 为 ALIGNED +
 CONFIRMED_FEASIBLE，则作为 benchmark false positive。Owned synthetic fixture 的 `1/2` hit rate 仅是
 合同验收结果，不是项目性能结果，也没有产生“>=80%”阈值结论。
+
+## Phase 10C Ablation and Prompt Visibility
+
+Phase 10C 预声明四个不可矛盾配置的条件：`FULL_CONTEXT_MODEL` 保留现有 provider prompt；
+`MASKED_CHAIN_CONTEXT_MODEL` 仅从 model-visible prompt 移除 typed interaction、attack-pattern 与
+dynamic-trigger chain-answer context；`NO_MODEL_BASELINE` 保持无 model-authored claim；
+`CONTEXT_OBJECTIVE_UPPER_BOUND` 只在后验 comparison 中移除 claim-alignment gate。
+
+MASKED 使用只由可见字段生成的 `reasoning-prompt-view:<sha256>`，不会在 prompt 中序列化完整
+`ReasoningContext.id`。完整 Context 不被替换或修改，仍由 `ReasoningSession`、candidate builder、
+`ModelClaimBinder` 和 `ChainFeasibilityOracle` 使用；parser 也继续对完整 trusted Context 校验 provider
+输出，但绝不把隐藏 participant 复制进错误或缺失的 model claim。Exact-reference prompt audit 只报告
+实验质量 `PASS`/`LEAK_DETECTED`，不参与 verification hit rate。
+
+三个普通条件原样使用 Phase 10B `BenchmarkEvaluationReport`。upper bound 仍要求 PRIMARY_TARGET
+finalized candidate、`CONFIRMED_FEASIBLE` 与 exact Ground Truth match，negative control 永不命中；它
+不是模型指标，也不叫 `VerificationHitRate`。Comparison 强制同一 manifest/version/runner contract、
+四条件完整记账、显式失败与可比较的完整 coverage，并以整数分子/分母保存 delta。这里的差异只是
+observed ablation difference，不是因果模型效应。本阶段没有真实模型实验，也没有 >=80% 结论。
 
 ## 文档导航
 

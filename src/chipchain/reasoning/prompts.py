@@ -13,6 +13,8 @@ from chipchain.reasoning.models import (
     REASONING_PROVIDER_SCHEMA_NAME,
     StructuredPromptRequest,
 )
+from chipchain.reasoning.enums import ReasoningPromptVisibility
+from chipchain.reasoning.prompt_view import ReasoningPromptView
 
 if TYPE_CHECKING:
     from chipchain.agents.base import ReasoningContext
@@ -334,6 +336,9 @@ class RoleBasedReasoningPromptBuilder:
         context: "ReasoningContext",
         *,
         role: ReasoningAgentType | str,
+        visibility: ReasoningPromptVisibility | str = (
+            ReasoningPromptVisibility.FULL_CONTEXT
+        ),
     ) -> StructuredPromptRequest:
         """Serialize only bounded context references and a closed output contract."""
 
@@ -341,6 +346,7 @@ class RoleBasedReasoningPromptBuilder:
 
         snapshot = ReasoningContext.model_validate(context.model_dump(mode="json"))
         normalized_role = ReasoningAgentType(role)
+        visibility_policy = ReasoningPromptVisibility(visibility)
         try:
             role_instruction = _ROLE_INSTRUCTIONS[normalized_role]
         except KeyError as exc:
@@ -389,6 +395,13 @@ class RoleBasedReasoningPromptBuilder:
             "role": normalized_role.value,
             "role_contract": role_contract,
         }
+        if visibility_policy is ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT:
+            view = ReasoningPromptView.create(
+                snapshot,
+                visibility=visibility_policy,
+            )
+            payload["reasoning_context"] = view.visible_context()
+            payload["prompt_visibility"] = visibility_policy.value
         return StructuredPromptRequest(
             candidate_id=snapshot.id,
             architecture=snapshot.architecture,
