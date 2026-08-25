@@ -37,7 +37,10 @@ During translation it copies PC, instruction size, and instruction bytes using
 `qemu_plugin_insn_data`. The opaque QEMU instruction handle is not retained.
 An event is emitted only from the instruction execution callback using
 `QEMU_PLUGIN_CB_NO_REGS`. The plugin does not read/write registers, read guest
-memory values, inject interrupts, alter PC, or mutate guest state.
+memory values, inject interrupts, alter PC, or mutate guest architectural
+state. Instrumentation overhead may affect execution timing; Step 3A makes no
+timing non-interference claim. A32 is the current runner/fixture scope and is
+not an assertion that the plugin dynamically observed CPSR.T.
 
 Build it explicitly against the canonical QEMU 11.0.3 headers:
 
@@ -53,3 +56,5 @@ Plugin options remain `out=<raw-v1-jsonl>` and `run_id=<safe-id>`. Use
 firmware-hash-mismatched runs fail closed. This observer confirms only exact T
 execution. It does not observe P or produce Evidence, VerificationRecord,
 triggerability, vulnerability, hardware-failure, or AttackChain conclusions.
+The generic runner does not invent fixture/synthetic/owned/benchmark provenance;
+such provenance remains explicit in fixture-specific inputs and documentation.

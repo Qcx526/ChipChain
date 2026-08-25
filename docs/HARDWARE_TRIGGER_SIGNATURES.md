@@ -162,7 +162,8 @@ The Phase 9B1 observer and `chipchain_qemu_raw_trace` v2 remain unchanged. A ded
 the plugin copies `qemu_plugin_insn_vaddr()`, `qemu_plugin_insn_size()` and
 `qemu_plugin_insn_data()` output into plugin-owned metadata, and only its instruction execution
 callback emits an event. The callback uses `QEMU_PLUGIN_CB_NO_REGS`; no register, CPSR, guest-memory
-value, MMIO value or intervention API is used.
+value, MMIO value or intervention API is used. Instrumentation callbacks may add execution overhead;
+Step 3A makes no timing non-interference claim.
 
 The strict trace requires one ARM system-emulation/single-vCPU header, contiguous instruction event
 indexes from zero, and one clean end record with consistent counts. `instruction_bytes` is lowercase,
@@ -183,6 +184,10 @@ concrete run did not execute that exact static occurrence.
 `RuntimeFirmwareTriggerOccurrence.id` binds raw trace content SHA-256, firmware SHA-256, static match
 ID, signature ID, exact runtime indexes, PCs and words. It excludes metadata, host path, timestamp,
 QEMU/plugin paths and diagnostics. Public runtime results serialize no host paths or verdict fields.
+The generic runner metadata records only observation-layer facts. It does not infer fixture,
+synthetic, owned, benchmark, or real-vulnerability provenance from artifact/path/run/scenario names.
+Owned fixture provenance remains explicit in the fixture files, Ground Truth, Signature metadata and
+`ProgramArtifact` metadata.
 
 The owned runtime fixture contains two static exact T functions, but `_start` calls only one before
 semihosting exit. Static Step 2 therefore finds two occurrences while real Step 3A acceptance confirms
@@ -193,6 +198,8 @@ RTL implementation.
 
 Step 3A never evaluates declared P. In particular, it does not read r0-r15, CPSR/T-bit, privilege
 mode, guest memory or memory values. Non-empty P is neither satisfied nor rejected by this result.
+`ArmExecutionMode.A32` and `execution_scope=declared_arm_a32` describe the constrained runner and
+fixture contract; they do not claim that Step 3A independently observed `CPSR.T == 0`.
 The immutable distinctions are:
 
 ```text

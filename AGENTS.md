@@ -101,7 +101,10 @@
   raw v1 与 Phase 9B1 raw v2、RuntimeObservation、DynamicTriggerFact 完全隔离。MVP 仍限 ARM A32
   little-endian、`virt`/`cortex-a15`/单 vCPU/TCG。结果只表示具体 trace 执行了 exact T，不读取
   register/CPSR/memory state，不判断 P、hardware failure、vulnerability、triggerability 或
-  AttackChain，不创建 Evidence/VerificationRecord/BehaviorEdge/score。
+  AttackChain，不创建 Evidence/VerificationRecord/BehaviorEdge/score。Generic trigger runner
+  不得根据 artifact/path/run/scenario 命名推断或写入 fixture/synthetic/owned/benchmark provenance；
+  A32 是 runner/fixture 的 declared execution scope，不表示动态观察了 CPSR.T。Instrumentation
+  callback 可能增加执行开销，Step 3A 不作 timing non-interference 声明。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

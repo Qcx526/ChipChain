@@ -28,8 +28,15 @@ from chipchain.runtime.qemu.trigger_parser import QemuTriggerRawTraceParser
 
 
 ProcessRunner = Callable[..., subprocess.CompletedProcess[str]]
+_DIAGNOSTIC_LIMIT = 800
 _HASH_CHUNK_SIZE = 1024 * 1024
 _CONTROL_CHARACTERS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+_SECRET_ASSIGNMENT = re.compile(
+    r"(?i)\b(api[_-]?key|authorization|password|secret|token)\s*[:=]\s*\S+"
+)
+_SECRET_TOKEN = re.compile(r"\bsk-[A-Za-z0-9_-]{12,}\b")
+_WINDOWS_PATH = re.compile(r"(?i)\b[A-Z]:[\\/][^\s\"']+")
+_POSIX_PATH = re.compile(r"(?<![\w.])/(?:[^/\s]+/)+[^\s\"']*")
 
 
 def _sha256_file(path: Path) -> str:
@@ -43,9 +50,20 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _bounded_stderr(stderr: str | None) -> str:
-    cleaned = " ".join(_CONTROL_CHARACTERS.sub(" ", stderr or "").split())
-    return (cleaned[:397] + "...") if len(cleaned) > 400 else (cleaned or "unavailable")
+def _stderr_diagnostic_summary(stderr: str | None) -> str:
+    """Return bounded diagnostics without common secrets or absolute paths."""
+
+    cleaned = _CONTROL_CHARACTERS.sub(" ", stderr or "")
+    cleaned = _SECRET_ASSIGNMENT.sub(r"\1=<redacted>", cleaned)
+    cleaned = _SECRET_TOKEN.sub("<redacted-token>", cleaned)
+    cleaned = _WINDOWS_PATH.sub("<host-path>", cleaned)
+    cleaned = _POSIX_PATH.sub("<host-path>", cleaned)
+    cleaned = " ".join(cleaned.split())
+    if not cleaned:
+        return "stderr unavailable"
+    if len(cleaned) > _DIAGNOSTIC_LIMIT:
+        return f"{cleaned[: _DIAGNOSTIC_LIMIT - 3]}..."
+    return cleaned
 
 
 def build_qemu_arm_trigger_sequence_command(
@@ -105,18 +123,14 @@ def _normalize_trigger_trace(
         execution_mode=ArmExecutionMode.A32,
         instructions=instructions,
         metadata={
-            "fixture": True,
-            "not_benchmark": True,
-            "not_real_vulnerability": True,
+            "execution_scope": "declared_arm_a32",
             "observation_scope": "runtime_trigger_sequence_t_only",
-            "owned": True,
-            "synthetic": True,
         },
     )
 
 
 class QemuTriggerSequenceRunner:
-    """Run owned firmware and return instruction facts without a verdict."""
+    """Run authorized firmware and return instruction facts without a verdict."""
 
     def __init__(
         self,
@@ -165,7 +179,7 @@ class QemuTriggerSequenceRunner:
         if completed.returncode != 0:
             raise QemuTriggerRunnerError(
                 f"QEMU trigger observer exited with code {completed.returncode}; "
-                f"stderr: {_bounded_stderr(completed.stderr)}"
+                f"stderr: {_stderr_diagnostic_summary(completed.stderr)}"
             )
         after = _sha256_file(config.firmware_elf)
         if after != before or after != config.firmware_sha256:
@@ -191,7 +205,7 @@ class QemuTriggerSequenceRunner:
         for label, path in (
             ("QEMU executable", config.qemu_executable),
             ("QEMU trigger plugin", config.plugin_path),
-            ("owned firmware ELF", config.firmware_elf),
+            ("firmware ELF", config.firmware_elf),
         ):
             if not path.is_file():
                 raise QemuTriggerRunnerError(f"{label} does not exist")

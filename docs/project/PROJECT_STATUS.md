@@ -27,6 +27,10 @@ artifact ID/SHA-256 as Step 2, then confirms only consecutive exact `(PC, logica
 for one `StaticFirmwareTriggerMatch.id`. The observer copies instruction bytes from translated QEMU
 instruction metadata but emits events only on actual execution. This does not observe declared
 register/memory/privilege preconditions and does not reproduce the vulnerable RTL hardware failure.
+R1 removes invented fixture/synthetic provenance from the generic runner and adds bounded secret/path
+redaction for failed-QEMU stderr. A32 remains a declared runner/fixture scope rather than a dynamic
+CPSR.T observation; instrumentation overhead may affect timing, so no timing non-interference claim
+is made.
 
 ## Remaining Work
 

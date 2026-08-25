@@ -56,11 +56,13 @@ class _MockProcess:
         raw_source: Path = VALID_RAW,
         timeout: bool = False,
         returncode: int = 0,
+        stderr: str = "synthetic failure",
         mutate_firmware: bool = False,
     ) -> None:
         self.raw_source = raw_source
         self.timeout = timeout
         self.returncode = returncode
+        self.stderr = stderr
         self.mutate_firmware = mutate_firmware
         self.calls: list[tuple[list[str], dict[str, object]]] = []
 
@@ -74,7 +76,7 @@ class _MockProcess:
             raise subprocess.TimeoutExpired(argv, kwargs.get("timeout", 1))
         if self.returncode:
             return subprocess.CompletedProcess(
-                argv, self.returncode, stdout="", stderr="synthetic failure"
+                argv, self.returncode, stdout="", stderr=self.stderr
             )
         plugin_arg = argv[argv.index("-plugin") + 1]
         output = Path(plugin_arg.split(",out=", 1)[1].rsplit(",run_id=", 1)[0])
@@ -114,11 +116,33 @@ def test_mock_runner_binds_firmware_and_returns_path_neutral_execution_facts(
     assert len(result.runtime_trace.instructions) == 8
     assert result.runtime_trace.instructions[1].instruction_word == "0xe3a00001"
     assert result.runtime_trace.artifact_id == config.artifact_id
+    assert result.runtime_trace.metadata == {
+        "execution_scope": "declared_arm_a32",
+        "observation_scope": "runtime_trigger_sequence_t_only",
+    }
     assert all(call[1]["shell"] is False for call in process.calls)
     serialized = result.model_dump_json()
     assert str(tmp_path) not in serialized
     assert "verified" not in serialized
     assert "triggerable" not in serialized
+
+
+def test_generic_runner_does_not_invent_dataset_provenance(tmp_path: Path) -> None:
+    config = _config(tmp_path)
+    config.artifact_id = "authorized-arm-a32-firmware"
+
+    result = QemuTriggerSequenceRunner(process_runner=_MockProcess()).run(config)
+
+    metadata = result.runtime_trace.metadata
+    assert metadata["observation_scope"] == "runtime_trigger_sequence_t_only"
+    assert metadata["execution_scope"] == "declared_arm_a32"
+    assert {
+        "fixture",
+        "synthetic",
+        "owned",
+        "not_benchmark",
+        "not_real_vulnerability",
+    }.isdisjoint(metadata)
 
 
 def test_wrong_firmware_hash_rejects_before_qemu_launch(tmp_path: Path) -> None:
@@ -171,3 +195,37 @@ def test_config_rejects_commas_unsafe_ids_and_noncanonical_hash(tmp_path: Path) 
     values["firmware_sha256"] = "A" * 64
     with pytest.raises(ValueError, match="lowercase"):
         QemuArmTriggerSequenceRunConfig.model_validate(values)
+
+
+def test_nonzero_exit_redacts_secrets_paths_and_bounds_stderr(tmp_path: Path) -> None:
+    stderr = (
+        "QEMU loader failed; api_key=secret-value "
+        "Authorization: BearerSecret password=hunter2 secret=hidden "
+        "token=token-value sk-abcdefghijklmnop "
+        "/home/example/private/firmware.elf "
+        "C:\\Users\\example\\private\\firmware.elf "
+        "control=bad\x01value "
+        + "diagnostic " * 200
+    )
+
+    with pytest.raises(QemuTriggerRunnerError) as captured:
+        QemuTriggerSequenceRunner(
+            process_runner=_MockProcess(returncode=7, stderr=stderr)
+        ).run(_config(tmp_path))
+
+    message = str(captured.value)
+    assert "exited with code 7" in message
+    assert "QEMU loader failed" in message
+    assert "api_key=<redacted>" in message
+    assert "authorization=<redacted>" in message.lower()
+    assert "<redacted-token>" in message
+    assert "<host-path>" in message
+    assert "secret-value" not in message
+    assert "BearerSecret" not in message
+    assert "hunter2" not in message
+    assert "token-value" not in message
+    assert "sk-abcdefghijklmnop" not in message
+    assert "/home/example/private/firmware.elf" not in message
+    assert "C:\\Users\\example\\private\\firmware.elf" not in message
+    assert "\x01" not in message
+    assert len(message) < 900

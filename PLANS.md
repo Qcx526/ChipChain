@@ -417,11 +417,14 @@ VerificationRecord、AttackChain、vulnerability/triggerability verdict 或 scor
 - [x] path-neutral `RuntimeTriggerExecutionTrace` 与 exact contiguous `(PC, word)` matching
 - [x] occurrence 绑定 raw content、artifact SHA、signature 与 `StaticFirmwareTriggerMatch.id`
 - [x] owned ELF 两个 static exact occurrences、仅一个实际执行 occurrence 的 real QEMU acceptance
+- [x] R1：generic runner 不发明 fixture/synthetic/owned/benchmark provenance，stderr 脱敏并限长
 
 Step 3A 只确认一个具体 runtime trace 实际执行 exact T。PC-only 不足以保存机器指令身份，因此
 地址和由 runtime raw little-endian bytes 转换的 logical A32 word 必须同时精确一致。它不读取 register、
 CPSR 或 guest memory，不判断 privilege/register/memory preconditions，也不表示 hardware failure、
-vulnerability、triggerability 或 AttackChain 已验证。
+vulnerability、triggerability 或 AttackChain 已验证。A32 是当前 runner 与 fixture 的 declared
+execution scope，不是对 CPSR.T 的动态观察；instrumentation overhead 可能影响执行 timing，Step 3A
+不声明 timing non-interference。
 
 #### Step 3B：Precondition-State Confirmation（planned / not implemented）
 

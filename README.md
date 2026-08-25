@@ -418,7 +418,12 @@ declared T + P contract != hardware failure reproduced in QEMU
 
 Step 3A 不读取 register/CPSR 或 guest memory，不判断 privilege/register/memory preconditions，
 也不创建 Evidence、VerificationRecord、BehaviorEdge、AttackChain、score 或 vulnerability/
-triggerability verdict。Step 3B 与 Step 4 仍未实现。
+triggerability verdict。Generic runner 只记录本层实际拥有的 observation scope，不会根据
+artifact ID、path、run ID 或 scenario ID 发明 fixture/synthetic/owned/benchmark provenance；owned
+fixture 的 provenance 仍由其 fixture、Ground Truth、Signature 与 ProgramArtifact 显式提供。
+`declared_arm_a32` 只是当前 runner/fixture execution scope，不表示动态观察了 CPSR.T。Plugin
+instrumentation 可能增加执行开销，Step 3A 不作 timing non-interference 声明。Step 3B 与 Step 4
+仍未实现。
 设计边界见 [Hardware Trigger Signatures](docs/HARDWARE_TRIGGER_SIGNATURES.md)。
 
 ## 文档导航
