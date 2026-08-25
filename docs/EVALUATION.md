@@ -86,8 +86,8 @@ VerificationHitRate
   / N(all finalized candidates produced in predeclared primary scope)
 ```
 
-当前只冻结 candidate、Ground Truth 与 scope contract，尚未实现 chain-level oracle 或计算指标。
-不能只保留验证成功或具备方便 runtime evidence 的候选。可另报预先冻结 eligibility 的 secondary
+Phase 10A Step 2 已实现 Ground-Truth-free 的单候选 objective oracle，但尚未实现 manifest runner 或
+计算指标。不能只保留验证成功或具备方便 runtime evidence 的候选。可另报预先冻结 eligibility 的 secondary
 verifier-conditioned rate，但它不能替代 strict metric。还必须报告 `GroundTruthChainRecall`，防止通过
 只输出少量保守候选虚增 hit rate。Hit@K、Precision/Recall/F1、节点/边指标仍是不同问题的辅助指标，
 不得与上述 verification hit rate 混为一谈。
@@ -115,6 +115,8 @@ verifier-conditioned rate，但它不能替代 strict metric。还必须报告 `
 ## 当前评测契约状态
 
 Phase 10A Step 1 已建立 finalized candidate、typed Ground Truth、source provenance、predeclared
-scope 与 versioned manifest contract。Initial owned synthetic Type II positive 和 negative control
-只用于 contract validation，不是真实 CVE 或正式 public Benchmark。Chain-level objective oracle、
-metric runner、消融与真实模型比较仍未实现；没有计算“关联漏洞命中率 >=80%”。
+scope 与 versioned manifest contract。Step 2 已建立不读取 Ground Truth 的单候选 objective oracle：
+只有完整绑定的 Type II + Phase 9C `TRIGGERABLE` 可得到 `CONFIRMED_FEASIBLE`；Type I 为
+`UNRESOLVED`，Type III 为 `UNSUPPORTED`。Initial owned synthetic cases 不是真实 CVE 或正式 public
+Benchmark。Metric runner、Ground Truth recall、消融与真实模型比较仍未实现；没有计算“关联漏洞命中率
+>=80%”。

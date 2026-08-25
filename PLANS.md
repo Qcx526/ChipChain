@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～2 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -448,10 +448,10 @@ Step 3A 的 exact T occurrence 当作 `T + P`，也不得把未观察的 P 标�
 vulnerability 动态重现、CrossLayerInteraction/AttackChain verified 或漏洞确认。非空 P 保持
 `INSUFFICIENT_PRECONDITION_EVIDENCE`，等待未来 Step 3B 或另一个显式设计的客观 precondition oracle。
 
-Step 4 结果尚不是项目级“关联漏洞命中率 >= 80%”的分子。Phase 10A Step 1 已冻结 finalized
-candidate 与 predeclared scope denominator contract，但 chain-level feasibility oracle 与计算仍未实现。
+Step 4 结果本身不是项目级“关联漏洞命中率 >= 80%”的分子。Phase 10A Step 2 只允许它在完整
+绑定的 Type II candidate-side objective path 中参与单条链 feasibility assessment；指标仍未计算。
 
-### Phase 10：Evaluation（进行中；仅 10A Step 1 完成）
+### Phase 10：Evaluation（进行中；10A Step 1～2 完成）
 
 #### Phase 10A Step 1：Benchmark Ground Truth and Finalized Candidate Contracts（已完成）
 
@@ -469,10 +469,24 @@ interaction 的弱候选也不得静默移除。此步骤只定义合同，不�
 “关联漏洞命中率 >= 80%”。未来 secondary verifier-conditioned rate 必须单独报告，且不能替代 strict
 metric；还需 companion GroundTruthChainRecall 防止通过少发候选虚增命中率。
 
-后续工作：Phase 10A Step 2 chain-level objective oracle、Phase 10B evaluation runner/metrics、
-Phase 10C ablations、Phase 10D real-model comparison/report。未来 outcome taxonomy 至少区分
-`CONFIRMED_FEASIBLE`、`NOT_SUPPORTED`、`UNRESOLVED`、`UNSUPPORTED` 与 `INFRA_FAILURE`，但本步骤
-未实现这些状态。`TRIGGERABLE` 不能被通用映射为 `CONFIRMED_FEASIBLE`。
+#### Phase 10A Step 2：Candidate-Side Objective Chain Feasibility Oracle（已完成）
+
+- [x] Ground-Truth-free detached oracle API 与 evaluation typed error hierarchy
+- [x] `CONFIRMED_FEASIBLE`、`NOT_SUPPORTED`、`UNRESOLVED`、`UNSUPPORTED`、`INFRA_FAILURE` 封闭状态
+- [x] Candidate/interaction/artifact/target hardware vulnerability/triggerability exact binding
+- [x] Type II exact-T closure、Type I enabling-link gap、Type III capability gap 的严格矩阵
+- [x] bounded deterministic `ObjectiveEvaluationFailure` 与 infra/model/contract failure 分离
+- [x] deterministic assessment ID、closed reason codes、shape/status/ID tamper rejection
+
+Oracle 评估 finalized whole-system candidate：`merged_hypothesis` 是 model-authored proposition，
+optional interaction ID/type/direction 是 ReasoningContext 提供的 candidate-side typed binding，不能据此
+宣称 LLM 独立预测了 interaction。Ground Truth、BenchmarkCase、Manifest、EvaluationScope 均不是 oracle
+输入。当前只有 Type II + exact bindings + Phase 9C `TRIGGERABLE` 可确认；Type I 保持 unresolved，
+Type III 保持 unsupported。Step 2 每次只产生一个 assessment，不执行 benchmark runner 或指标。
+
+后续工作：Phase 10B evaluation runner/metrics、Phase 10C ablations、Phase 10D real-model
+comparison/report。`TRIGGERABLE` 仍不能脱离 Type II exact candidate binding 被通用映射为
+`CONFIRMED_FEASIBLE`。
 
 ### Phase 11：API / Visualization
 

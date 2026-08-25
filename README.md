@@ -50,6 +50,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9C Step 3A 独立 QEMU instruction-byte trace 与 exact contiguous runtime T confirmation
 - Phase 9C Step 4 deterministic triggerability aggregation 与 declared-precondition fail-closed policy
 - Phase 10A Step 1 finalized candidate、typed Ground Truth、predeclared scope 与 versioned manifest contracts
+- Phase 10A Step 2 Ground-Truth-free candidate-side objective chain feasibility oracle
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -468,8 +469,25 @@ VerificationHitRate
 ```
 
 结构较弱或缺少 typed binding 的候选不得从 denominator 静默消失。未来可单独报告预先冻结 eligibility
-的 verifier-conditioned secondary rate，并必须配套 `GroundTruthChainRecall`。Phase 10A Step 1 没有
-实现 chain-level oracle、outcome taxonomy 或 metric calculation，也没有计算“关联漏洞命中率 >=80%”。
+的 verifier-conditioned secondary rate，并必须配套 `GroundTruthChainRecall`。
+
+Phase 10A Step 2 新增单条候选的 `ChainFeasibilityOracle`，输入只允许 finalized candidate、
+path-neutral artifact、candidate-side typed interaction、Phase 9C triggerability 与显式 bounded
+infrastructure failure。Ground Truth、BenchmarkCase、Manifest 和 EvaluationScope 不进入 oracle。
+Candidate 的 interaction ID/type/direction 来自 `ReasoningContext` typed binding，并不自动说明 LLM
+独立创作或正确预测了这些字段。
+
+当前矩阵为：
+
+- Type II + 完整 exact binding + `TRIGGERABLE` → `CONFIRMED_FEASIBLE`；
+- Type I → `UNRESOLVED`，直到有 objective software-vulnerability→exact-T enabling link；
+- Type III → `UNSUPPORTED`，因为 HW→SW objective propagation 未实现；
+- `NO_STATIC_TRIGGER_MATCH` → `NOT_SUPPORTED`；
+- `NOT_OBSERVED_IN_RUNTIME` 或 declared P 未确认 → `UNRESOLVED`；
+- 只有显式 `ObjectiveEvaluationFailure` 可产生 `INFRA_FAILURE`。
+
+该 assessment 不是 domain AttackChain，也不创建 VerificationRecord 或 score。Phase 10A Step 2
+没有运行 benchmark manifest、比较 Ground Truth 或计算“关联漏洞命中率 >=80%”。
 详见 [Evaluation Contracts](docs/EVALUATION_CONTRACTS.md)。
 
 ## 文档导航

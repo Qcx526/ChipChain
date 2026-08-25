@@ -2,8 +2,9 @@
 
 ## Scope
 
-Phase 10A Step 1 freezes evaluation inputs and identities only. It adds no evaluator, feasibility
-verdict, metric runner, LLM schema change, Evidence, VerificationRecord, or AttackChain projection.
+Phase 10A Step 1 freezes evaluation inputs and identities. Step 2 adds one Ground-Truth-free,
+candidate-side objective feasibility assessment at a time. Neither step adds a benchmark runner,
+metric calculation, LLM schema change, Evidence, VerificationRecord, or AttackChain projection.
 The initial scope is ARM-only. Phase 9C Step 3B and objective Type III HW→SW propagation remain not
 implemented.
 
@@ -66,9 +67,35 @@ verifier-conditioned rate may later use a predeclared objectively-verifiable sub
 reported separately. `GroundTruthChainRecall` must accompany hit rate so emitting very few candidates
 cannot trivially inflate it.
 
-A future chain-level evaluator should distinguish `CONFIRMED_FEASIBLE`, `NOT_SUPPORTED`, `UNRESOLVED`,
-`UNSUPPORTED`, and `INFRA_FAILURE`. Only `CONFIRMED_FEASIBLE` may enter the numerator. These outcomes
-are documentation only in Step 1 and are not implemented here.
+## Candidate-Side Objective Oracle
+
+`ChainFeasibilityOracle` accepts only `FinalizedCandidateRecord`, path-neutral
+`BenchmarkArtifactReference`, optional candidate-side `CrossLayerInteraction`, optional Phase 9C
+`TriggerabilityAggregationResult`, and optional explicit `ObjectiveEvaluationFailure`. It does not
+accept GroundTruthChain, BenchmarkCase, Manifest, or EvaluationScope and cannot repair a candidate
+from an answer key.
+
+The merged hypothesis is the model-authored proposition. Candidate interaction ID/type/direction are
+copied from ReasoningContext when present and are deterministic candidate-side Context bindings; they
+must not be reported as fields independently invented or correctly predicted by the LLM. The oracle
+evaluates the whole finalized candidate under this explicit binding.
+
+The closed current matrix is:
+
+- Type II + exact candidate/interaction/artifact/target-vulnerability binding + `TRIGGERABLE` gives
+  `CONFIRMED_FEASIBLE`.
+- Type II `NO_STATIC_TRIGGER_MATCH` gives `NOT_SUPPORTED` for the exact tested target.
+- Type II runtime-not-observed, insufficient declared-P evidence, or missing triggerability gives
+  `UNRESOLVED`.
+- Type I `NO_STATIC_TRIGGER_MATCH` gives `NOT_SUPPORTED`; every other current Type I path remains
+  `UNRESOLVED` because objective software-vulnerability→exact-T enabling linkage is not implemented.
+- Type III gives `UNSUPPORTED`; Phase 9C software→hardware triggerability cannot be attached to it.
+- `INFRA_FAILURE` requires an explicit, bounded, correctly bound ObjectiveEvaluationFailure. Invalid
+  objects or contradictory bindings raise typed errors and are never outcomes.
+
+Only `CONFIRMED_FEASIBLE` may later enter a strict numerator. This assessment does not mean QEMU
+reproduced a hardware failure, that the LLM authored every typed binding, or that an AttackChain domain
+object was verified.
 
 `TriggerabilityAggregationResult.TRIGGERABLE` is one objective component: firmware executed exact T
 for a prevalidated hardware-trigger contract with no additional declared P. It does not automatically
@@ -76,4 +103,4 @@ bind the finalized candidate, establish the Type I initiating software vulnerabi
 CrossLayerInteraction truth or Type III propagation, or confirm an AttackChain. Therefore
 `TRIGGERABLE == CONFIRMED_FEASIBLE` is not a valid generic rule.
 
-No >=80% hit rate is calculated in Phase 10A Step 1.
+No >=80% hit rate is calculated in Phase 10A Step 1 or Step 2.

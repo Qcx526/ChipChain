@@ -38,7 +38,7 @@
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
   Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
-  与 Step 4、Phase 10A Step 1 已完成；Step 3B 仍为 planned/not implemented。
+  与 Step 4、Phase 10A Step 1～2 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -114,8 +114,8 @@
   occurrence 仅是当前 scenario 的 `not_observed_in_runtime`；零 static match 是
   `no_static_trigger_match`。所有 identity/hash/PC+word/artifact 矛盾必须抛异常，不得转成状态。
   结果不是 Evidence、VerificationRecord、AttackChain、vulnerability verdict 或 score，也不表示
-  QEMU 重现了 hardware failure。它尚不是项目级“关联漏洞命中率 >= 80%”的分子；Phase 10A
-  Step 1 只冻结 candidate/scope denominator contract，chain-level oracle 与计算仍未实现。
+  QEMU 重现了 hardware failure。它本身不是项目级“关联漏洞命中率 >= 80%”的分子；Phase 10A
+  Step 2 仅在完整绑定的 Type II candidate-side objective path 中把它作为一个必要组件。
 - Phase 10A Step 1 只冻结 evaluation contracts。一个完整 `ReasoningSession` 只产生一个
   `FinalizedCandidateRecord`，其命题仅为 `merged_hypothesis`；四个角色的内部 hypotheses、message、
   EvidenceRequest 或 raw Provider 输出都不是独立 denominator candidate。候选构建器不得读取
@@ -126,6 +126,17 @@
   不得发明 initiating software vulnerability，Type III 必须保持 HW→SW。Phase 10A Step 1 不创建
   chain-level outcome、不计算 hit rate。`TriggerabilityAggregationResult.TRIGGERABLE` 只是未来
   oracle 的一个 objective component，不等于 `CONFIRMED_FEASIBLE`。
+- Phase 10A Step 2 的 `ChainFeasibilityOracle` 只接受 finalized candidate、path-neutral artifact、
+  candidate-side interaction、Phase 9C triggerability 与显式 bounded infrastructure failure；不得接受
+  GroundTruthChain、BenchmarkCase、Manifest 或 EvaluationScope。candidate 中的 interaction
+  ID/type/direction 来自 ReasoningContext typed binding，不自动表示 LLM 独立预测了这些字段。
+- 当前只有完整绑定的 Type II + `TRIGGERABLE` 可得到 `CONFIRMED_FEASIBLE`。Type I 即使
+  `TRIGGERABLE` 也因缺少 objective software-vulnerability→exact-T enabling link 保持
+  `UNRESOLVED`；Type III 因 HW→SW objective propagation 未实现而保持 `UNSUPPORTED`。
+  `NOT_OBSERVED_IN_RUNTIME` 与 non-empty P 都是 `UNRESOLVED`；exact tested target 的
+  `NO_STATIC_TRIGGER_MATCH` 才映射 `NOT_SUPPORTED`。无效/矛盾输入必须抛 typed exception；只有显式
+  `ObjectiveEvaluationFailure` 可产生 `INFRA_FAILURE`。本步骤不运行 manifest、不匹配 Ground Truth、
+  不创建 AttackChain/VerificationRecord，也不计算 hit rate。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

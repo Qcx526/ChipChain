@@ -21,19 +21,19 @@
 - Phase 9C Step 3A passive QEMU instruction-byte trace and exact contiguous runtime T confirmation
 - Phase 9C Step 4 detached triggerability aggregation with typed declared-precondition policy
 - Phase 10A Step 1 finalized candidate, typed Ground Truth, predeclared scope, and manifest contracts
+- Phase 10A Step 2 Ground-Truth-free candidate-side objective chain feasibility oracle
 
 ## Current Work
 
-Phase 10A Step 1 is complete. One complete ReasoningSession now maps to one deterministic finalized
-candidate whose proposition is only `merged_hypothesis`. Benchmark truth remains separate in typed
-GroundTruthChain/Case/Manifest contracts with source provenance and predeclared evaluation scope.
-No chain-level outcome, evaluator, metric, or >=80% result exists yet. Phase 9C Step 3B remains
-deferred/not implemented.
+Phase 10A Step 2 is complete. The oracle assesses one finalized candidate using only candidate-side
+typed interaction, artifact identity, Phase 9C triggerability, and optional explicit infrastructure
+failure. Ground Truth is not an input. Only the current exact-bound Type II path can become
+`CONFIRMED_FEASIBLE`; Type I remains `UNRESOLVED`, and Type III remains `UNSUPPORTED`. No benchmark
+runner, metric, Ground Truth recall, or >=80% result exists yet. Phase 9C Step 3B remains deferred.
 
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- Phase 10A Step 2 chain-level objective oracle
 - Phase 10B evaluation runner and metrics
 - Phase 10C ablations
 - Phase 10D real-model comparison and report
@@ -58,7 +58,7 @@ verification, scoring or reasoning. It creates no Evidence, VerificationRecord, 
 AttackChain or vulnerability/triggerability verdict.
 
 Step 4 triggerability is one firmware-to-hardware-contract component and is not a generic
-`CONFIRMED_FEASIBLE` chain outcome. Phase 10A Step 1 freezes candidate/Ground Truth/scope contracts
-only. Ground Truth never enriches candidate records, model confidence does not determine identity or
-feasibility, and internal role hypotheses are not denominator candidates. No “关联漏洞命中率 >= 80%”
-calculation has been performed.
+`CONFIRMED_FEASIBLE` chain outcome without exact Type II candidate-side binding. Ground Truth never
+enriches candidate records or enters the oracle; model confidence does not determine assessment
+identity/status, and internal role hypotheses are not denominator candidates. Context-bound interaction
+fields are not automatically LLM-authored. No “关联漏洞命中率 >= 80%” calculation has been performed.

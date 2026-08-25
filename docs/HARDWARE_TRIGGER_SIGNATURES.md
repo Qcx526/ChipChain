@@ -255,6 +255,6 @@ hardware-trigger contract. This means the supplied firmware objectively executed
 prevalidated contract with no additional declared P. It does not mean QEMU reproduced the hardware
 failure, a real ARM vulnerability was confirmed, or an AttackChain was verified.
 
-This Step 4 result is not yet the numerator for the project-level “关联漏洞命中率 >= 80%”. Phase 10A
-Step 1 freezes finalized-candidate and predeclared-scope denominator contracts, but it does not add a
-chain-level feasibility oracle or calculate metrics. Step 4 still computes no hit rate.
+This Step 4 result is not itself the numerator for the project-level “关联漏洞命中率 >= 80%”. Phase 10A
+Step 2 may use it only as one component of an exactly bound Type II candidate-side feasibility path.
+Type I and Type III are not promoted by this result. Step 4 and Step 10A still compute no hit rate.
