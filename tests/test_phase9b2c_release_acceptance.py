@@ -32,6 +32,7 @@ ROLE_ORDER = (
     ReasoningAgentType.ATTACK_CHAIN,
 )
 OLD_SCHEMA_NAME = "phase9b2b_reasoning_output_v1"
+PREVIOUS_SCHEMA_NAME = "phase9b2c_reasoning_semantic_output_v2"
 
 
 def _context() -> ReasoningContext:
@@ -54,9 +55,11 @@ def _prompt() -> StructuredPromptRequest:
     )
 
 
-def _old_schema_prompt() -> StructuredPromptRequest:
+def _old_schema_prompt(
+    schema_name: str = OLD_SCHEMA_NAME,
+) -> StructuredPromptRequest:
     payload = _prompt().model_dump(mode="json")
-    payload["schema_name"] = OLD_SCHEMA_NAME
+    payload["schema_name"] = schema_name
     return StructuredPromptRequest.model_validate(payload)
 
 
@@ -83,19 +86,22 @@ class CapturingProvider(ReasoningProvider):
         return self._delegate.generate(request)
 
 
-def test_current_provider_schema_is_explicit_reduced_semantic_v2() -> None:
+def test_current_provider_schema_is_explicit_model_claim_v3() -> None:
     prompt = _prompt()
 
     assert REASONING_PROVIDER_SCHEMA_NAME == (
-        "phase9b2c_reasoning_semantic_output_v2"
+        "phase10a_model_authored_chain_claim_v3"
     )
     assert prompt.schema_name == REASONING_PROVIDER_SCHEMA_NAME
     assert REASONING_PROVIDER_SCHEMA_NAME in prompt.system_prompt
     assert OLD_SCHEMA_NAME not in prompt.system_prompt
 
 
-def test_old_v1_schema_is_rejected_by_mock_and_real_provider_bridge() -> None:
-    old_prompt = _old_schema_prompt()
+@pytest.mark.parametrize("schema_name", [OLD_SCHEMA_NAME, PREVIOUS_SCHEMA_NAME])
+def test_old_schemas_are_rejected_by_mock_and_real_provider_bridge(
+    schema_name: str,
+) -> None:
+    old_prompt = _old_schema_prompt(schema_name)
 
     with pytest.raises(ValueError, match="unsupported reasoning output schema"):
         MockReasoningProvider().generate(old_prompt)
@@ -114,7 +120,7 @@ def test_old_v1_schema_is_rejected_by_mock_and_real_provider_bridge() -> None:
         provider.generate(old_prompt)
 
 
-def test_v2_transport_schema_remains_reduced_to_semantic_fields() -> None:
+def test_v3_transport_schema_adds_only_explicit_claim_semantics() -> None:
     schema_text = str(reasoning_provider_output_json_schema()).lower()
 
     for immutable_binding in (
@@ -130,6 +136,14 @@ def test_v2_transport_schema_remains_reduced_to_semantic_fields() -> None:
     assert "required_fact" in schema_text
     assert "reasoning_steps" in schema_text
     assert "supporting_evidence_ids" in schema_text
+    assert "chain_claim" in schema_text
+    assert "interaction_type" in schema_text
+    assert "target_vulnerability_ids" in schema_text
+    for system_owned_claim_field in (
+        "author_role",
+        "model-authored-chain-claim",
+    ):
+        assert system_owned_claim_field not in schema_text
 
 
 def test_observed_provider_is_transparent_and_records_only_bounded_identity() -> None:

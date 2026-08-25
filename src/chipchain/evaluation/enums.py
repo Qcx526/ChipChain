@@ -69,3 +69,37 @@ class ObjectiveFailureStage(str, Enum):
     TRIGGERABILITY_AGGREGATION = "triggerability_aggregation"
     INTERACTION_VERIFICATION = "interaction_verification"
     OTHER_OBJECTIVE_INFRASTRUCTURE = "other_objective_infrastructure"
+
+
+class ModelClaimBindingStatus(str, Enum):
+    """Closed outcomes for model-claim/candidate-interaction comparison."""
+
+    ALIGNED = "aligned"
+    INCOMPLETE = "incomplete"
+    MISMATCHED = "mismatched"
+    UNBOUND = "unbound"
+    MISSING = "missing"
+
+
+class ModelClaimBindingReason(str, Enum):
+    """Deterministic reasons for one model claim binding outcome."""
+
+    CLAIM_ALIGNED = "claim_aligned"
+    MODEL_AUTHORED_CLAIM_MISSING = "model_authored_claim_missing"
+    CANDIDATE_TYPED_INTERACTION_MISSING = (
+        "candidate_typed_interaction_missing"
+    )
+    CLAIM_REQUIRED_FIELDS_MISSING = "claim_required_fields_missing"
+    CLAIM_TYPE_SHAPE_CONFLICT = "claim_type_shape_conflict"
+    CLAIM_INTERACTION_TYPE_MISMATCH = "claim_interaction_type_mismatch"
+    CLAIM_INITIATING_VULNERABILITY_MISMATCH = (
+        "claim_initiating_vulnerability_mismatch"
+    )
+    CLAIM_TARGET_VULNERABILITY_MISMATCH = (
+        "claim_target_vulnerability_mismatch"
+    )
+    CLAIM_TRIGGER_BEHAVIOR_MISMATCH = "claim_trigger_behavior_mismatch"
+    CLAIM_AFFECTED_EXECUTION_MISMATCH = (
+        "claim_affected_execution_mismatch"
+    )
+    CLAIM_OPTIONAL_REFERENCE_MISMATCH = "claim_optional_reference_mismatch"

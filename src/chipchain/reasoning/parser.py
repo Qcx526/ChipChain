@@ -8,12 +8,15 @@ from typing import TYPE_CHECKING, TypeAlias
 from pydantic import Field, ValidationError, field_validator
 
 from chipchain.models.common import DomainModel, Identifier, UnitInterval
+from chipchain.models.enums import Architecture
 from chipchain.reasoning.enums import (
     EvidenceCategory,
     EvidencePriority,
     HypothesisSource,
     ReasoningAgentType,
 )
+from chipchain.models.cross_layer import CrossLayerInteractionType
+from chipchain.reasoning.chain_claim import ModelAuthoredChainClaim
 from chipchain.reasoning.errors import LLMOutputValidationError
 from chipchain.reasoning.evidence_request import EvidenceRequest
 from chipchain.reasoning.hypothesis import AttackHypothesis
@@ -40,6 +43,7 @@ _FORBIDDEN_OUTPUT_FIELDS = frozenset(
         "causalitystatus",
         "causalityverdict",
         "evidence",
+        "feasibility",
         "interactionstatus",
         "interactionverificationstatus",
         "isverified",
@@ -61,6 +65,37 @@ class _HypothesisSemanticProposal(DomainModel):
 
     description: Identifier
     confidence: UnitInterval
+    chain_claim: _ChainClaimSemanticProposal | None = None
+
+
+class _ChainClaimSemanticProposal(DomainModel):
+    """Provider-authored participant selections without system-owned identity."""
+
+    interaction_type: CrossLayerInteractionType
+    initiating_vulnerability_ids: list[Identifier] = Field(default_factory=list)
+    target_vulnerability_ids: list[Identifier] = Field(default_factory=list)
+    trigger_behavior_ids: list[Identifier] = Field(default_factory=list)
+    propagation_behavior_ids: list[Identifier] = Field(default_factory=list)
+    affected_execution_ids: list[Identifier] = Field(default_factory=list)
+    fault_state_ids: list[Identifier] = Field(default_factory=list)
+    hardware_resource_ids: list[Identifier] = Field(default_factory=list)
+    security_mechanism_ids: list[Identifier] = Field(default_factory=list)
+
+    @field_validator(
+        "initiating_vulnerability_ids",
+        "target_vulnerability_ids",
+        "trigger_behavior_ids",
+        "propagation_behavior_ids",
+        "affected_execution_ids",
+        "fault_state_ids",
+        "hardware_resource_ids",
+        "security_mechanism_ids",
+    )
+    @classmethod
+    def normalize_reference_lists(cls, values: list[str]) -> list[str]:
+        if len(values) != len(set(values)):
+            raise ValueError("provider claim reference IDs must be unique")
+        return sorted(values)
 
 
 class _EvidenceRequestSemanticProposal(DomainModel):
@@ -147,12 +182,26 @@ class ConstrainedReasoningOutputParser:
                 stage="output_schema",
             ) from None
 
+        if (
+            proposal.hypothesis.chain_claim is not None
+            and normalized_role is not ReasoningAgentType.ATTACK_CHAIN
+        ):
+            raise LLMOutputValidationError(
+                "only the attack_chain role may author a chain claim",
+                stage="role_authority",
+            )
+
         expected_requests = role_contract["evidence_requests"]
         required_evidence_types = [
             EvidenceCategory(item["evidence_type"])
             for item in expected_requests
         ]
 
+        claim = self._parse_chain_claim(
+            proposal.hypothesis.chain_claim,
+            architecture=snapshot.architecture,
+            role=normalized_role,
+        )
         hypothesis = AttackHypothesis.create(
             source=HypothesisSource.LLM,
             architecture=snapshot.architecture,
@@ -161,6 +210,7 @@ class ConstrainedReasoningOutputParser:
             attack_pattern_reference=snapshot.attack_pattern_reference,
             required_evidence_types=required_evidence_types,
             confidence=proposal.hypothesis.confidence,
+            model_authored_chain_claim=claim,
             metadata={
                 "confidence_semantics": "reasoning_only_not_verification_score",
                 "provider_output": "constrained",
@@ -197,6 +247,27 @@ class ConstrainedReasoningOutputParser:
             },
         )
         return hypothesis, requests, result
+
+    @staticmethod
+    def _parse_chain_claim(
+        proposal: _ChainClaimSemanticProposal | None,
+        *,
+        architecture: Architecture,
+        role: ReasoningAgentType,
+    ) -> ModelAuthoredChainClaim | None:
+        if proposal is None:
+            return None
+        values = proposal.model_dump(mode="python")
+        return ModelAuthoredChainClaim.create(
+            architecture=architecture,
+            author_role=role,
+            metadata={
+                "authorship_semantics": "model_proposal_not_verified_truth",
+                "provider_output": "constrained",
+                "reasoning_role": role.value,
+            },
+            **values,
+        )
 
     def _parse_requests(
         self,

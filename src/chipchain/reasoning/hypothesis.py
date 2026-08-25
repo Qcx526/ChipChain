@@ -10,6 +10,7 @@ from pydantic import Field, field_validator, model_validator
 
 from chipchain.models import Architecture
 from chipchain.models.common import DomainModel, Identifier, Metadata, UnitInterval
+from chipchain.reasoning.chain_claim import ModelAuthoredChainClaim
 from chipchain.reasoning.enums import EvidenceCategory, HypothesisSource
 
 
@@ -73,22 +74,25 @@ def attack_hypothesis_id(
     affected_components: list[str],
     attack_pattern_reference: str | None,
     required_evidence_types: list[EvidenceCategory],
+    model_authored_chain_claim_id: str | None = None,
 ) -> str:
     """Build identity from the proposition, never confidence or metadata."""
 
-    return _canonical_reasoning_id(
-        "attack-hypothesis",
-        {
-            "architecture": architecture.value,
-            "attack_pattern_reference": attack_pattern_reference,
-            "affected_components": sorted(affected_components),
-            "description": description,
-            "required_evidence_types": sorted(
-                item.value for item in required_evidence_types
-            ),
-            "source": source.value,
-        },
-    )
+    payload: dict[str, object] = {
+        "architecture": architecture.value,
+        "attack_pattern_reference": attack_pattern_reference,
+        "affected_components": sorted(affected_components),
+        "description": description,
+        "required_evidence_types": sorted(
+            item.value for item in required_evidence_types
+        ),
+        "source": source.value,
+    }
+    if model_authored_chain_claim_id is not None:
+        payload["model_authored_chain_claim_id"] = (
+            model_authored_chain_claim_id
+        )
+    return _canonical_reasoning_id("attack-hypothesis", payload)
 
 
 class AttackHypothesis(DomainModel):
@@ -101,6 +105,7 @@ class AttackHypothesis(DomainModel):
     affected_components: list[Identifier] = Field(min_length=1)
     attack_pattern_reference: Identifier | None = None
     required_evidence_types: list[EvidenceCategory] = Field(min_length=1)
+    model_authored_chain_claim: ModelAuthoredChainClaim | None = None
     confidence: UnitInterval
     metadata: Metadata = Field(default_factory=dict)
 
@@ -127,6 +132,12 @@ class AttackHypothesis(DomainModel):
 
     @model_validator(mode="after")
     def validate_identity(self) -> "AttackHypothesis":
+        if (
+            self.model_authored_chain_claim is not None
+            and self.model_authored_chain_claim.architecture
+            is not self.architecture
+        ):
+            raise ValueError("hypothesis chain claim architecture mismatch")
         expected_id = attack_hypothesis_id(
             source=self.source,
             architecture=self.architecture,
@@ -134,6 +145,11 @@ class AttackHypothesis(DomainModel):
             affected_components=self.affected_components,
             attack_pattern_reference=self.attack_pattern_reference,
             required_evidence_types=self.required_evidence_types,
+            model_authored_chain_claim_id=(
+                self.model_authored_chain_claim.id
+                if self.model_authored_chain_claim is not None
+                else None
+            ),
         )
         if self.id != expected_id:
             raise ValueError("AttackHypothesis ID is not deterministic")
@@ -150,6 +166,7 @@ class AttackHypothesis(DomainModel):
         required_evidence_types: list[EvidenceCategory | str],
         confidence: float,
         attack_pattern_reference: str | None = None,
+        model_authored_chain_claim: ModelAuthoredChainClaim | None = None,
         metadata: Metadata | None = None,
     ) -> "AttackHypothesis":
         """Create one deterministic, explicitly unverified hypothesis."""
@@ -166,6 +183,17 @@ class AttackHypothesis(DomainModel):
         normalized_evidence_types = [
             EvidenceCategory(item) for item in required_evidence_types
         ]
+        claim_snapshot = (
+            ModelAuthoredChainClaim.model_validate(
+                model_authored_chain_claim.model_dump(mode="json")
+            )
+            if isinstance(model_authored_chain_claim, ModelAuthoredChainClaim)
+            else None
+        )
+        if model_authored_chain_claim is not None and claim_snapshot is None:
+            raise TypeError(
+                "model_authored_chain_claim must be a ModelAuthoredChainClaim"
+            )
         identity = attack_hypothesis_id(
             source=normalized_source,
             architecture=normalized_architecture,
@@ -173,6 +201,9 @@ class AttackHypothesis(DomainModel):
             affected_components=normalized_components,
             attack_pattern_reference=normalized_reference,
             required_evidence_types=normalized_evidence_types,
+            model_authored_chain_claim_id=(
+                claim_snapshot.id if claim_snapshot is not None else None
+            ),
         )
         return cls(
             id=identity,
@@ -182,6 +213,7 @@ class AttackHypothesis(DomainModel):
             affected_components=normalized_components,
             attack_pattern_reference=normalized_reference,
             required_evidence_types=normalized_evidence_types,
+            model_authored_chain_claim=claim_snapshot,
             confidence=confidence,
             metadata=metadata or {},
         )

@@ -15,20 +15,24 @@
 - Phase 9B1 passive QEMU RuntimeObservation and interaction-agnostic Runtime Evidence
 - Phase 9B2A explicit dynamic trigger observation verification and read-only static/dynamic aggregation
 - Phase 9B2B non-verifying Hypothesis, EvidenceRequest, ReasoningResult, knowledge retrieval, feedback, deterministic four-role mock workflow, and dynamic reasoning context binding
-- Phase 9B2C strict real-provider bridge, fixed four-role provider-backed workflow, reduced semantic v2 contract, and observed release acceptance
+- Phase 9B2C strict real-provider bridge, fixed four-role provider-backed workflow, and observed release acceptance; Phase 10A Step 3 supersedes its v2 transport with explicit model-claim v3
 - Phase 9C Step 1 exact ARM A32 HardwareTriggerSignature contract with typed preconditions, hardware failure effect, and prior proof provenance
 - Phase 9C Step 2 content-bound exact A32 executable sequence matching over function-local structural CFG paths
 - Phase 9C Step 3A passive QEMU instruction-byte trace and exact contiguous runtime T confirmation
 - Phase 9C Step 4 detached triggerability aggregation with typed declared-precondition policy
 - Phase 10A Step 1 finalized candidate, typed Ground Truth, predeclared scope, and manifest contracts
 - Phase 10A Step 2 Ground-Truth-free candidate-side objective chain feasibility oracle
+- Phase 10A Step 3 explicit model-authored chain claim and Ground-Truth-free candidate binding assessment
 
 ## Current Work
 
-Phase 10A Step 2 is complete. The oracle assesses one finalized candidate using only candidate-side
+Phase 10A Step 3 is complete. The existing oracle still assesses one finalized candidate using only candidate-side
 typed interaction, artifact identity, Phase 9C triggerability, and optional explicit infrastructure
 failure. Ground Truth is not an input. Only the current exact-bound Type II path can become
-`CONFIRMED_FEASIBLE`; Type I remains `UNRESOLVED`, and Type III remains `UNSUPPORTED`. No benchmark
+`CONFIRMED_FEASIBLE`; Type I remains `UNRESOLVED`, and Type III remains `UNSUPPORTED`. A separate
+`ModelClaimBinder` now distinguishes `ALIGNED`, `INCOMPLETE`, `MISMATCHED`, `UNBOUND`, and `MISSING`
+explicit model proposals without reading Ground Truth. Context interaction is not model authorship,
+and `CONFIRMED_FEASIBLE` alone is not future numerator eligibility. No benchmark
 runner, metric, Ground Truth recall, or >=80% result exists yet. Phase 9C Step 3B remains deferred.
 
 ## Remaining Work
@@ -62,3 +66,8 @@ Step 4 triggerability is one firmware-to-hardware-contract component and is not 
 enriches candidate records or enters the oracle; model confidence does not determine assessment
 identity/status, and internal role hypotheses are not denominator candidates. Context-bound interaction
 fields are not automatically LLM-authored. No “关联漏洞命中率 >= 80%” calculation has been performed.
+
+Only ATTACK_CHAIN provider output may carry one optional model-authored claim. ChipChain owns claim
+architecture, role, and identity; wrong participant IDs are retained for assessment rather than
+repaired. The deterministic Mock emits no claim, the coordinator retains at most one, and no claim
+creates Evidence, VerificationRecord, AttackChain, vulnerability truth, causality, or score.

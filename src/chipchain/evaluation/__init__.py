@@ -12,11 +12,20 @@ from chipchain.evaluation.enums import (
     ChainFeasibilityStatus,
     EvaluationScope,
     ObjectiveFailureStage,
+    ModelClaimBindingReason,
+    ModelClaimBindingStatus,
 )
 from chipchain.evaluation.errors import (
     ChainFeasibilityBindingError,
     EvaluationOracleError,
     InvalidChainFeasibilityInputError,
+    InvalidModelClaimBindingInputError,
+    ModelClaimBindingError,
+)
+from chipchain.evaluation.claim_binding import ModelClaimBinder
+from chipchain.evaluation.claim_binding_models import (
+    ModelClaimBindingAssessment,
+    model_claim_binding_assessment_id,
 )
 from chipchain.evaluation.feasibility_models import (
     ChainFeasibilityAssessment,
@@ -52,6 +61,12 @@ __all__ = [
     "FinalizedCandidateRecord",
     "GroundTruthChain",
     "InvalidChainFeasibilityInputError",
+    "InvalidModelClaimBindingInputError",
+    "ModelClaimBinder",
+    "ModelClaimBindingAssessment",
+    "ModelClaimBindingError",
+    "ModelClaimBindingReason",
+    "ModelClaimBindingStatus",
     "ObjectiveEvaluationFailure",
     "ObjectiveFailureStage",
     "benchmark_case_id",
@@ -60,4 +75,5 @@ __all__ = [
     "finalized_candidate_id",
     "ground_truth_chain_id",
     "objective_evaluation_failure_id",
+    "model_claim_binding_assessment_id",
 ]

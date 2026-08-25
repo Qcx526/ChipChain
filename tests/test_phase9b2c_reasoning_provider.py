@@ -344,7 +344,7 @@ def test_generated_schema_is_deterministic_and_has_exact_required_fields() -> No
     expected = (
         (
             hypothesis,
-            {"description", "confidence"},
+            {"description", "confidence", "chain_claim"},
         ),
         (
             request,
@@ -358,7 +358,24 @@ def test_generated_schema_is_deterministic_and_has_exact_required_fields() -> No
     for contract, fields in expected:
         assert contract["additionalProperties"] is False
         assert set(contract["properties"]) == fields
-        assert set(contract["required"]) == fields
+        required_fields = fields.difference({"chain_claim"})
+        assert set(contract["required"]) == required_fields
+
+    claim_reference = hypothesis["properties"]["chain_claim"]["anyOf"][0]
+    claim = schema["$defs"][claim_reference["$ref"].rsplit("/", 1)[-1]]
+    assert claim["additionalProperties"] is False
+    assert set(claim["properties"]) == {
+        "interaction_type",
+        "initiating_vulnerability_ids",
+        "target_vulnerability_ids",
+        "trigger_behavior_ids",
+        "propagation_behavior_ids",
+        "affected_execution_ids",
+        "fault_state_ids",
+        "hardware_resource_ids",
+        "security_mechanism_ids",
+    }
+    assert set(claim["required"]) == {"interaction_type"}
 
 
 def test_generated_schema_preserves_confidence_constraints() -> None:

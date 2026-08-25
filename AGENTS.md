@@ -38,7 +38,7 @@
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
   Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
-  与 Step 4、Phase 10A Step 1～2 已完成；Step 3B 仍为 planned/not implemented。
+  与 Step 4、Phase 10A Step 1～3 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -76,12 +76,14 @@
   supporting Evidence ID 选择；component、attack pattern、Evidence category/priority 与 dynamic
   trigger 等身份由 typed Context/role contract 确定性绑定，这属于最小化模型权限而非修补输出。
   AttackChain 仍只贡献 Hypothesis；任一角色失败立即停止，无 retry、Provider 切换或 Mock fallback。
-- Phase 9B2C Step 3 将当前 reduced semantic provider contract 版本固定为
+- Phase 9B2C Step 3 当时将 reduced semantic provider contract 版本固定为
   `phase9b2c_reasoning_semantic_output_v2`；不兼容的旧
   `phase9b2b_reasoning_output_v1` 必须拒绝且不提供隐式兼容 parser。Provider strict schema 与
   ChipChain constrained parser 仍是连续两道必经边界。四角色真实验收必须直接观测实际 Provider
   调用并确认固定顺序、恰好四次及同一 Context；观测不得保存 prompt、raw response、secret、
   endpoint 或 header，失败仍立即停止且无 retry/fallback。
+  Phase 10A Step 3 已以显式 `phase10a_model_authored_chain_claim_v3` 取代当前 transport；旧 v1/v2
+  均不得隐式兼容。
 - Phase 9C Step 1 的 `HardwareTriggerSignature` 只保存已有硬件侧证明支持的
   `exact TriggerSequence + declared Preconditions -> known hardware failure` 合同。MVP 只允许
   ARM A32、按序且地址无关的精确 32-bit instruction words；不支持 Thumb/AArch64、模糊/掩码/
@@ -137,6 +139,12 @@
   `NO_STATIC_TRIGGER_MATCH` 才映射 `NOT_SUPPORTED`。无效/矛盾输入必须抛 typed exception；只有显式
   `ObjectiveEvaluationFailure` 可产生 `INFRA_FAILURE`。本步骤不运行 manifest、不匹配 Ground Truth、
   不创建 AttackChain/VerificationRecord，也不计算 hit rate。
+- Phase 10A Step 3 将 Context-bound `CrossLayerInteraction`、显式
+  `ModelAuthoredChainClaim` 与 objective `ChainFeasibilityAssessment` 分成独立层。Claim 只是
+  ATTACK_CHAIN role 可选输出的非验证 proposal；architecture、role 与 deterministic ID 由系统绑定，
+  错误/缺失 participant 必须保留为可评测的 `INCOMPLETE`、`MISMATCHED`、`UNBOUND` 或 `MISSING`。
+  `ModelClaimBinder` 不读取 Ground Truth，Context 不得自动合成为 model claim。未来 strict numerator
+  至少同时要求 claim `ALIGNED` 与 feasibility `CONFIRMED_FEASIBLE`；当前仍不计算 metric 或 >=80%。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

@@ -82,11 +82,15 @@ Phase 10A Step 1 将 strict project metric 的候选单位固定为完整 `Reaso
 
 ```text
 VerificationHitRate
-= N(finalized candidates objectively confirmed feasible)
+= N(finalized candidates with ALIGNED model claim AND CONFIRMED_FEASIBLE objective assessment)
   / N(all finalized candidates produced in predeclared primary scope)
 ```
 
-Phase 10A Step 2 已实现 Ground-Truth-free 的单候选 objective oracle，但尚未实现 manifest runner 或
+Phase 10A Step 2 已实现 Ground-Truth-free 的单候选 objective oracle。Step 3 另行要求模型通过
+`ModelAuthoredChainClaim` 显式提出 interaction type 与 participant references，并使用不读取 Ground
+Truth 的 `ModelClaimBinder` 比较 candidate-side typed interaction。Context interaction 不是模型
+authorship，model claim 不是 verified truth；`CONFIRMED_FEASIBLE` 单独不满足未来 strict numerator，
+还必须具有同一 candidate/case/interaction 上的 `ALIGNED` claim。当前尚未实现 manifest runner 或
 计算指标。不能只保留验证成功或具备方便 runtime evidence 的候选。可另报预先冻结 eligibility 的 secondary
 verifier-conditioned rate，但它不能替代 strict metric。还必须报告 `GroundTruthChainRecall`，防止通过
 只输出少量保守候选虚增 hit rate。Hit@K、Precision/Recall/F1、节点/边指标仍是不同问题的辅助指标，
@@ -117,6 +121,7 @@ verifier-conditioned rate，但它不能替代 strict metric。还必须报告 `
 Phase 10A Step 1 已建立 finalized candidate、typed Ground Truth、source provenance、predeclared
 scope 与 versioned manifest contract。Step 2 已建立不读取 Ground Truth 的单候选 objective oracle：
 只有完整绑定的 Type II + Phase 9C `TRIGGERABLE` 可得到 `CONFIRMED_FEASIBLE`；Type I 为
-`UNRESOLVED`，Type III 为 `UNSUPPORTED`。Initial owned synthetic cases 不是真实 CVE 或正式 public
-Benchmark。Metric runner、Ground Truth recall、消融与真实模型比较仍未实现；没有计算“关联漏洞命中率
+`UNRESOLVED`，Type III 为 `UNSUPPORTED`。Step 3 已建立显式 model-authored claim 与独立 binding
+assessment；缺失/不完整/错误 claim 分别保持可测量，不由 Context 或 Ground Truth 修复。Initial owned
+synthetic cases 不是真实 CVE 或正式 public Benchmark。Metric runner、Ground Truth recall、消融与真实模型比较仍未实现；没有计算“关联漏洞命中率
 >=80%”。

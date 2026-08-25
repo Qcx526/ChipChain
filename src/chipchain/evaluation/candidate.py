@@ -18,6 +18,7 @@ from chipchain.models.cross_layer import (
     direction_for_interaction_type,
 )
 from chipchain.models.enums import Architecture
+from chipchain.reasoning.chain_claim import ModelAuthoredChainClaim
 from chipchain.reasoning.hypothesis import _validate_non_verdict_metadata
 
 
@@ -35,28 +36,31 @@ def finalized_candidate_id(
     direction: CrossLayerDirection | None,
     attack_pattern_reference: str | None,
     affected_components: list[str],
+    model_authored_chain_claim_id: str | None = None,
 ) -> str:
     """Build candidate identity without confidence, metadata, or provider data."""
 
-    return _canonical_hash(
-        "finalized-candidate",
-        {
-            "affected_components": sorted(affected_components),
-            "architecture": Architecture(architecture).value,
-            "attack_pattern_reference": attack_pattern_reference,
-            "benchmark_case_id": benchmark_case_id,
-            "cross_layer_interaction_id": cross_layer_interaction_id,
-            "direction": direction.value if direction is not None else None,
-            "interaction_type": (
-                interaction_type.value if interaction_type is not None else None
-            ),
-            "merged_hypothesis_id": merged_hypothesis_id,
-            "reasoning_context_id": reasoning_context_id,
-            "reasoning_session_id": reasoning_session_id,
-            "subject_id": subject_id,
-            "workflow_contract": workflow_contract,
-        },
-    )
+    payload: dict[str, object] = {
+        "affected_components": sorted(affected_components),
+        "architecture": Architecture(architecture).value,
+        "attack_pattern_reference": attack_pattern_reference,
+        "benchmark_case_id": benchmark_case_id,
+        "cross_layer_interaction_id": cross_layer_interaction_id,
+        "direction": direction.value if direction is not None else None,
+        "interaction_type": (
+            interaction_type.value if interaction_type is not None else None
+        ),
+        "merged_hypothesis_id": merged_hypothesis_id,
+        "reasoning_context_id": reasoning_context_id,
+        "reasoning_session_id": reasoning_session_id,
+        "subject_id": subject_id,
+        "workflow_contract": workflow_contract,
+    }
+    if model_authored_chain_claim_id is not None:
+        payload["model_authored_chain_claim_id"] = (
+            model_authored_chain_claim_id
+        )
+    return _canonical_hash("finalized-candidate", payload)
 
 
 class FinalizedCandidateRecord(DomainModel):
@@ -75,6 +79,7 @@ class FinalizedCandidateRecord(DomainModel):
     direction: CrossLayerDirection | None = None
     attack_pattern_reference: Identifier | None = None
     affected_components: list[Identifier] = Field(min_length=1)
+    model_authored_chain_claim: ModelAuthoredChainClaim | None = None
     model_confidence: UnitInterval
     metadata: Metadata = Field(default_factory=dict)
 
@@ -109,6 +114,12 @@ class FinalizedCandidateRecord(DomainModel):
             is not direction_for_interaction_type(self.interaction_type)
         ):
             raise ValueError("candidate interaction type and direction mismatch")
+        if (
+            self.model_authored_chain_claim is not None
+            and self.model_authored_chain_claim.architecture
+            is not self.architecture
+        ):
+            raise ValueError("candidate model claim architecture mismatch")
         expected_id = finalized_candidate_id(
             benchmark_case_id=self.benchmark_case_id,
             architecture=self.architecture,
@@ -122,6 +133,11 @@ class FinalizedCandidateRecord(DomainModel):
             direction=self.direction,
             attack_pattern_reference=self.attack_pattern_reference,
             affected_components=self.affected_components,
+            model_authored_chain_claim_id=(
+                self.model_authored_chain_claim.id
+                if self.model_authored_chain_claim is not None
+                else None
+            ),
         )
         if self.id != expected_id:
             raise ValueError("FinalizedCandidateRecord ID is not deterministic")
@@ -146,6 +162,7 @@ class FinalizedCandidateBuilder:
         context = detached.reasoning_context
         proposition = detached.merged_hypothesis
         interaction = context.cross_layer_interaction
+        model_claim = proposition.model_authored_chain_claim
         interaction_id = interaction.id if interaction is not None else None
         interaction_type = (
             interaction.interaction_type if interaction is not None else None
@@ -164,8 +181,14 @@ class FinalizedCandidateBuilder:
             "direction": direction,
             "attack_pattern_reference": proposition.attack_pattern_reference,
             "affected_components": proposition.affected_components,
+            "model_authored_chain_claim": model_claim,
         }
-        identity = finalized_candidate_id(**values)
+        identity_values = dict(values)
+        identity_values["model_authored_chain_claim_id"] = (
+            model_claim.id if model_claim is not None else None
+        )
+        identity_values.pop("model_authored_chain_claim")
+        identity = finalized_candidate_id(**identity_values)
         return FinalizedCandidateRecord(
             id=identity,
             model_confidence=proposition.confidence,

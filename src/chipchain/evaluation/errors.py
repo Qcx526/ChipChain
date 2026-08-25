@@ -11,3 +11,11 @@ class InvalidChainFeasibilityInputError(EvaluationOracleError):
 
 class ChainFeasibilityBindingError(EvaluationOracleError):
     """Raised when individually valid candidate-side contracts contradict."""
+
+
+class ModelClaimBindingError(EvaluationOracleError):
+    """Raised when valid claim-binding inputs contradict one another."""
+
+
+class InvalidModelClaimBindingInputError(EvaluationOracleError):
+    """Raised when a claim-binding input fails detached validation."""

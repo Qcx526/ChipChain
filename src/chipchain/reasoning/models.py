@@ -14,8 +14,8 @@ from chipchain.reasoning.enums import (
 )
 
 
-REASONING_PROVIDER_SCHEMA_NAME = "phase9b2c_reasoning_semantic_output_v2"
-"""Current reduced semantic schema for Phase 9B2C provider output."""
+REASONING_PROVIDER_SCHEMA_NAME = "phase10a_model_authored_chain_claim_v3"
+"""Current semantic provider schema with optional explicit model claim."""
 
 
 class CandidateContext(DomainModel):

@@ -30,6 +30,10 @@ from chipchain.reasoning.errors import (
     RetrievalError,
 )
 from chipchain.reasoning.hypothesis import AttackHypothesis, attack_hypothesis_id
+from chipchain.reasoning.chain_claim import (
+    ModelAuthoredChainClaim,
+    model_authored_chain_claim_id,
+)
 from chipchain.reasoning.evidence_request import EvidenceRequest, evidence_request_id
 from chipchain.reasoning.feedback import (
     EvidenceFeedback,
@@ -126,6 +130,7 @@ __all__ = [
     "LocalLexicalKnowledgeRetriever",
     "MockLLMProvider",
     "MockReasoningProvider",
+    "ModelAuthoredChainClaim",
     "ObservationFeedbackRelation",
     "OpenAICompatibleLLMProvider",
     "OpenAICompatibleReasoningProvider",
@@ -150,6 +155,7 @@ __all__ = [
     "evidence_feedback_id",
     "evidence_feedback_status",
     "load_architecture_knowledge_documents",
+    "model_authored_chain_claim_id",
     "reasoning_result_id",
     "reasoning_memory_id",
     "reasoning_observation_id",

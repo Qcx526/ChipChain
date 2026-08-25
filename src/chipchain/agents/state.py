@@ -252,6 +252,20 @@ class ReasoningSession(DomainModel):
             for item in (*self.hypotheses, self.merged_hypothesis)
         ):
             raise ValueError("reasoning session hypothesis architecture mismatch")
+        source_claims = [
+            item.model_authored_chain_claim
+            for item in self.hypotheses
+            if item.model_authored_chain_claim is not None
+        ]
+        if len(source_claims) > 1:
+            raise ValueError(
+                "reasoning session permits at most one source model claim"
+            )
+        expected_claim = source_claims[0] if source_claims else None
+        if self.merged_hypothesis.model_authored_chain_claim != expected_claim:
+            raise ValueError(
+                "merged hypothesis model claim must exactly retain its source"
+            )
 
         hypothesis_by_id = {item.id: item for item in self.hypotheses}
         request_by_id = {item.id: item for item in self.evidence_requests}

@@ -149,6 +149,16 @@ class MultiAgentReasoningCoordinator:
             raise HypothesisMergeConflict(
                 "hypothesis attack-pattern references conflict"
             )
+        source_claims = [
+            item.model_authored_chain_claim
+            for item in snapshots
+            if item.model_authored_chain_claim is not None
+        ]
+        if len(source_claims) > 1:
+            raise HypothesisMergeConflict(
+                "hypothesis merge permits at most one model-authored chain claim"
+            )
+        retained_claim = source_claims[0] if source_claims else None
         source_ids = sorted({item.id for item in snapshots})
         affected_components = sorted(
             {
@@ -179,6 +189,7 @@ class MultiAgentReasoningCoordinator:
                 else None
             ),
             required_evidence_types=required_evidence_types,
+            model_authored_chain_claim=retained_claim,
             confidence=min(item.confidence for item in snapshots),
             metadata={
                 "confidence_semantics": "reasoning_only_not_verification_score",

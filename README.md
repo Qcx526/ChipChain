@@ -51,6 +51,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9C Step 4 deterministic triggerability aggregation 与 declared-precondition fail-closed policy
 - Phase 10A Step 1 finalized candidate、typed Ground Truth、predeclared scope 与 versioned manifest contracts
 - Phase 10A Step 2 Ground-Truth-free candidate-side objective chain feasibility oracle
+- Phase 10A Step 3 explicit model-authored chain claim 与 candidate-context binding assessment
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -372,9 +373,9 @@ RoleBasedReasoningPromptBuilder
     -> Hypothesis / EvidenceRequest / ReasoningResult
 ```
 
-当前 reduced semantic provider contract 标识为
-`phase9b2c_reasoning_semantic_output_v2`；不兼容的旧
-`phase9b2b_reasoning_output_v1` 不会在新 DTO 下被接受，也没有 legacy parser。该 bridge 从
+Phase 9B2C 曾冻结 reduced semantic v2；Phase 10A Step 3 将当前 provider contract 显式升级为
+`phase10a_model_authored_chain_claim_v3`。不兼容的 v1/v2 不会在当前 DTO 下被接受，也没有 legacy
+parser。该 bridge 从
 constrained parser 使用的同一 Pydantic transport DTO 生成 strict JSON Schema。
 Provider schema 是第一道结构约束；`ConstrainedReasoningOutputParser` 仍是必须执行的第二道
 语义/引用约束。Bridge 不在 schema 被拒绝时降级到 JSON Object，不解析安全语义、不绕过
@@ -464,7 +465,7 @@ fixture 的 Type II positive contract case 与一个 negative control；它们�
 
 ```text
 VerificationHitRate
-= N(predeclared primary scope 中 objectively confirmed feasible 的 finalized candidates)
+= N(predeclared primary scope 中 claim ALIGNED 且 objectively CONFIRMED_FEASIBLE 的 finalized candidates)
   / N(predeclared primary scope 中产生的全部 finalized candidates)
 ```
 
@@ -488,6 +489,17 @@ Candidate 的 interaction ID/type/direction 来自 `ReasoningContext` typed bind
 
 该 assessment 不是 domain AttackChain，也不创建 VerificationRecord 或 score。Phase 10A Step 2
 没有运行 benchmark manifest、比较 Ground Truth 或计算“关联漏洞命中率 >=80%”。
+
+Phase 10A Step 3 新增独立 `ModelAuthoredChainClaim` proposal。它只保存 ATTACK_CHAIN role 明确
+选择的 interaction type 与 participant/reference lists；architecture、author role 与 deterministic ID
+由 ChipChain 绑定。它不是 `CrossLayerInteraction`、AttackChain、Evidence、VerificationRecord 或
+feasibility verdict。缺失 claim 保持 `MISSING`，不完整或错误 claim 保持 `INCOMPLETE` / `MISMATCHED`，
+不会从 Context 或 Ground Truth 静默补全。
+
+`ModelClaimBinder` 只比较显式 model claim 与 candidate-side typed interaction，输出独立的
+`ALIGNED`、`INCOMPLETE`、`MISMATCHED`、`UNBOUND` 或 `MISSING`。因此 Context interaction != model
+authorship，model claim != verified truth，且 `CONFIRMED_FEASIBLE` 单独不足以说明模型正确提出了该链。
+未来 strict numerator 至少还要求同一候选的 claim 为 `ALIGNED`；当前未实现 metric，也未计算 >=80%。
 详见 [Evaluation Contracts](docs/EVALUATION_CONTRACTS.md)。
 
 ## 文档导航

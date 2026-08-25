@@ -176,9 +176,9 @@ RoleBasedReasoningPromptBuilder
         -> AttackHypothesis / EvidenceRequest / ReasoningResult
 ```
 
-当前 reduced semantic contract 的 schema name 是
-`phase9b2c_reasoning_semantic_output_v2`。不兼容的旧
-`phase9b2b_reasoning_output_v1` 会在 Provider 边界拒绝，不以新 DTO 解释，也不提供 legacy
+Phase 10A Step 3 后当前 contract 的 schema name 是
+`phase10a_model_authored_chain_claim_v3`。不兼容的旧 v1/v2 会在 Provider 边界拒绝，不以新 DTO
+解释，也不提供 legacy
 parser。Strict schema 直接由 `ConstrainedReasoningOutputParser` 使用的 Pydantic
 provider-output DTO 生成，没有第二份手写 schema，也没有 provider-specific normalization。Chat Completions 使用
 `response_format={type: json_schema, json_schema: {name, strict, schema}}`；Responses 使用当前
@@ -186,8 +186,9 @@ SDK 明确定义的 `text.format={type: json_schema, name, strict, schema}`。
 
 验证始终为两层且顺序固定：
 
-1. Provider-side v2 schema 只允许 description/confidence、request `required_fact`、reasoning
-   steps 与 supporting Evidence reference 选择，并约束类型、区间和 unexpected properties。
+1. Provider-side v3 schema 只允许既有 reasoning semantic fields；此外仅 ATTACK_CHAIN role 可选
+   author proposal-shaped chain claim 的 interaction type 与 participant lists。Architecture、role、ID
+   仍由 ChipChain 绑定，并继续约束类型、区间和 unexpected properties。
 2. ChipChain parser 再检查 Context Evidence reference、request cardinality 与 forbidden truth，
    并从可信 Context/role contract 确定性绑定 component、attack pattern、dynamic trigger、
    Evidence category/priority 等身份字段。
@@ -239,7 +240,8 @@ reasoning，不表示 vulnerability、causality、verification 或 confirmed Att
 Step 3 将 Step 2 引入的不兼容 reduced semantic DTO 显式版本化为
 `phase9b2c_reasoning_semantic_output_v2`，并在 Prompt Builder、Mock Provider、真实
 OpenAI-compatible bridge 与 strict transport schema 中统一使用该标识。旧 v1 明确 fail closed；
-不会通过兼容分支、字段修补或降级绕过当前 parser。
+不会通过兼容分支、字段修补或降级绕过 parser。该版本是 Phase 9B2C 的历史 release contract；
+Phase 10A Step 3 以后由显式 model-claim v3 取代，旧 v1/v2 均 fail closed。
 
 四角色真实验收使用透明 `ObservedReasoningProvider` 包装真实 Provider。包装器在转发原请求前
 只记录 `(role, context_id)`，原样返回 delegate 响应，不捕获异常、不 retry、不解析或修复输出，
