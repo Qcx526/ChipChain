@@ -167,6 +167,26 @@ def _object_schemas(value: object):
             yield from _object_schemas(nested)
 
 
+def _schema_nodes(
+    value: object,
+    *,
+    properties_mapping: bool = False,
+):
+    """Yield schema dictionaries without treating property names as keywords."""
+
+    if isinstance(value, dict):
+        if not properties_mapping:
+            yield value
+        for key, nested in value.items():
+            yield from _schema_nodes(
+                nested,
+                properties_mapping=(key == "properties"),
+            )
+    elif isinstance(value, list):
+        for nested in value:
+            yield from _schema_nodes(nested)
+
+
 def test_chat_completions_bridge_returns_raw_text_and_propagates_config() -> None:
     prompt = _prompt()
     content = _valid_output()
@@ -196,6 +216,10 @@ def test_chat_completions_bridge_returns_raw_text_and_propagates_config() -> Non
     assert strict_contract["name"] == REASONING_PROVIDER_SCHEMA_NAME
     assert strict_contract["strict"] is True
     assert strict_contract["schema"] == reasoning_provider_output_json_schema()
+    assert all(
+        "default" not in node
+        for node in _schema_nodes(strict_contract["schema"])
+    )
     assert call["extra_body"] == {"reasoning_effort": "low"}
     assert call["max_completion_tokens"] == 321
     assert "api_key" not in provider.config.model_dump(mode="json")
@@ -229,6 +253,10 @@ def test_responses_bridge_returns_raw_text_and_propagates_config() -> None:
     assert strict_contract["name"] == REASONING_PROVIDER_SCHEMA_NAME
     assert strict_contract["strict"] is True
     assert strict_contract["schema"] == reasoning_provider_output_json_schema()
+    assert all(
+        "default" not in node
+        for node in _schema_nodes(strict_contract["schema"])
+    )
     assert call["reasoning"] == {"effort": "low"}
     assert call["max_output_tokens"] == 321
 
@@ -405,6 +433,19 @@ def test_generated_strict_schema_recursively_requires_every_object_property() ->
         assert contract["additionalProperties"] is False
 
 
+def test_strict_schema_has_no_default_and_keeps_nullable_claim() -> None:
+    schema, hypothesis, _, _ = _nested_contracts()
+    chain_claim = hypothesis["properties"]["chain_claim"]
+
+    assert all("default" not in node for node in _schema_nodes(schema))
+    assert "chain_claim" in hypothesis["required"]
+    assert "default" not in chain_claim
+    assert any(
+        item.get("type") == "null"
+        for item in chain_claim["anyOf"]
+    )
+
+
 def test_mock_explicit_null_is_strict_transport_not_model_authorship() -> None:
     context = _context()
     parser = ConstrainedReasoningOutputParser()
@@ -430,6 +471,8 @@ def test_mock_explicit_null_is_strict_transport_not_model_authorship() -> None:
     assert explicit_null["hypothesis"]["chain_claim"] is None
     assert null_contracts == omitted_contracts
     assert null_contracts[0].model_authored_chain_claim is None
+    assert omitted_contracts[0].model_authored_chain_claim is None
+    assert null_contracts[0].id == omitted_contracts[0].id
 
 
 def test_generated_schema_preserves_confidence_constraints() -> None:

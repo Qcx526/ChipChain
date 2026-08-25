@@ -141,19 +141,30 @@ def reasoning_provider_output_json_schema() -> dict[str, object]:
     return normalized
 
 
-def _normalize_strict_provider_schema(value: object) -> object:
+def _normalize_strict_provider_schema(
+    value: object,
+    *,
+    _properties_mapping: bool = False,
+) -> object:
     """Require every declared object property for strict structured output.
 
     Logical optionality remains encoded by nullable values, while the ordinary
     Pydantic DTO continues to accept omitted defaulted fields for manual and
-    legacy parser callers.
+    legacy parser callers. Transport-only schema defaults are removed without
+    interpreting property names as schema keywords.
     """
 
     if isinstance(value, dict):
         normalized = {
-            key: _normalize_strict_provider_schema(item)
+            key: _normalize_strict_provider_schema(
+                item,
+                _properties_mapping=(key == "properties"),
+            )
             for key, item in value.items()
         }
+        if _properties_mapping:
+            return normalized
+        normalized.pop("default", None)
         properties = normalized.get("properties")
         if isinstance(properties, dict):
             normalized["required"] = list(properties)
