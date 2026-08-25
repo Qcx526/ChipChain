@@ -38,7 +38,7 @@
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
   Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
-  与 Step 4、Phase 10A Step 1～3 已完成；Step 3B 仍为 planned/not implemented。
+  与 Step 4、Phase 10A Step 1～3、Phase 10B 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -143,12 +143,22 @@
   `ModelAuthoredChainClaim` 与 objective `ChainFeasibilityAssessment` 分成独立层。Claim 只是
   ATTACK_CHAIN role 可选输出的非验证 proposal；architecture、role 与 deterministic ID 由系统绑定，
   错误/缺失 participant 必须保留为可评测的 `INCOMPLETE`、`MISMATCHED`、`UNBOUND` 或 `MISSING`。
-  `ModelClaimBinder` 不读取 Ground Truth，Context 不得自动合成为 model claim。未来 strict numerator
-  至少同时要求 claim `ALIGNED` 与 feasibility `CONFIRMED_FEASIBLE`；当前仍不计算 metric 或 >=80%。
+  `ModelClaimBinder` 不读取 Ground Truth，Context 不得自动合成为 model claim。Phase 10B strict hit
+  至少同时要求 claim `ALIGNED`、feasibility `CONFIRMED_FEASIBLE` 与 exact Ground Truth match；Phase
+  10A 自身不计算 metric 或 >=80%。
   R1 strict transport 对每个 object 要求全部 properties，并用必需的 `chain_claim: null` 表示未
   author claim；null 不构成 authorship。非 ATTACK_CHAIN 的实际 Agent 不得返回非空 claim，Coordinator
   独立复核其运行时角色。Required participant references 保持 exact；非空 optional references 只需为
   candidate-side 对应集合的子集，空列表表示该 optional category 未显式声明。
+- Phase 10B 是首个可在 finalized outputs 之后读取 Ground Truth 的层。Runner 只聚合 frozen
+  `BenchmarkManifest`、每 case 恰好一个 run record、`FinalizedCandidateRecord`、claim binding、
+  feasibility 与必要的 exact triggerability；不得调用 Provider、AgentWorkflow、Binder、Oracle、
+  angr 或 QEMU。Strict hit 必须同时满足 PRIMARY_TARGET positive、`ALIGNED`、
+  `CONFIRMED_FEASIBLE` 与 exact interaction/attack-pattern/signature Ground Truth match。
+  `VerificationHitRate` denominator 是所有实际产生的 PRIMARY_TARGET finalized candidate；pre-candidate
+  failure 另由 `PrimaryCaseCoverage` 和 `primary_scope_complete` 暴露。Negative control 永不成为 hit，
+  其 aligned+confirmed candidate 计为 false positive。Owned synthetic `1/2` 仅是合同验收，不是项目
+  >=80% 结果；不得生成 threshold pass/fail 结论。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

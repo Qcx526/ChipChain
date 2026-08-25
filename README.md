@@ -52,6 +52,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10A Step 1 finalized candidate、typed Ground Truth、predeclared scope 与 versioned manifest contracts
 - Phase 10A Step 2 Ground-Truth-free candidate-side objective chain feasibility oracle
 - Phase 10A Step 3 explicit model-authored chain claim 与 candidate-context binding assessment
+- Phase 10B deterministic all-case benchmark runner、exact Ground Truth comparison 与 exact-cohort metrics
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -465,11 +466,11 @@ source provenance、predeclared evaluation scope 和 versioned manifest。Artifa
 canonical SHA-256，不保存 host absolute path。Initial manifest 只有一个明确标注 owned/synthetic/
 fixture 的 Type II positive contract case 与一个 negative control；它们不是真实 CVE 或公共 Benchmark。
 
-未来 strict project metric 定义为：
+Phase 10B 实现的 strict project metric contract 定义为：
 
 ```text
 VerificationHitRate
-= N(predeclared primary scope 中 claim ALIGNED 且 objectively CONFIRMED_FEASIBLE 的 finalized candidates)
+= N(PRIMARY_TARGET 中 ALIGNED + CONFIRMED_FEASIBLE + exact Ground Truth match 的 finalized candidates)
   / N(predeclared primary scope 中产生的全部 finalized candidates)
 ```
 
@@ -506,8 +507,31 @@ authorship，model claim != verified truth。Required participant categories 必
 为空表示未显式声明，非空时只需是 candidate-side 对应集合的子集。Coordinator 还会依据实际返回
 hypothesis 的 Agent role 独立拒绝非 ATTACK_CHAIN claim，不能只信任 claim 自带的 author role。
 `CONFIRMED_FEASIBLE` 单独不足以说明模型正确提出了该链。
-未来 strict numerator 至少还要求同一候选的 claim 为 `ALIGNED`；当前未实现 metric，也未计算 >=80%。
+Phase 10B 还要求同一候选 exact match case Ground Truth；`ALIGNED` 或 `CONFIRMED_FEASIBLE` 单独均不
+足够。
 详见 [Evaluation Contracts](docs/EVALUATION_CONTRACTS.md)。
+
+## Phase 10B Deterministic Benchmark Evaluation
+
+Phase 10B 只消费已经 finalized 的 manifest、candidate、claim-binding、feasibility 与必要的
+triggerability，不调用 LLM、Agent workflow、Binder、Oracle、angr 或 QEMU。每个 manifest case 必须
+恰好具有一个 `BenchmarkCaseRunRecord`；pre-finalization failure 不伪造 candidate，而是降低
+`PrimaryCaseCoverage` 并令 `primary_scope_complete=false`。
+
+评测层次固定为：
+
+```text
+ReasoningSession -> FinalizedCandidateRecord
+ModelAuthoredChainClaim -> ModelClaimBindingAssessment
+candidate-side objective facts -> ChainFeasibilityAssessment
+frozen Ground Truth comparison -> BenchmarkCandidateAssessment
+manifest aggregation -> BenchmarkEvaluationReport
+```
+
+Companion metrics 为 `GroundTruthChainRecall`、`NegativeControlFalsePositiveRate` 和
+`PrimaryCaseCoverage`。Negative control 永不成为 strict hit；若其 candidate 为 ALIGNED +
+CONFIRMED_FEASIBLE，则作为 benchmark false positive。Owned synthetic fixture 的 `1/2` hit rate 仅是
+合同验收结果，不是项目性能结果，也没有产生“>=80%”阈值结论。
 
 ## 文档导航
 

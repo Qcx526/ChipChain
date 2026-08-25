@@ -1,4 +1,4 @@
-"""Public Phase 10A benchmark and finalized-candidate contracts."""
+"""Public Phase 10A/10B evaluation contracts and aggregation runner."""
 
 from chipchain.evaluation.candidate import (
     FinalizedCandidateBuilder,
@@ -7,18 +7,26 @@ from chipchain.evaluation.candidate import (
 )
 from chipchain.evaluation.enums import (
     BenchmarkCaseLabel,
+    BenchmarkCaseRunDisposition,
+    BenchmarkExecutionFailureCode,
+    BenchmarkExecutionStage,
     BenchmarkSourceKind,
     ChainFeasibilityReason,
     ChainFeasibilityStatus,
     EvaluationScope,
+    EvaluationMetricName,
     ObjectiveFailureStage,
     ModelClaimBindingReason,
     ModelClaimBindingStatus,
 )
 from chipchain.evaluation.errors import (
+    BenchmarkCaseAccountingError,
+    BenchmarkEvaluationBindingError,
+    BenchmarkEvaluationError,
     ChainFeasibilityBindingError,
     EvaluationOracleError,
     InvalidChainFeasibilityInputError,
+    InvalidBenchmarkEvaluationInputError,
     InvalidModelClaimBindingInputError,
     ModelClaimBindingError,
 )
@@ -43,10 +51,39 @@ from chipchain.evaluation.models import (
     ground_truth_chain_id,
 )
 from chipchain.evaluation.oracle import ChainFeasibilityOracle
+from chipchain.evaluation.benchmark_models import (
+    PHASE10B_RUNNER_CONTRACT,
+    BenchmarkCandidateAssessment,
+    BenchmarkCaseExecutionFailure,
+    BenchmarkCaseRunRecord,
+    BenchmarkEvaluationReport,
+    CandidateEvaluationBundle,
+    EvaluationMetricResult,
+    GroundTruthRecoveryRecord,
+    benchmark_candidate_assessment_id,
+    benchmark_case_execution_failure_id,
+    benchmark_case_run_record_id,
+    benchmark_evaluation_report_id,
+    candidate_evaluation_bundle_id,
+    evaluation_metric_result_id,
+    ground_truth_recovery_record_id,
+)
+from chipchain.evaluation.runner import BenchmarkEvaluationRunner
 
 __all__ = [
     "BenchmarkArtifactReference",
+    "BenchmarkCandidateAssessment",
+    "BenchmarkCaseAccountingError",
+    "BenchmarkCaseExecutionFailure",
     "BenchmarkCaseLabel",
+    "BenchmarkCaseRunDisposition",
+    "BenchmarkCaseRunRecord",
+    "BenchmarkEvaluationBindingError",
+    "BenchmarkEvaluationError",
+    "BenchmarkEvaluationReport",
+    "BenchmarkEvaluationRunner",
+    "BenchmarkExecutionFailureCode",
+    "BenchmarkExecutionStage",
     "BenchmarkManifest",
     "BenchmarkSourceKind",
     "ChainFeasibilityAssessment",
@@ -54,12 +91,17 @@ __all__ = [
     "ChainFeasibilityOracle",
     "ChainFeasibilityReason",
     "ChainFeasibilityStatus",
+    "CandidateEvaluationBundle",
+    "EvaluationMetricName",
+    "EvaluationMetricResult",
     "EvaluationOracleError",
     "EvaluationBenchmarkCase",
     "EvaluationScope",
     "FinalizedCandidateBuilder",
     "FinalizedCandidateRecord",
     "GroundTruthChain",
+    "GroundTruthRecoveryRecord",
+    "InvalidBenchmarkEvaluationInputError",
     "InvalidChainFeasibilityInputError",
     "InvalidModelClaimBindingInputError",
     "ModelClaimBinder",
@@ -69,11 +111,19 @@ __all__ = [
     "ModelClaimBindingStatus",
     "ObjectiveEvaluationFailure",
     "ObjectiveFailureStage",
+    "PHASE10B_RUNNER_CONTRACT",
+    "benchmark_candidate_assessment_id",
     "benchmark_case_id",
+    "benchmark_case_execution_failure_id",
+    "benchmark_case_run_record_id",
+    "benchmark_evaluation_report_id",
     "benchmark_manifest_id",
     "chain_feasibility_assessment_id",
+    "candidate_evaluation_bundle_id",
+    "evaluation_metric_result_id",
     "finalized_candidate_id",
     "ground_truth_chain_id",
+    "ground_truth_recovery_record_id",
     "objective_evaluation_failure_id",
     "model_claim_binding_assessment_id",
 ]

@@ -78,11 +78,11 @@ point；MMIO trigger instruction 不得计作 root-cause line。
 ## 80% 目标的报告方式
 
 Phase 10A Step 1 将 strict project metric 的候选单位固定为完整 `ReasoningSession` 的唯一
-`merged_hypothesis`。四个 role hypotheses 不是四个独立候选。未来指标定义为：
+`merged_hypothesis`。四个 role hypotheses 不是四个独立候选。Phase 10B 的 exact-cohort 指标为：
 
 ```text
 VerificationHitRate
-= N(finalized candidates with ALIGNED model claim AND CONFIRMED_FEASIBLE objective assessment)
+= N(PRIMARY_TARGET finalized candidates with ALIGNED + CONFIRMED_FEASIBLE + exact GT match)
   / N(all finalized candidates produced in predeclared primary scope)
 ```
 
@@ -92,9 +92,9 @@ Truth 的 `ModelClaimBinder` 比较 candidate-side typed interaction。Context i
 authorship，model claim 不是 verified truth。Required references 必须 exact；optional references 为空
 表示未声明，非空时按 candidate-side 集合的子集关系判断兼容。Strict provider transport 用 required
 nullable `chain_claim` 表示缺失 claim；`null` 不构成 authorship，且 Coordinator 会复核实际 source
-Agent 必须为 ATTACK_CHAIN。`CONFIRMED_FEASIBLE` 单独不满足未来 strict numerator，
-还必须具有同一 candidate/case/interaction 上的 `ALIGNED` claim。当前尚未实现 manifest runner 或
-计算指标。不能只保留验证成功或具备方便 runtime evidence 的候选。可另报预先冻结 eligibility 的 secondary
+Agent 必须为 ATTACK_CHAIN。`CONFIRMED_FEASIBLE` 与 `ALIGNED` 单独或组合仍不充分；Phase 10B 还要求
+exact interaction ID、可选 attack-pattern 与 declared hardware signature Ground Truth match。不能只保留
+验证成功或具备方便 runtime evidence 的候选。可另报预先冻结 eligibility 的 secondary
 verifier-conditioned rate，但它不能替代 strict metric。还必须报告 `GroundTruthChainRecall`，防止通过
 只输出少量保守候选虚增 hit rate。Hit@K、Precision/Recall/F1、节点/边指标仍是不同问题的辅助指标，
 不得与上述 verification hit rate 混为一谈。
@@ -126,5 +126,7 @@ scope 与 versioned manifest contract。Step 2 已建立不读取 Ground Truth �
 只有完整绑定的 Type II + Phase 9C `TRIGGERABLE` 可得到 `CONFIRMED_FEASIBLE`；Type I 为
 `UNRESOLVED`，Type III 为 `UNSUPPORTED`。Step 3 已建立显式 model-authored claim 与独立 binding
 assessment；缺失/不完整/错误 claim 分别保持可测量，不由 Context 或 Ground Truth 修复。Initial owned
-synthetic cases 不是真实 CVE 或正式 public Benchmark。Metric runner、Ground Truth recall、消融与真实模型比较仍未实现；没有计算“关联漏洞命中率
->=80%”。
+synthetic cases 不是真实 CVE 或正式 public Benchmark。Phase 10B 已实现 all-case accounting、post-hoc
+Ground Truth comparison、`VerificationHitRate`、`GroundTruthChainRecall`、negative-control FPR 与 primary
+coverage。Owned fixture 的 `1/2` 只验证合同；消融、真实模型比较与正式 benchmark expansion 仍未实现，
+没有得出“关联漏洞命中率 >=80%”结论。

@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-9c-stable`
-- Stable commit: `88c8c53a72e2c7e4e8775093c8bcab74a8032992`
-- Baseline: Phase 9C ARM triggerability MVP complete
+- Stable tag: `phase-10a-stable`
+- Stable commit: `4dce82df12c5a14cccb38ad2c340bdc31eb53f00`
+- Baseline: Phase 10A frozen evaluation contracts complete
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -24,22 +24,20 @@
 - Phase 10A Step 2 Ground-Truth-free candidate-side objective chain feasibility oracle
 - Phase 10A Step 3 explicit model-authored chain claim and Ground-Truth-free candidate binding assessment
 - Phase 10A Step 3-R1 strict required-null provider transport, optional-reference subset binding, and actual source-role provenance hardening
+- Phase 10A Step 3-R2 strict structured-output schema default removal
+- Phase 10B deterministic all-case benchmark accounting, exact Ground Truth comparison, recovery, coverage, and metric aggregation
 
 ## Current Work
 
-Phase 10A Step 3 is complete. The existing oracle still assesses one finalized candidate using only candidate-side
-typed interaction, artifact identity, Phase 9C triggerability, and optional explicit infrastructure
-failure. Ground Truth is not an input. Only the current exact-bound Type II path can become
-`CONFIRMED_FEASIBLE`; Type I remains `UNRESOLVED`, and Type III remains `UNSUPPORTED`. A separate
-`ModelClaimBinder` now distinguishes `ALIGNED`, `INCOMPLETE`, `MISMATCHED`, `UNBOUND`, and `MISSING`
-explicit model proposals without reading Ground Truth. Context interaction is not model authorship,
-and `CONFIRMED_FEASIBLE` alone is not future numerator eligibility. No benchmark
-runner, metric, Ground Truth recall, or >=80% result exists yet. Phase 9C Step 3B remains deferred.
+Phase 10B is complete. It consumes only frozen Phase 10A/9C outputs, accounts for every manifest case,
+compares eligible candidates with Ground Truth after finalization, and reports exact cohort hit rate,
+Ground Truth recall, negative-control false-positive rate, primary coverage, and detailed status counts.
+The owned synthetic contract acceptance is `1/2`, `1/1`, `0/1`, `2/2`; it is not project performance
+and creates no >=80% conclusion. Phase 9C Step 3B remains deferred.
 
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- Phase 10B evaluation runner and metrics
 - Phase 10C ablations
 - Phase 10D real-model comparison and report
 - Phase 11 API and visualization, only after core evaluation

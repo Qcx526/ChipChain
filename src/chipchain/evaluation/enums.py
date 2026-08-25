@@ -103,3 +103,41 @@ class ModelClaimBindingReason(str, Enum):
         "claim_affected_execution_mismatch"
     )
     CLAIM_OPTIONAL_REFERENCE_MISMATCH = "claim_optional_reference_mismatch"
+
+
+class BenchmarkCaseRunDisposition(str, Enum):
+    """Closed accounting outcome for exactly one manifest-case attempt."""
+
+    CANDIDATE = "candidate"
+    EXECUTION_FAILURE = "execution_failure"
+    PREDECLARED_EXCLUDED = "predeclared_excluded"
+
+
+class BenchmarkExecutionStage(str, Enum):
+    """Bounded stages that may fail before candidate finalization."""
+
+    REASONING_SESSION = "reasoning_session"
+    CANDIDATE_FINALIZATION = "candidate_finalization"
+    EVALUATION_INPUT_PREPARATION = "evaluation_input_preparation"
+
+
+class BenchmarkExecutionFailureCode(str, Enum):
+    """Stable pre-finalization failure categories without raw diagnostics."""
+
+    PROVIDER_EXECUTION_FAILED = "provider_execution_failed"
+    REASONING_CONTRACT_FAILED = "reasoning_contract_failed"
+    CANDIDATE_FINALIZATION_FAILED = "candidate_finalization_failed"
+    EVALUATION_INPUT_INVALID = "evaluation_input_invalid"
+    DEPENDENCY_UNAVAILABLE = "dependency_unavailable"
+    OTHER_BOUNDED_EXECUTION_FAILURE = "other_bounded_execution_failure"
+
+
+class EvaluationMetricName(str, Enum):
+    """Closed deterministic Phase 10B benchmark metric names."""
+
+    VERIFICATION_HIT_RATE = "verification_hit_rate"
+    GROUND_TRUTH_CHAIN_RECALL = "ground_truth_chain_recall"
+    NEGATIVE_CONTROL_FALSE_POSITIVE_RATE = (
+        "negative_control_false_positive_rate"
+    )
+    PRIMARY_CASE_COVERAGE = "primary_case_coverage"

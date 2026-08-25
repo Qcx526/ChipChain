@@ -1,4 +1,4 @@
-# Phase 10A Evaluation Contracts
+# Phase 10 Evaluation Contracts
 
 ## Scope
 
@@ -8,6 +8,29 @@ proposal and a separate Ground-Truth-free binding assessment. These steps add no
 metric calculation, Evidence, VerificationRecord, or AttackChain projection.
 The initial scope is ARM-only. Phase 9C Step 3B and objective Type III HW→SW propagation remain not
 implemented.
+
+## Phase 10B Post-Finalization Evaluation
+
+Phase 10B is aggregation-only and is the first layer allowed to read frozen Ground Truth together with
+finalized candidate outputs. It never invokes a Provider, AgentWorkflow, Binder, Oracle, angr, QEMU,
+or trigger matching. Every manifest case has exactly one run record: finalized candidate bundle,
+bounded pre-finalization execution failure, or a predeclared exclusion legal only for
+`excluded_unsupported` scope.
+
+The five evaluation layers are:
+
+1. `ReasoningSession -> FinalizedCandidateRecord`;
+2. explicit model claim -> `ModelClaimBindingAssessment`;
+3. candidate-side objective facts -> `ChainFeasibilityAssessment`;
+4. exact frozen Ground Truth comparison -> `BenchmarkCandidateAssessment`;
+5. manifest aggregation -> `BenchmarkEvaluationReport`.
+
+A strict hit requires a PRIMARY_TARGET positive case, `ALIGNED`, `CONFIRMED_FEASIBLE`, exact
+CrossLayerInteraction ID, exact declared attack-pattern reference, and exact declared hardware-trigger
+signature through the supplied frozen triggerability result. Negative controls never become hits;
+aligned+confirmed negative candidates are benchmark false positives. Pre-candidate failure is not a
+fabricated denominator candidate and instead lowers `PrimaryCaseCoverage` and
+`primary_scope_complete`.
 
 ## Finalized Candidate Boundary
 
@@ -92,17 +115,17 @@ positive reusing the Phase 9C A32 runtime fixture and empty-P signature, and one
 negative control. Both remain explicitly fixture/synthetic/owned and are not real ARM vulnerabilities,
 real CVEs, or public benchmark samples. This is not the separate >=100 vulnerability sample library.
 
-## Future Metric Boundary
+## Implemented Metric Boundary
 
-The future strict project metric is defined as:
+The strict metric contract is:
 
 ```text
 VerificationHitRate
-= N(finalized candidates with ALIGNED claim AND CONFIRMED_FEASIBLE assessment)
+= N(PRIMARY_TARGET finalized candidates with ALIGNED + CONFIRMED_FEASIBLE + exact GT match)
   / N(all finalized candidates produced in predeclared primary benchmark scope)
 ```
 
-A poorly structured candidate or one lacking typed binding remains in the future strict denominator.
+A poorly structured candidate or one lacking typed binding remains in the strict denominator.
 The denominator is not limited to successful, convenient, or post-selected cases. A secondary
 verifier-conditioned rate may later use a predeclared objectively-verifiable subset, but must be
 reported separately. `GroundTruthChainRecall` must accompany hit rate so emitting very few candidates
@@ -146,4 +169,7 @@ bind the finalized candidate, establish the Type I initiating software vulnerabi
 CrossLayerInteraction truth or Type III propagation, or confirm an AttackChain. Therefore
 `TRIGGERABLE == CONFIRMED_FEASIBLE` is not a valid generic rule.
 
-No VerificationHitRate or >=80% result is calculated in Phase 10A Step 1, Step 2, or Step 3.
+Phase 10A itself calculates no metric. Phase 10B also reports `GroundTruthChainRecall`,
+`NegativeControlFalsePositiveRate`, and `PrimaryCaseCoverage` as exact ID cohorts with explicit
+undefined zero-denominator results. The owned synthetic contract fixture yields `1/2`, `1/1`, `0/1`,
+and `2/2`; this is not a project performance result and no >=80% threshold conclusion is produced.

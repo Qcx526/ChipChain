@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -450,9 +450,10 @@ vulnerability 动态重现、CrossLayerInteraction/AttackChain verified 或漏�
 `INSUFFICIENT_PRECONDITION_EVIDENCE`，等待未来 Step 3B 或另一个显式设计的客观 precondition oracle。
 
 Step 4 结果本身不是项目级“关联漏洞命中率 >= 80%”的分子。Phase 10A Step 2 只允许它在完整
-绑定的 Type II candidate-side objective path 中参与单条链 feasibility assessment；指标仍未计算。
+绑定的 Type II candidate-side objective path 中参与单条链 feasibility assessment；Phase 10B 还需
+claim alignment 与 exact Ground Truth match 才能计入 strict hit。
 
-### Phase 10：Evaluation（进行中；10A Step 1～3 完成）
+### Phase 10：Evaluation（进行中；10A 与 10B 完成）
 
 #### Phase 10A Step 1：Benchmark Ground Truth and Finalized Candidate Contracts（已完成）
 
@@ -502,12 +503,24 @@ Type III 保持 unsupported。Step 2 每次只产生一个 assessment，不执�
   Coordinator 按实际 source Agent role 独立拒绝非 ATTACK_CHAIN claim
 
 Context interaction 只是 candidate-side typed context，不等于模型 authorship；model claim 只是未验证
-proposal，不等于 domain truth。`CONFIRMED_FEASIBLE` 与 claim alignment 是独立维度。未来 strict
-numerator 至少要求同一 candidate/case/interaction 上同时 `ALIGNED` 且 `CONFIRMED_FEASIBLE`，但本步骤
-不实现 runner、metric 或“>=80%”计算。
+proposal，不等于 domain truth。`CONFIRMED_FEASIBLE` 与 claim alignment 是独立维度；Phase 10B strict
+hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实现 runner、metric 或“>=80%”计算。
 
-后续工作：Phase 10B evaluation runner/metrics、Phase 10C ablations、Phase 10D real-model
-comparison/report。`TRIGGERABLE` 仍不能脱离 Type II exact candidate binding 被通用映射为
+#### Phase 10B：Deterministic Benchmark Evaluation Runner and Metrics（已完成）
+
+- [x] 每个 manifest case 恰好一个 `BenchmarkCaseRunRecord`：candidate、pre-finalization failure 或
+  预声明 excluded；missing/duplicate/extra case fail closed
+- [x] truth-neutral `CandidateEvaluationBundle` exact-bind candidate、claim binding、feasibility 与必要的
+  detached triggerability
+- [x] post-finalization exact Ground Truth interaction、attack-pattern 与 declared signature matching
+- [x] `BenchmarkCandidateAssessment`、per-chain recovery 与 deterministic top-level report
+- [x] `VerificationHitRate`、`GroundTruthChainRecall`、`NegativeControlFalsePositiveRate`、
+  `PrimaryCaseCoverage` exact cohort metrics；零 denominator 显式 undefined
+- [x] primary scope completeness、全 claim/feasibility status counts、confidence/metadata/input-order neutral IDs
+- [x] owned synthetic acceptance：`1/2`、`1/1`、`0/1`、`2/2`，仅验证合同且不产生 >=80% 结论
+
+后续工作：Phase 10C ablations、Phase 10D real-model comparison/report。`TRIGGERABLE` 仍不能脱离
+Type II exact candidate binding 被通用映射为
 `CONFIRMED_FEASIBLE`。
 
 ### Phase 11：API / Visualization
