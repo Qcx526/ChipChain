@@ -89,7 +89,10 @@ VerificationHitRate
 Phase 10A Step 2 已实现 Ground-Truth-free 的单候选 objective oracle。Step 3 另行要求模型通过
 `ModelAuthoredChainClaim` 显式提出 interaction type 与 participant references，并使用不读取 Ground
 Truth 的 `ModelClaimBinder` 比较 candidate-side typed interaction。Context interaction 不是模型
-authorship，model claim 不是 verified truth；`CONFIRMED_FEASIBLE` 单独不满足未来 strict numerator，
+authorship，model claim 不是 verified truth。Required references 必须 exact；optional references 为空
+表示未声明，非空时按 candidate-side 集合的子集关系判断兼容。Strict provider transport 用 required
+nullable `chain_claim` 表示缺失 claim；`null` 不构成 authorship，且 Coordinator 会复核实际 source
+Agent 必须为 ATTACK_CHAIN。`CONFIRMED_FEASIBLE` 单独不满足未来 strict numerator，
 还必须具有同一 candidate/case/interaction 上的 `ALIGNED` claim。当前尚未实现 manifest runner 或
 计算指标。不能只保留验证成功或具备方便 runtime evidence 的候选。可另报预先冻结 eligibility 的 secondary
 verifier-conditioned rate，但它不能替代 strict metric。还必须报告 `GroundTruthChainRecall`，防止通过

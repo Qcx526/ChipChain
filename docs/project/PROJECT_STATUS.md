@@ -23,6 +23,7 @@
 - Phase 10A Step 1 finalized candidate, typed Ground Truth, predeclared scope, and manifest contracts
 - Phase 10A Step 2 Ground-Truth-free candidate-side objective chain feasibility oracle
 - Phase 10A Step 3 explicit model-authored chain claim and Ground-Truth-free candidate binding assessment
+- Phase 10A Step 3-R1 strict required-null provider transport, optional-reference subset binding, and actual source-role provenance hardening
 
 ## Current Work
 
@@ -69,5 +70,8 @@ fields are not automatically LLM-authored. No “关联漏洞命中率 >= 80%”
 
 Only ATTACK_CHAIN provider output may carry one optional model-authored claim. ChipChain owns claim
 architecture, role, and identity; wrong participant IDs are retained for assessment rather than
-repaired. The deterministic Mock emits no claim, the coordinator retains at most one, and no claim
+repaired. Strict transport requires `chain_claim`: null means no authorship and is emitted by the
+deterministic Mock; non-null participant objects carry all list properties. Required references remain
+exact, while non-empty optional references must be candidate-side subsets. The coordinator retains at
+most one claim and independently rejects one returned by an actual non-ATTACK_CHAIN Agent. No claim
 creates Evidence, VerificationRecord, AttackChain, vulnerability truth, causality, or score.

@@ -12,6 +12,7 @@ from chipchain.models import Architecture
 from chipchain.multi_agent import EvidenceAnalysis
 from chipchain.reasoning import (
     AttackHypothesis,
+    ConstrainedReasoningOutputParser,
     EvidenceRequest,
     LLMOutputValidationError,
     LLMProviderConfig,
@@ -151,6 +152,19 @@ def _nested_contracts() -> tuple[
     request = _resolve_schema_ref(schema, requests["items"])
     result = _resolve_schema_ref(schema, properties["reasoning_result"])
     return schema, hypothesis, request, result
+
+
+def _object_schemas(value: object):
+    """Yield every inline or defined object contract exactly once by location."""
+
+    if isinstance(value, dict):
+        if isinstance(value.get("properties"), dict):
+            yield value
+        for nested in value.values():
+            yield from _object_schemas(nested)
+    elif isinstance(value, list):
+        for nested in value:
+            yield from _object_schemas(nested)
 
 
 def test_chat_completions_bridge_returns_raw_text_and_propagates_config() -> None:
@@ -358,8 +372,7 @@ def test_generated_schema_is_deterministic_and_has_exact_required_fields() -> No
     for contract, fields in expected:
         assert contract["additionalProperties"] is False
         assert set(contract["properties"]) == fields
-        required_fields = fields.difference({"chain_claim"})
-        assert set(contract["required"]) == required_fields
+        assert set(contract["required"]) == fields
 
     claim_reference = hypothesis["properties"]["chain_claim"]["anyOf"][0]
     claim = schema["$defs"][claim_reference["$ref"].rsplit("/", 1)[-1]]
@@ -375,7 +388,48 @@ def test_generated_schema_is_deterministic_and_has_exact_required_fields() -> No
         "hardware_resource_ids",
         "security_mechanism_ids",
     }
-    assert set(claim["required"]) == {"interaction_type"}
+    assert set(claim["required"]) == set(claim["properties"])
+    assert {item.get("type") for item in hypothesis["properties"]["chain_claim"]["anyOf"]} == {
+        None,
+        "null",
+    }
+
+
+def test_generated_strict_schema_recursively_requires_every_object_property() -> None:
+    schema = reasoning_provider_output_json_schema()
+    object_schemas = list(_object_schemas(schema))
+
+    assert object_schemas
+    for contract in object_schemas:
+        assert set(contract["required"]) == set(contract["properties"])
+        assert contract["additionalProperties"] is False
+
+
+def test_mock_explicit_null_is_strict_transport_not_model_authorship() -> None:
+    context = _context()
+    parser = ConstrainedReasoningOutputParser()
+    prompt = RoleBasedReasoningPromptBuilder().build(
+        context,
+        role=ReasoningAgentType.CODE,
+    )
+    explicit_null = json.loads(MockReasoningProvider().generate(prompt))
+    omitted = json.loads(json.dumps(explicit_null))
+    del omitted["hypothesis"]["chain_claim"]
+
+    null_contracts = parser.parse(
+        json.dumps(explicit_null),
+        context=context,
+        role=ReasoningAgentType.CODE,
+    )
+    omitted_contracts = parser.parse(
+        json.dumps(omitted),
+        context=context,
+        role=ReasoningAgentType.CODE,
+    )
+
+    assert explicit_null["hypothesis"]["chain_claim"] is None
+    assert null_contracts == omitted_contracts
+    assert null_contracts[0].model_authored_chain_claim is None
 
 
 def test_generated_schema_preserves_confidence_constraints() -> None:

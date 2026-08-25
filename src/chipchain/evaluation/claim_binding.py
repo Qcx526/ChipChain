@@ -227,7 +227,9 @@ class ModelClaimBinder:
         optional_fields.discard("initiating_vulnerability_ids")
         if any(
             getattr(claim, field)
-            and getattr(claim, field) != getattr(interaction, field)
+            and not set(getattr(claim, field)).issubset(
+                getattr(interaction, field)
+            )
             for field in optional_fields
         ):
             reasons.add(

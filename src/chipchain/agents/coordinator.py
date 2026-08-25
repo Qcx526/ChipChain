@@ -13,7 +13,7 @@ from chipchain.agents.state import (
     ReasoningSession,
     reasoning_session_id,
 )
-from chipchain.reasoning.enums import HypothesisSource
+from chipchain.reasoning.enums import HypothesisSource, ReasoningAgentType
 from chipchain.reasoning.evidence_request import EvidenceRequest
 from chipchain.reasoning.feedback import (
     EvidenceFeedback,
@@ -55,6 +55,14 @@ class MultiAgentReasoningCoordinator:
             execution_order.append(agent.agent_type)
             try:
                 hypothesis = agent.produce_hypothesis()
+                if (
+                    hypothesis.model_authored_chain_claim is not None
+                    and agent.agent_type is not ReasoningAgentType.ATTACK_CHAIN
+                ):
+                    raise HypothesisMergeConflict(
+                        "only an actual attack_chain agent may contribute a "
+                        "model-authored chain claim"
+                    )
                 if workflow.is_hypothesis_only(agent.agent_type):
                     requests: list[EvidenceRequest] = []
                     result = None

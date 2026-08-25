@@ -180,18 +180,26 @@ Phase 10A Step 3 后当前 contract 的 schema name 是
 `phase10a_model_authored_chain_claim_v3`。不兼容的旧 v1/v2 会在 Provider 边界拒绝，不以新 DTO
 解释，也不提供 legacy
 parser。Strict schema 直接由 `ConstrainedReasoningOutputParser` 使用的 Pydantic
-provider-output DTO 生成，没有第二份手写 schema，也没有 provider-specific normalization。Chat Completions 使用
+provider-output DTO 生成，没有第二份手写 schema；随后以确定性、provider-independent normalizer
+递归令每个 object 的 `required` 覆盖全部 properties，并保持 `additionalProperties=false`。其中
+`chain_claim` 是 required nullable transport field：CODE/HARDWARE/VULNERABILITY 必须输出 null，
+ATTACK_CHAIN 可输出 null 或完整对象。Null 不构成 claim authorship，普通 parser 仍兼容省略字段。
+Chat Completions 使用
 `response_format={type: json_schema, json_schema: {name, strict, schema}}`；Responses 使用当前
 SDK 明确定义的 `text.format={type: json_schema, name, strict, schema}`。
 
 验证始终为两层且顺序固定：
 
-1. Provider-side v3 schema 只允许既有 reasoning semantic fields；此外仅 ATTACK_CHAIN role 可选
+1. Provider-side v3 schema 只允许既有 reasoning semantic fields；此外仅 ATTACK_CHAIN role 可
    author proposal-shaped chain claim 的 interaction type 与 participant lists。Architecture、role、ID
    仍由 ChipChain 绑定，并继续约束类型、区间和 unexpected properties。
 2. ChipChain parser 再检查 Context Evidence reference、request cardinality 与 forbidden truth，
    并从可信 Context/role contract 确定性绑定 component、attack pattern、dynamic trigger、
    Evidence category/priority 等身份字段。
+
+Coordinator 在 parser 之外还会检查实际返回 claim 的 Agent instance role，非 ATTACK_CHAIN source
+即 fail closed。Claim binding 的 required categories 保持 exact；optional category 为空表示未声明，
+非空时必须是 candidate-side 对应集合的子集。
 
 Bridge 不创建任何 verification/domain truth。非文本响应在 transport 边界 fail closed；非法
 JSON、错误引用或 verification/vulnerability 字段继续由 constrained parser 拒绝。Provider

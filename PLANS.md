@@ -496,6 +496,10 @@ Type III 保持 unsupported。Step 2 每次只产生一个 assessment，不执�
 - [x] `FinalizedCandidateRecord` 条件绑定 claim snapshot，并保持 no-claim legacy identities
 - [x] Ground-Truth-free `ModelClaimBinder` 与 `ALIGNED`、`INCOMPLETE`、`MISMATCHED`、`UNBOUND`、
   `MISSING` 五态 closed assessment
+- [x] Step 3-R1：strict provider schema 递归要求全部 object properties，以 required nullable
+  `chain_claim` 表示缺失 claim；Mock 显式输出 null，普通 parser 仍兼容省略字段
+- [x] Step 3-R1：required references 保持 exact，optional non-empty references 使用集合子集兼容；
+  Coordinator 按实际 source Agent role 独立拒绝非 ATTACK_CHAIN claim
 
 Context interaction 只是 candidate-side typed context，不等于模型 authorship；model claim 只是未验证
 proposal，不等于 domain truth。`CONFIRMED_FEASIBLE` 与 claim alignment 是独立维度。未来 strict

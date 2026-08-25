@@ -145,6 +145,10 @@
   错误/缺失 participant 必须保留为可评测的 `INCOMPLETE`、`MISMATCHED`、`UNBOUND` 或 `MISSING`。
   `ModelClaimBinder` 不读取 Ground Truth，Context 不得自动合成为 model claim。未来 strict numerator
   至少同时要求 claim `ALIGNED` 与 feasibility `CONFIRMED_FEASIBLE`；当前仍不计算 metric 或 >=80%。
+  R1 strict transport 对每个 object 要求全部 properties，并用必需的 `chain_claim: null` 表示未
+  author claim；null 不构成 authorship。非 ATTACK_CHAIN 的实际 Agent 不得返回非空 claim，Coordinator
+  独立复核其运行时角色。Required participant references 保持 exact；非空 optional references 只需为
+  candidate-side 对应集合的子集，空列表表示该 optional category 未显式声明。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

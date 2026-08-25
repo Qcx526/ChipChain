@@ -16,6 +16,7 @@ from chipchain.agents import (
     HypothesisMergeConflict,
     MultiAgentReasoningCoordinator,
     ProviderBackedAgentWorkflow,
+    ReasoningAgent,
     ReasoningContext,
 )
 from chipchain.evaluation import (
@@ -47,6 +48,7 @@ from chipchain.reasoning import (
     AttackHypothesis,
     ConstrainedReasoningOutputParser,
     EvidenceCategory,
+    EvidenceRequest,
     HypothesisSource,
     LLMOutputValidationError,
     MockReasoningProvider,
@@ -54,6 +56,7 @@ from chipchain.reasoning import (
     ReasoningAgentType,
     ReasoningEngine,
     ReasoningProvider,
+    ReasoningResult,
     RoleBasedReasoningPromptBuilder,
     StructuredPromptRequest,
 )
@@ -72,6 +75,8 @@ def _interaction(
     ),
     *,
     suffix: str = "a",
+    hardware_resource_ids: list[str] | None = None,
+    security_mechanism_ids: list[str] | None = None,
 ) -> CrossLayerInteraction:
     if (
         interaction_type
@@ -111,8 +116,16 @@ def _interaction(
         target_vulnerability_ids=[f"synthetic-hw-vulnerability-{suffix}"],
         trigger_behavior_ids=[f"synthetic-trigger-{suffix}"],
         propagation_behavior_ids=[f"synthetic-propagation-{suffix}"],
-        hardware_resource_ids=[f"synthetic-resource-{suffix}"],
-        security_mechanism_ids=[f"synthetic-mechanism-{suffix}"],
+        hardware_resource_ids=(
+            hardware_resource_ids
+            if hardware_resource_ids is not None
+            else [f"synthetic-resource-{suffix}"]
+        ),
+        security_mechanism_ids=(
+            security_mechanism_ids
+            if security_mechanism_ids is not None
+            else [f"synthetic-mechanism-{suffix}"]
+        ),
         referenced_architectures=[Architecture.ARM],
     )
 
@@ -311,22 +324,45 @@ def test_missing_provider_claim_remains_none_and_workflow_completes() -> None:
     assert len(session.reasoning_results) == 3
 
 
-def test_non_attack_role_claim_and_forbidden_claim_fields_fail_closed() -> None:
+@pytest.mark.parametrize(
+    "role",
+    [
+        ReasoningAgentType.CODE,
+        ReasoningAgentType.HARDWARE,
+        ReasoningAgentType.VULNERABILITY,
+    ],
+)
+def test_non_attack_role_claim_fails_closed_but_null_is_valid(
+    role: ReasoningAgentType,
+) -> None:
     context = _context(_interaction())
     parser = ConstrainedReasoningOutputParser()
-    code_prompt = RoleBasedReasoningPromptBuilder().build(
+    prompt = RoleBasedReasoningPromptBuilder().build(
         context,
-        role=ReasoningAgentType.CODE,
+        role=role,
     )
-    raw = json.loads(MockReasoningProvider().generate(code_prompt))
+    raw = json.loads(MockReasoningProvider().generate(prompt))
+    assert raw["hypothesis"]["chain_claim"] is None
+    hypothesis, _, _ = parser.parse(
+        json.dumps(raw),
+        context=context,
+        role=role,
+    )
+    assert hypothesis.model_authored_chain_claim is None
+
     raw["hypothesis"]["chain_claim"] = _claim_payload(_interaction())
     with pytest.raises(LLMOutputValidationError) as role_error:
         parser.parse(
             json.dumps(raw),
             context=context,
-            role=ReasoningAgentType.CODE,
+            role=role,
         )
     assert role_error.value.stage == "role_authority"
+
+
+def test_forbidden_claim_fields_fail_closed() -> None:
+    context = _context(_interaction())
+    parser = ConstrainedReasoningOutputParser()
 
     attack_prompt = RoleBasedReasoningPromptBuilder().build(
         context,
@@ -393,7 +429,8 @@ def test_prompt_exposes_claim_authority_only_to_attack_chain_role() -> None:
         for item in code_payload["provider_authority"]["model_authored_fields"]
     )
     assert "unverified model proposal" in attack.system_prompt
-    assert "must not emit hypothesis.chain_claim" in code.system_prompt
+    assert "chain_claim is a required transport field" in code.system_prompt
+    assert "must be null for this role" in code.system_prompt
     assert "cross_layer_interaction" in attack_payload["reasoning_context"]
 
 
@@ -444,6 +481,51 @@ def test_coordinator_retains_exactly_one_claim_and_rejects_multiple() -> None:
     assert merged.model_authored_chain_claim == claim
     with pytest.raises(HypothesisMergeConflict, match="at most one"):
         coordinator.merge_hypotheses([with_claim, with_claim])
+
+
+class _ClaimSmugglingAgent(ReasoningAgent):
+    """Fixture non-AttackChain agent returning an internally valid claim."""
+
+    def __init__(self, context: ReasoningContext) -> None:
+        self._context = context
+        super().__init__(
+            agent_id="fixture-claim-smuggling-code-agent",
+            agent_type=ReasoningAgentType.CODE,
+        )
+
+    def produce_hypothesis(self) -> AttackHypothesis:
+        interaction = self._context.cross_layer_interaction
+        assert interaction is not None
+        return AttackHypothesis.create(
+            source=HypothesisSource.ANALYST,
+            architecture=self._context.architecture,
+            description="Synthetic claim returned by the wrong actual agent",
+            affected_components=self._context.affected_components,
+            required_evidence_types=[EvidenceCategory.STATIC_BEHAVIOR],
+            confidence=0.0,
+            model_authored_chain_claim=_claim(interaction),
+        )
+
+    def request_evidence(self) -> list[EvidenceRequest]:
+        raise AssertionError("coordinator must reject before requesting evidence")
+
+    def analyze(self, input_data: object) -> ReasoningResult:
+        raise AssertionError("coordinator must reject before analysis")
+
+
+class _ClaimSmugglingWorkflow(AgentWorkflow):
+    def build_agents(
+        self,
+        context: ReasoningContext,
+    ) -> tuple[ReasoningAgent, ...]:
+        return (_ClaimSmugglingAgent(context),)
+
+
+def test_coordinator_rejects_claim_from_actual_non_attack_chain_agent() -> None:
+    context = _context(_interaction())
+
+    with pytest.raises(HypothesisMergeConflict, match="actual attack_chain"):
+        _ClaimSmugglingWorkflow().execute(context)
 
 
 def test_default_workflow_does_not_copy_context_into_model_authorship() -> None:
@@ -708,6 +790,74 @@ def test_wrong_optional_reference_is_not_silently_ignored() -> None:
     assert result.reason_codes == [
         ModelClaimBindingReason.CLAIM_OPTIONAL_REFERENCE_MISMATCH
     ]
+
+
+@pytest.mark.parametrize(
+    ("field", "candidate_values", "claim_values", "expected_status"),
+    [
+        (
+            "hardware_resource_ids",
+            ["synthetic-resource-a", "synthetic-resource-b"],
+            ["synthetic-resource-a"],
+            ModelClaimBindingStatus.ALIGNED,
+        ),
+        (
+            "hardware_resource_ids",
+            ["synthetic-resource-a", "synthetic-resource-b"],
+            ["synthetic-resource-a", "synthetic-resource-b"],
+            ModelClaimBindingStatus.ALIGNED,
+        ),
+        (
+            "hardware_resource_ids",
+            ["synthetic-resource-a", "synthetic-resource-b"],
+            [],
+            ModelClaimBindingStatus.ALIGNED,
+        ),
+        (
+            "hardware_resource_ids",
+            ["synthetic-resource-a", "synthetic-resource-b"],
+            ["synthetic-resource-a", "synthetic-resource-x"],
+            ModelClaimBindingStatus.MISMATCHED,
+        ),
+        (
+            "hardware_resource_ids",
+            [],
+            ["synthetic-resource-a"],
+            ModelClaimBindingStatus.MISMATCHED,
+        ),
+        (
+            "security_mechanism_ids",
+            ["synthetic-mechanism-a", "synthetic-mechanism-b"],
+            ["synthetic-mechanism-a"],
+            ModelClaimBindingStatus.ALIGNED,
+        ),
+        (
+            "security_mechanism_ids",
+            ["synthetic-mechanism-a", "synthetic-mechanism-b"],
+            ["synthetic-mechanism-a", "synthetic-mechanism-x"],
+            ModelClaimBindingStatus.MISMATCHED,
+        ),
+    ],
+)
+def test_optional_claim_references_use_subset_compatibility(
+    field: str,
+    candidate_values: list[str],
+    claim_values: list[str],
+    expected_status: ModelClaimBindingStatus,
+) -> None:
+    interaction = _interaction(**{field: candidate_values})
+    candidate = _candidate(
+        interaction,
+        _claim_payload(interaction, **{field: claim_values}),
+    )
+
+    result = ModelClaimBinder().assess(candidate, interaction)
+
+    assert result.status is expected_status
+    assert (
+        ModelClaimBindingReason.CLAIM_OPTIONAL_REFERENCE_MISMATCH
+        in result.reason_codes
+    ) is (expected_status is ModelClaimBindingStatus.MISMATCHED)
 
 
 def test_binding_rejects_invalid_or_contradictory_inputs() -> None:

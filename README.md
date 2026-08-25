@@ -376,7 +376,11 @@ RoleBasedReasoningPromptBuilder
 Phase 9B2C 曾冻结 reduced semantic v2；Phase 10A Step 3 将当前 provider contract 显式升级为
 `phase10a_model_authored_chain_claim_v3`。不兼容的 v1/v2 不会在当前 DTO 下被接受，也没有 legacy
 parser。该 bridge 从
-constrained parser 使用的同一 Pydantic transport DTO 生成 strict JSON Schema。
+constrained parser 使用的同一 Pydantic transport DTO 生成 strict JSON Schema，并通过确定性递归
+规范化令每个 object 的 `required` 覆盖全部 properties、保持 `additionalProperties=false`。
+Strict transport 必须携带 nullable `hypothesis.chain_claim`：CODE/HARDWARE/VULNERABILITY 固定为
+`null`，ATTACK_CHAIN 可为 `null` 或一个完整结构对象。`null` 仅表示没有 model-authored claim，
+不会创建 claim identity；普通 constrained parser 仍兼容手工输入省略该字段。
 Provider schema 是第一道结构约束；`ConstrainedReasoningOutputParser` 仍是必须执行的第二道
 语义/引用约束。Bridge 不在 schema 被拒绝时降级到 JSON Object，不解析安全语义、不绕过
 Parser，也不在失败时 fallback 到 Mock。Legacy Phase 7/8 JSON mode 行为保持不变。Step 1
@@ -498,7 +502,10 @@ feasibility verdict。缺失 claim 保持 `MISSING`，不完整或错误 claim �
 
 `ModelClaimBinder` 只比较显式 model claim 与 candidate-side typed interaction，输出独立的
 `ALIGNED`、`INCOMPLETE`、`MISMATCHED`、`UNBOUND` 或 `MISSING`。因此 Context interaction != model
-authorship，model claim != verified truth，且 `CONFIRMED_FEASIBLE` 单独不足以说明模型正确提出了该链。
+authorship，model claim != verified truth。Required participant categories 必须 exact；optional category
+为空表示未显式声明，非空时只需是 candidate-side 对应集合的子集。Coordinator 还会依据实际返回
+hypothesis 的 Agent role 独立拒绝非 ATTACK_CHAIN claim，不能只信任 claim 自带的 author role。
+`CONFIRMED_FEASIBLE` 单独不足以说明模型正确提出了该链。
 未来 strict numerator 至少还要求同一候选的 claim 为 `ALIGNED`；当前未实现 metric，也未计算 >=80%。
 详见 [Evaluation Contracts](docs/EVALUATION_CONTRACTS.md)。
 

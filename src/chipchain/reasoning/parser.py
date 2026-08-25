@@ -130,11 +130,38 @@ class _ReasoningProviderSemanticOutput(DomainModel):
 
 
 def reasoning_provider_output_json_schema() -> dict[str, object]:
-    """Derive a detached strict-output schema from the parser's transport DTO."""
+    """Return the strict provider schema without changing parser optionality."""
 
-    return _ReasoningProviderSemanticOutput.model_json_schema(
+    schema = _ReasoningProviderSemanticOutput.model_json_schema(
         mode="validation"
     )
+    normalized = _normalize_strict_provider_schema(schema)
+    if not isinstance(normalized, dict):  # pragma: no cover - root is fixed
+        raise TypeError("reasoning provider schema root must be an object")
+    return normalized
+
+
+def _normalize_strict_provider_schema(value: object) -> object:
+    """Require every declared object property for strict structured output.
+
+    Logical optionality remains encoded by nullable values, while the ordinary
+    Pydantic DTO continues to accept omitted defaulted fields for manual and
+    legacy parser callers.
+    """
+
+    if isinstance(value, dict):
+        normalized = {
+            key: _normalize_strict_provider_schema(item)
+            for key, item in value.items()
+        }
+        properties = normalized.get("properties")
+        if isinstance(properties, dict):
+            normalized["required"] = list(properties)
+            normalized["additionalProperties"] = False
+        return normalized
+    if isinstance(value, list):
+        return [_normalize_strict_provider_schema(item) for item in value]
+    return value
 
 
 class ConstrainedReasoningOutputParser:

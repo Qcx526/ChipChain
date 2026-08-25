@@ -36,11 +36,16 @@ retained for analysis but cannot change identity or feasibility.
    It deliberately permits incomplete and wrong semantics so model errors remain measurable.
 3. `ChainFeasibilityAssessment` remains the Step 2 objective candidate-side result and is unchanged.
 
-The v3 constrained provider contract permits an optional claim only at ATTACK_CHAIN. Other roles,
+The v3 strict transport requires `chain_claim` for every role and represents no claim as `null`.
+Every strict-schema object requires all declared properties and rejects additional properties. Null
+is transport-level absence, not authorship: CODE, HARDWARE, and VULNERABILITY must emit null, while
+ATTACK_CHAIN may emit null or one structured claim. The ordinary constrained parser remains compatible
+with an omitted field. Other roles with a non-null claim,
 unknown fields, provider-authored metadata/identity/architecture/role, and forbidden verdict/score
 fields fail closed. A missing claim does not abort reasoning or drop the finalized candidate. The
 default deterministic Mock does not copy Context into a claim. The coordinator retains zero or one
-source claim and rejects multiple claims.
+source claim, rejects multiple claims, and independently checks that the actual contributing Agent is
+ATTACK_CHAIN rather than trusting only the claim's bound author role.
 
 `ModelClaimBinder` compares the detached finalized claim with an exactly bound candidate interaction
 without accepting Ground Truth. Its closed statuses are:
@@ -54,8 +59,10 @@ without accepting Ground Truth. Its closed statuses are:
 
 Type I requires model-authored initiating vulnerability, target vulnerability, and trigger behavior.
 Type II requires target vulnerability and trigger behavior and forbids an initiating vulnerability.
-Type III requires initiating hardware vulnerability and affected software execution. Optional lists
-may be omitted, but an explicitly wrong optional identifier is a mismatch. These are claim-alignment
+Type III requires initiating hardware vulnerability and affected software execution. Required lists
+remain exact. An empty optional list means that category was not explicitly claimed; a non-empty
+optional list is compatible exactly when it is a subset of the candidate interaction's corresponding
+list. Any out-of-set optional identifier is a mismatch. These are claim-alignment
 outcomes, not feasibility, vulnerability, causality, verification, or AttackChain verdicts.
 
 ## Benchmark and Ground Truth

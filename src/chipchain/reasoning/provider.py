@@ -92,6 +92,7 @@ class MockReasoningProvider(ReasoningProvider):
         output = {
             "evidence_requests": requests,
             "hypothesis": {
+                "chain_claim": None,
                 "confidence": 0.0,
                 "description": contract["description_template"].format(
                     subject_id=subject_id
