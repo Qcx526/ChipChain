@@ -570,6 +570,24 @@ def test_invalid_failure_or_programmer_error_does_not_become_infra_failure() -> 
         {"stack_trace": "trace"},
         {"api_key": "secret"},
         {"diagnostic": "/home/user/private/path"},
+        {"message": "QEMU failed at /home/example/private/fw.elf"},
+        {"message": "failed at C:\\Users\\example\\private\\fw.elf"},
+        {"message": "api_key=secret-value"},
+        {"message": "api-key: secret-value"},
+        {"message": "Authorization: BearerSecret"},
+        {"message": "password=hunter2"},
+        {"message": "secret=private-value"},
+        {"message": "sk-abcdefghijklmnop"},
+        {"message": "token=my-secret"},
+        {"message": "failed opening file:///home/example/private/fw.elf"},
+        {"message": "Traceback (most recent call last): ..."},
+        {"message": "captured stack-trace payload"},
+        {"message": "at example.runtime.Runner.run(Runner.java:42)"},
+        {
+            "details": [
+                {"note": "failure at /home/example/private/fw.elf"}
+            ]
+        },
     ],
 )
 def test_infrastructure_failure_rejects_sensitive_diagnostics(
@@ -584,6 +602,28 @@ def test_infrastructure_failure_rejects_sensitive_diagnostics(
             failure_code="BOUNDED_FAILURE",
             metadata=metadata,
         )
+
+
+def test_infrastructure_failure_allows_safe_metadata_without_changing_id() -> None:
+    common = {
+        "candidate_id": "finalized-candidate:fixture",
+        "benchmark_case_id": CASE_ID,
+        "architecture": Architecture.ARM,
+        "stage": ObjectiveFailureStage.OTHER_OBJECTIVE_INFRASTRUCTURE,
+        "failure_code": "BOUNDED_FAILURE",
+    }
+
+    without_metadata = ObjectiveEvaluationFailure.create(**common)
+    with_safe_metadata = ObjectiveEvaluationFailure.create(
+        **common,
+        metadata={"component": "qemu_runtime", "retryable": False},
+    )
+
+    assert with_safe_metadata.metadata == {
+        "component": "qemu_runtime",
+        "retryable": False,
+    }
+    assert with_safe_metadata.id == without_metadata.id
 
 
 def test_caller_mutation_and_confidence_do_not_change_assessment() -> None:

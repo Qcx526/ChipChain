@@ -19,7 +19,25 @@ from chipchain.models.enums import Architecture
 
 
 _FAILURE_CODE = re.compile(r"^[A-Z][A-Z0-9_]*$")
-_WINDOWS_ABSOLUTE_PATH = re.compile(r"^[A-Za-z]:[\\/]")
+_SECRET_ASSIGNMENT = re.compile(
+    r"(?i)\b(api[_-]?key|authorization|password|secret|token)\s*[:=]\s*\S+"
+)
+_SECRET_TOKEN = re.compile(r"\bsk-[A-Za-z0-9_-]{12,}\b")
+_WINDOWS_ABSOLUTE_PATH = re.compile(
+    r"(?i)(?:\b[A-Z]:[\\/]|(?<![\\\w])\\\\)[^\s\"']+"
+)
+_POSIX_ABSOLUTE_PATH = re.compile(
+    r"(?<![:/\w.])/(?:[^/\s\"']+/)*[^/\s\"']+"
+)
+_HOME_RELATIVE_PATH = re.compile(r"(?<!\w)~(?:[\w.-]+)?[\\/][^\s\"']+")
+_FILE_HOST_PATH = re.compile(r"(?i)\bfile://[^\s\"']+")
+_TRACEBACK_PAYLOAD = re.compile(
+    r"(?i)\b(?:backtrace|traceback|stack[\s_-]*trace)\b"
+)
+_STACK_FRAME_PAYLOAD = re.compile(
+    r'(?im)(?:^|\n)\s*(?:File\s+"[^"\n]+",\s+line\s+\d+'
+    r"|at\s+(?:[\w$<>]+\.)+[\w$<>]+\([^\n)]*\))"
+)
 _FORBIDDEN_FAILURE_METADATA_KEYS = {
     "apikey",
     "authorization",
@@ -106,12 +124,24 @@ def _validate_failure_metadata(metadata: Metadata) -> Metadata:
         elif isinstance(value, str):
             candidate = value.strip()
             if (
-                candidate.startswith(("/", "\\", "~"))
-                or _WINDOWS_ABSOLUTE_PATH.match(candidate)
+                _WINDOWS_ABSOLUTE_PATH.search(value)
+                or _POSIX_ABSOLUTE_PATH.search(value)
+                or _HOME_RELATIVE_PATH.search(value)
+                or _FILE_HOST_PATH.search(value)
+                or candidate.startswith(("/", "\\"))
                 or candidate.lower().startswith("file:")
             ):
                 raise ValueError(
                     "objective failure metadata must not contain host paths"
+                )
+            if (
+                _SECRET_ASSIGNMENT.search(value)
+                or _SECRET_TOKEN.search(value)
+                or _TRACEBACK_PAYLOAD.search(value)
+                or _STACK_FRAME_PAYLOAD.search(value)
+            ):
+                raise ValueError(
+                    "objective failure metadata contains forbidden diagnostics"
                 )
 
     visit(metadata)
