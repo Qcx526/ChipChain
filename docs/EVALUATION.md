@@ -77,7 +77,20 @@ point；MMIO trigger instruction 不得计作 root-cause line。
 
 ## 80% 目标的报告方式
 
-“关联漏洞命中率 ≥80%”在基准冻结前暂定义为测试集 Hit@K 指标目标，并同时报告 Precision、Recall、F1、节点/边指标与置信区间。正式论文前需要明确 K、匹配规则、样本构成和统计不确定性，避免只选择最有利口径。
+Phase 10A Step 1 将 strict project metric 的候选单位固定为完整 `ReasoningSession` 的唯一
+`merged_hypothesis`。四个 role hypotheses 不是四个独立候选。未来指标定义为：
+
+```text
+VerificationHitRate
+= N(finalized candidates objectively confirmed feasible)
+  / N(all finalized candidates produced in predeclared primary scope)
+```
+
+当前只冻结 candidate、Ground Truth 与 scope contract，尚未实现 chain-level oracle 或计算指标。
+不能只保留验证成功或具备方便 runtime evidence 的候选。可另报预先冻结 eligibility 的 secondary
+verifier-conditioned rate，但它不能替代 strict metric。还必须报告 `GroundTruthChainRecall`，防止通过
+只输出少量保守候选虚增 hit rate。Hit@K、Precision/Recall/F1、节点/边指标仍是不同问题的辅助指标，
+不得与上述 verification hit rate 混为一谈。
 
 ## 错误分类
 
@@ -101,6 +114,7 @@ point；MMIO trigger instruction 不得计作 root-cause line。
 
 ## 当前评测契约状态
 
-已建立总体与 Type I/II/III 分类型 Hit@K、结构指标、角色化位置 Ground Truth 和
-verification 指标约束。Phase 9A-R owned synthetic Type II fixture 只验证工程闭环，不是
-正式 Ground Truth Benchmark；权重校准、定位误差和统计实验留到 Phase 10。
+Phase 10A Step 1 已建立 finalized candidate、typed Ground Truth、source provenance、predeclared
+scope 与 versioned manifest contract。Initial owned synthetic Type II positive 和 negative control
+只用于 contract validation，不是真实 CVE 或正式 public Benchmark。Chain-level objective oracle、
+metric runner、消融与真实模型比较仍未实现；没有计算“关联漏洞命中率 >=80%”。

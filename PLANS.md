@@ -2,7 +2,8 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4 已完成；Step 3B 仍未实现。Phase 9A-R
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1 已完成；
+Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
 requirements/score、能力状态和角色化定位。
@@ -447,13 +448,31 @@ Step 3A 的 exact T occurrence 当作 `T + P`，也不得把未观察的 P 标�
 vulnerability 动态重现、CrossLayerInteraction/AttackChain verified 或漏洞确认。非空 P 保持
 `INSUFFICIENT_PRECONDITION_EVIDENCE`，等待未来 Step 3B 或另一个显式设计的客观 precondition oracle。
 
-Step 4 结果尚不是项目级“关联漏洞命中率 >= 80%”的分子。该指标需要 Phase 10 定义 finalized
-candidate-chain identity、Type I/II chain semantics、chain-level feasibility oracle 与 denominator；
-本步骤不计算 hit rate。
+Step 4 结果尚不是项目级“关联漏洞命中率 >= 80%”的分子。Phase 10A Step 1 已冻结 finalized
+candidate 与 predeclared scope denominator contract，但 chain-level feasibility oracle 与计算仍未实现。
 
-### Phase 10：Evaluation
+### Phase 10：Evaluation（进行中；仅 10A Step 1 完成）
 
-固定 ARM Ground Truth、指标、错误分类、消融实验和可复现报告。
+#### Phase 10A Step 1：Benchmark Ground Truth and Finalized Candidate Contracts（已完成）
+
+- [x] 固定“一次完整 ReasoningSession → 一个 finalized candidate”，只采用 `merged_hypothesis`
+- [x] detached `FinalizedCandidateRecord`，confidence/metadata 不影响 deterministic identity
+- [x] ARM-only、path-neutral、SHA-256 bound `BenchmarkArtifactReference`
+- [x] typed `GroundTruthChain`，保持三类 `CrossLayerInteraction` 原始方向和 participant 约束
+- [x] positive/negative case、四类 source provenance 与 predeclared evaluation scope
+- [x] versioned deterministic `BenchmarkManifest`、稳定排序、重复 ID fail closed
+- [x] 一个 owned synthetic Type II positive 与一个 owned synthetic negative contract fixture
+
+当前 strict project metric 的 denominator 已冻结为：predeclared primary scope 中产生的所有完整
+ReasoningSession 各自贡献一个 finalized candidate。内部四角色 hypothesis 不分别计数；缺少 typed
+interaction 的弱候选也不得静默移除。此步骤只定义合同，不执行 chain-level feasibility 判断，未计算
+“关联漏洞命中率 >= 80%”。未来 secondary verifier-conditioned rate 必须单独报告，且不能替代 strict
+metric；还需 companion GroundTruthChainRecall 防止通过少发候选虚增命中率。
+
+后续工作：Phase 10A Step 2 chain-level objective oracle、Phase 10B evaluation runner/metrics、
+Phase 10C ablations、Phase 10D real-model comparison/report。未来 outcome taxonomy 至少区分
+`CONFIRMED_FEASIBLE`、`NOT_SUPPORTED`、`UNRESOLVED`、`UNSUPPORTED` 与 `INFRA_FAILURE`，但本步骤
+未实现这些状态。`TRIGGERABLE` 不能被通用映射为 `CONFIRMED_FEASIBLE`。
 
 ### Phase 11：API / Visualization
 

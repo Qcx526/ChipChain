@@ -49,6 +49,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 9C Step 2 executable decoded A32 exact-sequence 与 function-local CFG static matching
 - Phase 9C Step 3A 独立 QEMU instruction-byte trace 与 exact contiguous runtime T confirmation
 - Phase 9C Step 4 deterministic triggerability aggregation 与 declared-precondition fail-closed policy
+- Phase 10A Step 1 finalized candidate、typed Ground Truth、predeclared scope 与 versioned manifest contracts
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -438,9 +439,38 @@ Step 4 的 `TriggerabilityAggregator` detached-revalidate Signature、static res
 
 `TRIGGERABLE` 只表示“firmware 在无 additional declared P 的 prevalidated hardware-trigger contract
 下实际执行了 exact T”。它不表示 QEMU 重现 hardware failure，不验证 vulnerability、Interaction
-或 AttackChain，也不创建 Evidence、VerificationRecord 或 score。它还不是项目级“关联漏洞命中率
->= 80%”的分子；Phase 10 必须先定义 chain-level oracle 与 denominator，且当前仍未开始。
+或 AttackChain，也不创建 Evidence、VerificationRecord 或 score。它不是完整 candidate-chain
+feasibility outcome，不能直接等同于未来的 `CONFIRMED_FEASIBLE`。
 设计边界见 [Hardware Trigger Signatures](docs/HARDWARE_TRIGGER_SIGNATURES.md)。
+
+## Phase 10A Evaluation Contracts
+
+Phase 10A Step 1 将 project candidate 边界固定为：一次完整 `ReasoningSession` 只产生一个
+`FinalizedCandidateRecord`，唯一命题是 `session.merged_hypothesis`。Code、Hardware、Vulnerability
+和 AttackChain role hypotheses 是同一次协同推理的内部产物，不分别进入未来 denominator。
+
+候选构建器只接收 `benchmark_case_id` 与 detached `ReasoningSession`，不接收或读取 Ground Truth。
+它保留 typed Context 中已有的 interaction ID/type/direction；Context 缺少 interaction 时字段保持
+空，不从答案键或自由文本补全。Model confidence 可用于以后分析，但不影响 candidate identity，
+也不能决定 feasibility。
+
+Benchmark 侧独立定义 ARM-only artifact reference、`GroundTruthChain`、positive/negative case、
+source provenance、predeclared evaluation scope 和 versioned manifest。Artifact 只保存稳定相对引用和
+canonical SHA-256，不保存 host absolute path。Initial manifest 只有一个明确标注 owned/synthetic/
+fixture 的 Type II positive contract case 与一个 negative control；它们不是真实 CVE 或公共 Benchmark。
+
+未来 strict project metric 定义为：
+
+```text
+VerificationHitRate
+= N(predeclared primary scope 中 objectively confirmed feasible 的 finalized candidates)
+  / N(predeclared primary scope 中产生的全部 finalized candidates)
+```
+
+结构较弱或缺少 typed binding 的候选不得从 denominator 静默消失。未来可单独报告预先冻结 eligibility
+的 verifier-conditioned secondary rate，并必须配套 `GroundTruthChainRecall`。Phase 10A Step 1 没有
+实现 chain-level oracle、outcome taxonomy 或 metric calculation，也没有计算“关联漏洞命中率 >=80%”。
+详见 [Evaluation Contracts](docs/EVALUATION_CONTRACTS.md)。
 
 ## 文档导航
 
@@ -461,6 +491,7 @@ Step 4 的 `TriggerabilityAggregator` detached-revalidate Signature、static res
 - [QEMU MMIO Classification](docs/QEMU_MMIO_CLASSIFICATION.md)
 - [Role-Aware Localization](docs/ROOT_CAUSE_LOCALIZATION.md)
 - [评测设计](docs/EVALUATION.md)
+- [Phase 10A Evaluation Contracts](docs/EVALUATION_CONTRACTS.md)
 - [angr 接入说明](docs/ANGR_INTEGRATION_PLAN.md)
 - [阶段计划](PLANS.md)
 

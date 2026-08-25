@@ -38,7 +38,7 @@
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
   Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
-  与 Step 4 已完成；Step 3B 仍为 planned/not implemented。
+  与 Step 4、Phase 10A Step 1 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -110,12 +110,22 @@
 - Phase 9C Step 4 只组合 detached `HardwareTriggerSignature`、static match result 与 runtime
   match result。`TRIGGERABLE` 必须同时具有 exact static T、对应的 exact runtime T，且 typed
   Signature 不声明 privilege/register/memory P；非空 P 只能得到
-  `insufficient_precondition_evidence`，不会因 Step 3B 缬失而判为 not-triggerable。零 runtime
+  `insufficient_precondition_evidence`，不会因 Step 3B 缺失而判为 not-triggerable。零 runtime
   occurrence 仅是当前 scenario 的 `not_observed_in_runtime`；零 static match 是
   `no_static_trigger_match`。所有 identity/hash/PC+word/artifact 矛盾必须抛异常，不得转成状态。
   结果不是 Evidence、VerificationRecord、AttackChain、vulnerability verdict 或 score，也不表示
-  QEMU 重现了 hardware failure。它尚不是项目级“关联漏洞命中率 >= 80%”的分子；Phase 10 必须先
-  定义 chain-level oracle 与 denominator。
+  QEMU 重现了 hardware failure。它尚不是项目级“关联漏洞命中率 >= 80%”的分子；Phase 10A
+  Step 1 只冻结 candidate/scope denominator contract，chain-level oracle 与计算仍未实现。
+- Phase 10A Step 1 只冻结 evaluation contracts。一个完整 `ReasoningSession` 只产生一个
+  `FinalizedCandidateRecord`，其命题仅为 `merged_hypothesis`；四个角色的内部 hypotheses、message、
+  EvidenceRequest 或 raw Provider 输出都不是独立 denominator candidate。候选构建器不得读取
+  Benchmark Ground Truth，也不得补全 Context 中不存在的 interaction/vulnerability truth；模型
+  confidence 不参与 candidate identity 或 feasibility。
+- Benchmark source、positive/negative label 与 evaluation scope 必须在结果产生前类型化声明。
+  Ground Truth 使用独立 detached `CrossLayerInteraction`，不得复用 `AttackChain` 存真值；Type II
+  不得发明 initiating software vulnerability，Type III 必须保持 HW→SW。Phase 10A Step 1 不创建
+  chain-level outcome、不计算 hit rate。`TriggerabilityAggregationResult.TRIGGERABLE` 只是未来
+  oracle 的一个 objective component，不等于 `CONFIRMED_FEASIBLE`。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式
