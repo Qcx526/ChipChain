@@ -11,15 +11,22 @@ from chipchain.evaluation.benchmark_models import BenchmarkCaseRunRecord
 from chipchain.evaluation.enums import (
     AblationConditionKind,
     BenchmarkCaseRunDisposition,
+    ExperimentExecutionMode,
 )
-from chipchain.evaluation.experiment_artifact import RealModelExperimentArtifact
+from chipchain.evaluation.experiment_artifact import (
+    RealExperimentConditionRecord,
+    RealModelExperimentArtifact,
+)
 from chipchain.evaluation.experiment_models import (
     RealModelExperimentPlan,
     _validate_experiment_metadata,
+    structured_prompt_request_sha256,
 )
 from chipchain.evaluation.models import BenchmarkManifest, _canonical_hash
 from chipchain.hardware_trigger.aggregation import TriggerabilityAggregationResult
 from chipchain.models.common import DomainModel, Identifier, Metadata
+from chipchain.reasoning.enums import ReasoningPromptVisibility
+from chipchain.reasoning.prompts import RoleBasedReasoningPromptBuilder
 
 
 PHASE10D_EXECUTION_CONTRACT = "phase10d_real_model_execution_v1"
@@ -367,6 +374,7 @@ def experiment_condition_case_run_id(
     experiment_plan_id: str,
     condition_kind: AblationConditionKind,
     benchmark_case_id: str,
+    case_input_id: str,
     benchmark_case_run_record_id: str,
     reasoning_session_binding_id: str | None,
 ) -> str:
@@ -375,6 +383,7 @@ def experiment_condition_case_run_id(
         {
             "benchmark_case_id": benchmark_case_id,
             "benchmark_case_run_record_id": benchmark_case_run_record_id,
+            "case_input_id": case_input_id,
             "condition_kind": AblationConditionKind(condition_kind).value,
             "experiment_plan_id": experiment_plan_id,
             "reasoning_session_binding_id": reasoning_session_binding_id,
@@ -389,6 +398,7 @@ class ExperimentConditionCaseRun(DomainModel):
     experiment_plan_id: Identifier
     condition_kind: AblationConditionKind
     benchmark_case_id: Identifier
+    case_input_id: Identifier
     case_run_record: BenchmarkCaseRunRecord
     reasoning_session_binding_id: Identifier | None = None
 
@@ -408,6 +418,7 @@ class ExperimentConditionCaseRun(DomainModel):
             experiment_plan_id=self.experiment_plan_id,
             condition_kind=self.condition_kind,
             benchmark_case_id=self.benchmark_case_id,
+            case_input_id=self.case_input_id,
             benchmark_case_run_record_id=self.case_run_record.id,
             reasoning_session_binding_id=self.reasoning_session_binding_id,
         )
@@ -421,13 +432,25 @@ class ExperimentConditionCaseRun(DomainModel):
         plan: RealModelExperimentPlan,
         *,
         condition_kind: AblationConditionKind | str,
+        case_input: RealExperimentCaseInput,
         case_run_record: BenchmarkCaseRunRecord,
         reasoning_session_binding: ExperimentCaseReasoningSession | None,
     ) -> "ExperimentConditionCaseRun":
+        if not isinstance(plan, RealModelExperimentPlan):
+            raise TypeError("condition case run requires RealModelExperimentPlan")
+        if not isinstance(case_input, RealExperimentCaseInput):
+            raise TypeError("condition case run requires RealExperimentCaseInput")
         condition = AblationConditionKind(condition_kind)
+        input_snapshot = RealExperimentCaseInput.model_validate(
+            case_input.model_dump(mode="json")
+        )
         run = BenchmarkCaseRunRecord.model_validate(
             case_run_record.model_dump(mode="json")
         )
+        if input_snapshot.experiment_plan_id != plan.id:
+            raise ValueError("case-run input belongs to another experiment plan")
+        if input_snapshot.benchmark_case_id != run.benchmark_case_id:
+            raise ValueError("case-run input benchmark case mismatch")
         binding_id = (
             reasoning_session_binding.id
             if reasoning_session_binding is not None
@@ -443,6 +466,7 @@ class ExperimentConditionCaseRun(DomainModel):
             "experiment_plan_id": plan.id,
             "condition_kind": condition,
             "benchmark_case_id": run.benchmark_case_id,
+            "case_input_id": input_snapshot.id,
             "benchmark_case_run_record_id": run.id,
             "reasoning_session_binding_id": binding_id,
         }
@@ -451,9 +475,53 @@ class ExperimentConditionCaseRun(DomainModel):
             experiment_plan_id=plan.id,
             condition_kind=condition,
             benchmark_case_id=run.benchmark_case_id,
+            case_input_id=input_snapshot.id,
             case_run_record=run,
             reasoning_session_binding_id=binding_id,
         )
+
+
+def _validate_real_provider_prompt_provenance(
+    plan: RealModelExperimentPlan,
+    input_by_case: dict[str, RealExperimentCaseInput],
+    condition_records: dict[
+        AblationConditionKind, RealExperimentConditionRecord
+    ],
+) -> None:
+    """Rebuild frozen REAL_PROVIDER prompts without invoking a provider."""
+
+    if plan.execution_mode is not ExperimentExecutionMode.REAL_PROVIDER:
+        return
+    builder = RoleBasedReasoningPromptBuilder()
+    visibility_by_condition = {
+        AblationConditionKind.FULL_CONTEXT_MODEL: (
+            ReasoningPromptVisibility.FULL_CONTEXT
+        ),
+        AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL: (
+            ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT
+        ),
+    }
+    for condition, visibility in visibility_by_condition.items():
+        for invocation in condition_records[condition].invocation_records:
+            if invocation.prompt_sha256 is None:
+                continue
+            case_input = input_by_case.get(
+                invocation.invocation_key.benchmark_case_id
+            )
+            if case_input is None:
+                raise ValueError("prompt invocation has no archived case input")
+            prompt = builder.build(
+                case_input.reasoning_context,
+                role=invocation.invocation_key.role,
+                visibility=visibility,
+            )
+            if (
+                structured_prompt_request_sha256(prompt)
+                != invocation.prompt_sha256
+            ):
+                raise ValueError(
+                    "REAL_PROVIDER prompt does not match archived case input"
+                )
 
 
 def real_model_execution_archive_id(
@@ -618,6 +686,11 @@ class RealModelExecutionArchive(DomainModel):
         for wrapped in self.case_run_records_by_condition:
             if wrapped.experiment_plan_id != plan.id:
                 raise ValueError("archive case run belongs to another plan")
+            case_input = input_by_case.get(wrapped.benchmark_case_id)
+            if case_input is None or wrapped.case_input_id != case_input.id:
+                raise ValueError(
+                    "archive case run does not match exact case input"
+                )
             session = (
                 session_by_id.get(wrapped.reasoning_session_binding_id)
                 if wrapped.reasoning_session_binding_id is not None
@@ -632,6 +705,20 @@ class RealModelExecutionArchive(DomainModel):
                 raise ValueError("archive case run cross-wires a session")
             bundle = wrapped.case_run_record.candidate_bundle
             if bundle is not None:
+                expected_triggerability_id = (
+                    case_input.triggerability.id
+                    if case_input.triggerability is not None
+                    else None
+                )
+                actual_triggerability_id = (
+                    bundle.triggerability.id
+                    if bundle.triggerability is not None
+                    else None
+                )
+                if actual_triggerability_id != expected_triggerability_id:
+                    raise ValueError(
+                        "candidate triggerability does not match case input"
+                    )
                 if session is None:
                     raise ValueError("candidate case run and session mismatch")
                 candidate = bundle.candidate
@@ -660,6 +747,9 @@ class RealModelExecutionArchive(DomainModel):
             item.condition_kind: item
             for item in self.experiment_artifact.condition_records
         }
+        _validate_real_provider_prompt_provenance(
+            plan, input_by_case, condition_records
+        )
         for condition in (
             AblationConditionKind.FULL_CONTEXT_MODEL,
             AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL,

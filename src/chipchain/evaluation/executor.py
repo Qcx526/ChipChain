@@ -350,6 +350,7 @@ class RealModelExperimentExecutor:
                         plan,
                         condition,
                         case,
+                        case_input,
                         stage=BenchmarkExecutionStage.REASONING_SESSION,
                         failure_code=(
                             BenchmarkExecutionFailureCode.PROVIDER_EXECUTION_FAILED
@@ -376,6 +377,7 @@ class RealModelExperimentExecutor:
                         plan,
                         condition,
                         case,
+                        case_input,
                         stage=BenchmarkExecutionStage.CANDIDATE_FINALIZATION,
                         failure_code=(
                             BenchmarkExecutionFailureCode.CANDIDATE_FINALIZATION_FAILED
@@ -395,6 +397,7 @@ class RealModelExperimentExecutor:
                         plan,
                         condition,
                         case,
+                        case_input,
                         stage=(
                             BenchmarkExecutionStage.EVALUATION_INPUT_PREPARATION
                         ),
@@ -409,6 +412,7 @@ class RealModelExperimentExecutor:
                 ExperimentConditionCaseRun.create(
                     plan,
                     condition_kind=condition,
+                    case_input=case_input,
                     case_run_record=case_run,
                     reasoning_session_binding=session_binding,
                 )
@@ -463,6 +467,7 @@ class RealModelExperimentExecutor:
                         plan,
                         condition,
                         case,
+                        case_input,
                         stage=BenchmarkExecutionStage.REASONING_SESSION,
                         failure_code=(
                             BenchmarkExecutionFailureCode.REASONING_CONTRACT_FAILED
@@ -489,6 +494,7 @@ class RealModelExperimentExecutor:
                         plan,
                         condition,
                         case,
+                        case_input,
                         stage=BenchmarkExecutionStage.CANDIDATE_FINALIZATION,
                         failure_code=(
                             BenchmarkExecutionFailureCode.CANDIDATE_FINALIZATION_FAILED
@@ -508,6 +514,7 @@ class RealModelExperimentExecutor:
                         plan,
                         condition,
                         case,
+                        case_input,
                         stage=(
                             BenchmarkExecutionStage.EVALUATION_INPUT_PREPARATION
                         ),
@@ -522,6 +529,7 @@ class RealModelExperimentExecutor:
                 ExperimentConditionCaseRun.create(
                     plan,
                     condition_kind=condition,
+                    case_input=case_input,
                     case_run_record=run,
                     reasoning_session_binding=binding,
                 )
@@ -605,6 +613,7 @@ class RealModelExperimentExecutor:
         plan,
         condition,
         case: EvaluationBenchmarkCase,
+        case_input,
         *,
         stage,
         failure_code,
@@ -621,6 +630,7 @@ class RealModelExperimentExecutor:
         return ExperimentConditionCaseRun.create(
             plan,
             condition_kind=condition,
+            case_input=case_input,
             case_run_record=run,
             reasoning_session_binding=session_binding,
         )
