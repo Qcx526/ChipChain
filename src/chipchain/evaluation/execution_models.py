@@ -499,11 +499,40 @@ class RealModelExecutionArchive(DomainModel):
     case_run_records_by_condition: list[ExperimentConditionCaseRun]
     metadata: Metadata = Field(default_factory=dict)
 
+    @field_validator("benchmark_manifest")
+    @classmethod
+    def snapshot_manifest(cls, value: BenchmarkManifest) -> BenchmarkManifest:
+        return BenchmarkManifest.model_validate(value.model_dump(mode="json"))
+
+    @field_validator("input_set")
+    @classmethod
+    def snapshot_input_set(
+        cls, value: RealExperimentInputSet
+    ) -> RealExperimentInputSet:
+        return RealExperimentInputSet.model_validate(
+            value.model_dump(mode="json")
+        )
+
+    @field_validator("experiment_artifact")
+    @classmethod
+    def snapshot_experiment_artifact(
+        cls, value: RealModelExperimentArtifact
+    ) -> RealModelExperimentArtifact:
+        return RealModelExperimentArtifact.model_validate(
+            value.model_dump(mode="json")
+        )
+
     @field_validator("reasoning_sessions")
     @classmethod
     def normalize_sessions(
         cls, values: list[ExperimentCaseReasoningSession]
     ) -> list[ExperimentCaseReasoningSession]:
+        values = [
+            ExperimentCaseReasoningSession.model_validate(
+                item.model_dump(mode="json")
+            )
+            for item in values
+        ]
         keys = [(item.condition_kind, item.benchmark_case_id) for item in values]
         if len(keys) != len(set(keys)) or len(values) != len({item.id for item in values}):
             raise ValueError("archive session bindings must be unique")
@@ -517,6 +546,12 @@ class RealModelExecutionArchive(DomainModel):
     def normalize_case_runs(
         cls, values: list[ExperimentConditionCaseRun]
     ) -> list[ExperimentConditionCaseRun]:
+        values = [
+            ExperimentConditionCaseRun.model_validate(
+                item.model_dump(mode="json")
+            )
+            for item in values
+        ]
         keys = [(item.condition_kind, item.benchmark_case_id) for item in values]
         if len(keys) != len(set(keys)) or len(values) != len({item.id for item in values}):
             raise ValueError("archive condition case-run bindings must be unique")
@@ -551,6 +586,9 @@ class RealModelExecutionArchive(DomainModel):
         }:
             raise ValueError("archive case cohort mismatch")
 
+        input_by_case = {
+            item.benchmark_case_id: item for item in self.input_set.case_inputs
+        }
         session_by_id = {item.id: item for item in self.reasoning_sessions}
         expected_run_keys = {
             (condition, case_id)
@@ -569,6 +607,14 @@ class RealModelExecutionArchive(DomainModel):
                 or binding.benchmark_case_id not in plan.case_ids
             ):
                 raise ValueError("archive session is outside the experiment plan")
+            case_input = input_by_case.get(binding.benchmark_case_id)
+            if case_input is None or (
+                binding.reasoning_session.reasoning_context.id
+                != case_input.reasoning_context.id
+            ):
+                raise ValueError(
+                    "archive session reasoning context does not match case input"
+                )
         for wrapped in self.case_run_records_by_condition:
             if wrapped.experiment_plan_id != plan.id:
                 raise ValueError("archive case run belongs to another plan")

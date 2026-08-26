@@ -7,14 +7,20 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from chipchain.agents import ReasoningContext
+from chipchain.agents import AgentWorkflow, ReasoningContext
 from chipchain.cli import main
 from chipchain.evaluation import (
+    AblationConditionFailureCode,
+    AblationConditionFailureStage,
     AblationConditionKind,
     AblationExperimentPlan,
+    BenchmarkEvaluationRunner,
+    BenchmarkExecutionFailureCode,
+    BenchmarkExecutionStage,
     ContextObjectiveUpperBoundEvaluator,
     ExperimentExecutionMode,
     ExperimentConditionCaseRun,
+    FinalizedCandidateBuilder,
     ModelClaimBindingStatus,
     ModelInvocationDisposition,
     PromptVisibilityAuditStatus,
@@ -24,6 +30,7 @@ from chipchain.evaluation import (
     RealModelExperimentExecutor,
     RealModelExperimentPlan,
 )
+from chipchain.hardware_trigger.enums import TriggerabilityStatus
 from chipchain.reasoning import (
     MockReasoningProvider,
     ReasoningAgentType,
@@ -31,6 +38,7 @@ from chipchain.reasoning import (
     RoleBasedReasoningPromptBuilder,
 )
 from tests.test_phase10b_benchmark_evaluation import _fixture_manifest
+from tests.test_phase10b_benchmark_evaluation import _triggerability
 from tests.test_phase10c_ablation import _context
 from tests.test_phase10d_experiment_contracts import _descriptor
 
@@ -150,6 +158,42 @@ def _condition(archive, kind):
     )
 
 
+def _alternate_input_set(plan, inputs, *, suffix):
+    case_inputs = []
+    for item in inputs.case_inputs:
+        context = item.reasoning_context
+        replacement = ReasoningContext.create(
+            architecture=context.architecture,
+            subject_id=f"{context.subject_id}-{suffix}",
+            affected_components=context.affected_components,
+            observed_fact_ids=context.observed_fact_ids,
+            available_evidence_ids=context.available_evidence_ids,
+            knowledge_entry_ids=context.knowledge_entry_ids,
+            dynamic_trigger_fact_reference=(
+                context.dynamic_trigger_fact_reference
+            ),
+            attack_pattern_reference=context.attack_pattern_reference,
+            cross_layer_interaction=context.cross_layer_interaction,
+            runtime_observations=context.runtime_observations,
+            knowledge_retrieval_result=context.knowledge_retrieval_result,
+            metadata={"fixture": True, "synthetic": True},
+        )
+        case_inputs.append(
+            RealExperimentCaseInput.create(
+                plan,
+                benchmark_case_id=item.benchmark_case_id,
+                reasoning_context=replacement,
+                triggerability=item.triggerability,
+                metadata={"fixture": True, "synthetic": True},
+            )
+        )
+    return RealExperimentInputSet.create(
+        plan,
+        case_inputs=case_inputs,
+        metadata={"fixture": True, "synthetic": True},
+    )
+
+
 def test_input_contracts_are_detached_deterministic_and_metadata_neutral():
     _, plan, inputs = _plan_and_inputs()
     rebuilt = RealExperimentInputSet.create(
@@ -236,13 +280,19 @@ def test_offline_end_to_end_accounts_exact_calls_and_same_context():
         for item in archive.reasoning_sessions
     }
     for case_id in plan.case_ids:
-        assert (
-            sessions[
-                (AblationConditionKind.FULL_CONTEXT_MODEL, case_id)
-            ].reasoning_context.id
-            == sessions[
-                (AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL, case_id)
-            ].reasoning_context.id
+        input_context_id = next(
+            item.reasoning_context.id
+            for item in inputs.case_inputs
+            if item.benchmark_case_id == case_id
+        )
+        assert all(
+            sessions[(condition, case_id)].reasoning_context.id
+            == input_context_id
+            for condition in (
+                AblationConditionKind.FULL_CONTEXT_MODEL,
+                AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL,
+                AblationConditionKind.NO_MODEL_BASELINE,
+            )
         )
         full_hashes = [
             item.prompt_sha256
@@ -291,6 +341,11 @@ def test_provider_failure_is_case_local_and_preserves_fail_stop_shape():
     )
     assert full.benchmark_evaluation_report is None
     assert full.condition_failure is not None
+    assert full.condition_failure.stage is AblationConditionFailureStage.PROVIDER
+    assert (
+        full.condition_failure.failure_code
+        is AblationConditionFailureCode.PROVIDER_UNAVAILABLE
+    )
     assert not archive.experiment_artifact.execution_complete
 
 
@@ -309,6 +364,14 @@ def test_parse_failure_retains_hashes_but_not_raw_response():
     assert failed.prompt_sha256 is not None
     assert failed.provider_response_sha256 is not None
     assert failed.failure.stage.value == "structured_parse"
+    assert (
+        full.condition_failure.stage
+        is AblationConditionFailureStage.ORCHESTRATION
+    )
+    assert (
+        full.condition_failure.failure_code
+        is AblationConditionFailureCode.CONDITION_ORCHESTRATION_FAILED
+    )
     serialized = archive.model_dump_json()
     assert "fixture-invalid-json" not in serialized
     assert "system_prompt" not in serialized
@@ -436,6 +499,298 @@ def test_archive_rejects_valid_masked_run_reassigned_to_full_condition():
     )
     with pytest.raises(ValidationError, match="candidate case run and session"):
         RealModelExecutionArchive.model_validate(payload)
+
+
+def test_archive_rejects_alternate_input_set_under_the_same_plan():
+    manifest, plan, input_set_a = _plan_and_inputs()
+    input_set_b = _alternate_input_set(plan, input_set_a, suffix="alternate")
+    assert input_set_a.id != input_set_b.id
+    assert all(
+        left.reasoning_context.id != right.reasoning_context.id
+        for left, right in zip(
+            input_set_a.case_inputs, input_set_b.case_inputs, strict=True
+        )
+    )
+    archive_b = RealModelExperimentExecutor(
+        provider=_CountingProvider()
+    ).execute(plan, manifest, input_set_b)
+
+    with pytest.raises(
+        ValidationError,
+        match="session reasoning context does not match case input",
+    ):
+        RealModelExecutionArchive.create(
+            manifest=archive_b.benchmark_manifest,
+            input_set=input_set_a,
+            experiment_artifact=archive_b.experiment_artifact,
+            reasoning_sessions=archive_b.reasoning_sessions,
+            case_run_records_by_condition=(
+                archive_b.case_run_records_by_condition
+            ),
+        )
+
+
+def test_archive_direct_construction_detaches_caller_owned_children():
+    manifest, plan, inputs = _plan_and_inputs()
+    source = RealModelExperimentExecutor(
+        provider=_CountingProvider()
+    ).execute(plan, manifest, inputs)
+    caller_input_set = RealExperimentInputSet.model_validate(
+        source.input_set.model_dump(mode="json")
+    )
+    caller_sessions = [
+        type(item).model_validate(item.model_dump(mode="json"))
+        for item in source.reasoning_sessions
+    ]
+    caller_runs = [
+        type(item).model_validate(item.model_dump(mode="json"))
+        for item in source.case_run_records_by_condition
+    ]
+    detached = RealModelExecutionArchive(
+        id=source.id,
+        contract=source.contract,
+        experiment_plan_id=source.experiment_plan_id,
+        benchmark_manifest=source.benchmark_manifest,
+        input_set=caller_input_set,
+        experiment_artifact=source.experiment_artifact,
+        reasoning_sessions=caller_sessions,
+        case_run_records_by_condition=caller_runs,
+        metadata=source.metadata,
+    )
+    before = detached.model_dump_json()
+
+    caller_input_set.case_inputs[
+        0
+    ].reasoning_context.available_evidence_ids.append(
+        "fixture-external-mutation"
+    )
+    caller_sessions[
+        0
+    ].reasoning_session.reasoning_context.observed_fact_ids.append(
+        "fixture-external-session-mutation"
+    )
+
+    assert detached.model_dump_json() == before
+    assert "fixture-external-mutation" not in (
+        detached.input_set.case_inputs[0]
+        .reasoning_context.available_evidence_ids
+    )
+    assert "fixture-external-session-mutation" not in (
+        detached.reasoning_sessions[0]
+        .reasoning_session.reasoning_context.observed_fact_ids
+    )
+
+
+def test_triggerability_artifact_mismatch_is_evaluation_input_failure():
+    manifest, plan, inputs = _plan_and_inputs()
+    first_case, second_case = manifest.cases
+    first_input = next(
+        item
+        for item in inputs.case_inputs
+        if item.benchmark_case_id == first_case.id
+    )
+    mismatch = _triggerability(
+        second_case,
+        first_input.reasoning_context.cross_layer_interaction,
+        TriggerabilityStatus.NOT_OBSERVED_IN_RUNTIME,
+        signature_id="hardware-trigger-signature:step2-r1-mismatch",
+    )
+    replaced = RealExperimentCaseInput.create(
+        plan,
+        benchmark_case_id=first_case.id,
+        reasoning_context=first_input.reasoning_context,
+        triggerability=mismatch,
+        metadata={"fixture": True, "synthetic": True},
+    )
+    mismatch_inputs = RealExperimentInputSet.create(
+        plan,
+        case_inputs=[
+            replaced
+            if item.benchmark_case_id == first_case.id
+            else item
+            for item in inputs.case_inputs
+        ],
+    )
+    archive = RealModelExperimentExecutor(
+        provider=_CountingProvider()
+    ).execute(plan, manifest, mismatch_inputs)
+    full = _condition(archive, AblationConditionKind.FULL_CONTEXT_MODEL)
+    first_run = next(
+        item.case_run_record
+        for item in archive.case_run_records_by_condition
+        if item.condition_kind is AblationConditionKind.FULL_CONTEXT_MODEL
+        and item.benchmark_case_id == first_case.id
+    )
+    second_run = next(
+        item.case_run_record
+        for item in archive.case_run_records_by_condition
+        if item.condition_kind is AblationConditionKind.FULL_CONTEXT_MODEL
+        and item.benchmark_case_id == second_case.id
+    )
+    assert first_run.execution_failure.stage is (
+        BenchmarkExecutionStage.EVALUATION_INPUT_PREPARATION
+    )
+    assert first_run.execution_failure.failure_code is (
+        BenchmarkExecutionFailureCode.EVALUATION_INPUT_INVALID
+    )
+    assert second_run.candidate_bundle is not None
+    assert all(
+        item.disposition is ModelInvocationDisposition.COMPLETED
+        for item in full.invocation_records
+    )
+    assert (
+        full.condition_failure.stage
+        is AblationConditionFailureStage.ORCHESTRATION
+    )
+
+
+def test_candidate_builder_failure_has_exact_stage_and_keeps_invocations(
+    monkeypatch,
+):
+    manifest, plan, inputs = _plan_and_inputs()
+    original = FinalizedCandidateBuilder.from_reasoning_session
+    failed = False
+
+    def fail_once(benchmark_case_id, session):
+        nonlocal failed
+        if not failed:
+            failed = True
+            raise ValueError("bounded fixture candidate finalization failure")
+        return original(benchmark_case_id, session)
+
+    monkeypatch.setattr(
+        FinalizedCandidateBuilder,
+        "from_reasoning_session",
+        staticmethod(fail_once),
+    )
+    archive = RealModelExperimentExecutor(
+        provider=_CountingProvider()
+    ).execute(plan, manifest, inputs)
+    full = _condition(archive, AblationConditionKind.FULL_CONTEXT_MODEL)
+    failed_run = next(
+        item.case_run_record
+        for item in archive.case_run_records_by_condition
+        if item.condition_kind is AblationConditionKind.FULL_CONTEXT_MODEL
+        and item.benchmark_case_id == plan.case_ids[0]
+    )
+    later_run = next(
+        item.case_run_record
+        for item in archive.case_run_records_by_condition
+        if item.condition_kind is AblationConditionKind.FULL_CONTEXT_MODEL
+        and item.benchmark_case_id == plan.case_ids[1]
+    )
+    assert failed_run.execution_failure.stage is (
+        BenchmarkExecutionStage.CANDIDATE_FINALIZATION
+    )
+    assert failed_run.execution_failure.failure_code is (
+        BenchmarkExecutionFailureCode.CANDIDATE_FINALIZATION_FAILED
+    )
+    assert later_run.candidate_bundle is not None
+    assert all(
+        item.disposition is ModelInvocationDisposition.COMPLETED
+        for item in full.invocation_records
+    )
+    assert (
+        full.condition_failure.stage
+        is AblationConditionFailureStage.ORCHESTRATION
+    )
+
+
+def test_no_model_candidate_failure_uses_post_session_stage(monkeypatch):
+    manifest, plan, inputs = _plan_and_inputs()
+    original = FinalizedCandidateBuilder.from_reasoning_session
+    target_case = plan.case_ids[0]
+
+    def fail_no_model(benchmark_case_id, session):
+        if (
+            benchmark_case_id == target_case
+            and session.metadata["orchestration_mode"]
+            == "deterministic_mock"
+        ):
+            raise ValueError("bounded fixture no-model finalization failure")
+        return original(benchmark_case_id, session)
+
+    monkeypatch.setattr(
+        FinalizedCandidateBuilder,
+        "from_reasoning_session",
+        staticmethod(fail_no_model),
+    )
+    archive = RealModelExperimentExecutor(
+        provider=_CountingProvider()
+    ).execute(plan, manifest, inputs)
+    no_model = _condition(archive, AblationConditionKind.NO_MODEL_BASELINE)
+    failed_run = next(
+        item.case_run_record
+        for item in archive.case_run_records_by_condition
+        if item.condition_kind is AblationConditionKind.NO_MODEL_BASELINE
+        and item.benchmark_case_id == target_case
+    )
+    assert no_model.invocation_records == []
+    assert failed_run.execution_failure.stage is (
+        BenchmarkExecutionStage.CANDIDATE_FINALIZATION
+    )
+    assert failed_run.execution_failure.failure_code is (
+        BenchmarkExecutionFailureCode.CANDIDATE_FINALIZATION_FAILED
+    )
+
+
+def test_no_model_workflow_failure_retains_reasoning_stage(monkeypatch):
+    manifest, plan, inputs = _plan_and_inputs()
+    original = AgentWorkflow.execute
+
+    def fail_deterministic_workflow(self, context):
+        if type(self) is AgentWorkflow:
+            raise ValueError("bounded fixture reasoning contract failure")
+        return original(self, context)
+
+    monkeypatch.setattr(AgentWorkflow, "execute", fail_deterministic_workflow)
+    archive = RealModelExperimentExecutor(
+        provider=_CountingProvider()
+    ).execute(plan, manifest, inputs)
+    no_model = _condition(archive, AblationConditionKind.NO_MODEL_BASELINE)
+    no_model_runs = [
+        item.case_run_record
+        for item in archive.case_run_records_by_condition
+        if item.condition_kind is AblationConditionKind.NO_MODEL_BASELINE
+    ]
+    assert no_model.invocation_records == []
+    assert all(
+        item.execution_failure.stage
+        is BenchmarkExecutionStage.REASONING_SESSION
+        and item.execution_failure.failure_code
+        is BenchmarkExecutionFailureCode.REASONING_CONTRACT_FAILED
+        for item in no_model_runs
+    )
+
+
+def test_no_model_report_failure_is_bounded_report_assembly(monkeypatch):
+    manifest, plan, inputs = _plan_and_inputs()
+    original = BenchmarkEvaluationRunner.evaluate
+
+    def fail_no_model_report(self, benchmark_manifest, case_runs):
+        if all(
+            item.candidate_bundle.candidate.model_authored_chain_claim is None
+            for item in case_runs
+        ):
+            raise ValueError("bounded fixture report assembly failure")
+        return original(self, benchmark_manifest, case_runs)
+
+    monkeypatch.setattr(
+        BenchmarkEvaluationRunner, "evaluate", fail_no_model_report
+    )
+    archive = RealModelExperimentExecutor(
+        provider=_CountingProvider()
+    ).execute(plan, manifest, inputs)
+    no_model = _condition(archive, AblationConditionKind.NO_MODEL_BASELINE)
+    assert no_model.invocation_records == []
+    assert (
+        no_model.condition_failure.stage
+        is AblationConditionFailureStage.REPORT_ASSEMBLY
+    )
+    assert (
+        no_model.condition_failure.failure_code
+        is AblationConditionFailureCode.REPORT_ASSEMBLY_FAILED
+    )
 
 
 def test_cli_does_not_create_provider_without_explicit_opt_in(

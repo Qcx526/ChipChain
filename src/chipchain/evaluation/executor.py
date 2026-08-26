@@ -345,12 +345,12 @@ class RealModelExperimentExecutor:
                 if item.audit is not None
             )
             if session is None:
-                pipeline_failed = True
                 execution.case_runs.append(
                     self._failed_case_run(
                         plan,
                         condition,
                         case,
+                        stage=BenchmarkExecutionStage.REASONING_SESSION,
                         failure_code=(
                             BenchmarkExecutionFailureCode.PROVIDER_EXECUTION_FAILED
                         ),
@@ -366,16 +366,8 @@ class RealModelExperimentExecutor:
             )
             execution.sessions.append(session_binding)
             try:
-                case_run = self._successful_case_pipeline(
-                    case, case_input, session
-                )
-                execution.case_runs.append(
-                    ExperimentConditionCaseRun.create(
-                        plan,
-                        condition_kind=condition,
-                        case_run_record=case_run,
-                        reasoning_session_binding=session_binding,
-                    )
+                candidate = FinalizedCandidateBuilder.from_reasoning_session(
+                    case.id, session
                 )
             except Exception:
                 pipeline_failed = True
@@ -384,12 +376,43 @@ class RealModelExperimentExecutor:
                         plan,
                         condition,
                         case,
+                        stage=BenchmarkExecutionStage.CANDIDATE_FINALIZATION,
                         failure_code=(
                             BenchmarkExecutionFailureCode.CANDIDATE_FINALIZATION_FAILED
                         ),
                         session_binding=session_binding,
                     )
                 )
+                continue
+            try:
+                case_run = self._prepare_evaluation_case_run(
+                    case, case_input, candidate
+                )
+            except Exception:
+                pipeline_failed = True
+                execution.case_runs.append(
+                    self._failed_case_run(
+                        plan,
+                        condition,
+                        case,
+                        stage=(
+                            BenchmarkExecutionStage.EVALUATION_INPUT_PREPARATION
+                        ),
+                        failure_code=(
+                            BenchmarkExecutionFailureCode.EVALUATION_INPUT_INVALID
+                        ),
+                        session_binding=session_binding,
+                    )
+                )
+                continue
+            execution.case_runs.append(
+                ExperimentConditionCaseRun.create(
+                    plan,
+                    condition_kind=condition,
+                    case_run_record=case_run,
+                    reasoning_session_binding=session_binding,
+                )
+            )
 
         invocation_failed = any(
             item.failure is not None or item.blocked_by_role is not None
@@ -399,7 +422,8 @@ class RealModelExperimentExecutor:
             execution.failure = self._condition_failure(
                 plan,
                 condition,
-                invocation_failed=invocation_failed,
+                invocation_records=execution.invocation_records,
+                pipeline_failed=pipeline_failed,
                 audits=execution.audits,
             )
         else:
@@ -432,21 +456,31 @@ class RealModelExperimentExecutor:
                 session = AgentWorkflow().execute(
                     case_input.reasoning_context
                 )
-                binding = ExperimentCaseReasoningSession.create(
-                    plan,
-                    condition_kind=condition,
-                    benchmark_case_id=case_id,
-                    reasoning_session=session,
-                )
-                execution.sessions.append(binding)
-                run = self._successful_case_pipeline(case, case_input, session)
+            except Exception:
+                failed = True
                 execution.case_runs.append(
-                    ExperimentConditionCaseRun.create(
+                    self._failed_case_run(
                         plan,
-                        condition_kind=condition,
-                        case_run_record=run,
-                        reasoning_session_binding=binding,
+                        condition,
+                        case,
+                        stage=BenchmarkExecutionStage.REASONING_SESSION,
+                        failure_code=(
+                            BenchmarkExecutionFailureCode.REASONING_CONTRACT_FAILED
+                        ),
+                        session_binding=None,
                     )
+                )
+                continue
+            binding = ExperimentCaseReasoningSession.create(
+                plan,
+                condition_kind=condition,
+                benchmark_case_id=case_id,
+                reasoning_session=session,
+            )
+            execution.sessions.append(binding)
+            try:
+                candidate = FinalizedCandidateBuilder.from_reasoning_session(
+                    case.id, session
                 )
             except Exception:
                 failed = True
@@ -455,12 +489,43 @@ class RealModelExperimentExecutor:
                         plan,
                         condition,
                         case,
+                        stage=BenchmarkExecutionStage.CANDIDATE_FINALIZATION,
                         failure_code=(
-                            BenchmarkExecutionFailureCode.REASONING_CONTRACT_FAILED
+                            BenchmarkExecutionFailureCode.CANDIDATE_FINALIZATION_FAILED
                         ),
                         session_binding=binding,
                     )
                 )
+                continue
+            try:
+                run = self._prepare_evaluation_case_run(
+                    case, case_input, candidate
+                )
+            except Exception:
+                failed = True
+                execution.case_runs.append(
+                    self._failed_case_run(
+                        plan,
+                        condition,
+                        case,
+                        stage=(
+                            BenchmarkExecutionStage.EVALUATION_INPUT_PREPARATION
+                        ),
+                        failure_code=(
+                            BenchmarkExecutionFailureCode.EVALUATION_INPUT_INVALID
+                        ),
+                        session_binding=binding,
+                    )
+                )
+                continue
+            execution.case_runs.append(
+                ExperimentConditionCaseRun.create(
+                    plan,
+                    condition_kind=condition,
+                    case_run_record=run,
+                    reasoning_session_binding=binding,
+                )
+            )
         if failed:
             execution.failure = AblationConditionExecutionFailure.create(
                 ablation_plan_id=plan.ablation_plan_id,
@@ -471,10 +536,20 @@ class RealModelExperimentExecutor:
                 ),
             )
         else:
-            execution.report = BenchmarkEvaluationRunner().evaluate(
-                manifest,
-                [item.case_run_record for item in execution.case_runs],
-            )
+            try:
+                execution.report = BenchmarkEvaluationRunner().evaluate(
+                    manifest,
+                    [item.case_run_record for item in execution.case_runs],
+                )
+            except Exception:
+                execution.failure = AblationConditionExecutionFailure.create(
+                    ablation_plan_id=plan.ablation_plan_id,
+                    condition_kind=condition,
+                    stage=AblationConditionFailureStage.REPORT_ASSEMBLY,
+                    failure_code=(
+                        AblationConditionFailureCode.REPORT_ASSEMBLY_FAILED
+                    ),
+                )
         return execution
 
     @staticmethod
@@ -506,10 +581,7 @@ class RealModelExperimentExecutor:
         return execution
 
     @staticmethod
-    def _successful_case_pipeline(case, case_input, session):
-        candidate = FinalizedCandidateBuilder.from_reasoning_session(
-            case.id, session
-        )
+    def _prepare_evaluation_case_run(case, case_input, candidate):
         interaction = case_input.reasoning_context.cross_layer_interaction
         binding = ModelClaimBinder().assess(
             candidate, candidate_interaction=interaction
@@ -534,15 +606,10 @@ class RealModelExperimentExecutor:
         condition,
         case: EvaluationBenchmarkCase,
         *,
+        stage,
         failure_code,
         session_binding,
     ) -> ExperimentConditionCaseRun:
-        stage = (
-            BenchmarkExecutionStage.CANDIDATE_FINALIZATION
-            if failure_code
-            is BenchmarkExecutionFailureCode.CANDIDATE_FINALIZATION_FAILED
-            else BenchmarkExecutionStage.REASONING_SESSION
-        )
         failure = BenchmarkCaseExecutionFailure.create(
             benchmark_case_id=case.id,
             architecture=case.architecture,
@@ -714,7 +781,14 @@ class RealModelExperimentExecutor:
         )
 
     @staticmethod
-    def _condition_failure(plan, condition, *, invocation_failed, audits):
+    def _condition_failure(
+        plan,
+        condition,
+        *,
+        invocation_records,
+        pipeline_failed,
+        audits,
+    ):
         leaked = any(
             item.status is PromptVisibilityAuditStatus.LEAK_DETECTED
             for item in audits
@@ -724,12 +798,25 @@ class RealModelExperimentExecutor:
             code = (
                 AblationConditionFailureCode.PROMPT_VISIBILITY_CONSTRUCTION_FAILED
             )
-        elif invocation_failed:
+        elif any(
+            item.failure is not None
+            and item.failure.stage
+            in {
+                RealModelInvocationFailureStage.PROVIDER_CONNECTION,
+                RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
+            }
+            for item in invocation_records
+        ):
             stage = AblationConditionFailureStage.PROVIDER
             code = AblationConditionFailureCode.PROVIDER_UNAVAILABLE
+        elif pipeline_failed:
+            stage = AblationConditionFailureStage.ORCHESTRATION
+            code = AblationConditionFailureCode.CONDITION_ORCHESTRATION_FAILED
         else:
-            stage = AblationConditionFailureStage.REPORT_ASSEMBLY
-            code = AblationConditionFailureCode.REPORT_ASSEMBLY_FAILED
+            # Structured-response and workflow failures remain orchestration
+            # failures rather than being mislabeled provider unavailability.
+            stage = AblationConditionFailureStage.ORCHESTRATION
+            code = AblationConditionFailureCode.CONDITION_ORCHESTRATION_FAILED
         return AblationConditionExecutionFailure.create(
             ablation_plan_id=plan.ablation_plan_id,
             condition_kind=condition,
