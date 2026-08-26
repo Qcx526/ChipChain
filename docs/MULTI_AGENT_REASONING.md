@@ -291,3 +291,19 @@ candidate 中。Parser 继续执行 architecture、role、component、Evidence w
 从隐藏 Context 生成或修复 `ModelAuthoredChainClaim`。Mock 在 FULL/MASKED 下都保持 `chain_claim=null`；
 no-model baseline 也不伪造 authorship。Prompt visibility audit 是构造后的、exact-reference、
 non-interfering 实验检查，不属于 reasoning、Evidence 或 verification。
+
+## Phase 10D Step 1 Provider Provenance Boundary
+
+Phase 10D 没有改变 `phase10a_model_authored_chain_claim_v3`、role authority、null claim 或 full-Context
+parser binding。Step 1 只在 reasoning 外围建立未来运行的 provenance envelope。FULL/MASKED 使用同一
+sanitized provider descriptor；descriptor 排除 API key、base URL、endpoint、timeout 与 retry。
+
+Invocation provenance 按固定 Code → Hardware → Vulnerability → AttackChain 四角色分别绑定 key，并对每个
+实际角色的最终 `StructuredPromptRequest` 和 parser 前 exact raw provider text 计算 SHA-256，但不保存内容。
+Provider/connection/parse/workflow failure 使用 closed stage/code；串行 fail-stop 后未调用的角色记为
+`NOT_ATTEMPTED` 并绑定 blocking role，不伪造成 provider failure。成功解析后的错误或缺失 chain claim
+继续进入既有 binding status，不能改写为 invocation failure。MASKED prompt audits 按 attempted role 的
+prompt SHA 精确绑定，作为独立 experiment-quality 输入，不进入 reasoning 或 Phase 10B metric。
+
+当前仅有 `OFFLINE_CONTRACT` fixture，没有自动 batch runner、CLI network command 或默认 provider
+construction。Phase 10D Step 2 才会设计显式 opt-in real Qwen/OpenAI-compatible execution。

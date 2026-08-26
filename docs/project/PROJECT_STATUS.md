@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10b-stable`
-- Stable commit: `f030449a7b9c2480f22afce8038d4b4cfc56ea05`
-- Baseline: Phase 10B frozen deterministic benchmark evaluation complete
+- Stable tag: `phase-10c-stable`
+- Stable commit: `5a1e4fb5508baed01d58746b381b134e23bfb516`
+- Baseline: Phase 10C frozen ablation and prompt-visibility contracts complete
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -27,21 +27,22 @@
 - Phase 10A Step 3-R2 strict structured-output schema default removal
 - Phase 10B deterministic all-case benchmark accounting, exact Ground Truth comparison, recovery, coverage, and metric aggregation
 - Phase 10C four-condition ablation protocol, prompt visibility firewall, leakage audit, context/objective upper bound, and deterministic comparison contracts
+- Phase 10D Step 1 sanitized provider descriptor, frozen case×four-role execution matrix, hash-only per-role invocation provenance, fail-stop accounting, and canonical offline artifact envelope
 
 ## Current Work
 
-Phase 10C is complete as an offline contract layer. It predeclares full-context, masked-chain-context,
-no-model, and context/objective-upper-bound conditions; keeps Phase 10B reports unchanged; makes prompt
-visibility and condition failures auditable; and compares exact cohorts only on the same manifest.
-FULL_CONTEXT_MODEL is not independent interaction discovery. The upper bound is neither a model metric
-nor VerificationHitRate, and no ablation delta is a causal estimate. The owned synthetic Phase 10B
-acceptance remains `1/2`, `1/1`, `0/1`, `2/2`; no real-model run or >=80% conclusion was performed.
-Phase 9C Step 3B remains deferred.
+Phase 10D Step 1 is complete as an offline provenance-contract layer. It freezes one secret-free
+provider descriptor shared by FULL/MASKED, the exact four-condition/case/fixed-role matrix, per-role
+hash-only invocation records, sequential `FAILED`/`NOT_ATTEMPTED` accounting, exact per-attempt prompt
+audit bindings, and derived experiment-quality flags. No raw prompt, raw response, API key, endpoint,
+or host path belongs in canonical artifacts. Every current fixture is explicitly `OFFLINE_CONTRACT`;
+no Phase 10D real-model run or >=80% conclusion was performed. Phase 9C Step 3B remains deferred.
 
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- Phase 10D real-model comparison and report
+- Phase 10D Step 2 opt-in real Qwen/OpenAI-compatible execution
+- Phase 10D later real-model comparison and report
 - Phase 11 API and visualization, only after core evaluation
 - Phase 12 additional architectures, only after the ARM loop is stable and evaluated
 

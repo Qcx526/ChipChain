@@ -177,3 +177,47 @@ class AblationConditionFailureCode(str, Enum):
         "prompt_visibility_construction_failed"
     )
     REPORT_ASSEMBLY_FAILED = "report_assembly_failed"
+
+
+class RealModelProviderProtocol(str, Enum):
+    """Closed non-secret provider protocols for Phase 10D plans."""
+
+    OPENAI_COMPATIBLE = "openai_compatible"
+
+
+class ExperimentExecutionMode(str, Enum):
+    """Whether an experiment artifact is offline-only or a real-provider run."""
+
+    OFFLINE_CONTRACT = "offline_contract"
+    REAL_PROVIDER = "real_provider"
+
+
+class ModelInvocationDisposition(str, Enum):
+    """Bounded execution outcome for one planned model invocation slot."""
+
+    COMPLETED = "completed"
+    FAILED = "failed"
+    NOT_ATTEMPTED = "not_attempted"
+
+
+class RealModelInvocationFailureStage(str, Enum):
+    """Bounded stages for Phase 10D model invocation failures."""
+
+    PROMPT_CONSTRUCTION = "prompt_construction"
+    PROVIDER_CONNECTION = "provider_connection"
+    PROVIDER_TRANSPORT = "provider_transport"
+    PROVIDER_RESPONSE = "provider_response"
+    STRUCTURED_PARSE = "structured_parse"
+    WORKFLOW_ASSEMBLY = "workflow_assembly"
+
+
+class RealModelInvocationFailureCode(str, Enum):
+    """Stable failure codes without raw provider diagnostics."""
+
+    PROVIDER_UNAVAILABLE = "provider_unavailable"
+    PROVIDER_TIMEOUT = "provider_timeout"
+    PROVIDER_RESPONSE_INVALID = "provider_response_invalid"
+    PROVIDER_CONTRACT_REJECTED = "provider_contract_rejected"
+    PROMPT_VISIBILITY_FAILED = "prompt_visibility_failed"
+    WORKFLOW_CONTRACT_FAILED = "workflow_contract_failed"
+    OTHER_BOUNDED_FAILURE = "other_bounded_failure"

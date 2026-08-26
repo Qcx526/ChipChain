@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -537,7 +537,22 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   complete identical primary coverage 与 exact rational delta contracts
 - [x] 仅用 owned synthetic/offline fixture 验收；未运行真实模型、未计算 >=80%、未作因果效应声明
 
-后续工作：Phase 10D real-model comparison/report。`TRIGGERABLE` 仍不能脱离
+#### Phase 10D Step 1：Real-Model Experiment Provenance Contracts（已完成）
+
+- [x] sanitized `RealModelProviderDescriptor`，只绑定 model/API style/strict schema/reasoning effort/
+  token limit/schema name；排除 secret、base URL、timeout、retry 与 host state
+- [x] `OFFLINE_CONTRACT` / `REAL_PROVIDER` mode 与同一 descriptor 驱动的 frozen four-condition plan
+- [x] exact condition×case×fixed-role×repetition-0 invocation key，以及逐角色 prompt/response SHA-256
+- [x] FULL/MASKED 每 case 固定 Code → Hardware → Vulnerability → AttackChain 四个 slot；
+  NO_MODEL/UPPER_BOUND 为零 provider invocation
+- [x] 串行 fail-stop 的 `COMPLETED` / `FAILED` / `NOT_ATTEMPTED` 完整 accounting；后续未调用角色显式绑定
+  blocking failed role，不伪造第二个 provider failure
+- [x] 每条件 report/result/failure 与 MASKED attempted-role prompt audit exact binding
+- [x] 顶层 artifact 派生 provider/benchmark comparability、prompt visibility validity 与 execution completeness
+- [x] secret/path/traceback/raw-stderr metadata hygiene、deterministic identity 与 JSON roundtrip
+- [x] 仅完成 offline contract fixture；没有真实 provider call、真实模型结果或 >=80% 结论
+
+后续工作：Phase 10D Step 2 opt-in real Qwen/OpenAI-compatible execution。`TRIGGERABLE` 仍不能脱离
 Type II exact candidate binding 被通用映射为
 `CONFIRMED_FEASIBLE`。
 

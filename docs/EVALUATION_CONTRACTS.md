@@ -204,3 +204,33 @@ PRIMARY_TARGET case coverage. Prompt visibility audits search only exact separat
 references after construction; they do not modify prompts or evaluation and are not verification.
 Reported differences are observed ablation differences, never causal effects. Phase 10C performs no
 real-model run and produces no >=80% project conclusion.
+
+## Phase 10D Step 1 Real-Model Experiment Provenance
+
+Step 1 freezes contracts before any real output exists. One sanitized provider descriptor binds the
+model, API style, strict-schema behavior, reasoning effort, completion-token limit, and existing v3
+schema name. It deliberately has no API-key, Authorization, base-URL, endpoint, proxy, timeout, retry,
+latency, timestamp, or host-path field. FULL and MASKED therefore cannot substitute different models
+inside one valid plan.
+
+`RealModelExperimentPlan` binds the frozen manifest/version, exact Phase 10C plan, all four condition
+specs, one shared descriptor, execution mode, and the exact case cohort. Version 1 retains one
+repetition and the fixed Code → Hardware → Vulnerability → AttackChain provider role order. Only
+FULL/MASKED have `ExperimentCaseInvocationKey` and `ModelInvocationRecord` slots: every case has
+exactly four role-bound slots. NO_MODEL and CONTEXT_OBJECTIVE_UPPER_BOUND remain explicitly accounted
+zero-invocation conditions.
+
+An invocation record is provenance, not truth. Each role retains its own deterministic prompt SHA-256,
+exact UTF-8 raw-response SHA-256, schema, descriptor ID, disposition, and optional bounded failure.
+The only legal per-case shapes are all `COMPLETED`, or zero or more `COMPLETED`, exactly one actual
+`FAILED`, then `NOT_ATTEMPTED` for every later role. `NOT_ATTEMPTED` is hashless and failureless and
+binds the earlier blocking role. MASKED audits bind one-to-one to every attempted invocation carrying
+a prompt hash; unattempted roles have no prompt and need no audit. Raw prompt/response, exception text,
+traceback, stderr, secrets, endpoint, and host path are forbidden.
+MISSING, INCOMPLETE, MISMATCHED, and UNBOUND claims remain ordinary measured semantic outcomes after a
+successful parse; they are not invocation failures.
+
+The top-level artifact derives provider and benchmark comparability, MASKED prompt-audit validity,
+and complete execution accounting without modifying Phase 10B/10C results. Its plan exposes
+`OFFLINE_CONTRACT` versus `REAL_PROVIDER`; an offline fixture can never be reported as a real-provider
+result. Step 1 made no provider call and no >=80% conclusion.

@@ -38,7 +38,7 @@
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
   Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
-  与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C 已完成；Step 3B 仍为 planned/not implemented。
+  与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -169,6 +169,16 @@
   `VerificationHitRate`。所有条件必须绑定同一 frozen manifest，失败必须显式记账，coverage 差异
   必须可见。Prompt audit 只是非干预实验质量检查。不得把 ablation delta 称为因果效应，不运行真实
   模型、不计算 >=80% 项目结论，且不得修改 Phase 10B metric semantics。
+- Phase 10D Step 1 只冻结未来真实模型实验的 sanitized provider descriptor、同模型四条件 execution
+  matrix、condition×case×role invocation key、hash-only prompt/response provenance、bounded failure 与顶层
+  artifact envelope。Provider role 固定为 Code → Hardware → Vulnerability → AttackChain；FULL/MASKED
+  每 case 必须完整记账四个 repetition-0 slot。串行 fail-stop 只允许若干 `COMPLETED`、一个实际
+  `FAILED`、其后全部 `NOT_ATTEMPTED`，后者必须 typed 绑定 blocking role 且不伪造 provider failure。
+  MASKED audit 必须逐 attempted role 的 exact prompt SHA 绑定。Descriptor 禁止保存 API key、
+  Authorization、base URL、endpoint、proxy、host path；timeout/retry 不参与 semantic identity。
+  MISSING/INCOMPLETE/MISMATCHED/UNBOUND 是成功解析后的模型语义结果，不是 invocation failure。
+  Canonical record 只保存 exact SHA-256，不保存 raw prompt/response。`OFFLINE_CONTRACT` 不是 real-model
+  result；Step 1 不调用 provider、不修改 Phase 10B/10C、不计算 >=80%。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

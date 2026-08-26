@@ -54,6 +54,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10A Step 3 explicit model-authored chain claim 与 candidate-context binding assessment
 - Phase 10B deterministic all-case benchmark runner、exact Ground Truth comparison 与 exact-cohort metrics
 - Phase 10C 四条件 ablation protocol、prompt visibility firewall 与 deterministic comparison contracts
+- Phase 10D Step 1 secret-free real-model experiment provenance、execution matrix 与 artifact contracts
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -552,6 +553,25 @@ finalized candidate、`CONFIRMED_FEASIBLE` 与 exact Ground Truth match，negati
 不是模型指标，也不叫 `VerificationHitRate`。Comparison 强制同一 manifest/version/runner contract、
 四条件完整记账、显式失败与可比较的完整 coverage，并以整数分子/分母保存 delta。这里的差异只是
 observed ablation difference，不是因果模型效应。本阶段没有真实模型实验，也没有 >=80% 结论。
+
+## Phase 10D Step 1 Experiment Provenance
+
+Phase 10D Step 1 只冻结未来真实模型运行所需的可审计合同。`RealModelProviderDescriptor` 保存 model、
+API style、strict schema、reasoning effort、token limit 与 schema name，但结构上不允许 API key、base
+URL、endpoint、timeout、retry 或 host path。FULL 与 MASKED 在一个 plan 中只能共享同一 descriptor；
+NO_MODEL 与 upper bound 保留在同一四条件 matrix，但不产生 provider invocation。
+
+每个 model condition/frozen case 都固定展开 Code → Hardware → Vulnerability → AttackChain 四个
+repetition-0 role slot；role 进入 deterministic invocation identity。Canonical record 为每个实际角色调用
+分别保存 exact final prompt 与 raw response 的 lowercase SHA-256。串行失败只允许若干 `COMPLETED`、一个
+实际 `FAILED`、随后全部 `NOT_ATTEMPTED`；未调用 slot 只保存 typed blocking role，不伪造 failure 或 hash。
+MASKED audit 必须逐 attempted role 与 invocation prompt SHA 精确对应。合同不保存 raw prompt、raw response、
+traceback、stderr 或 secret。MISSING/MISMATCHED 等 claim assessment 是成功解析后的语义输出，不是
+transport failure。顶层 artifact 显式报告 provider/benchmark comparability、MASKED audit validity 与
+execution completeness。
+
+本阶段所有 fixture 均标记 `OFFLINE_CONTRACT`，不等于真实模型实验。尚未执行 Phase 10D real provider，
+也没有项目 >=80% 结论；实际 opt-in Qwen/OpenAI-compatible execution 留待 Step 2。
 
 ## 文档导航
 

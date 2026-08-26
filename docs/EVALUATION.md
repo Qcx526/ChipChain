@@ -138,4 +138,20 @@ assessment；缺失/不完整/错误 claim 分别保持可测量，不由 Contex
 synthetic cases 不是真实 CVE 或正式 public Benchmark。Phase 10B 已实现 all-case accounting、post-hoc
 Ground Truth comparison、`VerificationHitRate`、`GroundTruthChainRecall`、negative-control FPR 与 primary
 coverage。Phase 10C 已实现离线 ablation/prompt-firewall contracts；Owned fixture 的 `1/2` 仍只验证
-合同，真实模型比较与正式 benchmark expansion 未实现，没有得出“关联漏洞命中率 >=80%”结论。
+合同。Phase 10D Step 1 已冻结 secret-free provider descriptor、同模型四条件 matrix、hash-only
+invocation/failure provenance 与顶层 experiment artifact；所有验收仍为 `OFFLINE_CONTRACT`。真实模型
+执行与正式 benchmark expansion 未实现，没有得出“关联漏洞命中率 >=80%”结论。
+
+## Phase 10D Step 1 实验来源合同
+
+未来 FULL/MASKED real-model comparison 必须在输出前冻结同一 manifest、Phase 10C plan 和唯一 provider
+descriptor。Descriptor 不保存 API key、base URL、endpoint、timeout 或 retry。每个 model-backed
+condition/case 都有固定 Code、Hardware、Vulnerability、AttackChain 四个 repetition-0 invocation slot；
+失败角色占用自己的 `FAILED` slot，后续未调用角色以 `NOT_ATTEMPTED` 和 typed blocking role 记账，不能
+伪造额外 provider failure。NO_MODEL 与 upper bound 在同一 matrix 中显式记账但不能包含 provider
+invocation。
+
+Canonical invocation 逐角色只保留 exact prompt/raw-response SHA-256，不保留内容。MASKED audit 对每个
+attempted role 的 prompt SHA 精确绑定；完整 case×role accounting、同 descriptor 和同 benchmark 分别
+进入独立 experiment-quality flags，不改变 frozen Phase 10B metrics 或 Phase 10C comparison。Claim
+`MISSING`/`MISMATCHED` 等是语义结果，不是连接或 transport 失败。Step 1 没有运行真实模型，也没有阈值结论。
