@@ -320,6 +320,16 @@ class ContextObjectiveUpperBoundRate(DomainModel):
     denominator_ids: list[Identifier]
     defined: bool
 
+    @field_validator("numerator_ids")
+    @classmethod
+    def normalize_numerator_ids(cls, values: list[str]) -> list[str]:
+        return _unique_sorted(values, "upper-bound numerator IDs")
+
+    @field_validator("denominator_ids")
+    @classmethod
+    def normalize_denominator_ids(cls, values: list[str]) -> list[str]:
+        return _unique_sorted(values, "upper-bound denominator IDs")
+
     @model_validator(mode="after")
     def validate_metric(self) -> "ContextObjectiveUpperBoundRate":
         if self.numerator != len(self.numerator_ids) or self.denominator != len(
@@ -328,6 +338,8 @@ class ContextObjectiveUpperBoundRate(DomainModel):
             raise ValueError("upper-bound counts do not match exact cohorts")
         if not set(self.numerator_ids).issubset(self.denominator_ids):
             raise ValueError("upper-bound numerator must be denominator subset")
+        if self.numerator > self.denominator:
+            raise ValueError("upper-bound numerator cannot exceed denominator")
         if self.defined is not (self.denominator > 0):
             raise ValueError("upper-bound defined state is not derived")
         expected = context_objective_upper_bound_rate_id(
@@ -657,23 +669,26 @@ class AblationMetricDelta(DomainModel):
 
     @model_validator(mode="after")
     def validate_identity(self) -> "AblationMetricDelta":
-        values = (
+        left_present = self._validate_side(
+            "left",
             self.left_metric_id,
-            self.right_metric_id,
             self.left_numerator,
             self.left_denominator,
+        )
+        right_present = self._validate_side(
+            "right",
+            self.right_metric_id,
             self.right_numerator,
             self.right_denominator,
         )
-        if self.defined != all(item is not None for item in values):
+        expected_defined = bool(
+            left_present
+            and right_present
+            and self.left_denominator > 0
+            and self.right_denominator > 0
+        )
+        if self.defined is not expected_defined:
             raise ValueError("ablation delta defined state is inexact")
-        if self.defined and (
-            self.left_denominator <= 0
-            or self.right_denominator <= 0
-            or not 0 <= self.left_numerator <= self.left_denominator
-            or not 0 <= self.right_numerator <= self.right_denominator
-        ):
-            raise ValueError("defined ablation delta has invalid rational components")
         expected = _canonical_hash(
             "ablation-metric-delta",
             {
@@ -690,6 +705,26 @@ class AblationMetricDelta(DomainModel):
             raise ValueError("AblationMetricDelta ID is not deterministic")
         return self
 
+    @staticmethod
+    def _validate_side(
+        label: str,
+        metric_id: str | None,
+        numerator: int | None,
+        denominator: int | None,
+    ) -> bool:
+        values = (metric_id, numerator, denominator)
+        if any(item is not None for item in values) and not all(
+            item is not None for item in values
+        ):
+            raise ValueError(f"ablation delta {label} side must be all-or-none")
+        if metric_id is None:
+            return False
+        if numerator < 0 or denominator < 0 or numerator > denominator:
+            raise ValueError(
+                f"ablation delta {label} side has invalid rational components"
+            )
+        return True
+
     @classmethod
     def create(
         cls,
@@ -699,12 +734,12 @@ class AblationMetricDelta(DomainModel):
         defined = bool(left and right and left.defined and right.defined)
         payload = {
             "defined": defined,
-            "left_denominator": left.denominator if defined else None,
-            "left_metric_id": left.id if defined else None,
-            "left_numerator": left.numerator if defined else None,
-            "right_denominator": right.denominator if defined else None,
-            "right_metric_id": right.id if defined else None,
-            "right_numerator": right.numerator if defined else None,
+            "left_denominator": left.denominator if left is not None else None,
+            "left_metric_id": left.id if left is not None else None,
+            "left_numerator": left.numerator if left is not None else None,
+            "right_denominator": right.denominator if right is not None else None,
+            "right_metric_id": right.id if right is not None else None,
+            "right_numerator": right.numerator if right is not None else None,
         }
         return cls(id=_canonical_hash("ablation-metric-delta", payload), **payload)
 

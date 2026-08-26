@@ -24,6 +24,7 @@ from chipchain.evaluation import (
     BenchmarkEvaluationRunner,
     ChainFeasibilityStatus,
     ContextObjectiveUpperBoundEvaluator,
+    ContextObjectiveUpperBoundRate,
     EvaluationMetricName,
     EvaluationMetricResult,
     FinalizedCandidateBuilder,
@@ -331,6 +332,64 @@ def test_context_upper_bound_ignores_only_claim_gate() -> None:
     assert result.rate.id.startswith("context-objective-upper-bound-rate:")
 
 
+@pytest.mark.parametrize("cohort", ["numerator_ids", "denominator_ids"])
+def test_upper_bound_persisted_duplicate_cohort_fails_closed(cohort: str) -> None:
+    rate = ContextObjectiveUpperBoundRate.create(
+        numerator_ids=["candidate-a"],
+        denominator_ids=["candidate-a", "candidate-b"],
+    )
+    values = rate.model_dump(mode="json")
+    values[cohort] = ["candidate-a", "candidate-a"]
+    values["numerator" if cohort == "numerator_ids" else "denominator"] = 2
+
+    with pytest.raises(ValidationError, match="must be unique"):
+        ContextObjectiveUpperBoundRate.model_validate(values)
+
+
+def test_upper_bound_persisted_numerator_cannot_exceed_denominator() -> None:
+    rate = ContextObjectiveUpperBoundRate.create(
+        numerator_ids=["candidate-a"],
+        denominator_ids=["candidate-a", "candidate-b"],
+    )
+    values = rate.model_dump(mode="json")
+    values.update(
+        numerator=2,
+        numerator_ids=["candidate-a", "candidate-b"],
+        denominator=1,
+        denominator_ids=["candidate-a"],
+    )
+
+    with pytest.raises(ValidationError):
+        ContextObjectiveUpperBoundRate.model_validate(values)
+
+
+def test_upper_bound_persisted_unique_cohort_normalizes_without_identity_drift() -> None:
+    canonical = ContextObjectiveUpperBoundRate.create(
+        numerator_ids=["candidate-a"],
+        denominator_ids=["candidate-a", "candidate-b"],
+    )
+    values = canonical.model_dump(mode="json")
+    values["denominator_ids"] = ["candidate-b", "candidate-a"]
+
+    restored = ContextObjectiveUpperBoundRate.model_validate_json(
+        json.dumps(values)
+    )
+
+    assert restored.denominator_ids == ["candidate-a", "candidate-b"]
+    assert restored.id == canonical.id
+    assert (restored.numerator, restored.denominator, restored.ratio) == (1, 2, 0.5)
+
+
+def test_upper_bound_zero_denominator_remains_undefined_not_zero_percent() -> None:
+    rate = ContextObjectiveUpperBoundRate.create(
+        numerator_ids=[], denominator_ids=[]
+    )
+
+    assert (rate.numerator, rate.denominator) == (0, 0)
+    assert rate.defined is False
+    assert rate.ratio is None
+
+
 @pytest.mark.parametrize(
     ("feasibility", "expected"),
     [
@@ -459,6 +518,15 @@ def test_condition_failure_cannot_disappear_and_makes_delta_undefined() -> None:
     report = AblationComparisonBuilder.compare(plan, results)
     assert report.masked_context_verification_hit_rate is None
     assert report.full_minus_masked_delta.defined is False
+    assert (
+        report.full_minus_masked_delta.left_metric_id
+        == report.full_context_verification_hit_rate.id
+    )
+    assert (
+        report.full_minus_masked_delta.right_metric_id,
+        report.full_minus_masked_delta.right_numerator,
+        report.full_minus_masked_delta.right_denominator,
+    ) == (None, None, None)
     assert report.coverage_comparable is False
 
 
@@ -503,7 +571,103 @@ def test_metric_delta_uses_exact_components_and_undefined_state() -> None:
     assert (delta.left_numerator, delta.left_denominator) == (1, 3)
     assert (delta.right_numerator, delta.right_denominator) == (1, 2)
     assert delta.delta == pytest.approx(-1 / 6)
-    assert AblationMetricDelta.create(left, None).delta is None
+    absent = AblationMetricDelta.create(left, None)
+    assert absent.delta is None
+    assert absent.left_metric_id == left.id
+    assert (absent.left_numerator, absent.left_denominator) == (1, 3)
+    assert (
+        absent.right_metric_id,
+        absent.right_numerator,
+        absent.right_denominator,
+    ) == (None, None, None)
+
+
+def test_undefined_metric_delta_retains_both_source_metrics() -> None:
+    defined = EvaluationMetricResult.create(
+        metric_name=EvaluationMetricName.VERIFICATION_HIT_RATE,
+        numerator_ids=["candidate-a"],
+        denominator_ids=["candidate-a", "candidate-b"],
+    )
+    undefined = EvaluationMetricResult.create(
+        metric_name=EvaluationMetricName.GROUND_TRUTH_CHAIN_RECALL,
+        numerator_ids=[],
+        denominator_ids=[],
+    )
+
+    delta = AblationMetricDelta.create(defined, undefined)
+
+    assert delta.defined is False
+    assert delta.delta is None
+    assert delta.left_metric_id == defined.id
+    assert delta.right_metric_id == undefined.id
+    assert (delta.right_numerator, delta.right_denominator) == (0, 0)
+
+
+def test_distinct_undefined_source_comparisons_have_distinct_delta_ids() -> None:
+    defined = EvaluationMetricResult.create(
+        metric_name=EvaluationMetricName.VERIFICATION_HIT_RATE,
+        numerator_ids=["candidate-a"],
+        denominator_ids=["candidate-a"],
+    )
+    undefined_recall = EvaluationMetricResult.create(
+        metric_name=EvaluationMetricName.GROUND_TRUTH_CHAIN_RECALL,
+        numerator_ids=[],
+        denominator_ids=[],
+    )
+    undefined_fpr = EvaluationMetricResult.create(
+        metric_name=EvaluationMetricName.NEGATIVE_CONTROL_FALSE_POSITIVE_RATE,
+        numerator_ids=[],
+        denominator_ids=[],
+    )
+
+    first = AblationMetricDelta.create(defined, undefined_recall)
+    second = AblationMetricDelta.create(defined, undefined_fpr)
+
+    assert first.id != second.id
+    assert first.right_metric_id != second.right_metric_id
+
+
+def test_delta_cannot_claim_undefined_for_two_defined_sources() -> None:
+    metric = EvaluationMetricResult.create(
+        metric_name=EvaluationMetricName.VERIFICATION_HIT_RATE,
+        numerator_ids=["candidate-a"],
+        denominator_ids=["candidate-a", "candidate-b"],
+    )
+    values = AblationMetricDelta.create(metric, metric).model_dump(mode="json")
+    values["defined"] = False
+
+    with pytest.raises(ValidationError, match="defined state is inexact"):
+        AblationMetricDelta.model_validate(values)
+
+
+def test_delta_partial_side_fails_closed() -> None:
+    metric = EvaluationMetricResult.create(
+        metric_name=EvaluationMetricName.VERIFICATION_HIT_RATE,
+        numerator_ids=[],
+        denominator_ids=[],
+    )
+    values = AblationMetricDelta.create(metric, None).model_dump(mode="json")
+    values.update(
+        right_metric_id="evaluation-metric-result:partial",
+        right_numerator=None,
+        right_denominator=0,
+    )
+
+    with pytest.raises(ValidationError, match="all-or-none"):
+        AblationMetricDelta.model_validate(values)
+
+
+def test_delta_present_side_numerator_cannot_exceed_denominator() -> None:
+    metric = EvaluationMetricResult.create(
+        metric_name=EvaluationMetricName.VERIFICATION_HIT_RATE,
+        numerator_ids=["candidate-a"],
+        denominator_ids=["candidate-a", "candidate-b"],
+    )
+    values = AblationMetricDelta.create(metric, None).model_dump(mode="json")
+    values["left_numerator"] = 3
+
+    with pytest.raises(ValidationError, match="invalid rational components"):
+        AblationMetricDelta.model_validate(values)
 
 
 def test_ablation_contracts_json_roundtrip_and_tampered_ids_fail_closed() -> None:
