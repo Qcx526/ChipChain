@@ -15,10 +15,17 @@ from chipchain.evaluation import (
     AblationConditionFailureCode,
     AblationConditionFailureStage,
     AblationConditionKind,
+    AblationConditionResult,
     AblationExperimentPlan,
+    BenchmarkCaseLabel,
+    BenchmarkCaseRunRecord,
+    BenchmarkEvaluationRunner,
+    ChainFeasibilityStatus,
+    ContextObjectiveUpperBoundEvaluator,
     ExperimentCaseInvocationKey,
     ExperimentExecutionMode,
     ModelInvocationDisposition,
+    ModelClaimBindingStatus,
     ModelInvocationRecord,
     PHASE10D_PROVIDER_ROLE_ORDER,
     PromptVisibilityAuditStatus,
@@ -43,9 +50,11 @@ from chipchain.reasoning import (
 )
 from chipchain.reasoning.models import LLMProviderConfig
 from tests.test_phase10b_benchmark_evaluation import (
+    _bundle,
     _case,
     _fixture_manifest,
     _manifest,
+    _owned_runs,
 )
 from tests.test_phase10c_ablation import (
     _condition_results,
@@ -258,6 +267,154 @@ def _fail_stop_invocations(
     ]
 
 
+def _ablation_plan_for_experiment(
+    plan: RealModelExperimentPlan,
+) -> AblationExperimentPlan:
+    ablation_plan = AblationExperimentPlan.create(
+        benchmark_manifest_id=plan.benchmark_manifest_id,
+        benchmark_version=plan.benchmark_version,
+    )
+    assert ablation_plan.id == plan.ablation_plan_id
+    return ablation_plan
+
+
+def _phase10c_results_from_execution(
+    plan: RealModelExperimentPlan,
+    records: list[RealExperimentConditionRecord],
+) -> list[AblationConditionResult]:
+    results = []
+    for record in records:
+        results.append(
+            AblationConditionResult.create(
+                ablation_plan_id=plan.ablation_plan_id,
+                condition_kind=record.condition_kind,
+                benchmark_manifest_id=plan.benchmark_manifest_id,
+                benchmark_evaluation_report=(
+                    record.benchmark_evaluation_report
+                ),
+                context_objective_upper_bound_result=(
+                    record.context_objective_upper_bound_result
+                ),
+                prompt_visibility_audit_ids=[
+                    audit.id for audit in record.prompt_visibility_audits
+                ],
+                execution_failure=record.condition_failure,
+            )
+        )
+    return results
+
+
+def _comparison_from_execution(
+    plan: RealModelExperimentPlan,
+    records: list[RealExperimentConditionRecord],
+):
+    return AblationComparisonBuilder.compare(
+        _ablation_plan_for_experiment(plan),
+        _phase10c_results_from_execution(plan, records),
+    )
+
+
+def _comparison_with_condition_result(
+    artifact: RealModelExperimentArtifact,
+    replacement: AblationConditionResult,
+):
+    results = _phase10c_results_from_execution(
+        artifact.experiment_plan, artifact.condition_records
+    )
+    return AblationComparisonBuilder.compare(
+        _ablation_plan_for_experiment(artifact.experiment_plan),
+        [
+            replacement
+            if item.condition_kind is replacement.condition_kind
+            else item
+            for item in results
+        ],
+    )
+
+
+def _alternative_same_benchmark_outputs():
+    manifest = _fixture_manifest()
+    positive = _case(manifest, BenchmarkCaseLabel.POSITIVE_FEASIBLE)
+    negative = _case(manifest, BenchmarkCaseLabel.NEGATIVE_CONTROL)
+    alternative_report_runs = [
+        BenchmarkCaseRunRecord.from_candidate(
+            _bundle(
+                positive,
+                binding_status=ModelClaimBindingStatus.MISSING,
+                feasibility_status=ChainFeasibilityStatus.UNRESOLVED,
+            )
+        ),
+        BenchmarkCaseRunRecord.from_candidate(
+            _bundle(
+                negative,
+                binding_status=ModelClaimBindingStatus.ALIGNED,
+            )
+        ),
+    ]
+    alternative_upper_runs = [
+        BenchmarkCaseRunRecord.from_candidate(
+            _bundle(
+                positive,
+                feasibility_status=ChainFeasibilityStatus.UNRESOLVED,
+            )
+        ),
+        _owned_runs(manifest)[1],
+    ]
+    return (
+        BenchmarkEvaluationRunner().evaluate(
+            manifest, alternative_report_runs
+        ),
+        ContextObjectiveUpperBoundEvaluator().evaluate(
+            manifest, alternative_upper_runs
+        ),
+    )
+
+
+def _condition_failure(
+    plan: RealModelExperimentPlan,
+    condition_kind: AblationConditionKind,
+    *,
+    alternate: bool = False,
+) -> AblationConditionExecutionFailure:
+    return AblationConditionExecutionFailure.create(
+        ablation_plan_id=plan.ablation_plan_id,
+        condition_kind=condition_kind,
+        stage=(
+            AblationConditionFailureStage.ORCHESTRATION
+            if alternate
+            else AblationConditionFailureStage.REPORT_ASSEMBLY
+        ),
+        failure_code=(
+            AblationConditionFailureCode.CONDITION_ORCHESTRATION_FAILED
+            if alternate
+            else AblationConditionFailureCode.REPORT_ASSEMBLY_FAILED
+        ),
+    )
+
+
+def _execution_records_with_failure(
+    artifact: RealModelExperimentArtifact,
+    condition_kind: AblationConditionKind,
+    failure: AblationConditionExecutionFailure,
+) -> list[RealExperimentConditionRecord]:
+    original = next(
+        item
+        for item in artifact.condition_records
+        if item.condition_kind is condition_kind
+    )
+    replacement = RealExperimentConditionRecord.create(
+        artifact.experiment_plan,
+        condition_kind=condition_kind,
+        invocation_records=original.invocation_records,
+        prompt_visibility_audits=original.prompt_visibility_audits,
+        condition_failure=failure,
+    )
+    return [
+        replacement if item.condition_kind is condition_kind else item
+        for item in artifact.condition_records
+    ]
+
+
 def _successful_artifact() -> RealModelExperimentArtifact:
     manifest, full, masked, no_model, upper = _reports_and_upper()
     plan = _plan()
@@ -293,11 +450,7 @@ def _successful_artifact() -> RealModelExperimentArtifact:
             context_objective_upper_bound_result=upper,
         ),
     ]
-    ablation_plan, ablation_results = _condition_results()
-    assert ablation_plan.id == plan.ablation_plan_id
-    comparison = AblationComparisonBuilder.compare(
-        ablation_plan, ablation_results
-    )
+    comparison = _comparison_from_execution(plan, records)
     return RealModelExperimentArtifact.create(
         experiment_plan=plan,
         condition_records=records,
@@ -1340,14 +1493,22 @@ def test_leaked_masked_audit_is_explicitly_invalid_without_metric_mutation() -> 
         condition if item.condition_kind is condition.condition_kind else item
         for item in artifact.condition_records
     ]
+    comparison = _comparison_from_execution(
+        artifact.experiment_plan, records
+    )
     invalid = RealModelExperimentArtifact.create(
         experiment_plan=artifact.experiment_plan,
         condition_records=records,
-        ablation_comparison_report=artifact.ablation_comparison_report,
+        ablation_comparison_report=comparison,
     )
 
     assert invalid.prompt_visibility_valid is False
-    assert invalid.ablation_comparison_report == artifact.ablation_comparison_report
+    assert comparison.full_context_verification_hit_rate == (
+        artifact.ablation_comparison_report.full_context_verification_hit_rate
+    )
+    assert comparison.masked_context_verification_hit_rate == (
+        artifact.ablation_comparison_report.masked_context_verification_hit_rate
+    )
 
 
 def test_explicit_condition_failure_remains_accounted() -> None:
@@ -1471,6 +1632,371 @@ def test_condition_failure_and_failed_invocation_cannot_disappear() -> None:
         item.disposition is ModelInvocationDisposition.NOT_ATTEMPTED
         for item in failed_condition.invocation_records
     ) == 3
+
+
+def test_comparison_children_exactly_match_execution_provenance() -> None:
+    artifact = _successful_artifact()
+    execution = {
+        item.condition_kind: item for item in artifact.condition_records
+    }
+    comparison = {
+        item.condition_kind: item
+        for item in artifact.ablation_comparison_report.condition_results
+    }
+
+    for condition in (
+        AblationConditionKind.FULL_CONTEXT_MODEL,
+        AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL,
+        AblationConditionKind.NO_MODEL_BASELINE,
+    ):
+        assert comparison[condition].benchmark_evaluation_report.id == (
+            execution[condition].benchmark_evaluation_report.id
+        )
+    upper = AblationConditionKind.CONTEXT_OBJECTIVE_UPPER_BOUND
+    assert comparison[upper].context_objective_upper_bound_result.id == (
+        execution[upper].context_objective_upper_bound_result.id
+    )
+    masked = AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL
+    assert comparison[masked].prompt_visibility_audit_ids == sorted(
+        item.id for item in execution[masked].prompt_visibility_audits
+    )
+
+
+@pytest.mark.parametrize(
+    "condition_kind",
+    [
+        AblationConditionKind.FULL_CONTEXT_MODEL,
+        AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL,
+        AblationConditionKind.NO_MODEL_BASELINE,
+    ],
+)
+def test_same_benchmark_alternative_report_cannot_be_cross_wired(
+    condition_kind,
+) -> None:
+    artifact = _successful_artifact()
+    alternative_report, _ = _alternative_same_benchmark_outputs()
+    execution_condition = next(
+        item
+        for item in artifact.condition_records
+        if item.condition_kind is condition_kind
+    )
+    assert alternative_report.benchmark_manifest_id == (
+        artifact.experiment_plan.benchmark_manifest_id
+    )
+    assert alternative_report.id != (
+        execution_condition.benchmark_evaluation_report.id
+    )
+    assert alternative_report.negative_control_false_positive_rate.id != (
+        execution_condition.benchmark_evaluation_report
+        .negative_control_false_positive_rate.id
+    )
+    replacement = AblationConditionResult.create(
+        ablation_plan_id=artifact.experiment_plan.ablation_plan_id,
+        condition_kind=condition_kind,
+        benchmark_manifest_id=artifact.experiment_plan.benchmark_manifest_id,
+        benchmark_evaluation_report=alternative_report,
+        prompt_visibility_audit_ids=[
+            audit.id
+            for audit in execution_condition.prompt_visibility_audits
+        ],
+    )
+    comparison = _comparison_with_condition_result(artifact, replacement)
+
+    with pytest.raises(ValidationError, match="condition output ID mismatch"):
+        RealModelExperimentArtifact.create(
+            experiment_plan=artifact.experiment_plan,
+            condition_records=artifact.condition_records,
+            ablation_comparison_report=comparison,
+        )
+
+
+def test_same_benchmark_alternative_upper_result_cannot_be_cross_wired() -> None:
+    artifact = _successful_artifact()
+    _, alternative_upper = _alternative_same_benchmark_outputs()
+    upper_kind = AblationConditionKind.CONTEXT_OBJECTIVE_UPPER_BOUND
+    execution_upper = next(
+        item
+        for item in artifact.condition_records
+        if item.condition_kind is upper_kind
+    )
+    assert alternative_upper.benchmark_manifest_id == (
+        artifact.experiment_plan.benchmark_manifest_id
+    )
+    assert alternative_upper.id != (
+        execution_upper.context_objective_upper_bound_result.id
+    )
+    assert alternative_upper.rate.id != (
+        execution_upper.context_objective_upper_bound_result.rate.id
+    )
+    replacement = AblationConditionResult.create(
+        ablation_plan_id=artifact.experiment_plan.ablation_plan_id,
+        condition_kind=upper_kind,
+        benchmark_manifest_id=artifact.experiment_plan.benchmark_manifest_id,
+        context_objective_upper_bound_result=alternative_upper,
+    )
+    comparison = _comparison_with_condition_result(artifact, replacement)
+
+    with pytest.raises(ValidationError, match="condition output ID mismatch"):
+        RealModelExperimentArtifact.create(
+            experiment_plan=artifact.experiment_plan,
+            condition_records=artifact.condition_records,
+            ablation_comparison_report=comparison,
+        )
+
+
+def test_masked_comparison_requires_exact_execution_audit_ids() -> None:
+    artifact = _successful_artifact()
+    masked_kind = AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL
+    masked = next(
+        item
+        for item in artifact.condition_records
+        if item.condition_kind is masked_kind
+    )
+    replacement = AblationConditionResult.create(
+        ablation_plan_id=artifact.experiment_plan.ablation_plan_id,
+        condition_kind=masked_kind,
+        benchmark_manifest_id=artifact.experiment_plan.benchmark_manifest_id,
+        benchmark_evaluation_report=masked.benchmark_evaluation_report,
+        prompt_visibility_audit_ids=[
+            audit.id for audit in masked.prompt_visibility_audits[:-1]
+        ],
+    )
+    comparison = _comparison_with_condition_result(artifact, replacement)
+
+    with pytest.raises(ValidationError, match="prompt-audit provenance"):
+        RealModelExperimentArtifact.create(
+            experiment_plan=artifact.experiment_plan,
+            condition_records=artifact.condition_records,
+            ablation_comparison_report=comparison,
+        )
+
+
+def test_same_prompt_sha_different_audit_artifact_cannot_be_substituted() -> None:
+    artifact = _successful_artifact()
+    masked_kind = AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL
+    masked = next(
+        item
+        for item in artifact.condition_records
+        if item.condition_kind is masked_kind
+    )
+    prompt = _prompt(
+        artifact.experiment_plan.case_ids[0],
+        ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT,
+        ReasoningAgentType.CODE,
+    )
+    alternative_audit = PromptVisibilityAuditor.audit(
+        prompt,
+        hidden_reference_ids=["fixture-alternative-hidden-reference"],
+    )
+    original_audit = next(
+        item
+        for item in masked.prompt_visibility_audits
+        if item.prompt_sha256 == alternative_audit.prompt_sha256
+    )
+    assert alternative_audit.id != original_audit.id
+    audit_ids = [
+        alternative_audit.id if item.id == original_audit.id else item.id
+        for item in masked.prompt_visibility_audits
+    ]
+    replacement = AblationConditionResult.create(
+        ablation_plan_id=artifact.experiment_plan.ablation_plan_id,
+        condition_kind=masked_kind,
+        benchmark_manifest_id=artifact.experiment_plan.benchmark_manifest_id,
+        benchmark_evaluation_report=masked.benchmark_evaluation_report,
+        prompt_visibility_audit_ids=audit_ids,
+    )
+    comparison = _comparison_with_condition_result(artifact, replacement)
+
+    with pytest.raises(ValidationError, match="prompt-audit provenance"):
+        RealModelExperimentArtifact.create(
+            experiment_plan=artifact.experiment_plan,
+            condition_records=artifact.condition_records,
+            ablation_comparison_report=comparison,
+        )
+
+
+@pytest.mark.parametrize(
+    "condition_kind",
+    [
+        AblationConditionKind.FULL_CONTEXT_MODEL,
+        AblationConditionKind.NO_MODEL_BASELINE,
+        AblationConditionKind.CONTEXT_OBJECTIVE_UPPER_BOUND,
+    ],
+)
+def test_non_masked_comparison_cannot_acquire_prompt_audit_ids(
+    condition_kind,
+) -> None:
+    artifact = _successful_artifact()
+    execution = next(
+        item
+        for item in artifact.condition_records
+        if item.condition_kind is condition_kind
+    )
+    replacement = AblationConditionResult.create(
+        ablation_plan_id=artifact.experiment_plan.ablation_plan_id,
+        condition_kind=condition_kind,
+        benchmark_manifest_id=artifact.experiment_plan.benchmark_manifest_id,
+        benchmark_evaluation_report=execution.benchmark_evaluation_report,
+        context_objective_upper_bound_result=(
+            execution.context_objective_upper_bound_result
+        ),
+        prompt_visibility_audit_ids=[
+            "prompt-visibility-audit:fixture-unrelated"
+        ],
+    )
+    comparison = _comparison_with_condition_result(artifact, replacement)
+
+    with pytest.raises(ValidationError, match="prompt-audit provenance"):
+        RealModelExperimentArtifact.create(
+            experiment_plan=artifact.experiment_plan,
+            condition_records=artifact.condition_records,
+            ablation_comparison_report=comparison,
+        )
+
+
+def test_execution_success_cannot_bind_comparison_failure() -> None:
+    artifact = _successful_artifact()
+    condition_kind = AblationConditionKind.FULL_CONTEXT_MODEL
+    failure = _condition_failure(artifact.experiment_plan, condition_kind)
+    replacement = AblationConditionResult.create(
+        ablation_plan_id=artifact.experiment_plan.ablation_plan_id,
+        condition_kind=condition_kind,
+        benchmark_manifest_id=artifact.experiment_plan.benchmark_manifest_id,
+        execution_failure=failure,
+    )
+    comparison = _comparison_with_condition_result(artifact, replacement)
+
+    with pytest.raises(ValidationError, match="success/failure provenance"):
+        RealModelExperimentArtifact.create(
+            experiment_plan=artifact.experiment_plan,
+            condition_records=artifact.condition_records,
+            ablation_comparison_report=comparison,
+        )
+
+
+def test_execution_failure_cannot_bind_comparison_success() -> None:
+    artifact = _successful_artifact()
+    condition_kind = AblationConditionKind.FULL_CONTEXT_MODEL
+    failure = _condition_failure(artifact.experiment_plan, condition_kind)
+    failed_records = _execution_records_with_failure(
+        artifact, condition_kind, failure
+    )
+
+    with pytest.raises(ValidationError, match="success/failure provenance"):
+        RealModelExperimentArtifact.create(
+            experiment_plan=artifact.experiment_plan,
+            condition_records=failed_records,
+            ablation_comparison_report=artifact.ablation_comparison_report,
+        )
+
+
+def test_different_condition_failure_id_cannot_be_cross_wired() -> None:
+    artifact = _successful_artifact()
+    condition_kind = AblationConditionKind.FULL_CONTEXT_MODEL
+    execution_failure = _condition_failure(
+        artifact.experiment_plan, condition_kind
+    )
+    comparison_failure = _condition_failure(
+        artifact.experiment_plan, condition_kind, alternate=True
+    )
+    failed_records = _execution_records_with_failure(
+        artifact, condition_kind, execution_failure
+    )
+    phase10c_results = _phase10c_results_from_execution(
+        artifact.experiment_plan, failed_records
+    )
+    replacement = AblationConditionResult.create(
+        ablation_plan_id=artifact.experiment_plan.ablation_plan_id,
+        condition_kind=condition_kind,
+        benchmark_manifest_id=artifact.experiment_plan.benchmark_manifest_id,
+        execution_failure=comparison_failure,
+    )
+    comparison = AblationComparisonBuilder.compare(
+        _ablation_plan_for_experiment(artifact.experiment_plan),
+        [
+            replacement
+            if item.condition_kind is condition_kind
+            else item
+            for item in phase10c_results
+        ],
+    )
+
+    with pytest.raises(ValidationError, match="condition failure ID mismatch"):
+        RealModelExperimentArtifact.create(
+            experiment_plan=artifact.experiment_plan,
+            condition_records=failed_records,
+            ablation_comparison_report=comparison,
+        )
+
+
+def test_exact_condition_failure_id_cross_binding_is_accepted() -> None:
+    artifact = _successful_artifact()
+    condition_kind = AblationConditionKind.FULL_CONTEXT_MODEL
+    failure = _condition_failure(artifact.experiment_plan, condition_kind)
+    failed_records = _execution_records_with_failure(
+        artifact, condition_kind, failure
+    )
+    comparison = _comparison_from_execution(
+        artifact.experiment_plan, failed_records
+    )
+    accepted = RealModelExperimentArtifact.create(
+        experiment_plan=artifact.experiment_plan,
+        condition_records=list(reversed(failed_records)),
+        ablation_comparison_report=comparison,
+        metadata={"fixture_note": "identity-neutral"},
+    )
+
+    full_result = next(
+        item
+        for item in accepted.ablation_comparison_report.condition_results
+        if item.condition_kind is condition_kind
+    )
+    assert full_result.execution_failure.id == failure.id
+    assert accepted.execution_complete is False
+
+
+@pytest.mark.parametrize(
+    "condition_kind",
+    [
+        AblationConditionKind.FULL_CONTEXT_MODEL,
+        AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL,
+    ],
+)
+def test_incomplete_role_execution_requires_failure_before_comparison(
+    condition_kind,
+) -> None:
+    artifact = _successful_artifact()
+    invocation_records, audits = _fail_stop_invocations(
+        artifact.experiment_plan,
+        condition_kind,
+        failed_case_id=artifact.experiment_plan.case_ids[0],
+        failed_role=ReasoningAgentType.HARDWARE,
+    )
+    incomplete_condition = RealExperimentConditionRecord.create(
+        artifact.experiment_plan,
+        condition_kind=condition_kind,
+        invocation_records=invocation_records,
+        prompt_visibility_audits=audits,
+    )
+    incomplete_records = [
+        incomplete_condition
+        if item.condition_kind is condition_kind
+        else item
+        for item in artifact.condition_records
+    ]
+    without_comparison = RealModelExperimentArtifact.create(
+        experiment_plan=artifact.experiment_plan,
+        condition_records=incomplete_records,
+    )
+
+    assert without_comparison.ablation_comparison_report is None
+    assert without_comparison.execution_complete is False
+    with pytest.raises(ValidationError, match="explicit failure for incomplete"):
+        RealModelExperimentArtifact.create(
+            experiment_plan=artifact.experiment_plan,
+            condition_records=incomplete_records,
+            ablation_comparison_report=artifact.ablation_comparison_report,
+        )
 
 
 def test_artifact_requires_comparison_for_same_ablation_and_manifest_when_present() -> None:

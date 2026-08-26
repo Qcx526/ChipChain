@@ -7,6 +7,7 @@ from pydantic import Field, field_validator, model_validator
 from chipchain.evaluation.ablation_models import (
     AblationComparisonReport,
     AblationConditionExecutionFailure,
+    AblationConditionResult,
     ContextObjectiveUpperBoundResult,
     PromptVisibilityAudit,
 )
@@ -31,6 +32,64 @@ from chipchain.models.common import DomainModel, Identifier, Metadata
 
 
 PHASE10D_ARTIFACT_CONTRACT = "phase10d_real_model_experiment_artifact_v1"
+
+
+def _validate_comparison_provenance_binding(
+    condition_records: list["RealExperimentConditionRecord"],
+    comparison: AblationComparisonReport,
+) -> None:
+    """Require Phase 10C comparison children from this exact execution."""
+
+    execution_by_kind = {
+        item.condition_kind: item for item in condition_records
+    }
+    comparison_by_kind: dict[AblationConditionKind, AblationConditionResult] = {
+        item.condition_kind: item for item in comparison.condition_results
+    }
+    if set(execution_by_kind) != set(AblationConditionKind) or set(
+        comparison_by_kind
+    ) != set(AblationConditionKind):
+        raise ValueError("comparison provenance requires all four conditions")
+
+    for condition_kind in AblationConditionKind:
+        execution = execution_by_kind[condition_kind]
+        result = comparison_by_kind[condition_kind]
+        execution_failure = execution.condition_failure
+        comparison_failure = result.execution_failure
+        if (execution_failure is None) is not (comparison_failure is None):
+            raise ValueError(
+                "comparison condition success/failure provenance mismatch"
+            )
+        if execution_failure is not None:
+            if (
+                comparison_failure is None
+                or execution_failure.id != comparison_failure.id
+            ):
+                raise ValueError("comparison condition failure ID mismatch")
+        else:
+            execution_output = (
+                execution.benchmark_evaluation_report
+                or execution.context_objective_upper_bound_result
+            )
+            comparison_output = (
+                result.benchmark_evaluation_report
+                or result.context_objective_upper_bound_result
+            )
+            if execution_output is None:
+                raise ValueError(
+                    "comparison requires explicit failure for incomplete condition"
+                )
+            if (
+                comparison_output is None
+                or execution_output.id != comparison_output.id
+            ):
+                raise ValueError("comparison condition output ID mismatch")
+
+        execution_audit_ids = sorted(
+            audit.id for audit in execution.prompt_visibility_audits
+        )
+        if sorted(result.prompt_visibility_audit_ids) != execution_audit_ids:
+            raise ValueError("comparison prompt-audit provenance mismatch")
 
 
 def real_experiment_condition_record_id(
@@ -509,12 +568,17 @@ class RealModelExperimentArtifact(DomainModel):
             ):
                 raise ValueError("artifact invocation provenance mismatch")
         comparison = self.ablation_comparison_report
-        if comparison is not None and (
-            comparison.ablation_plan_id != self.experiment_plan.ablation_plan_id
-            or comparison.benchmark_manifest_id
-            != self.experiment_plan.benchmark_manifest_id
-        ):
-            raise ValueError("artifact ablation comparison binding mismatch")
+        if comparison is not None:
+            if (
+                comparison.ablation_plan_id
+                != self.experiment_plan.ablation_plan_id
+                or comparison.benchmark_manifest_id
+                != self.experiment_plan.benchmark_manifest_id
+            ):
+                raise ValueError("artifact ablation comparison binding mismatch")
+            _validate_comparison_provenance_binding(
+                self.condition_records, comparison
+            )
         expected_flags = self._derive_quality_flags()
         actual_flags = (
             self.provider_configuration_comparable,
