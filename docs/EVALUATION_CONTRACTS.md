@@ -234,3 +234,29 @@ The top-level artifact derives provider and benchmark comparability, MASKED prom
 and complete execution accounting without modifying Phase 10B/10C results. Its plan exposes
 `OFFLINE_CONTRACT` versus `REAL_PROVIDER`; an offline fixture can never be reported as a real-provider
 result. Step 1 made no provider call and no >=80% conclusion.
+
+## Phase 10D Step 2 Execution Contracts
+
+`RealExperimentCaseInput` binds an experiment plan, benchmark case, detached full
+`ReasoningContext`, and optional detached `TriggerabilityAggregationResult`; its identity excludes
+metadata and it has no Ground Truth field. `RealExperimentInputSet` requires exactly one input for
+every frozen plan case. The executor validates the exact plan/manifest/input cohort and architecture
+before any provider call.
+
+FULL and MASKED receive detached copies of the same full Context and the same provider descriptor;
+only prompt visibility differs. Private recorders delegate unchanged to the frozen prompt builder,
+provider, constrained parser, and `ProviderBackedAgentWorkflow`. MASKED exact-reference auditing runs
+after final prompt construction and before transport. A leak fails closed with a prompt hash and no
+response hash. Case-local fail-stop does not suppress later cases. A complete parsed case proceeds
+through the frozen candidate builder, claim binder, objective oracle, bundle, case-run, and Phase 10B
+runner. A semantically wrong model claim therefore remains a completed invocation and measurable
+binding mismatch.
+
+NO_MODEL executes the deterministic `AgentWorkflow` with zero provider calls. The context/objective
+upper bound reuses that exact NO_MODEL case-run cohort. `RealModelExecutionArchive` binds the manifest,
+input set, Step 1 artifact, typed condition/case sessions, and exact FULL/MASKED/NO_MODEL case runs;
+metadata, time, paths, secrets, endpoints, raw prompts, and raw responses are identity-neutral or
+forbidden. Canonical artifacts retain only parsed semantic contracts and exact transport hashes.
+`REAL_PROVIDER` requires the production OpenAI-compatible reasoning provider and matching sanitized
+descriptor. The CLI cannot construct it without explicit `--execute-real-provider` opt-in. Default
+tests remain offline; no real-model or >=80% conclusion is implied by this harness.

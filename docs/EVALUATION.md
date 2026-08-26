@@ -139,8 +139,9 @@ synthetic cases 不是真实 CVE 或正式 public Benchmark。Phase 10B 已实�
 Ground Truth comparison、`VerificationHitRate`、`GroundTruthChainRecall`、negative-control FPR 与 primary
 coverage。Phase 10C 已实现离线 ablation/prompt-firewall contracts；Owned fixture 的 `1/2` 仍只验证
 合同。Phase 10D Step 1 已冻结 secret-free provider descriptor、同模型四条件 matrix、hash-only
-invocation/failure provenance 与顶层 experiment artifact；所有验收仍为 `OFFLINE_CONTRACT`。真实模型
-执行与正式 benchmark expansion 未实现，没有得出“关联漏洞命中率 >=80%”结论。
+invocation/failure provenance 与顶层 experiment artifact；Step 2 已实现显式 opt-in execution harness
+及输入/parsed-session/case-run archive。所有自动验收仍为 `OFFLINE_CONTRACT`；尚未执行真实模型实验，
+也没有得出“关联漏洞命中率 >=80%”结论。
 
 ## Phase 10D Step 1 实验来源合同
 
@@ -155,3 +156,21 @@ Canonical invocation 逐角色只保留 exact prompt/raw-response SHA-256，不�
 attempted role 的 prompt SHA 精确绑定；完整 case×role accounting、同 descriptor 和同 benchmark 分别
 进入独立 experiment-quality flags，不改变 frozen Phase 10B metrics 或 Phase 10C comparison。Claim
 `MISSING`/`MISMATCHED` 等是语义结果，不是连接或 transport 失败。Step 1 没有运行真实模型，也没有阈值结论。
+
+## Phase 10D Step 2 执行与归档合同
+
+`RealExperimentInputSet` exact-bind plan 的每个 case 与同一份 detached full `ReasoningContext`、可选
+objective triggerability。FULL/MASKED/NO_MODEL/UPPER 都从该输入集合派生；FULL 与 MASKED 不构造第二份
+candidate-side Context，只改变 model-visible visibility。Recorder 位于冻结 reasoning stack 外，委托
+existing prompt builder/provider/parser/workflow；raw prompt/response 只短暂存在于单次调用内存，canonical
+记录仅保留 SHA-256。
+
+MASKED audit 使用 candidate-side Context 的 exact hidden references，并在 provider transport 前执行。
+泄漏不发送请求；provider/parse/workflow failure 按 role fail-stop 记账，其他 benchmark case 继续。只有
+condition 全部 role 调用及 candidate pipeline 成功时才生成 Phase 10B report，否则保存 bounded condition
+failure。NO_MODEL 不调用 Provider；UPPER 只消费 exact NO_MODEL case runs。Step 2 archive 通过 typed
+condition/case/session/run wrappers 防止跨 case、跨 condition 或跨 plan 接线。
+
+CLI 只有 `--execute-real-provider` 后才允许 `OpenAICompatibleReasoningProvider.from_env()`；未 opt-in 时
+不会读取 Provider 环境或触网。Ground Truth 仍只进入冻结 Phase 10B/upper post-hoc evaluator，不参与
+Context 或 triggerability 准备。

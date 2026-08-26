@@ -305,5 +305,18 @@ Provider/connection/parse/workflow failure 使用 closed stage/code；串行 fai
 继续进入既有 binding status，不能改写为 invocation failure。MASKED prompt audits 按 attempted role 的
 prompt SHA 精确绑定，作为独立 experiment-quality 输入，不进入 reasoning 或 Phase 10B metric。
 
-当前仅有 `OFFLINE_CONTRACT` fixture，没有自动 batch runner、CLI network command 或默认 provider
-construction。Phase 10D Step 2 才会设计显式 opt-in real Qwen/OpenAI-compatible execution。
+## Phase 10D Step 2 Execution Instrumentation
+
+Step 2 不修改 `ReasoningEngine.reason`、provider-backed Agent、Coordinator、prompt semantics 或 parser。
+外围 recorder 分别观察 exact final prompt、一次 provider return 和 parser entry/completion，然后原样委托；
+workflow 仍是四角色顺序、cache、merge 与 fail-stop 的唯一语义权威。FULL/MASKED 使用同一 full Context
+identity 和同一 provider descriptor，MASKED 只改变 model-visible serialization。
+
+MASKED hidden-reference audit 在 provider transport 前执行，leak 时不会调用底层 provider。成功 parsed
+session 才能进入 candidate/evaluation pipeline；reasoning confidence、Agent agreement 与 model claim 均不
+产生 verification。NO_MODEL 继续使用 deterministic `AgentWorkflow`，UPPER 不创建新的 Agent/session，
+只复用 NO_MODEL case runs。Execution archive 保存 parsed `ReasoningSession` 与 typed bindings，不保存 raw
+prompt/response、secret 或 endpoint。
+
+CLI 默认不创建 Provider；只有显式 `--execute-real-provider` 才能进入环境配置和真实 Provider 路径。
+默认测试只使用 offline fake/Mock provider。当前实现没有执行真实模型，也没有产生 >=80% 结论。

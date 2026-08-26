@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10c-stable`
-- Stable commit: `5a1e4fb5508baed01d58746b381b134e23bfb516`
-- Baseline: Phase 10C frozen ablation and prompt-visibility contracts complete
+- Stable tag: `phase-10d-step1-stable`
+- Stable commit: `c9f25f4490f90f7532e9bfd5d9440242078de331`
+- Baseline: Phase 10D Step 1 frozen experiment-provenance contracts complete
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -28,21 +28,23 @@
 - Phase 10B deterministic all-case benchmark accounting, exact Ground Truth comparison, recovery, coverage, and metric aggregation
 - Phase 10C four-condition ablation protocol, prompt visibility firewall, leakage audit, context/objective upper bound, and deterministic comparison contracts
 - Phase 10D Step 1 sanitized provider descriptor, frozen case×four-role execution matrix, hash-only per-role invocation provenance, fail-stop accounting, and canonical offline artifact envelope
+- Phase 10D Step 2 explicit opt-in execution harness, detached input cohort, pre-transport MASKED audit, case-local failure accounting, and canonical session/case-run archive
 
 ## Current Work
 
-Phase 10D Step 1 is complete as an offline provenance-contract layer. It freezes one secret-free
-provider descriptor shared by FULL/MASKED, the exact four-condition/case/fixed-role matrix, per-role
-hash-only invocation records, sequential `FAILED`/`NOT_ATTEMPTED` accounting, exact per-attempt prompt
-audit bindings, and derived experiment-quality flags. No raw prompt, raw response, API key, endpoint,
-or host path belongs in canonical artifacts. Every current fixture is explicitly `OFFLINE_CONTRACT`;
+Phase 10D Step 2 is implemented over the frozen Step 1 provenance contracts. It binds one detached
+candidate-side input cohort to FULL/MASKED/NO_MODEL/UPPER, delegates to the frozen reasoning workflow,
+audits MASKED prompts before transport, continues later cases after case-local failure, and archives
+parsed sessions plus exact Phase 10B case runs. NO_MODEL/UPPER make zero provider calls. The CLI is
+fail-closed unless `--execute-real-provider` is explicit. No raw prompt, raw response, API key,
+endpoint, or host path belongs in canonical artifacts. Every automated fixture is `OFFLINE_CONTRACT`;
 no Phase 10D real-model run or >=80% conclusion was performed. Phase 9C Step 3B remains deferred.
 
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- Phase 10D Step 2 opt-in real Qwen/OpenAI-compatible execution
-- Phase 10D later real-model comparison and report
+- code review/freeze, then one explicit owned-synthetic real-provider experiment through the opt-in CLI
+- Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation
 - Phase 12 additional architectures, only after the ARM loop is stable and evaluated
 

@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～2 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -552,7 +552,23 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] secret/path/traceback/raw-stderr metadata hygiene、deterministic identity 与 JSON roundtrip
 - [x] 仅完成 offline contract fixture；没有真实 provider call、真实模型结果或 >=80% 结论
 
-后续工作：Phase 10D Step 2 opt-in real Qwen/OpenAI-compatible execution。`TRIGGERABLE` 仍不能脱离
+#### Phase 10D Step 2：Explicit Opt-In Real-Provider Execution Harness（已完成实现）
+
+- [x] detached `RealExperimentCaseInput` / `RealExperimentInputSet` exact-bind plan、case、完整
+  `ReasoningContext` 与可选 objective triggerability，不含 Ground Truth
+- [x] FULL/MASKED 对每 case 使用同一完整 Context 和同一 provider descriptor，仅 prompt visibility 不同
+- [x] recorder 只委托 frozen prompt/provider/parser/workflow；canonical provenance 仅保存 exact SHA-256
+- [x] MASKED hidden-reference audit 在 provider transport 前执行，leak fail closed 且不产生 response hash
+- [x] 每 case 固定四角色 workflow，失败形成 `COMPLETED* / FAILED / NOT_ATTEMPTED*`，后续 case 继续
+- [x] 成功 case 原样进入 finalized candidate、claim binder、objective oracle 与 Phase 10B runner
+- [x] NO_MODEL 零 provider 调用；UPPER 从 exact NO_MODEL case-run cohort 派生
+- [x] Step 1 condition/artifact 与 Phase 10C comparison exact cross-binding；Step 2 archive 绑定输入、parsed
+  sessions 与 FULL/MASKED/NO_MODEL case runs
+- [x] `chipchain experiment real-model` 只有显式 `--execute-real-provider` 后才允许从环境创建 Provider
+- [x] 默认 pytest 使用 deterministic fake/Mock provider，未执行网络模型、未计算 >=80% 项目结论
+
+后续人工工作：code review/freeze 后，通过 opt-in CLI 对 owned-synthetic 输入执行一次受控真实
+Qwen/OpenAI-compatible experiment。`TRIGGERABLE` 仍不能脱离
 Type II exact candidate binding 被通用映射为
 `CONFIRMED_FEASIBLE`。
 

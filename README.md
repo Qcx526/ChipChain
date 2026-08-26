@@ -55,6 +55,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10B deterministic all-case benchmark runner、exact Ground Truth comparison 与 exact-cohort metrics
 - Phase 10C 四条件 ablation protocol、prompt visibility firewall 与 deterministic comparison contracts
 - Phase 10D Step 1 secret-free real-model experiment provenance、execution matrix 与 artifact contracts
+- Phase 10D Step 2 explicit opt-in execution harness、pre-transport MASKED audit 与 canonical execution archive
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -570,8 +571,26 @@ traceback、stderr 或 secret。MISSING/MISMATCHED 等 claim assessment 是成�
 transport failure。顶层 artifact 显式报告 provider/benchmark comparability、MASKED audit validity 与
 execution completeness。
 
-本阶段所有 fixture 均标记 `OFFLINE_CONTRACT`，不等于真实模型实验。尚未执行 Phase 10D real provider，
-也没有项目 >=80% 结论；实际 opt-in Qwen/OpenAI-compatible execution 留待 Step 2。
+本阶段所有 fixture 均标记 `OFFLINE_CONTRACT`，不等于真实模型实验。
+
+## Phase 10D Step 2 Opt-In Execution Harness
+
+Step 2 以 `RealExperimentCaseInput` / `RealExperimentInputSet` 冻结每个 plan case 的同一份完整
+candidate-side `ReasoningContext` 和可选 triggerability。FULL 与 MASKED 对同一 detached Context 执行
+冻结的 `ProviderBackedAgentWorkflow`，共享 provider object/configuration；唯一差异是
+`ReasoningPromptVisibility`。实验 recorder 委托现有 prompt builder、provider 和 constrained parser，
+只把 exact prompt/response SHA-256 送入 Step 1 provenance，不复制推理语义。
+
+MASKED 在最终 prompt 构造后、provider transport 前执行 hidden-reference audit；检测到泄漏立即 fail
+closed，不发送 prompt，也不产生 response hash。一个 case 失败只形成该 case 的合法 fail-stop role
+记录，后续 case 仍执行。NO_MODEL 使用 deterministic `AgentWorkflow` 且 provider 调用数为零；UPPER
+复用 exact NO_MODEL case-run cohort。`RealModelExecutionArchive` exact-bind input set、parsed
+`ReasoningSession`、FULL/MASKED/NO_MODEL case runs、Phase 10C comparison 与 Step 1 artifact。
+
+显式入口为 `chipchain experiment real-model ... --execute-real-provider`。缺少该标志时不会创建
+Provider、读取 Provider 环境变量或发起网络请求。Canonical archive 包含 parsed semantic outputs 和
+SHA-256，不包含 raw prompt/response、API key、Authorization、base URL、endpoint、时间或 host path。
+默认测试完全离线；当前没有执行真实模型实验，也没有项目 >=80% 结论。
 
 ## 文档导航
 
