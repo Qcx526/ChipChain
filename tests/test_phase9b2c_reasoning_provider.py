@@ -28,6 +28,16 @@ from chipchain.reasoning import (
     RoleBasedReasoningPromptBuilder,
     StructuredPromptRequest,
     reasoning_provider_output_json_schema,
+    reasoning_provider_output_json_schema_for_role,
+    reasoning_role_contract,
+)
+
+
+_PROVIDER_REASONING_ROLES = (
+    ReasoningAgentType.CODE,
+    ReasoningAgentType.HARDWARE,
+    ReasoningAgentType.VULNERABILITY,
+    ReasoningAgentType.ATTACK_CHAIN,
 )
 
 
@@ -96,15 +106,19 @@ def _context() -> ReasoningContext:
     )
 
 
-def _prompt() -> StructuredPromptRequest:
+def _prompt(
+    role: ReasoningAgentType = ReasoningAgentType.CODE,
+) -> StructuredPromptRequest:
     return RoleBasedReasoningPromptBuilder().build(
         _context(),
-        role=ReasoningAgentType.CODE,
+        role=role,
     )
 
 
-def _valid_output() -> str:
-    return MockReasoningProvider().generate(_prompt())
+def _valid_output(
+    role: ReasoningAgentType = ReasoningAgentType.CODE,
+) -> str:
+    return MockReasoningProvider().generate(_prompt(role))
 
 
 def _environment(api_style: str) -> dict[str, str]:
@@ -152,6 +166,18 @@ def _nested_contracts() -> tuple[
     request = _resolve_schema_ref(schema, requests["items"])
     result = _resolve_schema_ref(schema, properties["reasoning_result"])
     return schema, hypothesis, request, result
+
+
+def _role_schema_contracts(
+    role: ReasoningAgentType,
+) -> tuple[dict[str, object], dict[str, object], dict[str, object]]:
+    schema = reasoning_provider_output_json_schema_for_role(role)
+    properties = schema["properties"]
+    assert isinstance(properties, dict)
+    hypothesis = _resolve_schema_ref(schema, properties["hypothesis"])
+    requests = properties["evidence_requests"]
+    assert isinstance(requests, dict)
+    return schema, hypothesis, requests
 
 
 def _object_schemas(value: object):
@@ -215,7 +241,11 @@ def test_chat_completions_bridge_returns_raw_text_and_propagates_config() -> Non
     assert isinstance(strict_contract, dict)
     assert strict_contract["name"] == REASONING_PROVIDER_SCHEMA_NAME
     assert strict_contract["strict"] is True
-    assert strict_contract["schema"] == reasoning_provider_output_json_schema()
+    assert strict_contract["schema"] == (
+        reasoning_provider_output_json_schema_for_role(
+            ReasoningAgentType.CODE
+        )
+    )
     assert all(
         "default" not in node
         for node in _schema_nodes(strict_contract["schema"])
@@ -252,7 +282,11 @@ def test_responses_bridge_returns_raw_text_and_propagates_config() -> None:
     assert strict_contract["type"] == "json_schema"
     assert strict_contract["name"] == REASONING_PROVIDER_SCHEMA_NAME
     assert strict_contract["strict"] is True
-    assert strict_contract["schema"] == reasoning_provider_output_json_schema()
+    assert strict_contract["schema"] == (
+        reasoning_provider_output_json_schema_for_role(
+            ReasoningAgentType.CODE
+        )
+    )
     assert all(
         "default" not in node
         for node in _schema_nodes(strict_contract["schema"])
@@ -370,6 +404,155 @@ def test_legacy_json_mode_remains_json_object(
         else {"format": {"type": "json_object"}}
     )
     assert call[format_key] == expected_format
+
+
+@pytest.mark.parametrize(
+    ("role", "expected_count"),
+    [
+        (ReasoningAgentType.CODE, 2),
+        (ReasoningAgentType.HARDWARE, 2),
+        (ReasoningAgentType.VULNERABILITY, 2),
+        (ReasoningAgentType.ATTACK_CHAIN, 4),
+    ],
+)
+def test_role_aware_schema_is_deterministic_and_derived_from_role_contract(
+    role: ReasoningAgentType,
+    expected_count: int,
+) -> None:
+    schema, hypothesis, requests = _role_schema_contracts(role)
+    role_requests = reasoning_role_contract(role)["evidence_requests"]
+
+    assert schema == reasoning_provider_output_json_schema_for_role(role)
+    assert expected_count == len(role_requests)
+    assert requests["minItems"] == len(role_requests)
+    assert requests["maxItems"] == len(role_requests)
+    chain_claim = hypothesis["properties"]["chain_claim"]
+    if role is ReasoningAgentType.ATTACK_CHAIN:
+        assert any(item.get("type") == "null" for item in chain_claim["anyOf"])
+        assert any("$ref" in item for item in chain_claim["anyOf"])
+    else:
+        assert chain_claim == {"type": "null"}
+
+
+def test_attack_chain_role_schema_keeps_all_structured_claim_participants() -> None:
+    schema, hypothesis, _ = _role_schema_contracts(
+        ReasoningAgentType.ATTACK_CHAIN
+    )
+    chain_claim = hypothesis["properties"]["chain_claim"]
+    structured = next(item for item in chain_claim["anyOf"] if "$ref" in item)
+    claim = _resolve_schema_ref(schema, structured)
+
+    assert set(claim["properties"]) == {
+        "interaction_type",
+        "initiating_vulnerability_ids",
+        "target_vulnerability_ids",
+        "trigger_behavior_ids",
+        "propagation_behavior_ids",
+        "affected_execution_ids",
+        "fault_state_ids",
+        "hardware_resource_ids",
+        "security_mechanism_ids",
+    }
+    assert set(claim["required"]) == set(claim["properties"])
+
+
+def test_role_aware_schema_does_not_mutate_generic_schema_contract() -> None:
+    before = reasoning_provider_output_json_schema()
+    for role in _PROVIDER_REASONING_ROLES:
+        reasoning_provider_output_json_schema_for_role(role)
+    after = reasoning_provider_output_json_schema()
+    _, hypothesis, _, _ = _nested_contracts()
+    requests = after["properties"]["evidence_requests"]
+
+    assert before == after
+    assert requests["minItems"] == 1
+    assert "maxItems" not in requests
+    assert "anyOf" in hypothesis["properties"]["chain_claim"]
+
+
+def test_role_aware_schema_rejects_unknown_role() -> None:
+    with pytest.raises(ValueError):
+        reasoning_provider_output_json_schema_for_role("fixture-unknown-role")
+
+
+@pytest.mark.parametrize("api_style", ["chat_completions", "responses"])
+@pytest.mark.parametrize("role", _PROVIDER_REASONING_ROLES)
+def test_reasoning_bridge_sends_role_aware_schema_on_both_strict_paths(
+    api_style: str,
+    role: ReasoningAgentType,
+) -> None:
+    prompt = _prompt(role)
+    client = FakeClient(_valid_output(role))
+    provider = OpenAICompatibleReasoningProvider.from_env(
+        _environment(api_style),
+        client=client,
+    )
+
+    provider.generate(prompt)
+
+    call = (
+        client.chat.completions.calls[0]
+        if api_style == "chat_completions"
+        else client.responses.calls[0]
+    )
+    strict_contract = (
+        call["response_format"]["json_schema"]
+        if api_style == "chat_completions"
+        else call["text"]["format"]
+    )
+    assert strict_contract["name"] == REASONING_PROVIDER_SCHEMA_NAME
+    assert strict_contract["strict"] is True
+    assert strict_contract["schema"] == (
+        reasoning_provider_output_json_schema_for_role(role)
+    )
+
+
+@pytest.mark.parametrize("api_style", ["chat_completions", "responses"])
+def test_reasoning_bridge_json_mode_false_keeps_transport_schema_disabled(
+    api_style: str,
+) -> None:
+    environment = _environment(api_style)
+    environment["CHIPCHAIN_LLM_JSON_MODE"] = "false"
+    client = FakeClient(_valid_output())
+    provider = OpenAICompatibleReasoningProvider.from_env(
+        environment,
+        client=client,
+    )
+
+    provider.generate(_prompt())
+
+    call = (
+        client.chat.completions.calls[0]
+        if api_style == "chat_completions"
+        else client.responses.calls[0]
+    )
+    assert (
+        "response_format" not in call
+        if api_style == "chat_completions"
+        else "text" not in call
+    )
+
+
+@pytest.mark.parametrize(
+    "unsupported_role",
+    [
+        "fixture-unknown-role",
+        ReasoningAgentType.HYPOTHESIS_GENERATOR.value,
+    ],
+)
+def test_reasoning_bridge_rejects_unknown_role_before_transport(
+    unsupported_role: str,
+) -> None:
+    prompt = _prompt().model_copy(update={"role": unsupported_role})
+    client = FakeClient(_valid_output())
+    provider = OpenAICompatibleReasoningProvider.from_env(
+        _environment("chat_completions"),
+        client=client,
+    )
+
+    with pytest.raises(ValueError, match="unsupported reasoning provider role"):
+        provider.generate(prompt)
+    assert client.chat.completions.calls == []
 
 
 def test_generated_schema_is_deterministic_and_has_exact_required_fields() -> None:

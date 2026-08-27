@@ -92,6 +92,7 @@ from chipchain.reasoning.parser import (
     ConstrainedReasoningOutputParser,
     ParsedReasoningContracts,
     reasoning_provider_output_json_schema,
+    reasoning_provider_output_json_schema_for_role,
 )
 from chipchain.reasoning.retrieval import (
     KnowledgeRetriever,
@@ -169,5 +170,6 @@ __all__ = [
     "reasoning_role_contract",
     "reasoning_prompt_view_id",
     "reasoning_provider_output_json_schema",
+    "reasoning_provider_output_json_schema_for_role",
     "ParsedReasoningContracts",
 ]

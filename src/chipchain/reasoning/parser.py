@@ -141,6 +141,60 @@ def reasoning_provider_output_json_schema() -> dict[str, object]:
     return normalized
 
 
+def reasoning_provider_output_json_schema_for_role(
+    role: ReasoningAgentType | str,
+) -> dict[str, object]:
+    """Derive strict transport constraints from one frozen role contract."""
+
+    normalized_role = ReasoningAgentType(role)
+    role_contract = reasoning_role_contract(normalized_role)
+    expected_requests = role_contract["evidence_requests"]
+    if not isinstance(expected_requests, list):  # pragma: no cover - frozen
+        raise TypeError("reasoning role evidence request contract must be a list")
+
+    schema = reasoning_provider_output_json_schema()
+    properties = schema.get("properties")
+    if not isinstance(properties, dict):  # pragma: no cover - fixed DTO
+        raise TypeError("reasoning provider schema properties must be an object")
+    requests = properties.get("evidence_requests")
+    if not isinstance(requests, dict):  # pragma: no cover - fixed DTO
+        raise TypeError("reasoning evidence requests schema must be an object")
+    expected_count = len(expected_requests)
+    requests["minItems"] = expected_count
+    requests["maxItems"] = expected_count
+
+    if normalized_role is not ReasoningAgentType.ATTACK_CHAIN:
+        hypothesis = _resolve_schema_reference(
+            schema, properties.get("hypothesis")
+        )
+        hypothesis_properties = hypothesis.get("properties")
+        if not isinstance(hypothesis_properties, dict):  # pragma: no cover
+            raise TypeError("reasoning hypothesis schema must define properties")
+        hypothesis_properties["chain_claim"] = {"type": "null"}
+    return schema
+
+
+def _resolve_schema_reference(
+    root: dict[str, object], value: object
+) -> dict[str, object]:
+    """Resolve one local Pydantic schema reference without external lookup."""
+
+    if not isinstance(value, dict):  # pragma: no cover - fixed DTO
+        raise TypeError("reasoning schema reference must be an object")
+    reference = value.get("$ref")
+    if reference is None:
+        return value
+    if not isinstance(reference, str) or not reference.startswith("#/$defs/"):
+        raise TypeError("reasoning schema reference must be local")
+    definitions = root.get("$defs")
+    if not isinstance(definitions, dict):  # pragma: no cover - fixed DTO
+        raise TypeError("reasoning schema definitions must be an object")
+    resolved = definitions.get(reference.removeprefix("#/$defs/"))
+    if not isinstance(resolved, dict):  # pragma: no cover - fixed DTO
+        raise TypeError("reasoning schema reference cannot be resolved")
+    return resolved
+
+
 def _normalize_strict_provider_schema(
     value: object,
     *,

@@ -27,7 +27,9 @@ from chipchain.reasoning.models import (
     REASONING_PROVIDER_SCHEMA_NAME,
     StructuredPromptRequest,
 )
-from chipchain.reasoning.parser import reasoning_provider_output_json_schema
+from chipchain.reasoning.parser import (
+    reasoning_provider_output_json_schema_for_role,
+)
 from chipchain.reasoning.prompts import reasoning_role_contract
 from chipchain.models.common import DomainModel
 
@@ -417,8 +419,13 @@ class OpenAICompatibleReasoningProvider(ReasoningProvider):
 
         if request.schema_name != REASONING_PROVIDER_SCHEMA_NAME:
             raise ValueError("unsupported reasoning output schema")
+        try:
+            role = ReasoningAgentType(request.role)
+            reasoning_role_contract(role)
+        except ValueError:
+            raise ValueError("unsupported reasoning provider role") from None
         strict_schema = (
-            reasoning_provider_output_json_schema()
+            reasoning_provider_output_json_schema_for_role(role)
             if self._transport.config.json_mode
             else None
         )
