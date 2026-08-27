@@ -39,6 +39,7 @@ from chipchain.evaluation.experiment_models import (
     real_model_experiment_plan_id,
     real_model_invocation_failure_id,
     real_model_provider_descriptor_id,
+    strict_schema_bundle_sha256,
     structured_prompt_request_sha256,
 )
 from chipchain.evaluation.execution_models import (
@@ -85,6 +86,7 @@ from chipchain.evaluation.enums import (
     RealModelInvocationFailureCode,
     RealModelInvocationFailureStage,
     RealModelProviderProtocol,
+    StructuredParseFailureDetail,
     ModelClaimBindingReason,
     ModelClaimBindingStatus,
 )
@@ -221,6 +223,7 @@ __all__ = [
     "RealModelInvocationFailureStage",
     "RealModelProviderDescriptor",
     "RealModelProviderProtocol",
+    "StructuredParseFailureDetail",
     "benchmark_candidate_assessment_id",
     "benchmark_case_id",
     "benchmark_case_execution_failure_id",
@@ -250,5 +253,6 @@ __all__ = [
     "reasoning_session_output_binding_id",
     "real_model_invocation_failure_id",
     "real_model_provider_descriptor_id",
+    "strict_schema_bundle_sha256",
     "structured_prompt_request_sha256",
 ]

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
+from collections.abc import Mapping
 
 from pydantic import Field, field_validator, model_validator
 
@@ -21,6 +23,7 @@ from chipchain.evaluation.enums import (
     RealModelInvocationFailureCode,
     RealModelInvocationFailureStage,
     RealModelProviderProtocol,
+    StructuredParseFailureDetail,
 )
 from chipchain.evaluation.feasibility_models import _validate_failure_metadata
 from chipchain.evaluation.models import BenchmarkManifest, _canonical_hash
@@ -30,6 +33,9 @@ from chipchain.reasoning.models import (
     LLMProviderConfig,
     REASONING_PROVIDER_SCHEMA_NAME,
     StructuredPromptRequest,
+)
+from chipchain.reasoning.parser import (
+    reasoning_provider_output_json_schema_for_role,
 )
 
 
@@ -106,6 +112,43 @@ def _validate_experiment_metadata(metadata: Metadata) -> Metadata:
     return metadata
 
 
+def strict_schema_bundle_sha256(
+    schemas_by_role: Mapping[
+        ReasoningAgentType | str, dict[str, object]
+    ]
+    | None = None,
+) -> str:
+    """Hash the exact four role-aware schemas with stable JSON canonicalization."""
+
+    source = (
+        schemas_by_role
+        if schemas_by_role is not None
+        else {
+            role: reasoning_provider_output_json_schema_for_role(role)
+            for role in PHASE10D_PROVIDER_ROLE_ORDER
+        }
+    )
+    normalized: dict[str, dict[str, object]] = {}
+    for raw_role, schema in source.items():
+        role = ReasoningAgentType(raw_role)
+        if role not in _PHASE10D_PROVIDER_ROLES:
+            raise ValueError("schema bundle contains unsupported provider role")
+        if role.value in normalized:
+            raise ValueError("schema bundle provider roles must be unique")
+        if not isinstance(schema, dict):
+            raise TypeError("schema bundle entries must be JSON schema objects")
+        normalized[role.value] = schema
+    if set(normalized) != {role.value for role in PHASE10D_PROVIDER_ROLE_ORDER}:
+        raise ValueError("schema bundle requires exactly four provider roles")
+    canonical = json.dumps(
+        normalized,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
 def real_model_provider_descriptor_id(
     *,
     provider_protocol: RealModelProviderProtocol,
@@ -115,23 +158,24 @@ def real_model_provider_descriptor_id(
     reasoning_effort: str | None,
     max_completion_tokens: int | None,
     schema_name: str,
+    strict_schema_bundle_sha256: str | None = None,
 ) -> str:
     """Bind only non-secret model-semantic experiment configuration."""
 
-    return _canonical_hash(
-        "real-model-provider-descriptor",
-        {
-            "api_style": LLMAPIStyle(api_style).value,
-            "max_completion_tokens": max_completion_tokens,
-            "model": model,
-            "provider_protocol": RealModelProviderProtocol(
-                provider_protocol
-            ).value,
-            "reasoning_effort": reasoning_effort,
-            "schema_name": schema_name,
-            "strict_json_schema": strict_json_schema,
-        },
-    )
+    payload = {
+        "api_style": LLMAPIStyle(api_style).value,
+        "max_completion_tokens": max_completion_tokens,
+        "model": model,
+        "provider_protocol": RealModelProviderProtocol(provider_protocol).value,
+        "reasoning_effort": reasoning_effort,
+        "schema_name": schema_name,
+        "strict_json_schema": strict_json_schema,
+    }
+    if strict_schema_bundle_sha256 is not None:
+        payload["strict_schema_bundle_sha256"] = _validate_sha256(
+            strict_schema_bundle_sha256, "strict schema bundle hash"
+        )
+    return _canonical_hash("real-model-provider-descriptor", payload)
 
 
 class RealModelProviderDescriptor(DomainModel):
@@ -145,6 +189,7 @@ class RealModelProviderDescriptor(DomainModel):
     reasoning_effort: Identifier | None = None
     max_completion_tokens: int | None = Field(default=None, gt=0)
     schema_name: Identifier
+    strict_schema_bundle_sha256: str | None = None
 
     @field_validator("reasoning_effort")
     @classmethod
@@ -164,6 +209,13 @@ class RealModelProviderDescriptor(DomainModel):
             raise ValueError("unsupported experiment reasoning effort")
         return normalized
 
+    @field_validator("strict_schema_bundle_sha256")
+    @classmethod
+    def validate_schema_bundle_hash(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return _validate_sha256(value, "strict schema bundle hash")
+
     @model_validator(mode="after")
     def validate_identity(self) -> "RealModelProviderDescriptor":
         expected = real_model_provider_descriptor_id(
@@ -174,7 +226,15 @@ class RealModelProviderDescriptor(DomainModel):
             reasoning_effort=self.reasoning_effort,
             max_completion_tokens=self.max_completion_tokens,
             schema_name=self.schema_name,
+            strict_schema_bundle_sha256=self.strict_schema_bundle_sha256,
         )
+        if (
+            not self.strict_json_schema
+            and self.strict_schema_bundle_sha256 is not None
+        ):
+            raise ValueError(
+                "non-strict provider descriptor cannot bind a schema bundle"
+            )
         if self.id != expected:
             raise ValueError("RealModelProviderDescriptor ID is not deterministic")
         return self
@@ -199,6 +259,9 @@ class RealModelProviderDescriptor(DomainModel):
             "reasoning_effort": snapshot.reasoning_effort,
             "max_completion_tokens": snapshot.max_completion_tokens,
             "schema_name": schema_name.strip(),
+            "strict_schema_bundle_sha256": (
+                strict_schema_bundle_sha256() if snapshot.json_mode else None
+            ),
         }
         return cls(
             id=real_model_provider_descriptor_id(**values),
@@ -349,6 +412,14 @@ class RealModelExperimentPlan(DomainModel):
         ) != (manifest_snapshot.id, manifest_snapshot.benchmark_version):
             raise ValueError("experiment requires ablation plan for frozen manifest")
         mode = ExperimentExecutionMode(execution_mode)
+        if (
+            mode is ExperimentExecutionMode.REAL_PROVIDER
+            and descriptor_snapshot.strict_json_schema
+            and descriptor_snapshot.strict_schema_bundle_sha256 is None
+        ):
+            raise ValueError(
+                "REAL_PROVIDER strict schema requires bundle provenance"
+            )
         specs = list(ablation_snapshot.condition_specs)
         cases = [item.id for item in manifest_snapshot.cases]
         identity = real_model_experiment_plan_id(
@@ -520,15 +591,18 @@ def real_model_invocation_failure_id(
     invocation_key_id: str,
     stage: RealModelInvocationFailureStage,
     failure_code: RealModelInvocationFailureCode,
+    parser_failure_detail: StructuredParseFailureDetail | None = None,
 ) -> str:
-    return _canonical_hash(
-        "real-model-invocation-failure",
-        {
-            "failure_code": RealModelInvocationFailureCode(failure_code).value,
-            "invocation_key_id": invocation_key_id,
-            "stage": RealModelInvocationFailureStage(stage).value,
-        },
-    )
+    payload = {
+        "failure_code": RealModelInvocationFailureCode(failure_code).value,
+        "invocation_key_id": invocation_key_id,
+        "stage": RealModelInvocationFailureStage(stage).value,
+    }
+    if parser_failure_detail is not None:
+        payload["parser_failure_detail"] = StructuredParseFailureDetail(
+            parser_failure_detail
+        ).value
+    return _canonical_hash("real-model-invocation-failure", payload)
 
 
 class RealModelInvocationFailure(DomainModel):
@@ -538,6 +612,7 @@ class RealModelInvocationFailure(DomainModel):
     invocation_key_id: Identifier
     stage: RealModelInvocationFailureStage
     failure_code: RealModelInvocationFailureCode
+    parser_failure_detail: StructuredParseFailureDetail | None = None
     metadata: Metadata = Field(default_factory=dict)
 
     @field_validator("metadata")
@@ -551,7 +626,15 @@ class RealModelInvocationFailure(DomainModel):
             invocation_key_id=self.invocation_key_id,
             stage=self.stage,
             failure_code=self.failure_code,
+            parser_failure_detail=self.parser_failure_detail,
         )
+        if (
+            self.stage is not RealModelInvocationFailureStage.STRUCTURED_PARSE
+            and self.parser_failure_detail is not None
+        ):
+            raise ValueError(
+                "parser failure detail requires structured-parse stage"
+            )
         if self.id != expected:
             raise ValueError("RealModelInvocationFailure ID is not deterministic")
         return self
@@ -563,22 +646,30 @@ class RealModelInvocationFailure(DomainModel):
         *,
         stage: RealModelInvocationFailureStage | str,
         failure_code: RealModelInvocationFailureCode | str,
+        parser_failure_detail: StructuredParseFailureDetail | str | None = None,
         metadata: Metadata | None = None,
     ) -> "RealModelInvocationFailure":
         if not isinstance(invocation_key, ExperimentCaseInvocationKey):
             raise TypeError("invocation failure requires invocation key")
         normalized_stage = RealModelInvocationFailureStage(stage)
         code = RealModelInvocationFailureCode(failure_code)
+        detail = (
+            StructuredParseFailureDetail(parser_failure_detail)
+            if parser_failure_detail is not None
+            else None
+        )
         identity = real_model_invocation_failure_id(
             invocation_key_id=invocation_key.id,
             stage=normalized_stage,
             failure_code=code,
+            parser_failure_detail=detail,
         )
         return cls(
             id=identity,
             invocation_key_id=invocation_key.id,
             stage=normalized_stage,
             failure_code=code,
+            parser_failure_detail=detail,
             metadata=metadata or {},
         )
 

@@ -221,3 +221,15 @@ class RealModelInvocationFailureCode(str, Enum):
     PROMPT_VISIBILITY_FAILED = "prompt_visibility_failed"
     WORKFLOW_CONTRACT_FAILED = "workflow_contract_failed"
     OTHER_BOUNDED_FAILURE = "other_bounded_failure"
+
+
+class StructuredParseFailureDetail(str, Enum):
+    """Closed parser-stage attribution without raw diagnostics."""
+
+    JSON_PARSE = "json_parse"
+    OUTPUT_SCHEMA = "output_schema"
+    FORBIDDEN_TRUTH_FIELD = "forbidden_truth_field"
+    ROLE_AUTHORITY = "role_authority"
+    REQUEST_CARDINALITY = "request_cardinality"
+    EVIDENCE_REFERENCE = "evidence_reference"
+    OTHER_BOUNDED_PARSE_FAILURE = "other_bounded_parse_failure"

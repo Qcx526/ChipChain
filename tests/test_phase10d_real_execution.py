@@ -28,9 +28,13 @@ from chipchain.evaluation import (
     PromptVisibilityAuditStatus,
     RealExperimentCaseInput,
     RealExperimentInputSet,
+    RealExperimentExecutionError,
     RealModelExecutionArchive,
     RealModelExperimentExecutor,
     RealModelExperimentPlan,
+    RealModelInvocationFailureCode,
+    RealModelInvocationFailureStage,
+    StructuredParseFailureDetail,
 )
 from chipchain.hardware_trigger.enums import TriggerabilityStatus
 from chipchain.reasoning import (
@@ -45,13 +49,22 @@ from chipchain.reasoning.models import (
     REASONING_PROVIDER_SCHEMA_NAME,
     StructuredPromptRequest,
 )
+from chipchain.reasoning.errors import (
+    LLMOutputValidationError,
+    LLMProviderConfigurationError,
+    LLMProviderResponseError,
+)
 from chipchain.evaluation.execution_models import (
     _validate_real_provider_prompt_provenance,
 )
 from tests.test_phase10b_benchmark_evaluation import _fixture_manifest
 from tests.test_phase10b_benchmark_evaluation import _triggerability
 from tests.test_phase10c_ablation import _context
-from tests.test_phase10d_experiment_contracts import _config, _descriptor
+from tests.test_phase10d_experiment_contracts import (
+    _config,
+    _descriptor,
+    _legacy_strict_plan,
+)
 
 
 class _CountingProvider(ReasoningProvider):
@@ -477,6 +490,10 @@ def test_parse_failure_retains_hashes_but_not_raw_response():
     assert failed.provider_response_sha256 is not None
     assert failed.failure.stage.value == "structured_parse"
     assert (
+        failed.failure.parser_failure_detail
+        is StructuredParseFailureDetail.JSON_PARSE
+    )
+    assert (
         full.condition_failure.stage
         is AblationConditionFailureStage.ORCHESTRATION
     )
@@ -485,9 +502,143 @@ def test_parse_failure_retains_hashes_but_not_raw_response():
         is AblationConditionFailureCode.CONDITION_ORCHESTRATION_FAILED
     )
     serialized = archive.model_dump_json()
+    restored = RealModelExecutionArchive.model_validate_json(serialized)
+    restored_full = _condition(
+        restored, AblationConditionKind.FULL_CONTEXT_MODEL
+    )
+    restored_failure = next(
+        item.failure
+        for item in restored_full.invocation_records
+        if item.disposition is ModelInvocationDisposition.FAILED
+    )
+    assert (
+        restored_failure.parser_failure_detail
+        is StructuredParseFailureDetail.JSON_PARSE
+    )
     assert "fixture-invalid-json" not in serialized
     assert "system_prompt" not in serialized
     assert "user_prompt" not in serialized
+
+
+@pytest.mark.parametrize(
+    ("parser_stage", "expected_detail"),
+    [
+        ("json_parse", StructuredParseFailureDetail.JSON_PARSE),
+        ("output_schema", StructuredParseFailureDetail.OUTPUT_SCHEMA),
+        (
+            "forbidden_truth_field",
+            StructuredParseFailureDetail.FORBIDDEN_TRUTH_FIELD,
+        ),
+        ("role_authority", StructuredParseFailureDetail.ROLE_AUTHORITY),
+        (
+            "request_cardinality",
+            StructuredParseFailureDetail.REQUEST_CARDINALITY,
+        ),
+        (
+            "evidence_reference",
+            StructuredParseFailureDetail.EVIDENCE_REFERENCE,
+        ),
+        (
+            "fixture_unknown_stage",
+            StructuredParseFailureDetail.OTHER_BOUNDED_PARSE_FAILURE,
+        ),
+    ],
+)
+def test_executor_maps_parser_stage_to_bounded_detail(
+    parser_stage, expected_detail
+):
+    attempt = SimpleNamespace(
+        prompt=object(),
+        error=LLMOutputValidationError(
+            "fixture message must not be retained", stage=parser_stage
+        ),
+        parse_entered=True,
+        parse_completed=False,
+    )
+
+    stage, code, detail = RealModelExperimentExecutor._map_failure(attempt)
+
+    assert stage is RealModelInvocationFailureStage.STRUCTURED_PARSE
+    assert code is RealModelInvocationFailureCode.PROVIDER_CONTRACT_REJECTED
+    assert detail is expected_detail
+
+
+def test_executor_maps_non_validation_parse_failure_to_other_bounded_detail():
+    attempt = SimpleNamespace(
+        prompt=object(),
+        error=ValueError("fixture parser internals must not be retained"),
+        parse_entered=True,
+        parse_completed=False,
+    )
+
+    stage, code, detail = RealModelExperimentExecutor._map_failure(attempt)
+
+    assert stage is RealModelInvocationFailureStage.STRUCTURED_PARSE
+    assert code is RealModelInvocationFailureCode.PROVIDER_CONTRACT_REJECTED
+    assert detail is StructuredParseFailureDetail.OTHER_BOUNDED_PARSE_FAILURE
+
+
+@pytest.mark.parametrize(
+    ("error", "expected_stage", "expected_code"),
+    [
+        (
+            LLMProviderConfigurationError("fixture"),
+            RealModelInvocationFailureStage.PROVIDER_CONNECTION,
+            RealModelInvocationFailureCode.PROVIDER_UNAVAILABLE,
+        ),
+        (
+            TimeoutError("fixture"),
+            RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
+            RealModelInvocationFailureCode.PROVIDER_TIMEOUT,
+        ),
+        (
+            LLMProviderResponseError(
+                "fixture", status_code=503, stage="connection"
+            ),
+            RealModelInvocationFailureStage.PROVIDER_CONNECTION,
+            RealModelInvocationFailureCode.PROVIDER_UNAVAILABLE,
+        ),
+        (
+            LLMProviderResponseError(
+                "fixture", status_code=504, stage="transport"
+            ),
+            RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
+            RealModelInvocationFailureCode.PROVIDER_TIMEOUT,
+        ),
+    ],
+)
+def test_executor_transport_failures_never_receive_parser_detail(
+    error, expected_stage, expected_code
+):
+    attempt = SimpleNamespace(
+        prompt=object(),
+        error=error,
+        parse_entered=False,
+        parse_completed=False,
+    )
+
+    stage, code, detail = RealModelExperimentExecutor._map_failure(attempt)
+
+    assert stage is expected_stage
+    assert code is expected_code
+    assert detail is None
+
+
+def test_executor_response_content_remains_provider_response_without_detail():
+    attempt = SimpleNamespace(
+        prompt=object(),
+        error=LLMOutputValidationError(
+            "fixture response detail", stage="response_content"
+        ),
+        parse_entered=True,
+        parse_completed=False,
+    )
+
+    stage, code, detail = RealModelExperimentExecutor._map_failure(attempt)
+
+    assert stage is RealModelInvocationFailureStage.PROVIDER_RESPONSE
+    assert code is RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID
+    assert detail is None
 
 
 def test_masked_leak_fails_before_provider_transport():
@@ -818,6 +969,39 @@ def test_real_provider_prompt_hashes_bind_exact_archived_input_without_network()
             condition_records,
         )
     assert len(client.completions.calls) == 16
+
+
+def test_executor_rejects_legacy_strict_real_plan_before_provider_call():
+    manifest, _, source_inputs = _plan_and_inputs(
+        execution_mode=ExperimentExecutionMode.REAL_PROVIDER
+    )
+    legacy_plan = _legacy_strict_plan(ExperimentExecutionMode.REAL_PROVIDER)
+    legacy_case_inputs = [
+        RealExperimentCaseInput.create(
+            legacy_plan,
+            benchmark_case_id=item.benchmark_case_id,
+            reasoning_context=item.reasoning_context,
+            triggerability=item.triggerability,
+            metadata=item.metadata,
+        )
+        for item in source_inputs.case_inputs
+    ]
+    legacy_inputs = RealExperimentInputSet.create(
+        legacy_plan,
+        case_inputs=legacy_case_inputs,
+        metadata=source_inputs.metadata,
+    )
+    provider, client = _offline_real_provider()
+
+    with pytest.raises(
+        RealExperimentExecutionError,
+        match="requires bundle provenance",
+    ):
+        RealModelExperimentExecutor(provider=provider).execute(
+            legacy_plan, manifest, legacy_inputs
+        )
+
+    assert client.completions.calls == []
 
 
 def test_real_provider_not_attempted_requires_no_prompt_provenance():

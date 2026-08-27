@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
+import hashlib
 import inspect
 import json
 
@@ -37,8 +39,13 @@ from chipchain.evaluation import (
     RealModelInvocationFailureCode,
     RealModelInvocationFailureStage,
     RealModelProviderDescriptor,
+    StructuredParseFailureDetail,
     expected_experiment_invocation_keys,
     real_experiment_condition_record_id,
+    real_model_experiment_plan_id,
+    real_model_invocation_failure_id,
+    real_model_provider_descriptor_id,
+    strict_schema_bundle_sha256,
     structured_prompt_request_sha256,
     provider_response_sha256,
 )
@@ -47,6 +54,7 @@ from chipchain.reasoning import (
     ReasoningAgentType,
     ReasoningPromptVisibility,
     RoleBasedReasoningPromptBuilder,
+    reasoning_provider_output_json_schema_for_role,
 )
 from chipchain.reasoning.models import LLMProviderConfig
 from tests.test_phase10b_benchmark_evaluation import (
@@ -473,10 +481,238 @@ def test_provider_descriptor_is_sanitized_and_secret_free() -> None:
         "reasoning_effort",
         "max_completion_tokens",
         "schema_name",
+        "strict_schema_bundle_sha256",
     }
     assert "base_url" not in serialized
     assert "api_key" not in serialized
     assert "secret@" not in serialized
+
+
+def _schemas_by_role():
+    return {
+        role: reasoning_provider_output_json_schema_for_role(role)
+        for role in PHASE10D_PROVIDER_ROLE_ORDER
+    }
+
+
+def _descriptor_with_bundle(bundle_hash: str) -> RealModelProviderDescriptor:
+    source = _descriptor()
+    values = {
+        "provider_protocol": source.provider_protocol,
+        "model": source.model,
+        "api_style": source.api_style,
+        "strict_json_schema": source.strict_json_schema,
+        "reasoning_effort": source.reasoning_effort,
+        "max_completion_tokens": source.max_completion_tokens,
+        "schema_name": source.schema_name,
+        "strict_schema_bundle_sha256": bundle_hash,
+    }
+    return RealModelProviderDescriptor(
+        id=real_model_provider_descriptor_id(**values),
+        **values,
+    )
+
+
+def _legacy_strict_descriptor() -> RealModelProviderDescriptor:
+    source = _descriptor()
+    identity_values = {
+        "provider_protocol": source.provider_protocol,
+        "model": source.model,
+        "api_style": source.api_style,
+        "strict_json_schema": source.strict_json_schema,
+        "reasoning_effort": source.reasoning_effort,
+        "max_completion_tokens": source.max_completion_tokens,
+        "schema_name": source.schema_name,
+    }
+    return RealModelProviderDescriptor.model_validate(
+        {
+            "id": real_model_provider_descriptor_id(**identity_values),
+            **identity_values,
+        }
+    )
+
+
+def _legacy_strict_plan(
+    execution_mode: ExperimentExecutionMode,
+) -> RealModelExperimentPlan:
+    manifest = _fixture_manifest()
+    ablation = AblationExperimentPlan.create(
+        benchmark_manifest_id=manifest.id,
+        benchmark_version=manifest.benchmark_version,
+    )
+    current = RealModelExperimentPlan.create(
+        manifest=manifest,
+        ablation_plan=ablation,
+        provider_descriptor=_descriptor(),
+        execution_mode=execution_mode,
+    )
+    legacy_descriptor = _legacy_strict_descriptor()
+    payload = current.model_dump(mode="json")
+    payload["provider_descriptor"] = legacy_descriptor.model_dump(
+        mode="json", exclude={"strict_schema_bundle_sha256"}
+    )
+    payload["id"] = real_model_experiment_plan_id(
+        contract=current.contract,
+        benchmark_manifest_id=current.benchmark_manifest_id,
+        benchmark_version=current.benchmark_version,
+        ablation_plan_id=current.ablation_plan_id,
+        provider_descriptor_id=legacy_descriptor.id,
+        execution_mode=current.execution_mode,
+        condition_spec_ids=[item.id for item in current.condition_specs],
+        case_ids=current.case_ids,
+        provider_role_order=current.provider_role_order,
+    )
+    return RealModelExperimentPlan.model_validate(payload)
+
+
+def test_strict_schema_bundle_hash_is_deterministic_and_role_order_neutral():
+    schemas = _schemas_by_role()
+    reversed_schemas = dict(reversed(list(schemas.items())))
+    canonical_payload = {
+        role.value: schema for role, schema in schemas.items()
+    }
+    expected = hashlib.sha256(
+        json.dumps(
+            canonical_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+
+    assert strict_schema_bundle_sha256() == expected
+    assert strict_schema_bundle_sha256(schemas) == expected
+    assert strict_schema_bundle_sha256(reversed_schemas) == expected
+
+
+def test_schema_bundle_covers_exact_phase10d_roles(monkeypatch):
+    observed = []
+
+    def fixture_schema(role):
+        observed.append(role)
+        return {"type": "object", "fixture_role": role.value}
+
+    monkeypatch.setattr(
+        "chipchain.evaluation.experiment_models."
+        "reasoning_provider_output_json_schema_for_role",
+        fixture_schema,
+    )
+    strict_schema_bundle_sha256()
+
+    assert observed == list(PHASE10D_PROVIDER_ROLE_ORDER)
+    with pytest.raises(ValueError, match="exactly four"):
+        strict_schema_bundle_sha256({})
+
+
+def test_schema_bundle_hash_changes_when_one_role_schema_changes():
+    schemas = _schemas_by_role()
+    changed = deepcopy(schemas)
+    changed[ReasoningAgentType.HARDWARE]["fixture_nonproduction_change"] = True
+
+    assert strict_schema_bundle_sha256(changed) != (
+        strict_schema_bundle_sha256(schemas)
+    )
+
+
+def test_descriptor_binds_current_schema_bundle_only_in_strict_mode():
+    strict = _descriptor()
+    non_strict = _descriptor(json_mode=False)
+
+    assert strict.strict_schema_bundle_sha256 == strict_schema_bundle_sha256()
+    assert non_strict.strict_schema_bundle_sha256 is None
+
+
+def test_old_descriptor_without_bundle_retains_old_identity_and_plan_validity():
+    restored = _legacy_strict_descriptor()
+    payload = restored.model_dump(
+        mode="json", exclude={"strict_schema_bundle_sha256"}
+    )
+    restored_plan = _plan(descriptor=restored)
+
+    assert "strict_schema_bundle_sha256" not in payload
+    assert restored.strict_schema_bundle_sha256 is None
+    assert restored.id == payload["id"]
+    assert RealModelExperimentPlan.model_validate_json(
+        restored_plan.model_dump_json()
+    ) == restored_plan
+
+
+def test_legacy_real_provider_plan_json_remains_model_valid() -> None:
+    restored = _legacy_strict_plan(ExperimentExecutionMode.REAL_PROVIDER)
+    payload = restored.model_dump(mode="json")
+    payload["provider_descriptor"].pop("strict_schema_bundle_sha256")
+
+    roundtrip = RealModelExperimentPlan.model_validate(payload)
+
+    assert roundtrip == restored
+    assert roundtrip.execution_mode is ExperimentExecutionMode.REAL_PROVIDER
+    assert roundtrip.provider_descriptor.strict_schema_bundle_sha256 is None
+
+
+def test_plan_create_requires_bundle_only_for_new_strict_real_provider_plan():
+    manifest = _fixture_manifest()
+    ablation = AblationExperimentPlan.create(
+        benchmark_manifest_id=manifest.id,
+        benchmark_version=manifest.benchmark_version,
+    )
+    legacy = _legacy_strict_descriptor()
+
+    with pytest.raises(ValueError, match="requires bundle provenance"):
+        RealModelExperimentPlan.create(
+            manifest=manifest,
+            ablation_plan=ablation,
+            provider_descriptor=legacy,
+            execution_mode=ExperimentExecutionMode.REAL_PROVIDER,
+        )
+
+    offline = RealModelExperimentPlan.create(
+        manifest=manifest,
+        ablation_plan=ablation,
+        provider_descriptor=legacy,
+        execution_mode=ExperimentExecutionMode.OFFLINE_CONTRACT,
+    )
+    real = RealModelExperimentPlan.create(
+        manifest=manifest,
+        ablation_plan=ablation,
+        provider_descriptor=_descriptor(),
+        execution_mode=ExperimentExecutionMode.REAL_PROVIDER,
+    )
+
+    assert offline.provider_descriptor.strict_schema_bundle_sha256 is None
+    assert real.provider_descriptor.strict_schema_bundle_sha256 is not None
+
+
+def test_non_strict_descriptor_rejects_non_none_schema_bundle() -> None:
+    source = _descriptor(json_mode=False)
+    identity_values = {
+        "provider_protocol": source.provider_protocol,
+        "model": source.model,
+        "api_style": source.api_style,
+        "strict_json_schema": source.strict_json_schema,
+        "reasoning_effort": source.reasoning_effort,
+        "max_completion_tokens": source.max_completion_tokens,
+        "schema_name": source.schema_name,
+        "strict_schema_bundle_sha256": "a" * 64,
+    }
+
+    with pytest.raises(ValidationError, match="non-strict provider"):
+        RealModelProviderDescriptor(
+            id=real_model_provider_descriptor_id(**identity_values),
+            **identity_values,
+        )
+
+
+def test_schema_bundle_hash_changes_descriptor_and_plan_identity():
+    current = _descriptor()
+    alternate_hash = (
+        "f" * 64
+        if current.strict_schema_bundle_sha256 != "f" * 64
+        else "e" * 64
+    )
+    alternate = _descriptor_with_bundle(alternate_hash)
+
+    assert current.id != alternate.id
+    assert _plan(descriptor=current).id != _plan(descriptor=alternate).id
 
 
 @pytest.mark.parametrize(
@@ -811,6 +1047,91 @@ def test_failed_invocation_requires_bounded_failure_and_occupies_slot() -> None:
     assert record.failure == failure
     assert record.prompt_sha256 == structured_prompt_request_sha256(prompt)
     assert record.provider_response_sha256 is None
+
+
+def test_old_failure_without_parser_detail_retains_old_identity() -> None:
+    plan = _one_case_plan()
+    key = ExperimentCaseInvocationKey.create(
+        plan,
+        condition_kind=AblationConditionKind.FULL_CONTEXT_MODEL,
+        benchmark_case_id=plan.case_ids[0],
+        role=ReasoningAgentType.CODE,
+    )
+    identity_values = {
+        "invocation_key_id": key.id,
+        "stage": RealModelInvocationFailureStage.STRUCTURED_PARSE,
+        "failure_code": (
+            RealModelInvocationFailureCode.PROVIDER_CONTRACT_REJECTED
+        ),
+    }
+    payload = {
+        "id": real_model_invocation_failure_id(**identity_values),
+        **identity_values,
+        "metadata": {},
+    }
+
+    restored = RealModelInvocationFailure.model_validate(payload)
+
+    assert "parser_failure_detail" not in payload
+    assert restored.parser_failure_detail is None
+    assert restored.id == payload["id"]
+
+
+def test_parser_failure_detail_is_closed_and_participates_in_identity() -> None:
+    plan = _one_case_plan()
+    key = ExperimentCaseInvocationKey.create(
+        plan,
+        condition_kind=AblationConditionKind.FULL_CONTEXT_MODEL,
+        benchmark_case_id=plan.case_ids[0],
+        role=ReasoningAgentType.CODE,
+    )
+    json_failure = RealModelInvocationFailure.create(
+        key,
+        stage=RealModelInvocationFailureStage.STRUCTURED_PARSE,
+        failure_code=RealModelInvocationFailureCode.PROVIDER_CONTRACT_REJECTED,
+        parser_failure_detail=StructuredParseFailureDetail.JSON_PARSE,
+    )
+    schema_failure = RealModelInvocationFailure.create(
+        key,
+        stage=RealModelInvocationFailureStage.STRUCTURED_PARSE,
+        failure_code=RealModelInvocationFailureCode.PROVIDER_CONTRACT_REJECTED,
+        parser_failure_detail=StructuredParseFailureDetail.OUTPUT_SCHEMA,
+    )
+
+    assert json_failure.id != schema_failure.id
+    assert (
+        RealModelInvocationFailure.model_validate_json(
+            json_failure.model_dump_json()
+        )
+        == json_failure
+    )
+    with pytest.raises(ValueError, match="StructuredParseFailureDetail"):
+        RealModelInvocationFailure.create(
+            key,
+            stage=RealModelInvocationFailureStage.STRUCTURED_PARSE,
+            failure_code=(
+                RealModelInvocationFailureCode.PROVIDER_CONTRACT_REJECTED
+            ),
+            parser_failure_detail="unbounded-fixture-detail",
+        )
+
+
+def test_non_parse_failure_rejects_parser_failure_detail() -> None:
+    plan = _one_case_plan()
+    key = ExperimentCaseInvocationKey.create(
+        plan,
+        condition_kind=AblationConditionKind.FULL_CONTEXT_MODEL,
+        benchmark_case_id=plan.case_ids[0],
+        role=ReasoningAgentType.CODE,
+    )
+
+    with pytest.raises(ValidationError, match="structured-parse stage"):
+        RealModelInvocationFailure.create(
+            key,
+            stage=RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
+            failure_code=RealModelInvocationFailureCode.PROVIDER_TIMEOUT,
+            parser_failure_detail=StructuredParseFailureDetail.JSON_PARSE,
+        )
 
 
 def test_failed_invocation_retains_hashes_available_at_failure_stage() -> None:

@@ -40,6 +40,7 @@ from chipchain.evaluation.enums import (
     PromptVisibilityAuditStatus,
     RealModelInvocationFailureCode,
     RealModelInvocationFailureStage,
+    StructuredParseFailureDetail,
 )
 from chipchain.evaluation.execution_models import (
     ExperimentCaseReasoningSession,
@@ -221,6 +222,15 @@ class RealModelExperimentExecutor:
         plan_snapshot = RealModelExperimentPlan.model_validate(
             plan.model_dump(mode="json")
         )
+        if (
+            plan_snapshot.execution_mode is ExperimentExecutionMode.REAL_PROVIDER
+            and plan_snapshot.provider_descriptor.strict_json_schema
+            and plan_snapshot.provider_descriptor.strict_schema_bundle_sha256
+            is None
+        ):
+            raise RealExperimentExecutionError(
+                "REAL_PROVIDER strict schema requires bundle provenance"
+            )
         manifest_snapshot = BenchmarkManifest.model_validate(
             manifest.model_dump(mode="json")
         )
@@ -689,9 +699,14 @@ class RealModelExperimentExecutor:
                     )
                 )
             elif role is failed_role:
-                stage, code = RealModelExperimentExecutor._map_failure(attempt)
+                stage, code, parser_detail = (
+                    RealModelExperimentExecutor._map_failure(attempt)
+                )
                 bounded = RealModelInvocationFailure.create(
-                    key, stage=stage, failure_code=code
+                    key,
+                    stage=stage,
+                    failure_code=code,
+                    parser_failure_detail=parser_detail,
                 )
                 records.append(
                     ModelInvocationRecord.failed(
@@ -731,17 +746,20 @@ class RealModelExperimentExecutor:
             return (
                 RealModelInvocationFailureStage.PROMPT_CONSTRUCTION,
                 RealModelInvocationFailureCode.OTHER_BOUNDED_FAILURE,
+                None,
             )
         error = attempt.error
         if isinstance(error, _PromptVisibilityLeakError):
             return (
                 RealModelInvocationFailureStage.PROMPT_CONSTRUCTION,
                 RealModelInvocationFailureCode.PROMPT_VISIBILITY_FAILED,
+                None,
             )
         if attempt.parse_completed:
             return (
                 RealModelInvocationFailureStage.WORKFLOW_ASSEMBLY,
                 RealModelInvocationFailureCode.WORKFLOW_CONTRACT_FAILED,
+                None,
             )
         if attempt.parse_entered:
             if isinstance(error, LLMOutputValidationError) and (
@@ -750,26 +768,31 @@ class RealModelExperimentExecutor:
                 return (
                     RealModelInvocationFailureStage.PROVIDER_RESPONSE,
                     RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID,
+                    None,
                 )
             return (
                 RealModelInvocationFailureStage.STRUCTURED_PARSE,
                 RealModelInvocationFailureCode.PROVIDER_CONTRACT_REJECTED,
+                RealModelExperimentExecutor._parse_failure_detail(error),
             )
         if isinstance(error, LLMProviderConfigurationError):
             return (
                 RealModelInvocationFailureStage.PROVIDER_CONNECTION,
                 RealModelInvocationFailureCode.PROVIDER_UNAVAILABLE,
+                None,
             )
         if isinstance(error, TimeoutError):
             return (
                 RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
                 RealModelInvocationFailureCode.PROVIDER_TIMEOUT,
+                None,
             )
         if isinstance(error, LLMProviderResponseError):
             if error.stage == "connection":
                 return (
                     RealModelInvocationFailureStage.PROVIDER_CONNECTION,
                     RealModelInvocationFailureCode.PROVIDER_UNAVAILABLE,
+                    None,
                 )
             if error.stage == "transport":
                 code = (
@@ -780,14 +803,39 @@ class RealModelExperimentExecutor:
                 return (
                     RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
                     code,
+                    None,
                 )
             return (
                 RealModelInvocationFailureStage.PROVIDER_RESPONSE,
                 RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID,
+                None,
             )
         return (
             RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
             RealModelInvocationFailureCode.OTHER_BOUNDED_FAILURE,
+            None,
+        )
+
+    @staticmethod
+    def _parse_failure_detail(error) -> StructuredParseFailureDetail:
+        if not isinstance(error, LLMOutputValidationError):
+            return StructuredParseFailureDetail.OTHER_BOUNDED_PARSE_FAILURE
+        return {
+            "json_parse": StructuredParseFailureDetail.JSON_PARSE,
+            "output_schema": StructuredParseFailureDetail.OUTPUT_SCHEMA,
+            "forbidden_truth_field": (
+                StructuredParseFailureDetail.FORBIDDEN_TRUTH_FIELD
+            ),
+            "role_authority": StructuredParseFailureDetail.ROLE_AUTHORITY,
+            "request_cardinality": (
+                StructuredParseFailureDetail.REQUEST_CARDINALITY
+            ),
+            "evidence_reference": (
+                StructuredParseFailureDetail.EVIDENCE_REFERENCE
+            ),
+        }.get(
+            error.stage,
+            StructuredParseFailureDetail.OTHER_BOUNDED_PARSE_FAILURE,
         )
 
     @staticmethod
