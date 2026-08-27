@@ -56,6 +56,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10C 四条件 ablation protocol、prompt visibility firewall 与 deterministic comparison contracts
 - Phase 10D Step 1 secret-free real-model experiment provenance、execution matrix 与 artifact contracts
 - Phase 10D Step 2 explicit opt-in execution harness、pre-transport MASKED audit 与 canonical execution archive
+- Phase 10D Step 6 GT-firewalled objective triggerability materialization、persistent source provenance 与
+  REAL_PROVIDER completeness gate
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -591,6 +593,20 @@ closed，不发送 prompt，也不产生 response hash。一个 case 失败只�
 Provider、读取 Provider 环境变量或发起网络请求。Canonical archive 包含 parsed semantic outputs 和
 SHA-256，不包含 raw prompt/response、API key、Authorization、base URL、endpoint、时间或 host path。
 默认测试完全离线；当前没有执行真实模型实验，也没有项目 >=80% 结论。
+
+## Phase 10D Step 6 Objective Input Materialization
+
+Step 6 使用独立 candidate-side source contract 将实际 owned ARM ELF、HardwareTriggerSignature 与
+冻结 QEMU raw JSONL 依次送入现有 Angr static matcher、公开纯 raw-trace normalizer、runtime matcher
+和 production aggregator。source 只保存 repo-relative logical references、expected content hashes、
+run/scenario 与 interaction/target binding；不包含 benchmark label、Ground Truth、expected status 或
+任何 expected derived output ID。
+
+派生的 `ObjectiveTriggerabilityMaterializationRecord` 保存 source snapshot、Context ID、parsed/runtime
+trace IDs、static/runtime semantic hashes 与 aggregation ID，并随 `RealExperimentCaseInput` 进入 archive。
+旧 input/archive 缺该字段时仍保持原 ID 和反序列化能力；新的 `REAL_PROVIDER` input 若携带
+triggerability，则 create、CLI 和 executor preflight 都要求完整 materialization provenance。整个
+materialization 过程不启动 QEMU、不调用 Provider、不触网，也不改变 Phase 9C/10A/10B/10C 语义。
 
 ## 文档导航
 

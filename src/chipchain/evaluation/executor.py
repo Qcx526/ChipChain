@@ -251,6 +251,17 @@ class RealModelExperimentExecutor:
         inputs = RealExperimentInputSet.model_validate(
             input_set.model_dump(mode="json")
         )
+        if plan_snapshot.execution_mode is ExperimentExecutionMode.REAL_PROVIDER:
+            incomplete_objective_inputs = [
+                item.benchmark_case_id
+                for item in inputs.case_inputs
+                if item.triggerability is not None
+                and item.objective_materialization is None
+            ]
+            if incomplete_objective_inputs:
+                raise RealExperimentExecutionError(
+                    "REAL_PROVIDER triggerability requires objective materialization"
+                )
         if (
             manifest_snapshot.id,
             manifest_snapshot.benchmark_version,

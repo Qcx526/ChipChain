@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～2 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～6 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -566,6 +566,23 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   sessions 与 FULL/MASKED/NO_MODEL case runs
 - [x] `chipchain experiment real-model` 只有显式 `--execute-real-provider` 后才允许从环境创建 Provider
 - [x] 默认 pytest 使用 deterministic fake/Mock provider，未执行网络模型、未计算 >=80% 项目结论
+
+#### Phase 10D Step 6：Objective Triggerability Input Materialization（已完成实现）
+
+- [x] 将 trigger runner 的唯一 ARM/A32 raw-trace normalization 抽为公开纯函数，runner 继续复用且
+  output identity 不变
+- [x] path-neutral、deterministic、candidate-side-only `ObjectiveTriggerabilitySource`，不含 label、GT、
+  expected status 或 expected derived output
+- [x] actual ELF/signature/raw trace hash、run/scenario、interaction/target 的 fail-closed binding
+- [x] 只经 actual Angr matcher、raw parser、runtime matcher 与 production aggregator 派生 status
+- [x] persistent `ObjectiveTriggerabilityMaterializationRecord` exact-bind source、Context 与全部 bounded
+  static/runtime/aggregation provenance，并随 input/archive roundtrip
+- [x] `RealExperimentCaseInput` 可选扩展保持 Step 2～5 legacy ID/JSON；REAL_PROVIDER create/preflight
+  对 triggerability 缺 record 双重拒绝，OFFLINE 保持历史兼容
+- [x] owned positive 真实派生 `TRIGGERABLE`；独立 negative Context 保持 triggerability/materialization
+  均为空，不伪造 negative objective status
+- [x] production materializer 不接受 Manifest/Case/GroundTruth/runner/comparator，完全离线且不启动 QEMU、
+  Provider 或网络
 
 后续人工工作：code review/freeze 后，通过 opt-in CLI 对 owned-synthetic 输入执行一次受控真实
 Qwen/OpenAI-compatible experiment。`TRIGGERABLE` 仍不能脱离

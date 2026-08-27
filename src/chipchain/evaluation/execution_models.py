@@ -23,6 +23,9 @@ from chipchain.evaluation.experiment_models import (
     structured_prompt_request_sha256,
 )
 from chipchain.evaluation.models import BenchmarkManifest, _canonical_hash
+from chipchain.evaluation.objective_input_models import (
+    ObjectiveTriggerabilityMaterializationRecord,
+)
 from chipchain.hardware_trigger.aggregation import TriggerabilityAggregationResult
 from chipchain.models.common import DomainModel, Identifier, Metadata
 from chipchain.reasoning.enums import ReasoningPromptVisibility
@@ -71,17 +74,21 @@ def real_experiment_case_input_id(
     benchmark_case_id: str,
     reasoning_context_id: str,
     triggerability_aggregation_id: str | None,
+    objective_materialization_id: str | None = None,
 ) -> str:
     """Bind one case input without metadata, Ground Truth, or host state."""
 
+    payload = {
+        "benchmark_case_id": benchmark_case_id,
+        "experiment_plan_id": experiment_plan_id,
+        "reasoning_context_id": reasoning_context_id,
+        "triggerability_aggregation_id": triggerability_aggregation_id,
+    }
+    if objective_materialization_id is not None:
+        payload["objective_materialization_id"] = objective_materialization_id
     return _canonical_hash(
         "real-experiment-case-input",
-        {
-            "benchmark_case_id": benchmark_case_id,
-            "experiment_plan_id": experiment_plan_id,
-            "reasoning_context_id": reasoning_context_id,
-            "triggerability_aggregation_id": triggerability_aggregation_id,
-        },
+        payload,
     )
 
 
@@ -93,6 +100,9 @@ class RealExperimentCaseInput(DomainModel):
     benchmark_case_id: Identifier
     reasoning_context: ReasoningContext
     triggerability: TriggerabilityAggregationResult | None = None
+    objective_materialization: (
+        ObjectiveTriggerabilityMaterializationRecord | None
+    ) = None
     metadata: Metadata = Field(default_factory=dict)
 
     @field_validator("reasoning_context")
@@ -111,6 +121,17 @@ class RealExperimentCaseInput(DomainModel):
             value.model_dump(mode="json")
         )
 
+    @field_validator("objective_materialization")
+    @classmethod
+    def snapshot_objective_materialization(
+        cls, value: ObjectiveTriggerabilityMaterializationRecord | None
+    ) -> ObjectiveTriggerabilityMaterializationRecord | None:
+        if value is None:
+            return None
+        return ObjectiveTriggerabilityMaterializationRecord.model_validate(
+            value.model_dump(mode="json")
+        )
+
     @field_validator("metadata")
     @classmethod
     def validate_metadata(cls, value: Metadata) -> Metadata:
@@ -125,6 +146,11 @@ class RealExperimentCaseInput(DomainModel):
             triggerability_aggregation_id=(
                 self.triggerability.id if self.triggerability is not None else None
             ),
+            objective_materialization_id=(
+                self.objective_materialization.id
+                if self.objective_materialization is not None
+                else None
+            ),
         )
         if self.id != expected:
             raise ValueError("RealExperimentCaseInput ID is not deterministic")
@@ -134,6 +160,57 @@ class RealExperimentCaseInput(DomainModel):
             is not self.reasoning_context.architecture
         ):
             raise ValueError("case input triggerability architecture mismatch")
+        materialization = self.objective_materialization
+        if materialization is not None:
+            trigger = self.triggerability
+            if trigger is None:
+                raise ValueError(
+                    "objective materialization requires triggerability result"
+                )
+            source = materialization.source
+            interaction = self.reasoning_context.cross_layer_interaction
+            if materialization.source.benchmark_case_id != self.benchmark_case_id:
+                raise ValueError("objective materialization benchmark case mismatch")
+            if materialization.reasoning_context_id != self.reasoning_context.id:
+                raise ValueError("objective materialization reasoning context mismatch")
+            if materialization.triggerability_aggregation_id != trigger.id:
+                raise ValueError("objective materialization triggerability mismatch")
+            if interaction is None or source.candidate_interaction_id != interaction.id:
+                raise ValueError("objective materialization interaction mismatch")
+            if source.hardware_vulnerability_id not in (
+                interaction.target_vulnerability_ids
+            ):
+                raise ValueError("objective materialization hardware target mismatch")
+            if (
+                source.architecture,
+                source.execution_mode,
+                source.artifact_id,
+                source.expected_artifact_sha256,
+                source.expected_signature_id,
+                source.hardware_vulnerability_id,
+                source.expected_raw_trace_sha256,
+                materialization.runtime_trace_id,
+                materialization.static_result_sha256,
+                materialization.runtime_result_sha256,
+                materialization.static_match_ids,
+                materialization.runtime_occurrence_ids,
+            ) != (
+                trigger.architecture,
+                trigger.execution_mode,
+                trigger.artifact_id,
+                trigger.artifact_sha256,
+                trigger.signature_id,
+                trigger.hardware_vulnerability_id,
+                trigger.raw_trace_sha256,
+                trigger.trace_id,
+                trigger.static_result_sha256,
+                trigger.runtime_result_sha256,
+                trigger.static_match_ids,
+                trigger.runtime_occurrence_ids,
+            ):
+                raise ValueError(
+                    "objective materialization derived provenance mismatch"
+                )
         return self
 
     @classmethod
@@ -144,6 +221,9 @@ class RealExperimentCaseInput(DomainModel):
         benchmark_case_id: str,
         reasoning_context: ReasoningContext,
         triggerability: TriggerabilityAggregationResult | None = None,
+        objective_materialization: (
+            ObjectiveTriggerabilityMaterializationRecord | None
+        ) = None,
         metadata: Metadata | None = None,
     ) -> "RealExperimentCaseInput":
         """Create an input only for a case frozen in ``plan``."""
@@ -163,12 +243,30 @@ class RealExperimentCaseInput(DomainModel):
             if triggerability is not None
             else None
         )
+        materialization = (
+            ObjectiveTriggerabilityMaterializationRecord.model_validate(
+                objective_materialization.model_dump(mode="json")
+            )
+            if objective_materialization is not None
+            else None
+        )
+        if (
+            plan.execution_mode is ExperimentExecutionMode.REAL_PROVIDER
+            and trigger is not None
+            and materialization is None
+        ):
+            raise ValueError(
+                "REAL_PROVIDER triggerability requires objective materialization"
+            )
         values = {
             "experiment_plan_id": plan.id,
             "benchmark_case_id": case_id,
             "reasoning_context_id": context.id,
             "triggerability_aggregation_id": (
                 trigger.id if trigger is not None else None
+            ),
+            "objective_materialization_id": (
+                materialization.id if materialization is not None else None
             ),
         }
         return cls(
@@ -177,6 +275,7 @@ class RealExperimentCaseInput(DomainModel):
             benchmark_case_id=case_id,
             reasoning_context=context,
             triggerability=trigger,
+            objective_materialization=materialization,
             metadata=metadata or {},
         )
 

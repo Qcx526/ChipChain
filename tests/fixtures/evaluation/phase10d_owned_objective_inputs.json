@@ -1,0 +1,116 @@
+{
+  "id": "objective-experiment-input-source-set:c1e3fa1e9dfedbcc06bb1e432c3f77c4592f6faeb988e7e3913e2f38fc4c2066",
+  "contract": "phase10d_objective_input_source_v1",
+  "case_sources": [
+    {
+      "id": "objective-experiment-case-source:a33b67b93da9a6e4e4f5f633447e83c87929bbc98cccf35a2ad79e06e60a9f15",
+      "benchmark_case_id": "evaluation-benchmark-case:2357c0ce4859b72a9cf52069a60c4d19442aa87b3f45ad66e6ecdc34bd6f4a83",
+      "reasoning_context": {
+        "id": "reasoning-context:475f92418c899d9fad9d71b308a62b46bbdbd294e98f198fbdf3752ec10ae6c8",
+        "architecture": "arm",
+        "subject_id": "synthetic-owned-arm-a32-trigger-runtime-elf",
+        "affected_components": [
+          "synthetic-owned-arm-execution-core",
+          "synthetic-owned-arm-firmware"
+        ],
+        "observed_fact_ids": [
+          "fixture:phase9c:arm-a32-trigger-runtime"
+        ],
+        "available_evidence_ids": [],
+        "knowledge_entry_ids": [],
+        "dynamic_trigger_fact_reference": null,
+        "attack_pattern_reference": "synthetic-attack-pattern",
+        "cross_layer_interaction": {
+          "id": "cross-layer-interaction:arm:cd91144bb1f069edf3a626a4089e9e3507a8aa570a40ca16b312cbf6d9c01881",
+          "architecture": "arm",
+          "interaction_type": "firmware_behavior_to_hardware",
+          "direction": "software_to_hardware",
+          "source_layer": "firmware",
+          "target_layer": "hardware",
+          "initiating_vulnerability_ids": [],
+          "target_vulnerability_ids": [
+            "synthetic-phase9c-runtime-trigger-contract"
+          ],
+          "trigger_behavior_ids": [
+            "synthetic-owned-arm-a32-exact-trigger-sequence"
+          ],
+          "propagation_behavior_ids": [],
+          "affected_execution_ids": [],
+          "fault_state_ids": [],
+          "hardware_resource_ids": [
+            "synthetic-owned-arm-execution-core"
+          ],
+          "security_mechanism_ids": [],
+          "evidence_ids": [],
+          "referenced_architectures": [
+            "arm"
+          ],
+          "metadata": {}
+        },
+        "runtime_observations": [],
+        "knowledge_retrieval_result": null,
+        "metadata": {
+          "fixture": true,
+          "owned": true,
+          "synthetic": true,
+          "not_real_vulnerability": true
+        }
+      },
+      "triggerability_source": {
+        "id": "objective-triggerability-source:373a2788b751dc9fabc57cb82fc270bf8098825b909022c1ecd1fc2647135674",
+        "benchmark_case_id": "evaluation-benchmark-case:2357c0ce4859b72a9cf52069a60c4d19442aa87b3f45ad66e6ecdc34bd6f4a83",
+        "architecture": "arm",
+        "execution_mode": "arm_a32",
+        "candidate_interaction_id": "cross-layer-interaction:arm:cd91144bb1f069edf3a626a4089e9e3507a8aa570a40ca16b312cbf6d9c01881",
+        "hardware_vulnerability_id": "synthetic-phase9c-runtime-trigger-contract",
+        "artifact_id": "synthetic-owned-arm-a32-trigger-runtime-elf",
+        "artifact_type": "elf",
+        "artifact_reference": "tests/fixtures/phase9c/arm_a32_trigger_runtime/arm_a32_trigger_runtime.elf",
+        "expected_artifact_sha256": "b02e525665617cf623bafed5092d4a1c82a07a6120f5e89a8872341c09da2b81",
+        "signature_reference": "tests/fixtures/phase9c/arm_a32_trigger_runtime/hardware_trigger_signature.json",
+        "expected_signature_file_sha256": "f770f8352d489b83c30b98dde65c5ac3f07feecac86f871b1bfa042036f9437b",
+        "expected_signature_id": "hardware-trigger-signature:6c40f20a04baf56570c4f2994f1859e4b4012371300c78b43143829d16bd26ba",
+        "raw_trace_reference": "tests/fixtures/qemu_trigger_raw/valid_arm_a32_trigger_trace.jsonl",
+        "expected_raw_trace_sha256": "3efac60bbcaec874a65a2e9a3705cba8c1e04deae6303c964b18cd5a326d7c1b",
+        "expected_run_id": "owned-phase9c-trigger-runtime-run",
+        "scenario_id": "owned-phase9c-trigger-runtime-scenario",
+        "owned": true,
+        "synthetic": true,
+        "not_real_vulnerability": true
+      }
+    },
+    {
+      "id": "objective-experiment-case-source:0aff13234fbdd36f746d7872ddd68035dd6456e4f4f4744c8f3b50b46a2b2684",
+      "benchmark_case_id": "evaluation-benchmark-case:5ddc06cb9b7f53146b14ac0e1fa0c19056b1a0f37fc0c1dd599e538ae5b2d5d7",
+      "reasoning_context": {
+        "id": "reasoning-context:17902ec98b1aafb4b99a968410812e0a551dc74ef4557d5e8520b9c4446b8b0e",
+        "architecture": "arm",
+        "subject_id": "synthetic-owned-arm-negative-control-spec",
+        "affected_components": [
+          "fixture_debug_ctrl",
+          "fixture_driver_ioctl",
+          "fixture_parse_command"
+        ],
+        "observed_fact_ids": [
+          "fixture-call-parse-send",
+          "fixture-ioctl-flow",
+          "fixture-mmio-access"
+        ],
+        "available_evidence_ids": [],
+        "knowledge_entry_ids": [],
+        "dynamic_trigger_fact_reference": null,
+        "attack_pattern_reference": null,
+        "cross_layer_interaction": null,
+        "runtime_observations": [],
+        "knowledge_retrieval_result": null,
+        "metadata": {
+          "fixture": true,
+          "owned": true,
+          "synthetic": true,
+          "not_real_vulnerability": true
+        }
+      },
+      "triggerability_source": null
+    }
+  ]
+}

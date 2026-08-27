@@ -174,3 +174,15 @@ condition/case/session/run wrappers 防止跨 case、跨 condition 或跨 plan �
 CLI 只有 `--execute-real-provider` 后才允许 `OpenAICompatibleReasoningProvider.from_env()`；未 opt-in 时
 不会读取 Provider 环境或触网。Ground Truth 仍只进入冻结 Phase 10B/upper post-hoc evaluator，不参与
 Context 或 triggerability 准备。
+
+## Phase 10D Step 6 Objective Materialization
+
+`ObjectiveTriggerabilitySource` 是独立 candidate-side、path-neutral source contract。它绑定 ARM/A32、
+case/interaction/hardware target、实际 ELF/signature/raw-trace content hashes 与 run/scenario，但不能声明
+triggerability status、aggregation ID、match IDs、benchmark label/scope 或 Ground Truth。production
+materializer 不接受 Manifest、Benchmark Case、GroundTruthChain、runner 或 comparator。
+
+公开 `normalize_qemu_trigger_trace()` 复用 trigger runner 原有唯一 normalization 语义，纯离线转换
+validated raw trace，不启动 QEMU。最终 `ObjectiveTriggerabilityMaterializationRecord` exact-bind source、
+Context 与 actual static/runtime/aggregation provenance，并持久化到 input/archive。旧 archive 保持兼容；
+新 REAL_PROVIDER execution 对“triggerability 有值但 record 缺失”在 create 与 preflight 两层 fail closed。

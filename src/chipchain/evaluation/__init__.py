@@ -43,6 +43,17 @@ from chipchain.evaluation.experiment_models import (
     strict_schema_bundle_sha256,
     structured_prompt_request_sha256,
 )
+from chipchain.evaluation.objective_input_models import (
+    ObjectiveExperimentCaseSource,
+    ObjectiveExperimentInputSourceSet,
+    ObjectiveTriggerabilityMaterializationRecord,
+    ObjectiveTriggerabilitySource,
+    PHASE10D_OBJECTIVE_INPUT_SOURCE_CONTRACT,
+    objective_experiment_case_source_id,
+    objective_experiment_input_source_set_id,
+    objective_materialization_record_id,
+    objective_triggerability_source_id,
+)
 from chipchain.evaluation.execution_models import (
     PHASE10D_EXECUTION_CONTRACT,
     ExperimentCaseReasoningSession,
@@ -56,6 +67,10 @@ from chipchain.evaluation.execution_models import (
     real_experiment_input_set_id,
     real_model_execution_archive_id,
     reasoning_session_output_binding_id,
+)
+from chipchain.evaluation.objective_input_materialization import (
+    ObjectiveInputMaterializationError,
+    Phase10DObjectiveInputMaterializer,
 )
 from chipchain.evaluation.executor import (
     RealExperimentExecutionError,
@@ -203,6 +218,12 @@ __all__ = [
     "ModelInvocationRecord",
     "ObjectiveEvaluationFailure",
     "ObjectiveFailureStage",
+    "ObjectiveExperimentCaseSource",
+    "ObjectiveExperimentInputSourceSet",
+    "ObjectiveInputMaterializationError",
+    "ObjectiveTriggerabilityMaterializationRecord",
+    "ObjectiveTriggerabilitySource",
+    "PHASE10D_OBJECTIVE_INPUT_SOURCE_CONTRACT",
     "PHASE10B_RUNNER_CONTRACT",
     "PHASE10C_ABLATION_CONTRACT",
     "PHASE10D_ARTIFACT_CONTRACT",
@@ -214,6 +235,7 @@ __all__ = [
     "PromptVisibilityAuditStatus",
     "ProviderResponseFailureDetail",
     "PromptVisibilityAuditor",
+    "Phase10DObjectiveInputMaterializer",
     "RealExperimentConditionRecord",
     "RealExperimentCaseInput",
     "RealExperimentExecutionError",
@@ -245,6 +267,10 @@ __all__ = [
     "ground_truth_chain_id",
     "ground_truth_recovery_record_id",
     "objective_evaluation_failure_id",
+    "objective_experiment_case_source_id",
+    "objective_experiment_input_source_set_id",
+    "objective_materialization_record_id",
+    "objective_triggerability_source_id",
     "model_claim_binding_assessment_id",
     "model_invocation_record_id",
     "provider_response_sha256",

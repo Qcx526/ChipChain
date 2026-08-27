@@ -60,6 +60,7 @@ from chipchain.runtime.qemu.trigger_parser import QemuTriggerRawTraceParser
 from chipchain.runtime.qemu.trigger_runner import (
     QemuTriggerSequenceRunner,
     build_qemu_arm_trigger_sequence_command,
+    normalize_qemu_trigger_trace,
 )
 
 __all__ = [
@@ -110,4 +111,5 @@ __all__ = [
     "qemu_memory_topology_id",
     "qemu_runtime_environment_id",
     "qemu_parsed_trigger_trace_id",
+    "normalize_qemu_trigger_trace",
 ]

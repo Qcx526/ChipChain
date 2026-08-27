@@ -95,10 +95,18 @@ def build_qemu_arm_trigger_sequence_command(
     ]
 
 
-def _normalize_trigger_trace(
+def normalize_qemu_trigger_trace(
     parsed: QemuParsedTriggerTrace,
-    config: QemuArmTriggerSequenceRunConfig,
+    *,
+    run_id: str,
+    scenario_id: str,
+    artifact_id: str,
+    artifact_sha256: str,
 ) -> RuntimeTriggerExecutionTrace:
+    """Purely normalize one parsed ARM trigger trace without launching QEMU."""
+
+    if parsed.header.run_id != run_id:
+        raise QemuTriggerRunnerError("trigger raw run ID does not match declaration")
     instructions: list[RuntimeInstructionOccurrence] = []
     for event in parsed.events:
         pc_value = int(event.pc.value, 16)
@@ -115,10 +123,10 @@ def _normalize_trigger_trace(
     return RuntimeTriggerExecutionTrace.create(
         raw_trace_id=parsed.id,
         raw_trace_sha256=parsed.raw_trace_sha256,
-        run_id=config.run_id,
-        scenario_id=config.scenario_id,
-        artifact_id=config.artifact_id,
-        artifact_sha256=config.firmware_sha256,
+        run_id=run_id,
+        scenario_id=scenario_id,
+        artifact_id=artifact_id,
+        artifact_sha256=artifact_sha256,
         architecture=Architecture.ARM,
         execution_mode=ArmExecutionMode.A32,
         instructions=instructions,
@@ -187,9 +195,13 @@ class QemuTriggerSequenceRunner:
         if not raw_path.is_file():
             raise QemuTriggerRunnerError("QEMU trigger observer produced no trace")
         parsed = self._parser.parse(raw_path)
-        if parsed.header.run_id != config.run_id:
-            raise QemuTriggerRunnerError("trigger raw run ID does not match config")
-        runtime_trace = _normalize_trigger_trace(parsed, config)
+        runtime_trace = normalize_qemu_trigger_trace(
+            parsed,
+            run_id=config.run_id,
+            scenario_id=config.scenario_id,
+            artifact_id=config.artifact_id,
+            artifact_sha256=config.firmware_sha256,
+        )
         return QemuTriggerSequenceRunResult(
             qemu_version=executable.qemu_version,
             run_id=config.run_id,

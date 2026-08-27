@@ -78,6 +78,7 @@ def _run_real_model_experiment(args: argparse.Namespace) -> int:
             RealModelExperimentExecutor,
             RealModelExperimentPlan,
             RealModelProviderDescriptor,
+            ObjectiveTriggerabilityMaterializationRecord,
         )
         from chipchain.evaluation.models import BenchmarkManifest
         from chipchain.hardware_trigger.aggregation import (
@@ -112,6 +113,7 @@ def _run_real_model_experiment(args: argparse.Namespace) -> int:
                     "benchmark_case_id",
                     "reasoning_context",
                     "triggerability",
+                    "objective_materialization",
                     "metadata",
                 }
             ):
@@ -125,11 +127,20 @@ def _run_real_model_experiment(args: argparse.Namespace) -> int:
                 if raw_trigger is not None
                 else None
             )
+            raw_materialization = raw_case.get("objective_materialization")
+            materialization = (
+                ObjectiveTriggerabilityMaterializationRecord.model_validate(
+                    raw_materialization
+                )
+                if raw_materialization is not None
+                else None
+            )
             parsed_cases.append(
                 (
                     str(raw_case["benchmark_case_id"]),
                     context,
                     trigger,
+                    materialization,
                     raw_case.get("metadata") or {},
                 )
             )
@@ -143,9 +154,16 @@ def _run_real_model_experiment(args: argparse.Namespace) -> int:
         if any(
             context.architecture
             is not manifest_cases[case_id].architecture
-            for case_id, context, _, _ in parsed_cases
+            for case_id, context, _, _, _ in parsed_cases
         ):
             raise ValueError("execution context architecture mismatch")
+        if any(
+            trigger is not None and materialization is None
+            for _, _, trigger, materialization, _ in parsed_cases
+        ):
+            raise ValueError(
+                "REAL_PROVIDER triggerability requires objective materialization"
+            )
 
         provider = OpenAICompatibleReasoningProvider.from_env()
         descriptor = RealModelProviderDescriptor.from_provider_config(
@@ -162,13 +180,14 @@ def _run_real_model_experiment(args: argparse.Namespace) -> int:
             execution_mode=ExperimentExecutionMode.REAL_PROVIDER,
         )
         case_inputs = []
-        for case_id, context, trigger, metadata in parsed_cases:
+        for case_id, context, trigger, materialization, metadata in parsed_cases:
             case_inputs.append(
                 RealExperimentCaseInput.create(
                     plan,
                     benchmark_case_id=case_id,
                     reasoning_context=context,
                     triggerability=trigger,
+                    objective_materialization=materialization,
                     metadata=metadata,
                 )
             )

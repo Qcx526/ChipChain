@@ -38,7 +38,7 @@
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
   Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
-  与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～2 已完成；Step 3B 仍为 planned/not implemented。
+  与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～6 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -188,6 +188,13 @@
   typed case/session/run bindings，不保存 raw transport content、secret、endpoint、time 或 host path。
   CLI 未提供 `--execute-real-provider` 时不得创建 Provider、读取 Provider 环境变量或发起网络请求。
   Step 2 的默认测试仍完全离线；实现完成不表示已执行真实模型实验或得到 >=80% 项目结论。
+- Phase 10D Step 6 只把 candidate-side、path-neutral、hash-bound source 经现有 Phase 9C production
+  matcher/parser/runtime matcher/aggregator 材料化为 objective triggerability。公开 QEMU raw-trace
+  normalizer 是纯函数且不启动 QEMU；source 不得声明 status 或派生 output ID，也不得读取 Benchmark
+  Ground Truth。`ObjectiveTriggerabilityMaterializationRecord` 必须随 `RealExperimentCaseInput` 进入
+  archive。旧 input/archive 缺 record 时仍可反序列化；新的 REAL_PROVIDER input 若携带 triggerability
+  则在 create 与 executor preflight 两层强制要求 record。该 provenance 不改变 triggerability、oracle、
+  metric、provider、prompt 或 parser 语义。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

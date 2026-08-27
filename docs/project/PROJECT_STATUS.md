@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step1-stable`
-- Stable commit: `c9f25f4490f90f7532e9bfd5d9440242078de331`
-- Baseline: Phase 10D Step 1 frozen experiment-provenance contracts complete
+- Stable tag: `phase-10d-step5-stable`
+- Stable commit: `9148aceeb3844f2239805467a06bbf0c63219f69`
+- Baseline: Phase 10D Step 5 final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -29,13 +29,15 @@
 - Phase 10C four-condition ablation protocol, prompt visibility firewall, leakage audit, context/objective upper bound, and deterministic comparison contracts
 - Phase 10D Step 1 sanitized provider descriptor, frozen case×four-role execution matrix, hash-only per-role invocation provenance, fail-stop accounting, and canonical offline artifact envelope
 - Phase 10D Step 2 explicit opt-in execution harness, detached input cohort, pre-transport MASKED audit, case-local failure accounting, and canonical session/case-run archive
+- Phase 10D Step 6 GT-firewalled objective triggerability materialization, persistent source provenance, and REAL_PROVIDER completeness gates
 
 ## Current Work
 
-Phase 10D Step 2 is implemented over the frozen Step 1 provenance contracts. It binds one detached
+Phase 10D Step 6 is implemented over the frozen Phase 9C and Phase 10D contracts. It binds one detached
 candidate-side input cohort to FULL/MASKED/NO_MODEL/UPPER, delegates to the frozen reasoning workflow,
 audits MASKED prompts before transport, continues later cases after case-local failure, and archives
-parsed sessions plus exact Phase 10B case runs. NO_MODEL/UPPER make zero provider calls. The CLI is
+parsed sessions, exact Phase 10B case runs, and persistent objective source/materialization provenance.
+NO_MODEL/UPPER make zero provider calls. The CLI is
 fail-closed unless `--execute-real-provider` is explicit. No raw prompt, raw response, API key,
 endpoint, or host path belongs in canonical artifacts. Every automated fixture is `OFFLINE_CONTRACT`;
 no Phase 10D real-model run or >=80% conclusion was performed. Phase 9C Step 3B remains deferred.

@@ -260,3 +260,17 @@ forbidden. Canonical artifacts retain only parsed semantic contracts and exact t
 `REAL_PROVIDER` requires the production OpenAI-compatible reasoning provider and matching sanitized
 descriptor. The CLI cannot construct it without explicit `--execute-real-provider` opt-in. Default
 tests remain offline; no real-model or >=80% conclusion is implied by this harness.
+
+## Phase 10D Step 6 Objective Input Materialization
+
+The Step 6 source contract is candidate-side and contains only logical relative references, exact file
+hashes, run/scenario declarations, and interaction/target bindings. It cannot carry benchmark labels,
+Ground Truth, expected feasibility, expected triggerability status, or expected derived output IDs.
+The production service analyzes the actual ELF and parses the frozen raw trace through the existing
+Phase 9C matchers and aggregator; callers cannot construct the aggregation result inside the service.
+
+`ObjectiveTriggerabilityMaterializationRecord` persists the detached source together with exact parsed
+trace, runtime trace, static/runtime semantic hash, and aggregation provenance. New REAL_PROVIDER inputs
+that carry triggerability require this record before transport, while legacy Step 2–5 JSON without the
+field retains its original identity and remains readable. Materialization launches neither QEMU nor a
+provider and does not change oracle, metric, prompt, parser, or triggerability semantics.
