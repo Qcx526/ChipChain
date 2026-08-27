@@ -30,8 +30,10 @@ from chipchain.evaluation import (
     ModelClaimBindingStatus,
     ModelInvocationRecord,
     PHASE10D_PROVIDER_ROLE_ORDER,
+    PHASE10D_RESPONSES_COMPLETION_CONTRACT,
     PromptVisibilityAuditStatus,
     PromptVisibilityAuditor,
+    ProviderResponseFailureDetail,
     RealExperimentConditionRecord,
     RealModelExperimentArtifact,
     RealModelExperimentPlan,
@@ -482,6 +484,7 @@ def test_provider_descriptor_is_sanitized_and_secret_free() -> None:
         "max_completion_tokens",
         "schema_name",
         "strict_schema_bundle_sha256",
+        "responses_completion_contract",
     }
     assert "base_url" not in serialized
     assert "api_key" not in serialized
@@ -565,6 +568,80 @@ def _legacy_strict_plan(
     return RealModelExperimentPlan.model_validate(payload)
 
 
+def _legacy_responses_descriptor() -> RealModelProviderDescriptor:
+    source = _descriptor(api_style=LLMAPIStyle.RESPONSES)
+    identity_values = {
+        "provider_protocol": source.provider_protocol,
+        "model": source.model,
+        "api_style": source.api_style,
+        "strict_json_schema": source.strict_json_schema,
+        "reasoning_effort": source.reasoning_effort,
+        "max_completion_tokens": source.max_completion_tokens,
+        "schema_name": source.schema_name,
+        "strict_schema_bundle_sha256": source.strict_schema_bundle_sha256,
+    }
+    return RealModelProviderDescriptor.model_validate(
+        {
+            "id": real_model_provider_descriptor_id(**identity_values),
+            **identity_values,
+        }
+    )
+
+
+def _responses_descriptor_with_contract(
+    contract: str,
+) -> RealModelProviderDescriptor:
+    source = _descriptor(api_style=LLMAPIStyle.RESPONSES)
+    values = {
+        "provider_protocol": source.provider_protocol,
+        "model": source.model,
+        "api_style": source.api_style,
+        "strict_json_schema": source.strict_json_schema,
+        "reasoning_effort": source.reasoning_effort,
+        "max_completion_tokens": source.max_completion_tokens,
+        "schema_name": source.schema_name,
+        "strict_schema_bundle_sha256": source.strict_schema_bundle_sha256,
+        "responses_completion_contract": contract,
+    }
+    return RealModelProviderDescriptor(
+        id=real_model_provider_descriptor_id(**values),
+        **values,
+    )
+
+
+def _legacy_responses_plan(
+    execution_mode: ExperimentExecutionMode,
+) -> RealModelExperimentPlan:
+    manifest = _fixture_manifest()
+    ablation = AblationExperimentPlan.create(
+        benchmark_manifest_id=manifest.id,
+        benchmark_version=manifest.benchmark_version,
+    )
+    current = RealModelExperimentPlan.create(
+        manifest=manifest,
+        ablation_plan=ablation,
+        provider_descriptor=_descriptor(api_style=LLMAPIStyle.RESPONSES),
+        execution_mode=execution_mode,
+    )
+    legacy_descriptor = _legacy_responses_descriptor()
+    payload = current.model_dump(mode="json")
+    payload["provider_descriptor"] = legacy_descriptor.model_dump(
+        mode="json", exclude={"responses_completion_contract"}
+    )
+    payload["id"] = real_model_experiment_plan_id(
+        contract=current.contract,
+        benchmark_manifest_id=current.benchmark_manifest_id,
+        benchmark_version=current.benchmark_version,
+        ablation_plan_id=current.ablation_plan_id,
+        provider_descriptor_id=legacy_descriptor.id,
+        execution_mode=current.execution_mode,
+        condition_spec_ids=[item.id for item in current.condition_specs],
+        case_ids=current.case_ids,
+        provider_role_order=current.provider_role_order,
+    )
+    return RealModelExperimentPlan.model_validate(payload)
+
+
 def test_strict_schema_bundle_hash_is_deterministic_and_role_order_neutral():
     schemas = _schemas_by_role()
     reversed_schemas = dict(reversed(list(schemas.items())))
@@ -620,6 +697,136 @@ def test_descriptor_binds_current_schema_bundle_only_in_strict_mode():
 
     assert strict.strict_schema_bundle_sha256 == strict_schema_bundle_sha256()
     assert non_strict.strict_schema_bundle_sha256 is None
+
+
+def test_new_descriptor_binds_completion_contract_only_for_responses():
+    responses = _descriptor(api_style=LLMAPIStyle.RESPONSES)
+    chat = _descriptor(api_style=LLMAPIStyle.CHAT_COMPLETIONS)
+
+    assert (
+        responses.responses_completion_contract
+        == PHASE10D_RESPONSES_COMPLETION_CONTRACT
+    )
+    assert chat.responses_completion_contract is None
+
+
+def test_legacy_responses_descriptor_retains_step4_identity():
+    legacy = _legacy_responses_descriptor()
+    payload = legacy.model_dump(
+        mode="json", exclude={"responses_completion_contract"}
+    )
+
+    restored = RealModelProviderDescriptor.model_validate(payload)
+
+    assert "responses_completion_contract" not in payload
+    assert restored.responses_completion_contract is None
+    assert restored.id == payload["id"]
+
+
+def test_legacy_responses_real_plan_remains_model_valid():
+    legacy = _legacy_responses_plan(ExperimentExecutionMode.REAL_PROVIDER)
+    payload = legacy.model_dump(mode="json")
+    payload["provider_descriptor"].pop("responses_completion_contract")
+
+    restored = RealModelExperimentPlan.model_validate(payload)
+
+    assert restored == legacy
+    assert restored.execution_mode is ExperimentExecutionMode.REAL_PROVIDER
+    assert restored.provider_descriptor.responses_completion_contract is None
+
+
+def test_real_responses_plan_create_requires_current_completion_contract():
+    manifest = _fixture_manifest()
+    ablation = AblationExperimentPlan.create(
+        benchmark_manifest_id=manifest.id,
+        benchmark_version=manifest.benchmark_version,
+    )
+    legacy = _legacy_responses_descriptor()
+    wrong = _responses_descriptor_with_contract(
+        "phase10d_responses_completion_state_fixture_wrong"
+    )
+    current = _descriptor(api_style=LLMAPIStyle.RESPONSES)
+
+    for invalid in (legacy, wrong):
+        with pytest.raises(
+            ValueError, match="requires current completion contract"
+        ):
+            RealModelExperimentPlan.create(
+                manifest=manifest,
+                ablation_plan=ablation,
+                provider_descriptor=invalid,
+                execution_mode=ExperimentExecutionMode.REAL_PROVIDER,
+            )
+
+    real = RealModelExperimentPlan.create(
+        manifest=manifest,
+        ablation_plan=ablation,
+        provider_descriptor=current,
+        execution_mode=ExperimentExecutionMode.REAL_PROVIDER,
+    )
+    offline_legacy = RealModelExperimentPlan.create(
+        manifest=manifest,
+        ablation_plan=ablation,
+        provider_descriptor=legacy,
+        execution_mode=ExperimentExecutionMode.OFFLINE_CONTRACT,
+    )
+
+    assert (
+        real.provider_descriptor.responses_completion_contract
+        == PHASE10D_RESPONSES_COMPLETION_CONTRACT
+    )
+    assert (
+        offline_legacy.provider_descriptor.responses_completion_contract
+        is None
+    )
+
+
+def test_responses_completion_contract_changes_descriptor_and_plan_identity():
+    legacy = _legacy_responses_descriptor()
+    current = _descriptor(api_style=LLMAPIStyle.RESPONSES)
+
+    assert legacy.id != current.id
+    assert _plan(descriptor=legacy).id != _plan(descriptor=current).id
+
+
+def test_chat_descriptor_retains_step4_identity_without_responses_contract():
+    current = _descriptor(api_style=LLMAPIStyle.CHAT_COMPLETIONS)
+    legacy_identity = real_model_provider_descriptor_id(
+        provider_protocol=current.provider_protocol,
+        model=current.model,
+        api_style=current.api_style,
+        strict_json_schema=current.strict_json_schema,
+        reasoning_effort=current.reasoning_effort,
+        max_completion_tokens=current.max_completion_tokens,
+        schema_name=current.schema_name,
+        strict_schema_bundle_sha256=current.strict_schema_bundle_sha256,
+    )
+
+    assert current.responses_completion_contract is None
+    assert current.id == legacy_identity
+
+
+def test_chat_descriptor_rejects_responses_completion_contract():
+    source = _descriptor(api_style=LLMAPIStyle.CHAT_COMPLETIONS)
+    values = {
+        "provider_protocol": source.provider_protocol,
+        "model": source.model,
+        "api_style": source.api_style,
+        "strict_json_schema": source.strict_json_schema,
+        "reasoning_effort": source.reasoning_effort,
+        "max_completion_tokens": source.max_completion_tokens,
+        "schema_name": source.schema_name,
+        "strict_schema_bundle_sha256": source.strict_schema_bundle_sha256,
+        "responses_completion_contract": (
+            PHASE10D_RESPONSES_COMPLETION_CONTRACT
+        ),
+    }
+
+    with pytest.raises(ValidationError, match="Chat descriptor"):
+        RealModelProviderDescriptor(
+            id=real_model_provider_descriptor_id(**values),
+            **values,
+        )
 
 
 def test_old_descriptor_without_bundle_retains_old_identity_and_plan_validity():
@@ -1073,7 +1280,9 @@ def test_old_failure_without_parser_detail_retains_old_identity() -> None:
     restored = RealModelInvocationFailure.model_validate(payload)
 
     assert "parser_failure_detail" not in payload
+    assert "provider_response_failure_detail" not in payload
     assert restored.parser_failure_detail is None
+    assert restored.provider_response_failure_detail is None
     assert restored.id == payload["id"]
 
 
@@ -1131,6 +1340,81 @@ def test_non_parse_failure_rejects_parser_failure_detail() -> None:
             stage=RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
             failure_code=RealModelInvocationFailureCode.PROVIDER_TIMEOUT,
             parser_failure_detail=StructuredParseFailureDetail.JSON_PARSE,
+        )
+
+
+def test_provider_response_detail_is_closed_and_participates_in_identity():
+    plan = _one_case_plan()
+    key = ExperimentCaseInvocationKey.create(
+        plan,
+        condition_kind=AblationConditionKind.FULL_CONTEXT_MODEL,
+        benchmark_case_id=plan.case_ids[0],
+        role=ReasoningAgentType.CODE,
+    )
+    token_limit = RealModelInvocationFailure.create(
+        key,
+        stage=RealModelInvocationFailureStage.PROVIDER_RESPONSE,
+        failure_code=RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID,
+        provider_response_failure_detail=(
+            ProviderResponseFailureDetail.MAX_OUTPUT_TOKENS
+        ),
+    )
+    filtered = RealModelInvocationFailure.create(
+        key,
+        stage=RealModelInvocationFailureStage.PROVIDER_RESPONSE,
+        failure_code=RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID,
+        provider_response_failure_detail=(
+            ProviderResponseFailureDetail.CONTENT_FILTER
+        ),
+    )
+
+    assert token_limit.id != filtered.id
+    assert (
+        RealModelInvocationFailure.model_validate_json(
+            token_limit.model_dump_json()
+        )
+        == token_limit
+    )
+    with pytest.raises(ValueError, match="ProviderResponseFailureDetail"):
+        RealModelInvocationFailure.create(
+            key,
+            stage=RealModelInvocationFailureStage.PROVIDER_RESPONSE,
+            failure_code=(
+                RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID
+            ),
+            provider_response_failure_detail="fixture-unbounded-detail",
+        )
+
+
+def test_provider_response_detail_rejects_wrong_stage_or_parser_combination():
+    plan = _one_case_plan()
+    key = ExperimentCaseInvocationKey.create(
+        plan,
+        condition_kind=AblationConditionKind.FULL_CONTEXT_MODEL,
+        benchmark_case_id=plan.case_ids[0],
+        role=ReasoningAgentType.CODE,
+    )
+
+    with pytest.raises(ValidationError, match="provider-response stage"):
+        RealModelInvocationFailure.create(
+            key,
+            stage=RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
+            failure_code=RealModelInvocationFailureCode.PROVIDER_TIMEOUT,
+            provider_response_failure_detail=(
+                ProviderResponseFailureDetail.MAX_OUTPUT_TOKENS
+            ),
+        )
+    with pytest.raises(ValidationError, match="details are exclusive"):
+        RealModelInvocationFailure.create(
+            key,
+            stage=RealModelInvocationFailureStage.PROVIDER_RESPONSE,
+            failure_code=(
+                RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID
+            ),
+            parser_failure_detail=StructuredParseFailureDetail.JSON_PARSE,
+            provider_response_failure_detail=(
+                ProviderResponseFailureDetail.MAX_OUTPUT_TOKENS
+            ),
         )
 
 

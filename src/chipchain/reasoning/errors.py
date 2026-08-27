@@ -1,5 +1,10 @@
 """Public exception hierarchy for Phase 7 reasoning."""
 
+from chipchain.reasoning.enums import (
+    ProviderCompletionState,
+    ProviderIncompleteReason,
+)
+
 
 class ReasoningError(Exception):
     """Base class for context, retrieval, prompt, and provider failures."""
@@ -30,10 +35,29 @@ class LLMProviderResponseError(ReasoningError):
         *,
         status_code: int | None = None,
         stage: str = "provider_response",
+        completion_state: ProviderCompletionState | str | None = None,
+        completion_reason: ProviderIncompleteReason | str | None = None,
     ) -> None:
         super().__init__(message)
         self.status_code = status_code
         self.stage = stage
+        self.completion_state = (
+            ProviderCompletionState(completion_state)
+            if completion_state is not None
+            else None
+        )
+        self.completion_reason = (
+            ProviderIncompleteReason(completion_reason)
+            if completion_reason is not None
+            else None
+        )
+        if (
+            self.completion_reason is not None
+            and self.completion_state is not ProviderCompletionState.INCOMPLETE
+        ):
+            raise ValueError(
+                "completion reason requires incomplete provider response"
+            )
 
 
 class LLMOutputValidationError(ReasoningError):

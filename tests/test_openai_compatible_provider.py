@@ -42,7 +42,7 @@ class FakeClient:
 
     def __init__(self, content: str, *, error: Exception | None = None) -> None:
         self.responses = FakeEndpoint(
-            SimpleNamespace(output_text=content),
+            SimpleNamespace(status="completed", output_text=content),
             error=error,
         )
         chat_endpoint = FakeEndpoint(

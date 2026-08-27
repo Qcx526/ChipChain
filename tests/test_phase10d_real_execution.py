@@ -26,6 +26,7 @@ from chipchain.evaluation import (
     ModelClaimBindingStatus,
     ModelInvocationDisposition,
     PromptVisibilityAuditStatus,
+    ProviderResponseFailureDetail,
     RealExperimentCaseInput,
     RealExperimentInputSet,
     RealExperimentExecutionError,
@@ -34,13 +35,17 @@ from chipchain.evaluation import (
     RealModelExperimentPlan,
     RealModelInvocationFailureCode,
     RealModelInvocationFailureStage,
+    RealModelProviderDescriptor,
     StructuredParseFailureDetail,
 )
 from chipchain.hardware_trigger.enums import TriggerabilityStatus
 from chipchain.reasoning import (
+    LLMAPIStyle,
     MockReasoningProvider,
     OpenAICompatibleLLMProvider,
     OpenAICompatibleReasoningProvider,
+    ProviderCompletionState,
+    ProviderIncompleteReason,
     ReasoningAgentType,
     ReasoningProvider,
     RoleBasedReasoningPromptBuilder,
@@ -63,6 +68,7 @@ from tests.test_phase10c_ablation import _context
 from tests.test_phase10d_experiment_contracts import (
     _config,
     _descriptor,
+    _legacy_responses_plan,
     _legacy_strict_plan,
 )
 
@@ -159,16 +165,69 @@ class _OfflineChatCompletions:
         )
 
 
+class _OfflineResponses:
+    def __init__(self, *, response_overrides=None) -> None:
+        self.calls = []
+        self._response_overrides = response_overrides or {}
+
+    def create(self, **kwargs):
+        self.calls.append(kwargs)
+        _, user_prompt = (item["content"] for item in kwargs["input"])
+        payload = json.loads(user_prompt)
+        visible_context = payload["reasoning_context"]
+        request = StructuredPromptRequest(
+            candidate_id=visible_context["id"],
+            architecture=visible_context["architecture"],
+            role=payload["role"],
+            schema_name=REASONING_PROVIDER_SCHEMA_NAME,
+            system_prompt=kwargs["input"][0]["content"],
+            user_prompt=user_prompt,
+        )
+        raw = MockReasoningProvider().generate(request)
+        override = self._response_overrides.get(len(self.calls), {})
+        return SimpleNamespace(
+            status=override.get("status", "completed"),
+            output_text=override.get("output_text", raw),
+            incomplete_details=(
+                SimpleNamespace(reason=override["reason"])
+                if "reason" in override
+                else None
+            ),
+            error=(
+                SimpleNamespace(message=override["error_message"])
+                if "error_message" in override
+                else None
+            ),
+        )
+
+
 class _OfflineOpenAIClient:
-    def __init__(self, *, fail_call: int | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        fail_call: int | None = None,
+        response_overrides=None,
+    ) -> None:
         self.completions = _OfflineChatCompletions(fail_call=fail_call)
         self.chat = SimpleNamespace(completions=self.completions)
+        self.responses = _OfflineResponses(
+            response_overrides=response_overrides
+        )
 
 
-def _offline_real_provider(*, fail_call: int | None = None):
-    client = _OfflineOpenAIClient(fail_call=fail_call)
+def _offline_real_provider(
+    *,
+    fail_call: int | None = None,
+    config: LLMProviderConfig | None = None,
+    response_overrides=None,
+):
+    provider_config = config or _config()
+    client = _OfflineOpenAIClient(
+        fail_call=fail_call,
+        response_overrides=response_overrides,
+    )
     transport = OpenAICompatibleLLMProvider(
-        config=_config(),
+        config=provider_config,
         api_key="fixture-only-not-a-real-secret",
         client=client,
     )
@@ -180,6 +239,7 @@ def _plan_and_inputs(
     execution_mode: ExperimentExecutionMode = (
         ExperimentExecutionMode.OFFLINE_CONTRACT
     ),
+    provider_config: LLMProviderConfig | None = None,
 ):
     manifest = _fixture_manifest()
     ablation = AblationExperimentPlan.create(
@@ -189,7 +249,9 @@ def _plan_and_inputs(
     plan = RealModelExperimentPlan.create(
         manifest=manifest,
         ablation_plan=ablation,
-        provider_descriptor=_descriptor(),
+        provider_descriptor=RealModelProviderDescriptor.from_provider_config(
+            provider_config or _config()
+        ),
         execution_mode=execution_mode,
     )
     base = _context()
@@ -520,6 +582,67 @@ def test_parse_failure_retains_hashes_but_not_raw_response():
     assert "user_prompt" not in serialized
 
 
+def test_incomplete_responses_archive_preserves_only_bounded_detail():
+    config = _config(api_style=LLMAPIStyle.RESPONSES)
+    manifest, plan, inputs = _plan_and_inputs(
+        execution_mode=ExperimentExecutionMode.REAL_PROVIDER,
+        provider_config=config,
+    )
+    provider, client = _offline_real_provider(
+        config=config,
+        response_overrides={
+            3: {
+                "status": "incomplete",
+                "reason": "fixture-private-vendor-reason",
+                "output_text": "fixture-private-truncated-output",
+                "error_message": "fixture-private-provider-error-message",
+            }
+        },
+    )
+
+    archive = RealModelExperimentExecutor(provider=provider).execute(
+        plan, manifest, inputs
+    )
+    full = _condition(archive, AblationConditionKind.FULL_CONTEXT_MODEL)
+    failed = next(
+        item
+        for item in full.invocation_records
+        if item.disposition is ModelInvocationDisposition.FAILED
+    )
+
+    assert failed.failure.stage is RealModelInvocationFailureStage.PROVIDER_RESPONSE
+    assert (
+        failed.failure.failure_code
+        is RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID
+    )
+    assert failed.failure.parser_failure_detail is None
+    assert (
+        failed.failure.provider_response_failure_detail
+        is ProviderResponseFailureDetail.OTHER_BOUNDED_PROVIDER_RESPONSE_FAILURE
+    )
+    assert failed.provider_response_sha256 is None
+    assert len(client.responses.calls) > 3
+    assert client.completions.calls == []
+
+    serialized = archive.model_dump_json()
+    restored = RealModelExecutionArchive.model_validate_json(serialized)
+    restored_failure = next(
+        item.failure
+        for item in _condition(
+            restored, AblationConditionKind.FULL_CONTEXT_MODEL
+        ).invocation_records
+        if item.disposition is ModelInvocationDisposition.FAILED
+    )
+    assert (
+        restored_failure.provider_response_failure_detail
+        is ProviderResponseFailureDetail.OTHER_BOUNDED_PROVIDER_RESPONSE_FAILURE
+    )
+    assert "fixture-private-vendor-reason" not in serialized
+    assert "fixture-private-truncated-output" not in serialized
+    assert "fixture-private-provider-error-message" not in serialized
+    assert "traceback" not in serialized.lower()
+
+
 @pytest.mark.parametrize(
     ("parser_stage", "expected_detail"),
     [
@@ -556,11 +679,14 @@ def test_executor_maps_parser_stage_to_bounded_detail(
         parse_completed=False,
     )
 
-    stage, code, detail = RealModelExperimentExecutor._map_failure(attempt)
+    stage, code, detail, provider_detail = (
+        RealModelExperimentExecutor._map_failure(attempt)
+    )
 
     assert stage is RealModelInvocationFailureStage.STRUCTURED_PARSE
     assert code is RealModelInvocationFailureCode.PROVIDER_CONTRACT_REJECTED
     assert detail is expected_detail
+    assert provider_detail is None
 
 
 def test_executor_maps_non_validation_parse_failure_to_other_bounded_detail():
@@ -571,11 +697,14 @@ def test_executor_maps_non_validation_parse_failure_to_other_bounded_detail():
         parse_completed=False,
     )
 
-    stage, code, detail = RealModelExperimentExecutor._map_failure(attempt)
+    stage, code, detail, provider_detail = (
+        RealModelExperimentExecutor._map_failure(attempt)
+    )
 
     assert stage is RealModelInvocationFailureStage.STRUCTURED_PARSE
     assert code is RealModelInvocationFailureCode.PROVIDER_CONTRACT_REJECTED
     assert detail is StructuredParseFailureDetail.OTHER_BOUNDED_PARSE_FAILURE
+    assert provider_detail is None
 
 
 @pytest.mark.parametrize(
@@ -617,11 +746,14 @@ def test_executor_transport_failures_never_receive_parser_detail(
         parse_completed=False,
     )
 
-    stage, code, detail = RealModelExperimentExecutor._map_failure(attempt)
+    stage, code, detail, provider_detail = (
+        RealModelExperimentExecutor._map_failure(attempt)
+    )
 
     assert stage is expected_stage
     assert code is expected_code
     assert detail is None
+    assert provider_detail is None
 
 
 def test_executor_response_content_remains_provider_response_without_detail():
@@ -634,11 +766,96 @@ def test_executor_response_content_remains_provider_response_without_detail():
         parse_completed=False,
     )
 
-    stage, code, detail = RealModelExperimentExecutor._map_failure(attempt)
+    stage, code, detail, provider_detail = (
+        RealModelExperimentExecutor._map_failure(attempt)
+    )
 
     assert stage is RealModelInvocationFailureStage.PROVIDER_RESPONSE
     assert code is RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID
     assert detail is None
+    assert provider_detail is None
+
+
+@pytest.mark.parametrize(
+    ("reason", "expected_detail"),
+    [
+        (
+            ProviderIncompleteReason.MAX_OUTPUT_TOKENS,
+            ProviderResponseFailureDetail.MAX_OUTPUT_TOKENS,
+        ),
+        (
+            ProviderIncompleteReason.CONTENT_FILTER,
+            ProviderResponseFailureDetail.CONTENT_FILTER,
+        ),
+        (
+            ProviderIncompleteReason.OTHER_BOUNDED_INCOMPLETE_REASON,
+            ProviderResponseFailureDetail.
+            OTHER_BOUNDED_PROVIDER_RESPONSE_FAILURE,
+        ),
+    ],
+)
+def test_executor_maps_incomplete_response_to_bounded_provider_detail(
+    reason, expected_detail
+):
+    attempt = SimpleNamespace(
+        prompt=object(),
+        error=LLMProviderResponseError(
+            "fixture bounded response",
+            stage="response_incomplete",
+            completion_state=ProviderCompletionState.INCOMPLETE,
+            completion_reason=reason,
+        ),
+        parse_entered=False,
+        parse_completed=False,
+    )
+
+    stage, code, parser_detail, provider_detail = (
+        RealModelExperimentExecutor._map_failure(attempt)
+    )
+
+    assert stage is RealModelInvocationFailureStage.PROVIDER_RESPONSE
+    assert code is RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID
+    assert parser_detail is None
+    assert provider_detail is expected_detail
+
+
+@pytest.mark.parametrize(
+    ("error_stage", "completion_state", "expected_detail"),
+    [
+        (
+            "response_failed",
+            ProviderCompletionState.FAILED,
+            ProviderResponseFailureDetail.PROVIDER_REPORTED_FAILED,
+        ),
+        (
+            "response_nonterminal",
+            ProviderCompletionState.NONTERMINAL_OR_UNKNOWN,
+            ProviderResponseFailureDetail.NONTERMINAL_OR_UNKNOWN_STATUS,
+        ),
+    ],
+)
+def test_executor_maps_failed_or_nonterminal_provider_response(
+    error_stage, completion_state, expected_detail
+):
+    attempt = SimpleNamespace(
+        prompt=object(),
+        error=LLMProviderResponseError(
+            "fixture bounded response",
+            stage=error_stage,
+            completion_state=completion_state,
+        ),
+        parse_entered=False,
+        parse_completed=False,
+    )
+
+    stage, code, parser_detail, provider_detail = (
+        RealModelExperimentExecutor._map_failure(attempt)
+    )
+
+    assert stage is RealModelInvocationFailureStage.PROVIDER_RESPONSE
+    assert code is RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID
+    assert parser_detail is None
+    assert provider_detail is expected_detail
 
 
 def test_masked_leak_fails_before_provider_transport():
@@ -1001,6 +1218,44 @@ def test_executor_rejects_legacy_strict_real_plan_before_provider_call():
             legacy_plan, manifest, legacy_inputs
         )
 
+    assert client.completions.calls == []
+
+
+def test_executor_rejects_legacy_responses_contract_before_provider_call():
+    config = _config(api_style=LLMAPIStyle.RESPONSES)
+    manifest, _, source_inputs = _plan_and_inputs(
+        execution_mode=ExperimentExecutionMode.REAL_PROVIDER,
+        provider_config=config,
+    )
+    legacy_plan = _legacy_responses_plan(
+        ExperimentExecutionMode.REAL_PROVIDER
+    )
+    legacy_case_inputs = [
+        RealExperimentCaseInput.create(
+            legacy_plan,
+            benchmark_case_id=item.benchmark_case_id,
+            reasoning_context=item.reasoning_context,
+            triggerability=item.triggerability,
+            metadata=item.metadata,
+        )
+        for item in source_inputs.case_inputs
+    ]
+    legacy_inputs = RealExperimentInputSet.create(
+        legacy_plan,
+        case_inputs=legacy_case_inputs,
+        metadata=source_inputs.metadata,
+    )
+    provider, client = _offline_real_provider(config=config)
+
+    with pytest.raises(
+        RealExperimentExecutionError,
+        match="requires current completion contract",
+    ):
+        RealModelExperimentExecutor(provider=provider).execute(
+            legacy_plan, manifest, legacy_inputs
+        )
+
+    assert client.responses.calls == []
     assert client.completions.calls == []
 
 

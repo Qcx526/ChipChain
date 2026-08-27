@@ -233,3 +233,15 @@ class StructuredParseFailureDetail(str, Enum):
     REQUEST_CARDINALITY = "request_cardinality"
     EVIDENCE_REFERENCE = "evidence_reference"
     OTHER_BOUNDED_PARSE_FAILURE = "other_bounded_parse_failure"
+
+
+class ProviderResponseFailureDetail(str, Enum):
+    """Closed provider-response attribution without vendor diagnostics."""
+
+    MAX_OUTPUT_TOKENS = "max_output_tokens"
+    CONTENT_FILTER = "content_filter"
+    PROVIDER_REPORTED_FAILED = "provider_reported_failed"
+    NONTERMINAL_OR_UNKNOWN_STATUS = "nonterminal_or_unknown_status"
+    OTHER_BOUNDED_PROVIDER_RESPONSE_FAILURE = (
+        "other_bounded_provider_response_failure"
+    )

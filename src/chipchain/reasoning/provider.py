@@ -13,6 +13,8 @@ from pydantic import ValidationError
 
 from chipchain.reasoning.enums import (
     LLMAPIStyle,
+    ProviderCompletionState,
+    ProviderIncompleteReason,
     ReasoningAgentType,
     ReasoningPromptVisibility,
 )
@@ -300,7 +302,7 @@ class OpenAICompatibleLLMProvider(LLMProvider, StructuredOutputProvider):
                         self._config.max_completion_tokens
                     )
                 response = self._client.responses.create(**kwargs)
-                content = response.output_text
+                content = _completed_responses_output_text(response)
             else:
                 kwargs = {
                     "model": self._config.model,
@@ -472,6 +474,46 @@ def _require_text_output(content: object) -> str:
             stage="response_content",
         )
     return content
+
+
+def _completed_responses_output_text(response: object) -> object:
+    """Return text only for a terminal completed Responses result."""
+
+    status = _response_member(response, "status")
+    if status == "completed":
+        return _response_member(response, "output_text")
+    if status == "incomplete":
+        details = _response_member(response, "incomplete_details")
+        raw_reason = _response_member(details, "reason")
+        if raw_reason == "max_output_tokens":
+            reason = ProviderIncompleteReason.MAX_OUTPUT_TOKENS
+        elif raw_reason == "content_filter":
+            reason = ProviderIncompleteReason.CONTENT_FILTER
+        else:
+            reason = ProviderIncompleteReason.OTHER_BOUNDED_INCOMPLETE_REASON
+        raise LLMProviderResponseError(
+            "LLM provider response was incomplete",
+            stage="response_incomplete",
+            completion_state=ProviderCompletionState.INCOMPLETE,
+            completion_reason=reason,
+        )
+    if status == "failed":
+        raise LLMProviderResponseError(
+            "LLM provider reported a failed response",
+            stage="response_failed",
+            completion_state=ProviderCompletionState.FAILED,
+        )
+    raise LLMProviderResponseError(
+        "LLM provider response was not completed",
+        stage="response_nonterminal",
+        completion_state=ProviderCompletionState.NONTERMINAL_OR_UNKNOWN,
+    )
+
+
+def _response_member(value: object, name: str) -> object:
+    if isinstance(value, Mapping):
+        return value.get(name)
+    return getattr(value, name, None)
 
 
 def _status_code(exception: Exception) -> int | None:

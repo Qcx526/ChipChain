@@ -20,6 +20,7 @@ from chipchain.evaluation.enums import (
     AblationConditionKind,
     ExperimentExecutionMode,
     ModelInvocationDisposition,
+    ProviderResponseFailureDetail,
     RealModelInvocationFailureCode,
     RealModelInvocationFailureStage,
     RealModelProviderProtocol,
@@ -40,6 +41,9 @@ from chipchain.reasoning.parser import (
 
 
 PHASE10D_EXPERIMENT_CONTRACT = "phase10d_real_model_experiment_v1"
+PHASE10D_RESPONSES_COMPLETION_CONTRACT = (
+    "phase10d_responses_completion_state_v1"
+)
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _HTTP_URL = re.compile(r"(?i)\bhttps?://\S+")
 _FORBIDDEN_EXPERIMENT_METADATA_FRAGMENTS = (
@@ -159,6 +163,7 @@ def real_model_provider_descriptor_id(
     max_completion_tokens: int | None,
     schema_name: str,
     strict_schema_bundle_sha256: str | None = None,
+    responses_completion_contract: str | None = None,
 ) -> str:
     """Bind only non-secret model-semantic experiment configuration."""
 
@@ -175,6 +180,10 @@ def real_model_provider_descriptor_id(
         payload["strict_schema_bundle_sha256"] = _validate_sha256(
             strict_schema_bundle_sha256, "strict schema bundle hash"
         )
+    if responses_completion_contract is not None:
+        payload["responses_completion_contract"] = (
+            responses_completion_contract
+        )
     return _canonical_hash("real-model-provider-descriptor", payload)
 
 
@@ -190,6 +199,7 @@ class RealModelProviderDescriptor(DomainModel):
     max_completion_tokens: int | None = Field(default=None, gt=0)
     schema_name: Identifier
     strict_schema_bundle_sha256: str | None = None
+    responses_completion_contract: Identifier | None = None
 
     @field_validator("reasoning_effort")
     @classmethod
@@ -227,6 +237,7 @@ class RealModelProviderDescriptor(DomainModel):
             max_completion_tokens=self.max_completion_tokens,
             schema_name=self.schema_name,
             strict_schema_bundle_sha256=self.strict_schema_bundle_sha256,
+            responses_completion_contract=self.responses_completion_contract,
         )
         if (
             not self.strict_json_schema
@@ -234,6 +245,13 @@ class RealModelProviderDescriptor(DomainModel):
         ):
             raise ValueError(
                 "non-strict provider descriptor cannot bind a schema bundle"
+            )
+        if (
+            self.api_style is LLMAPIStyle.CHAT_COMPLETIONS
+            and self.responses_completion_contract is not None
+        ):
+            raise ValueError(
+                "Chat descriptor cannot bind a Responses completion contract"
             )
         if self.id != expected:
             raise ValueError("RealModelProviderDescriptor ID is not deterministic")
@@ -261,6 +279,11 @@ class RealModelProviderDescriptor(DomainModel):
             "schema_name": schema_name.strip(),
             "strict_schema_bundle_sha256": (
                 strict_schema_bundle_sha256() if snapshot.json_mode else None
+            ),
+            "responses_completion_contract": (
+                PHASE10D_RESPONSES_COMPLETION_CONTRACT
+                if snapshot.api_style is LLMAPIStyle.RESPONSES
+                else None
             ),
         }
         return cls(
@@ -419,6 +442,15 @@ class RealModelExperimentPlan(DomainModel):
         ):
             raise ValueError(
                 "REAL_PROVIDER strict schema requires bundle provenance"
+            )
+        if (
+            mode is ExperimentExecutionMode.REAL_PROVIDER
+            and descriptor_snapshot.api_style is LLMAPIStyle.RESPONSES
+            and descriptor_snapshot.responses_completion_contract
+            != PHASE10D_RESPONSES_COMPLETION_CONTRACT
+        ):
+            raise ValueError(
+                "REAL_PROVIDER Responses requires current completion contract"
             )
         specs = list(ablation_snapshot.condition_specs)
         cases = [item.id for item in manifest_snapshot.cases]
@@ -592,6 +624,8 @@ def real_model_invocation_failure_id(
     stage: RealModelInvocationFailureStage,
     failure_code: RealModelInvocationFailureCode,
     parser_failure_detail: StructuredParseFailureDetail | None = None,
+    provider_response_failure_detail: ProviderResponseFailureDetail
+    | None = None,
 ) -> str:
     payload = {
         "failure_code": RealModelInvocationFailureCode(failure_code).value,
@@ -602,6 +636,12 @@ def real_model_invocation_failure_id(
         payload["parser_failure_detail"] = StructuredParseFailureDetail(
             parser_failure_detail
         ).value
+    if provider_response_failure_detail is not None:
+        payload["provider_response_failure_detail"] = (
+            ProviderResponseFailureDetail(
+                provider_response_failure_detail
+            ).value
+        )
     return _canonical_hash("real-model-invocation-failure", payload)
 
 
@@ -613,6 +653,9 @@ class RealModelInvocationFailure(DomainModel):
     stage: RealModelInvocationFailureStage
     failure_code: RealModelInvocationFailureCode
     parser_failure_detail: StructuredParseFailureDetail | None = None
+    provider_response_failure_detail: ProviderResponseFailureDetail | None = (
+        None
+    )
     metadata: Metadata = Field(default_factory=dict)
 
     @field_validator("metadata")
@@ -627,13 +670,28 @@ class RealModelInvocationFailure(DomainModel):
             stage=self.stage,
             failure_code=self.failure_code,
             parser_failure_detail=self.parser_failure_detail,
+            provider_response_failure_detail=(
+                self.provider_response_failure_detail
+            ),
         )
+        if (
+            self.parser_failure_detail is not None
+            and self.provider_response_failure_detail is not None
+        ):
+            raise ValueError("parser and provider response details are exclusive")
         if (
             self.stage is not RealModelInvocationFailureStage.STRUCTURED_PARSE
             and self.parser_failure_detail is not None
         ):
             raise ValueError(
                 "parser failure detail requires structured-parse stage"
+            )
+        if (
+            self.stage is not RealModelInvocationFailureStage.PROVIDER_RESPONSE
+            and self.provider_response_failure_detail is not None
+        ):
+            raise ValueError(
+                "provider response detail requires provider-response stage"
             )
         if self.id != expected:
             raise ValueError("RealModelInvocationFailure ID is not deterministic")
@@ -647,6 +705,9 @@ class RealModelInvocationFailure(DomainModel):
         stage: RealModelInvocationFailureStage | str,
         failure_code: RealModelInvocationFailureCode | str,
         parser_failure_detail: StructuredParseFailureDetail | str | None = None,
+        provider_response_failure_detail: ProviderResponseFailureDetail
+        | str
+        | None = None,
         metadata: Metadata | None = None,
     ) -> "RealModelInvocationFailure":
         if not isinstance(invocation_key, ExperimentCaseInvocationKey):
@@ -658,11 +719,17 @@ class RealModelInvocationFailure(DomainModel):
             if parser_failure_detail is not None
             else None
         )
+        response_detail = (
+            ProviderResponseFailureDetail(provider_response_failure_detail)
+            if provider_response_failure_detail is not None
+            else None
+        )
         identity = real_model_invocation_failure_id(
             invocation_key_id=invocation_key.id,
             stage=normalized_stage,
             failure_code=code,
             parser_failure_detail=detail,
+            provider_response_failure_detail=response_detail,
         )
         return cls(
             id=identity,
@@ -670,6 +737,7 @@ class RealModelInvocationFailure(DomainModel):
             stage=normalized_stage,
             failure_code=code,
             parser_failure_detail=detail,
+            provider_response_failure_detail=response_detail,
             metadata=metadata or {},
         )
 

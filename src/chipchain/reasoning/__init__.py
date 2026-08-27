@@ -18,6 +18,8 @@ from chipchain.reasoning.enums import (
     EvidencePriority,
     HypothesisSource,
     LLMAPIStyle,
+    ProviderCompletionState,
+    ProviderIncompleteReason,
     ReasoningAgentType,
     ReasoningPromptVisibility,
 )
@@ -140,6 +142,8 @@ __all__ = [
     "ObservationFeedbackRelation",
     "OpenAICompatibleLLMProvider",
     "OpenAICompatibleReasoningProvider",
+    "ProviderCompletionState",
+    "ProviderIncompleteReason",
     "PromptRequest",
     "StructuredOutputProvider",
     "StructuredPromptRequest",

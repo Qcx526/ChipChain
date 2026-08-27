@@ -38,6 +38,7 @@ from chipchain.evaluation.enums import (
     BenchmarkExecutionStage,
     ExperimentExecutionMode,
     PromptVisibilityAuditStatus,
+    ProviderResponseFailureDetail,
     RealModelInvocationFailureCode,
     RealModelInvocationFailureStage,
     StructuredParseFailureDetail,
@@ -61,6 +62,7 @@ from chipchain.evaluation.experiment_artifact import (
 )
 from chipchain.evaluation.experiment_models import (
     PHASE10D_PROVIDER_ROLE_ORDER,
+    PHASE10D_RESPONSES_COMPLETION_CONTRACT,
     ExperimentCaseInvocationKey,
     ModelInvocationRecord,
     RealModelExperimentPlan,
@@ -72,6 +74,8 @@ from chipchain.evaluation.oracle import ChainFeasibilityOracle
 from chipchain.evaluation.runner import BenchmarkEvaluationRunner
 from chipchain.reasoning.engine import ReasoningEngine
 from chipchain.reasoning.enums import (
+    LLMAPIStyle,
+    ProviderIncompleteReason,
     ReasoningAgentType,
     ReasoningPromptVisibility,
 )
@@ -230,6 +234,16 @@ class RealModelExperimentExecutor:
         ):
             raise RealExperimentExecutionError(
                 "REAL_PROVIDER strict schema requires bundle provenance"
+            )
+        if (
+            plan_snapshot.execution_mode is ExperimentExecutionMode.REAL_PROVIDER
+            and plan_snapshot.provider_descriptor.api_style
+            is LLMAPIStyle.RESPONSES
+            and plan_snapshot.provider_descriptor.responses_completion_contract
+            != PHASE10D_RESPONSES_COMPLETION_CONTRACT
+        ):
+            raise RealExperimentExecutionError(
+                "REAL_PROVIDER Responses requires current completion contract"
             )
         manifest_snapshot = BenchmarkManifest.model_validate(
             manifest.model_dump(mode="json")
@@ -699,7 +713,7 @@ class RealModelExperimentExecutor:
                     )
                 )
             elif role is failed_role:
-                stage, code, parser_detail = (
+                stage, code, parser_detail, provider_detail = (
                     RealModelExperimentExecutor._map_failure(attempt)
                 )
                 bounded = RealModelInvocationFailure.create(
@@ -707,6 +721,7 @@ class RealModelExperimentExecutor:
                     stage=stage,
                     failure_code=code,
                     parser_failure_detail=parser_detail,
+                    provider_response_failure_detail=provider_detail,
                 )
                 records.append(
                     ModelInvocationRecord.failed(
@@ -747,6 +762,7 @@ class RealModelExperimentExecutor:
                 RealModelInvocationFailureStage.PROMPT_CONSTRUCTION,
                 RealModelInvocationFailureCode.OTHER_BOUNDED_FAILURE,
                 None,
+                None,
             )
         error = attempt.error
         if isinstance(error, _PromptVisibilityLeakError):
@@ -754,11 +770,13 @@ class RealModelExperimentExecutor:
                 RealModelInvocationFailureStage.PROMPT_CONSTRUCTION,
                 RealModelInvocationFailureCode.PROMPT_VISIBILITY_FAILED,
                 None,
+                None,
             )
         if attempt.parse_completed:
             return (
                 RealModelInvocationFailureStage.WORKFLOW_ASSEMBLY,
                 RealModelInvocationFailureCode.WORKFLOW_CONTRACT_FAILED,
+                None,
                 None,
             )
         if attempt.parse_entered:
@@ -769,16 +787,19 @@ class RealModelExperimentExecutor:
                     RealModelInvocationFailureStage.PROVIDER_RESPONSE,
                     RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID,
                     None,
+                    None,
                 )
             return (
                 RealModelInvocationFailureStage.STRUCTURED_PARSE,
                 RealModelInvocationFailureCode.PROVIDER_CONTRACT_REJECTED,
                 RealModelExperimentExecutor._parse_failure_detail(error),
+                None,
             )
         if isinstance(error, LLMProviderConfigurationError):
             return (
                 RealModelInvocationFailureStage.PROVIDER_CONNECTION,
                 RealModelInvocationFailureCode.PROVIDER_UNAVAILABLE,
+                None,
                 None,
             )
         if isinstance(error, TimeoutError):
@@ -786,12 +807,40 @@ class RealModelExperimentExecutor:
                 RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
                 RealModelInvocationFailureCode.PROVIDER_TIMEOUT,
                 None,
+                None,
             )
         if isinstance(error, LLMProviderResponseError):
+            if error.stage == "response_incomplete":
+                return (
+                    RealModelInvocationFailureStage.PROVIDER_RESPONSE,
+                    RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID,
+                    None,
+                    RealModelExperimentExecutor._provider_response_detail(
+                        error
+                    ),
+                )
+            if error.stage == "response_failed":
+                return (
+                    RealModelInvocationFailureStage.PROVIDER_RESPONSE,
+                    RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID,
+                    None,
+                    ProviderResponseFailureDetail.PROVIDER_REPORTED_FAILED,
+                )
+            if error.stage == "response_nonterminal":
+                return (
+                    RealModelInvocationFailureStage.PROVIDER_RESPONSE,
+                    RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID,
+                    None,
+                    (
+                        ProviderResponseFailureDetail.
+                        NONTERMINAL_OR_UNKNOWN_STATUS
+                    ),
+                )
             if error.stage == "connection":
                 return (
                     RealModelInvocationFailureStage.PROVIDER_CONNECTION,
                     RealModelInvocationFailureCode.PROVIDER_UNAVAILABLE,
+                    None,
                     None,
                 )
             if error.stage == "transport":
@@ -804,16 +853,38 @@ class RealModelExperimentExecutor:
                     RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
                     code,
                     None,
+                    None,
                 )
             return (
                 RealModelInvocationFailureStage.PROVIDER_RESPONSE,
                 RealModelInvocationFailureCode.PROVIDER_RESPONSE_INVALID,
+                None,
                 None,
             )
         return (
             RealModelInvocationFailureStage.PROVIDER_TRANSPORT,
             RealModelInvocationFailureCode.OTHER_BOUNDED_FAILURE,
             None,
+            None,
+        )
+
+    @staticmethod
+    def _provider_response_detail(
+        error: LLMProviderResponseError,
+    ) -> ProviderResponseFailureDetail:
+        return {
+            ProviderIncompleteReason.MAX_OUTPUT_TOKENS: (
+                ProviderResponseFailureDetail.MAX_OUTPUT_TOKENS
+            ),
+            ProviderIncompleteReason.CONTENT_FILTER: (
+                ProviderResponseFailureDetail.CONTENT_FILTER
+            ),
+        }.get(
+            error.completion_reason,
+            (
+                ProviderResponseFailureDetail.
+                OTHER_BOUNDED_PROVIDER_RESPONSE_FAILURE
+            ),
         )
 
     @staticmethod

@@ -20,6 +20,8 @@ from chipchain.reasoning import (
     MockReasoningProvider,
     OpenAICompatibleLLMProvider,
     OpenAICompatibleReasoningProvider,
+    ProviderCompletionState,
+    ProviderIncompleteReason,
     ReasoningAgentType,
     ReasoningEngine,
     ReasoningProvider,
@@ -69,9 +71,25 @@ class FakeClient:
         content: object,
         *,
         error: Exception | None = None,
+        response_status: str | None = "completed",
+        incomplete_reason: str | None = None,
+        provider_error_message: str | None = None,
     ) -> None:
         self.responses = FakeEndpoint(
-            SimpleNamespace(output_text=content),
+            SimpleNamespace(
+                status=response_status,
+                output_text=content,
+                incomplete_details=(
+                    SimpleNamespace(reason=incomplete_reason)
+                    if incomplete_reason is not None
+                    else None
+                ),
+                error=(
+                    SimpleNamespace(message=provider_error_message)
+                    if provider_error_message is not None
+                    else None
+                ),
+            ),
             error=error,
         )
         completions = FakeEndpoint(
@@ -91,6 +109,15 @@ class TransportFailure(RuntimeError):
     """SDK-like failure carrying an HTTP status without secret content."""
 
     status_code = 503
+
+
+class _CountingParser(ConstrainedReasoningOutputParser):
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def parse(self, raw_output, *, context, role):
+        self.calls += 1
+        return super().parse(raw_output, context=context, role=role)
 
 
 def _context() -> ReasoningContext:
@@ -293,6 +320,114 @@ def test_responses_bridge_returns_raw_text_and_propagates_config() -> None:
     )
     assert call["reasoning"] == {"effort": "low"}
     assert call["max_output_tokens"] == 321
+
+
+def test_completed_malformed_responses_output_still_reaches_parser() -> None:
+    parser = _CountingParser()
+    provider = OpenAICompatibleReasoningProvider.from_env(
+        _environment("responses"),
+        client=FakeClient("fixture-completed-invalid-json"),
+    )
+
+    with pytest.raises(LLMOutputValidationError) as exc_info:
+        ReasoningEngine(provider=provider, parser=parser).reason(
+            _context(), role=ReasoningAgentType.CODE
+        )
+
+    assert exc_info.value.stage == "json_parse"
+    assert parser.calls == 1
+
+
+@pytest.mark.parametrize(
+    ("reason", "expected"),
+    [
+        ("max_output_tokens", ProviderIncompleteReason.MAX_OUTPUT_TOKENS),
+        ("content_filter", ProviderIncompleteReason.CONTENT_FILTER),
+        (
+            "fixture-private-vendor-reason",
+            ProviderIncompleteReason.OTHER_BOUNDED_INCOMPLETE_REASON,
+        ),
+    ],
+)
+def test_incomplete_responses_fail_before_parser_with_bounded_reason(
+    reason, expected
+) -> None:
+    parser = _CountingParser()
+    provider = OpenAICompatibleReasoningProvider.from_env(
+        _environment("responses"),
+        client=FakeClient(
+            "fixture-private-truncated-output",
+            response_status="incomplete",
+            incomplete_reason=reason,
+            provider_error_message="fixture-private-provider-error",
+        ),
+    )
+
+    with pytest.raises(LLMProviderResponseError) as exc_info:
+        ReasoningEngine(provider=provider, parser=parser).reason(
+            _context(), role=ReasoningAgentType.CODE
+        )
+
+    error = exc_info.value
+    assert error.stage == "response_incomplete"
+    assert error.completion_state is ProviderCompletionState.INCOMPLETE
+    assert error.completion_reason is expected
+    assert parser.calls == 0
+    assert reason not in str(error)
+    assert "fixture-private-truncated-output" not in str(error)
+    assert "fixture-private-provider-error" not in str(error)
+
+
+@pytest.mark.parametrize(
+    ("status", "expected_stage", "expected_state"),
+    [
+        (
+            "failed",
+            "response_failed",
+            ProviderCompletionState.FAILED,
+        ),
+        (
+            "in_progress",
+            "response_nonterminal",
+            ProviderCompletionState.NONTERMINAL_OR_UNKNOWN,
+        ),
+        (
+            "fixture-unknown-status",
+            "response_nonterminal",
+            ProviderCompletionState.NONTERMINAL_OR_UNKNOWN,
+        ),
+        (
+            None,
+            "response_nonterminal",
+            ProviderCompletionState.NONTERMINAL_OR_UNKNOWN,
+        ),
+    ],
+)
+def test_failed_or_nonterminal_responses_fail_closed_without_output_access(
+    status, expected_stage, expected_state
+) -> None:
+    parser = _CountingParser()
+    provider = OpenAICompatibleReasoningProvider.from_env(
+        _environment("responses"),
+        client=FakeClient(
+            "fixture-private-provider-output",
+            response_status=status,
+            provider_error_message="fixture-private-provider-error",
+        ),
+    )
+
+    with pytest.raises(LLMProviderResponseError) as exc_info:
+        ReasoningEngine(provider=provider, parser=parser).reason(
+            _context(), role=ReasoningAgentType.CODE
+        )
+
+    error = exc_info.value
+    assert error.stage == expected_stage
+    assert error.completion_state is expected_state
+    assert error.completion_reason is None
+    assert parser.calls == 0
+    assert "fixture-private-provider-output" not in str(error)
+    assert "fixture-private-provider-error" not in str(error)
 
 
 def test_bridge_transport_exception_fails_closed_with_bounded_error() -> None:

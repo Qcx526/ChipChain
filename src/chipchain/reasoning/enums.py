@@ -27,6 +27,22 @@ class LLMAPIStyle(str, Enum):
     CHAT_COMPLETIONS = "chat_completions"
 
 
+class ProviderCompletionState(str, Enum):
+    """Bounded Responses completion states retained without vendor payloads."""
+
+    INCOMPLETE = "incomplete"
+    FAILED = "failed"
+    NONTERMINAL_OR_UNKNOWN = "nonterminal_or_unknown"
+
+
+class ProviderIncompleteReason(str, Enum):
+    """Closed incomplete reasons accepted from a Responses transport."""
+
+    MAX_OUTPUT_TOKENS = "max_output_tokens"
+    CONTENT_FILTER = "content_filter"
+    OTHER_BOUNDED_INCOMPLETE_REASON = "other_bounded_incomplete_reason"
+
+
 class HypothesisSource(str, Enum):
     """Permitted provenance categories for an unverified hypothesis."""
 
