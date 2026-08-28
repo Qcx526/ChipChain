@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step6-stable`
-- Stable commit: `fbebc0f312b433fc96157a40a8d32917962eed38`
-- Baseline: Phase 10D Step 6 final accepted and frozen
+- Stable tag: `phase-10d-step7-stable`
+- Stable commit: `8a9766a5df4ab1cfa25350ba52ad6b2477801672`
+- Baseline: Phase 10D Step 7 final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -31,27 +31,23 @@
 - Phase 10D Step 2 explicit opt-in execution harness, detached input cohort, pre-transport MASKED audit, case-local failure accounting, and canonical session/case-run archive
 - Phase 10D Step 6 GT-firewalled objective triggerability materialization, persistent source provenance, and REAL_PROVIDER completeness gates
 - Phase 10D Step 7 collision-safe MASKED projection, centralized hidden-reference policy, and projection-protocol provenance
+- Phase 10D Step 8A public CVE research intake, profile-aware admission staging, and issue-level deduplication
 
 ## Current Work
 
-Phase 10D Step 7 is implemented over the frozen Phase 9C and Phase 10D contracts. It binds one detached
-candidate-side input cohort to FULL/MASKED/NO_MODEL/UPPER, delegates to the frozen reasoning workflow,
-projects and audits MASKED prompts through one collision-safe hidden-reference policy before transport,
-continues later cases after case-local failure, and archives
-parsed sessions, exact Phase 10B case runs, and persistent objective source/materialization provenance.
-Historical Step 1–6 archives reconstruct their legacy MASKED bytes from the archived optional protocol
-without weakening exact prompt-hash validation or reopening legacy REAL_PROVIDER execution.
-NO_MODEL/UPPER make zero provider calls. The CLI is
-fail-closed unless `--execute-real-provider` is explicit. No raw prompt, raw response, API key,
-endpoint, or host path belongs in canonical artifacts. Every automated fixture is `OFFLINE_CONTRACT`.
-Manual owned-synthetic real-provider smoke/evaluation runs have been executed, but no final
-benchmark-scale accepted performance result or >=80% conclusion exists. DS5 remained incomplete
-because its MASKED firewall failed closed. Phase 9C Step 3B remains deferred.
+Phase 10D Step 8A stages seven public ARM CVE research records outside the frozen evaluation path.
+Each record binds one retrieval-only `VulnerabilityKnowledgeEntry`, explicit A/M profile,
+curator-declared underlying issue, related CVEs, and closed classification/admission blockers. No record
+is a current `PRIMARY_TARGET`, Ground Truth, objective triggerability input, or vulnerability verdict.
+The intake is fully offline and contains only structured paraphrases and stable public references.
+Manual owned-synthetic real-provider smoke/evaluation runs have occurred, but no final benchmark-scale
+accepted performance result or >=80% conclusion exists. DS5 remained incomplete because its MASKED
+firewall failed closed. Phase 9C Step 3B remains deferred.
 
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- Step 7 code review/freeze, then a benchmark-scale accepted real-provider experiment through the opt-in CLI
+- objective evidence review and explicit SECONDARY/PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation
 - Phase 12 additional architectures, only after the ARM loop is stable and evaluated

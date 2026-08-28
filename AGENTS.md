@@ -38,7 +38,8 @@
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
   Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
-  与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7 已完成；Step 3B 仍为 planned/not implemented。
+  与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7 及
+  Step 8A 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -204,6 +205,13 @@
   provider call 前拒绝。历史 archive prompt provenance 必须按归档 plan 的 protocol 精确重建：`None`
   使用 Step 1～6 legacy MASKED bytes，当前 contract 使用 collision-safe bytes，禁止跳过或接受双 hash。
   该变更不修改 provider descriptor、schema、completion、parser 或评测语义。
+- Phase 10D Step 8A 只接收公开 CVE 的结构化、释义型研究事实并形成 benchmark-admission staging。
+  `PublicCveResearchSample` 与对应 `VulnerabilityKnowledgeEntry` 都不是 Evidence、verification、
+  vulnerability verdict 或 Benchmark Ground Truth；`NEXT_OBJECTIVE_CANDIDATE` 只表示未来研究优先级，
+  不得自动创建 `PRIMARY_TARGET`。A-profile 与 M-profile 必须显式区分，M-profile 不得进入当前
+  A-profile objective evaluation。CVE record 数与 curator-declared `underlying_issue_key` 数分别统计，
+  related software mitigation CVE 不会自动成为独立硬件漏洞。Step 8A 不运行 Provider/QEMU、不联网，
+  也不修改 Phase 9C/10A/10B/10C/10D evaluation semantics。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

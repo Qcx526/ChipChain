@@ -1,0 +1,378 @@
+{
+  "id": "public-cve-corpus:778765c51a0d9b939eb37b390367a3d0cd02720942c8746c19eb0a1c38930e49",
+  "contract": "chipchain_public_cve_corpus_v1",
+  "records": [
+    {
+      "id": "public-cve-research-sample:80b33934e58b1dfae80ab780c27e9ba7a5afea6fc7e976a4512564f5709931ab",
+      "cve_id": "CVE-2022-23960",
+      "architecture": "arm",
+      "architecture_profile": "a_profile",
+      "title": "Arm Spectre-BHB shared branch-history behavior",
+      "summary": "Shared branch history in the BHB can influence branch misprediction, with resulting cache effects usable for sensitive-information inference on documented affected Cortex and Neoverse processors.",
+      "affected_components": [
+        "documented affected Cortex and Neoverse processors"
+      ],
+      "cross_layer_classification": "type_ii_candidate",
+      "underlying_issue_key": "arm-spectre-bhb-cve-2022-23960",
+      "related_cve_ids": [],
+      "trigger_summary": "Shared branch history in the BHB influences branch misprediction.",
+      "precondition_summary": "The documented branch-history and speculative-execution conditions must be present.",
+      "hardware_effect_summary": "Cache effects from the misprediction can be used for sensitive-information inference.",
+      "source_references": [
+        "Arm Spectre-BHB security publication",
+        "https://nvd.nist.gov/vuln/detail/CVE-2022-23960"
+      ],
+      "admission_status": "blocked_current_verifier",
+      "admission_blockers": [
+        "needs_branch_history_model",
+        "needs_speculation_model",
+        "needs_stateful_precondition_model"
+      ],
+      "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+      "metadata": {
+        "admission_scope": "staging_only",
+        "source_type": "public_advisory"
+      }
+    },
+    {
+      "id": "public-cve-research-sample:3599e1afcfd9f869659abdcccbbf3d43b5b25dcab7dbf228c660b31409e549b5",
+      "cve_id": "CVE-2023-34320",
+      "architecture": "arm",
+      "architecture_profile": "a_profile",
+      "title": "Cortex-A77 erratum 1508412 software-triggered deadlock",
+      "summary": "Public reports describe software execution around device or non-cacheable memory accesses triggering Cortex-A77 erratum 1508412, with core deadlock and system denial of service.",
+      "affected_components": [
+        "Cortex-A77 r0p0/r1p0",
+        "Xen/guest software"
+      ],
+      "cross_layer_classification": "type_ii_candidate",
+      "underlying_issue_key": "arm-cortex-a77-erratum-1508412",
+      "related_cve_ids": [],
+      "trigger_summary": "A load to device or non-cacheable memory occurs in close proximity to either a store-exclusive operation or a PAR_EL1 read.",
+      "precondition_summary": "The documented operations must occur in close proximity; the public sources do not define a precise instruction count.",
+      "hardware_effect_summary": "The affected core may deadlock and cause system denial of service.",
+      "source_references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2023-34320",
+        "https://xenbits.xenproject.org/xsa/advisory-436.html"
+      ],
+      "admission_status": "next_objective_candidate",
+      "admission_blockers": [
+        "needs_a64_support",
+        "needs_stateful_precondition_model"
+      ],
+      "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+      "metadata": {
+        "admission_scope": "staging_only",
+        "source_type": "public_advisory"
+      }
+    },
+    {
+      "id": "public-cve-research-sample:026ae38db13ece899225850ceee76cb5f2fb15b9e584a92e5ff9ff310fe004ae",
+      "cve_id": "CVE-2023-34321",
+      "architecture": "arm",
+      "architecture_profile": "a_profile",
+      "title": "Xen ARM32 cache-maintenance helper arithmetic overflow",
+      "summary": "Arithmetic in Xen ARM32 cache clean and invalidate helpers may overflow, causing cache maintenance operations for a region to be skipped.",
+      "affected_components": [
+        "Xen ARM32 cache clean/invalidate helpers"
+      ],
+      "cross_layer_classification": "cross_layer_related",
+      "underlying_issue_key": "xen-arm32-cache-maintenance-overflow",
+      "related_cve_ids": [],
+      "trigger_summary": "A region calculation in an affected cache clean or invalidate helper overflows.",
+      "precondition_summary": "The overflowing calculation reaches the documented Xen ARM32 cache-maintenance helper path.",
+      "hardware_effect_summary": "Cache clean or invalidate operations for the region may be skipped; a distinct target hardware vulnerability is not established.",
+      "source_references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2023-34321",
+        "https://xenbits.xenproject.org/xsa/advisory-437.html"
+      ],
+      "admission_status": "secondary_only",
+      "admission_blockers": [
+        "target_hardware_vulnerability_unclear"
+      ],
+      "knowledge_entry_id": "vulnerability-knowledge-entry:9fc767b24b85e55c0723487e687f9db4f68c3ab6833c3269ad136a77da54e005",
+      "metadata": {
+        "admission_scope": "staging_only",
+        "source_type": "public_advisory"
+      }
+    },
+    {
+      "id": "public-cve-research-sample:73d136732841a5193ced4896794abd60266afa4180ec4b0208ef43738eb54fb5",
+      "cve_id": "CVE-2023-52481",
+      "architecture": "arm",
+      "architecture_profile": "a_profile",
+      "title": "Cortex-A520 erratum 2966298 speculative unprivileged load",
+      "summary": "Under specific microarchitectural conditions, a speculatively executed EL0 unprivileged load may access mapped memory without EL0 permission and expose privileged data through a cache side channel.",
+      "affected_components": [
+        "Cortex-A520",
+        "Linux arm64 exception return"
+      ],
+      "cross_layer_classification": "type_ii_candidate",
+      "underlying_issue_key": "arm-cortex-a520-erratum-2966298",
+      "related_cve_ids": [
+        "CVE-2024-26670"
+      ],
+      "trigger_summary": "An EL0 unprivileged load is speculatively executed against mapped memory without EL0 permission.",
+      "precondition_summary": "Specific microarchitectural conditions apply; the documented workaround places non-shareable TLBI followed by DSB NSH after privileged loads and before return to EL0.",
+      "hardware_effect_summary": "Privileged data may be forwarded speculatively and leaked through a cache side channel.",
+      "source_references": [
+        "Arm Cortex-A520 erratum 2966298",
+        "https://nvd.nist.gov/vuln/detail/CVE-2023-52481"
+      ],
+      "admission_status": "blocked_current_verifier",
+      "admission_blockers": [
+        "needs_a64_support",
+        "needs_speculation_model",
+        "needs_stateful_precondition_model"
+      ],
+      "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+      "metadata": {
+        "admission_scope": "staging_only",
+        "source_type": "public_advisory"
+      }
+    },
+    {
+      "id": "public-cve-research-sample:01a7ee0c50f524894c9b873d47354d9da9d7e46c3c387053964d106c9df05dcc",
+      "cve_id": "CVE-2024-26670",
+      "architecture": "arm",
+      "architecture_profile": "a_profile",
+      "title": "Linux arm64 speculative-unprivileged-load workaround placement",
+      "summary": "Linux arm64 placed ARM64_WORKAROUND_SPECULATIVE_UNPRIV_LOAD before a later LDR even though TLBI and DSB must follow all explicit memory accesses before return to EL0.",
+      "affected_components": [
+        "Cortex-A510 erratum 3117295",
+        "Cortex-A520 erratum 2966298",
+        "Linux arm64 entry path"
+      ],
+      "cross_layer_classification": "type_i_candidate",
+      "underlying_issue_key": "arm-speculative-unpriv-load-workaround-placement",
+      "related_cve_ids": [
+        "CVE-2023-52481"
+      ],
+      "trigger_summary": "The affected entry path places the workaround before a later explicit LDR.",
+      "precondition_summary": "The corrected semantic sequence is last explicit memory access, TLBI, DSB, then ERET.",
+      "hardware_effect_summary": "The software problem concerns workaround ordering for the listed Cortex-A510 and Cortex-A520 errata.",
+      "source_references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2024-26670"
+      ],
+      "admission_status": "blocked_current_verifier",
+      "admission_blockers": [
+        "needs_a64_support",
+        "needs_stateful_precondition_model",
+        "needs_type_i_oracle"
+      ],
+      "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+      "metadata": {
+        "admission_scope": "staging_only",
+        "source_type": "public_advisory"
+      }
+    },
+    {
+      "id": "public-cve-research-sample:1405a5e723b1d339d9926237724ac222170e4202043a1be9db3cb4c517602823",
+      "cve_id": "CVE-2024-7883",
+      "architecture": "arm",
+      "architecture_profile": "m_profile",
+      "title": "Arm CMSE floating-point register secure-stack disclosure",
+      "summary": "Under the documented Secure-to-Non-secure floating-return condition, LLVM-based compiler-generated code may expose Secure stack contents through floating-point registers.",
+      "affected_components": [
+        "Arm CMSE",
+        "LLVM-based compiler generated code",
+        "floating-point register state"
+      ],
+      "cross_layer_classification": "out_of_current_arch_scope",
+      "underlying_issue_key": "arm-cmse-fp-register-secure-stack-leak",
+      "related_cve_ids": [],
+      "trigger_summary": "Compiler-generated code returns a floating-point value from Secure to Non-secure state under the documented condition.",
+      "precondition_summary": "The documented Secure-to-Non-secure floating-return condition applies.",
+      "hardware_effect_summary": "Secure stack contents may leak through floating-point registers.",
+      "source_references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2024-7883"
+      ],
+      "admission_status": "out_of_current_arch_scope",
+      "admission_blockers": [
+        "m_profile_out_of_current_scope"
+      ],
+      "knowledge_entry_id": "vulnerability-knowledge-entry:8cd2ea601a3911ddc6e5d635415201844e5a4e8cac7f43b157586301d6b06c5a",
+      "metadata": {
+        "admission_scope": "staging_only",
+        "source_type": "public_advisory"
+      }
+    },
+    {
+      "id": "public-cve-research-sample:a31bd4e95ac7fbd371d4c642c04fee845af3e62e4e795e0a070c4e787598d41d",
+      "cve_id": "CVE-2025-10263",
+      "architecture": "arm",
+      "architecture_profile": "a_profile",
+      "title": "Arm TLBI and DSB completion ordering issue",
+      "summary": "Public reports describe affected Arm families where broadcast TLBI plus DSB completion may precede global observation of affected writes, potentially allowing writes to resources owned by a higher exception level.",
+      "affected_components": [
+        "Arm C1 families",
+        "Arm Cortex-A710/A78/A77/A76 families",
+        "Arm Cortex-X families",
+        "Arm Neoverse families"
+      ],
+      "cross_layer_classification": "type_ii_candidate",
+      "underlying_issue_key": "arm-tlbi-dsb-completion-cve-2025-10263",
+      "related_cve_ids": [
+        "CVE-2026-53354"
+      ],
+      "trigger_summary": "An affected broadcast TLBI and DSB sequence completes before affected writes are globally observed.",
+      "precondition_summary": "The behavior depends on completion and global observation across affected execution; the documented mitigation repeats an affected TLBI and DSB sequence.",
+      "hardware_effect_summary": "Writes to resources owned by a higher exception level may be possible.",
+      "source_references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2025-10263",
+        "https://nvd.nist.gov/vuln/detail/CVE-2026-53354"
+      ],
+      "admission_status": "blocked_current_verifier",
+      "admission_blockers": [
+        "needs_a64_support",
+        "needs_concurrency_model",
+        "needs_stateful_precondition_model"
+      ],
+      "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+      "metadata": {
+        "admission_scope": "staging_only",
+        "source_type": "public_advisory"
+      }
+    }
+  ],
+  "knowledge_entries": [
+    {
+      "id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+      "entry_kind": "cve",
+      "external_id": "CVE-2022-23960",
+      "architecture": "arm",
+      "title": "Arm Spectre-BHB shared branch-history behavior",
+      "summary": "Shared branch history in the BHB can influence branch misprediction, with resulting cache effects usable for sensitive-information inference on documented affected Cortex and Neoverse processors.",
+      "affected_components": [
+        "documented affected Cortex and Neoverse processors"
+      ],
+      "references": [
+        "Arm Spectre-BHB security publication",
+        "https://nvd.nist.gov/vuln/detail/CVE-2022-23960"
+      ],
+      "metadata": {
+        "corpus_role": "retrieval_only"
+      }
+    },
+    {
+      "id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+      "entry_kind": "cve",
+      "external_id": "CVE-2023-34320",
+      "architecture": "arm",
+      "title": "Cortex-A77 erratum 1508412 software-triggered deadlock",
+      "summary": "Public reports describe software execution around device or non-cacheable memory accesses triggering Cortex-A77 erratum 1508412, with core deadlock and system denial of service.",
+      "affected_components": [
+        "Cortex-A77 r0p0/r1p0",
+        "Xen/guest software"
+      ],
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2023-34320",
+        "https://xenbits.xenproject.org/xsa/advisory-436.html"
+      ],
+      "metadata": {
+        "corpus_role": "retrieval_only"
+      }
+    },
+    {
+      "id": "vulnerability-knowledge-entry:9fc767b24b85e55c0723487e687f9db4f68c3ab6833c3269ad136a77da54e005",
+      "entry_kind": "cve",
+      "external_id": "CVE-2023-34321",
+      "architecture": "arm",
+      "title": "Xen ARM32 cache-maintenance helper arithmetic overflow",
+      "summary": "Arithmetic in Xen ARM32 cache clean and invalidate helpers may overflow, causing cache maintenance operations for a region to be skipped.",
+      "affected_components": [
+        "Xen ARM32 cache clean/invalidate helpers"
+      ],
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2023-34321",
+        "https://xenbits.xenproject.org/xsa/advisory-437.html"
+      ],
+      "metadata": {
+        "corpus_role": "retrieval_only"
+      }
+    },
+    {
+      "id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+      "entry_kind": "cve",
+      "external_id": "CVE-2023-52481",
+      "architecture": "arm",
+      "title": "Cortex-A520 erratum 2966298 speculative unprivileged load",
+      "summary": "Under specific microarchitectural conditions, a speculatively executed EL0 unprivileged load may access mapped memory without EL0 permission and expose privileged data through a cache side channel.",
+      "affected_components": [
+        "Cortex-A520",
+        "Linux arm64 exception return"
+      ],
+      "references": [
+        "Arm Cortex-A520 erratum 2966298",
+        "https://nvd.nist.gov/vuln/detail/CVE-2023-52481"
+      ],
+      "metadata": {
+        "corpus_role": "retrieval_only"
+      }
+    },
+    {
+      "id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+      "entry_kind": "cve",
+      "external_id": "CVE-2024-26670",
+      "architecture": "arm",
+      "title": "Linux arm64 speculative-unprivileged-load workaround placement",
+      "summary": "Linux arm64 placed ARM64_WORKAROUND_SPECULATIVE_UNPRIV_LOAD before a later LDR even though TLBI and DSB must follow all explicit memory accesses before return to EL0.",
+      "affected_components": [
+        "Cortex-A510 erratum 3117295",
+        "Cortex-A520 erratum 2966298",
+        "Linux arm64 entry path"
+      ],
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2024-26670"
+      ],
+      "metadata": {
+        "corpus_role": "retrieval_only"
+      }
+    },
+    {
+      "id": "vulnerability-knowledge-entry:8cd2ea601a3911ddc6e5d635415201844e5a4e8cac7f43b157586301d6b06c5a",
+      "entry_kind": "cve",
+      "external_id": "CVE-2024-7883",
+      "architecture": "arm",
+      "title": "Arm CMSE floating-point register secure-stack disclosure",
+      "summary": "Under the documented Secure-to-Non-secure floating-return condition, LLVM-based compiler-generated code may expose Secure stack contents through floating-point registers.",
+      "affected_components": [
+        "Arm CMSE",
+        "LLVM-based compiler generated code",
+        "floating-point register state"
+      ],
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2024-7883"
+      ],
+      "metadata": {
+        "corpus_role": "retrieval_only"
+      }
+    },
+    {
+      "id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+      "entry_kind": "cve",
+      "external_id": "CVE-2025-10263",
+      "architecture": "arm",
+      "title": "Arm TLBI and DSB completion ordering issue",
+      "summary": "Public reports describe affected Arm families where broadcast TLBI plus DSB completion may precede global observation of affected writes, potentially allowing writes to resources owned by a higher exception level.",
+      "affected_components": [
+        "Arm C1 families",
+        "Arm Cortex-A710/A78/A77/A76 families",
+        "Arm Cortex-X families",
+        "Arm Neoverse families"
+      ],
+      "references": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2025-10263",
+        "https://nvd.nist.gov/vuln/detail/CVE-2026-53354"
+      ],
+      "metadata": {
+        "corpus_role": "retrieval_only"
+      }
+    }
+  ],
+  "metadata": {
+    "benchmark_admission": "staging_only",
+    "corpus_name": "arm_cross_layer_seed_v1",
+    "curation_scope": "public_source_paraphrases"
+  }
+}

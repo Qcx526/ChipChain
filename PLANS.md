@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7 与 Step 8A 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -604,10 +604,21 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] provider descriptor、strict schema bundle、Responses completion contract、parser 与 evaluation semantics
   均未改变
 
-后续人工工作：code review/freeze 后，通过 opt-in CLI 对 owned-synthetic 输入执行一次受控真实
-Qwen/OpenAI-compatible experiment。`TRIGGERABLE` 仍不能脱离
-Type II exact candidate binding 被通用映射为
-`CONFIRMED_FEASIBLE`。
+#### Phase 10D Step 8A：Public CVE Corpus Intake and Admission Staging（已完成实现）
+
+- [x] 独立 `chipchain.corpus` 合同保存公开 CVE 研究事实、ARM A/M profile、closed classification、
+  admission status/blocker 与 deterministic identity，不创建 verdict 或 evaluation result
+- [x] 七条 public ARM seed record 与七个既有 `VulnerabilityKnowledgeEntry(CVE)` 一一精确绑定
+- [x] `underlying_issue_key` 与 `related_cve_ids` 区分 CVE record、底层问题和相关软件 mitigation；
+  CVE-2026-53354 仅为关系引用，不作为第八条独立 seed record
+- [x] M-profile、目标硬件漏洞不清楚和当前 verifier 缺口均 fail closed；公开 CVE 不进入 owned
+  Phase 10A/10D fixture、`PRIMARY_TARGET`、oracle、triggerability 或 Ground Truth
+- [x] corpus summary 分别报告 record/underlying-issue、classification 和 admission counts；加载与
+  retrieval 完全离线，不保存 raw HTML、host path 或 exploit/PoC payload
+
+后续工作：对 `NEXT_OBJECTIVE_CANDIDATE` 另行完成证据审查与 objective input 设计后，才能提出
+SECONDARY/PRIMARY admission 变更。`TRIGGERABLE` 仍不能脱离 Type II exact candidate binding 被通用
+映射为 `CONFIRMED_FEASIBLE`。
 
 ### Phase 11：API / Visualization
 

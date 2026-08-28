@@ -59,6 +59,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10D Step 6 GT-firewalled objective triggerability materialization、persistent source provenance 与
   REAL_PROVIDER completeness gate
 - Phase 10D Step 7 collision-safe MASKED projection、single-policy prompt audit 与 projection-protocol provenance
+- Phase 10D Step 8A public CVE research intake、A/M profile admission staging 与 issue-level dedup reporting
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -624,6 +625,17 @@ trusted `ReasoningContext` 不被修改，parser/system-owned binding 仍使用�
 读取历史 REAL_PROVIDER archive 时，validator 会依据归档 plan 的 optional contract 精确选择 legacy 或
 current reconstruction，再与唯一 archived prompt SHA 比较；不会跳过历史 MASKED hash，也不会同时接受
 legacy/current 两种结果。
+
+## Phase 10D Step 8A Public CVE Corpus Intake
+
+`data/public_cve/arm_cross_layer_seed_v1.json` 保存首批七条公开 ARM CVE 研究记录，并为每条记录
+绑定一个现有 `VulnerabilityKnowledgeEntry(CVE)`。该 corpus 只进行分类与未来 benchmark admission
+staging：它不创建 Evidence、VerificationRecord、Ground Truth、triggerability 或漏洞判定，也没有把
+任何记录加入当前 `PRIMARY_TARGET`。
+
+Corpus 显式区分 A-profile/M-profile、CVE record 与 `underlying_issue_key`，并把 related CVE 保持为
+关系引用。`NEXT_OBJECTIVE_CANDIDATE` 只表示后续客观输入研究优先级；在独立 admission 评审完成前，
+不得写入 owned-synthetic Phase 10A/10D fixture。
 
 ## 文档导航
 
