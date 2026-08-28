@@ -85,6 +85,10 @@ from chipchain.reasoning.errors import (
     LLMProviderResponseError,
 )
 from chipchain.reasoning.parser import ConstrainedReasoningOutputParser
+from chipchain.reasoning.prompt_view import (
+    PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT,
+    masked_chain_hidden_reference_ids,
+)
 from chipchain.reasoning.prompts import RoleBasedReasoningPromptBuilder
 from chipchain.reasoning.provider import (
     OpenAICompatibleReasoningProvider,
@@ -228,6 +232,14 @@ class RealModelExperimentExecutor:
         )
         if (
             plan_snapshot.execution_mode is ExperimentExecutionMode.REAL_PROVIDER
+            and plan_snapshot.masked_prompt_projection_contract
+            != PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT
+        ):
+            raise RealExperimentExecutionError(
+                "REAL_PROVIDER requires current masked prompt projection contract"
+            )
+        if (
+            plan_snapshot.execution_mode is ExperimentExecutionMode.REAL_PROVIDER
             and plan_snapshot.provider_descriptor.strict_json_schema
             and plan_snapshot.provider_descriptor.strict_schema_bundle_sha256
             is None
@@ -341,7 +353,7 @@ class RealModelExperimentExecutor:
             )
             trace = _PerCaseInvocationTrace()
             hidden = (
-                self._hidden_reference_ids(context)
+                masked_chain_hidden_reference_ids(context)
                 if condition
                 is AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL
                 else None
@@ -669,32 +681,6 @@ class RealModelExperimentExecutor:
             case_run_record=run,
             reasoning_session_binding=session_binding,
         )
-
-    @staticmethod
-    def _hidden_reference_ids(context) -> list[str]:
-        values = {
-            item
-            for item in (
-                context.attack_pattern_reference,
-                context.dynamic_trigger_fact_reference,
-            )
-            if item is not None
-        }
-        interaction = context.cross_layer_interaction
-        if interaction is not None:
-            values.add(interaction.id)
-            for field_name in (
-                "initiating_vulnerability_ids",
-                "target_vulnerability_ids",
-                "trigger_behavior_ids",
-                "propagation_behavior_ids",
-                "affected_execution_ids",
-                "fault_state_ids",
-                "hardware_resource_ids",
-                "security_mechanism_ids",
-            ):
-                values.update(getattr(interaction, field_name))
-        return sorted(values)
 
     @staticmethod
     def _invocation_records_for_case(

@@ -64,7 +64,9 @@ from chipchain.reasoning.models import (
 )
 from chipchain.reasoning.prompts import CandidatePromptBuilder
 from chipchain.reasoning.prompt_view import (
+    PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT,
     ReasoningPromptView,
+    masked_chain_hidden_reference_ids,
     reasoning_prompt_view_id,
 )
 from chipchain.reasoning.prompts import (
@@ -156,6 +158,7 @@ __all__ = [
     "ReasoningObservation",
     "ReasoningResult",
     "ReasoningPromptView",
+    "PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT",
     "REASONING_RESULT_BOUNDARY",
     "REASONING_PROVIDER_SCHEMA_NAME",
     "RetrievalError",
@@ -168,6 +171,7 @@ __all__ = [
     "evidence_feedback_status",
     "load_architecture_knowledge_documents",
     "model_authored_chain_claim_id",
+    "masked_chain_hidden_reference_ids",
     "reasoning_result_id",
     "reasoning_memory_id",
     "reasoning_observation_id",

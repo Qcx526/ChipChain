@@ -140,7 +140,8 @@ Ground Truth comparison、`VerificationHitRate`、`GroundTruthChainRecall`、neg
 coverage。Phase 10C 已实现离线 ablation/prompt-firewall contracts；Owned fixture 的 `1/2` 仍只验证
 合同。Phase 10D Step 1 已冻结 secret-free provider descriptor、同模型四条件 matrix、hash-only
 invocation/failure provenance 与顶层 experiment artifact；Step 2 已实现显式 opt-in execution harness
-及输入/parsed-session/case-run archive。所有自动验收仍为 `OFFLINE_CONTRACT`；尚未执行真实模型实验，
+及输入/parsed-session/case-run archive，Step 7 已实现 collision-safe MASKED projection 与 plan-level
+projection protocol provenance。所有自动验收仍为 `OFFLINE_CONTRACT`；尚未执行真实模型实验，
 也没有得出“关联漏洞命中率 >=80%”结论。
 
 ## Phase 10D Step 1 实验来源合同
@@ -186,3 +187,17 @@ materializer 不接受 Manifest、Benchmark Case、GroundTruthChain、runner 或
 validated raw trace，不启动 QEMU。最终 `ObjectiveTriggerabilityMaterializationRecord` exact-bind source、
 Context 与 actual static/runtime/aggregation provenance，并持久化到 input/archive。旧 archive 保持兼容；
 新 REAL_PROVIDER execution 对“triggerability 有值但 record 缺失”在 create 与 preflight 两层 fail closed。
+
+## Phase 10D Step 7 MASKED Projection Contract
+
+`masked_chain_hidden_reference_ids()` 是 projection 与 audit 的唯一 hidden-reference policy。MASKED view
+使用 audit 相同的 substring semantics 过滤 subject/components/facts/evidence/knowledge identifiers；required
+subject 碰撞或过滤后没有 affected component 时在 transport 前拒绝。结构化 runtime observation 与
+knowledge retrieval result 只允许原样保留或整项省略，不生成 placeholder、pseudonym 或 partial object。
+
+Provider authority 的 supporting-evidence allowlist 取自 projected view；完整 trusted Context 仍由 workflow、
+parser、candidate/binder/oracle 持有。FULL prompt 不变。新 plan 绑定冻结 projection contract；历史 plan
+缺字段仍可反序列化并保持 ID，但 legacy/wrong REAL_PROVIDER plan 不得在当前实现下重新执行。
+Archive read/revalidation 与 execution gate 分离：归档 plan 缺 contract 时只为 provenance reconstruction
+恢复 Step 1～6 MASKED bytes；当前 contract 使用 collision-safe bytes。两条路径都必须与归档的唯一 prompt
+SHA 精确一致，legacy plan 仍不能通过新的 REAL_PROVIDER executor preflight。

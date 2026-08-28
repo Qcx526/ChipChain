@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 from pydantic import Field, field_validator, model_validator
@@ -14,6 +15,96 @@ from chipchain.reasoning.hypothesis import _canonical_reasoning_id
 
 if TYPE_CHECKING:
     from chipchain.agents.base import ReasoningContext
+
+
+PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT = (
+    "phase10d_collision_safe_masked_projection_v1"
+)
+
+_INTERACTION_HIDDEN_REFERENCE_FIELDS = (
+    "initiating_vulnerability_ids",
+    "target_vulnerability_ids",
+    "trigger_behavior_ids",
+    "propagation_behavior_ids",
+    "affected_execution_ids",
+    "fault_state_ids",
+    "hardware_resource_ids",
+    "security_mechanism_ids",
+)
+
+
+def masked_chain_hidden_reference_ids(
+    context: "ReasoningContext",
+) -> list[str]:
+    """Return the frozen, deterministic MASKED chain-reference policy."""
+
+    from chipchain.agents.base import _snapshot_context
+
+    snapshot = _snapshot_context(context)
+    values = {
+        item
+        for item in (
+            snapshot.attack_pattern_reference,
+            snapshot.dynamic_trigger_fact_reference,
+        )
+        if item is not None
+    }
+    interaction = snapshot.cross_layer_interaction
+    if interaction is not None:
+        values.add(interaction.id)
+        for field_name in _INTERACTION_HIDDEN_REFERENCE_FIELDS:
+            values.update(getattr(interaction, field_name))
+    return sorted(values)
+
+
+def _contains_hidden_reference(value: str, hidden: list[str]) -> bool:
+    return any(reference in value for reference in hidden)
+
+
+def _serialized_contains_hidden_reference(
+    value: object,
+    hidden: list[str],
+) -> bool:
+    serialized = json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return _contains_hidden_reference(serialized, hidden)
+
+
+def _legacy_masked_reasoning_prompt_visible_context(
+    context: "ReasoningContext",
+) -> dict[str, object]:
+    """Reconstruct the exact Step 1-6 MASKED model-visible dictionary."""
+
+    from chipchain.agents.base import _snapshot_context
+
+    snapshot = _snapshot_context(context)
+    visible: dict[str, object] = {
+        "architecture": snapshot.architecture.value,
+        "subject_id": snapshot.subject_id,
+        "affected_components": snapshot.affected_components,
+        "observed_fact_ids": snapshot.observed_fact_ids,
+        "available_evidence_ids": snapshot.available_evidence_ids,
+        "knowledge_entry_ids": snapshot.knowledge_entry_ids,
+        "runtime_observations": [
+            item.model_dump(mode="json")
+            for item in snapshot.runtime_observations
+        ],
+    }
+    if snapshot.knowledge_retrieval_result is not None:
+        visible["knowledge_retrieval_result"] = (
+            snapshot.knowledge_retrieval_result.model_dump(mode="json")
+        )
+    return {
+        "id": reasoning_prompt_view_id(
+            visibility=ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT,
+            visible_context=visible,
+        ),
+        **visible,
+    }
 
 
 def reasoning_prompt_view_id(
@@ -107,22 +198,71 @@ class ReasoningPromptView(DomainModel):
         snapshot = _snapshot_context(context)
         policy = ReasoningPromptVisibility(visibility)
         masked = policy is ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT
+        runtime_observations = [
+            item.model_dump(mode="json")
+            for item in snapshot.runtime_observations
+        ]
+        knowledge_retrieval_result = (
+            snapshot.knowledge_retrieval_result.model_dump(mode="json")
+            if snapshot.knowledge_retrieval_result is not None
+            else None
+        )
+        subject_id = snapshot.subject_id
+        affected_components = snapshot.affected_components
+        observed_fact_ids = snapshot.observed_fact_ids
+        available_evidence_ids = snapshot.available_evidence_ids
+        knowledge_entry_ids = snapshot.knowledge_entry_ids
+        if masked:
+            hidden = masked_chain_hidden_reference_ids(snapshot)
+            if _contains_hidden_reference(subject_id, hidden):
+                raise ValueError(
+                    "masked prompt subject ID collides with hidden reference"
+                )
+            affected_components = [
+                item
+                for item in affected_components
+                if not _contains_hidden_reference(item, hidden)
+            ]
+            if not affected_components:
+                raise ValueError(
+                    "masked prompt requires a non-hidden affected component"
+                )
+            observed_fact_ids = [
+                item
+                for item in observed_fact_ids
+                if not _contains_hidden_reference(item, hidden)
+            ]
+            available_evidence_ids = [
+                item
+                for item in available_evidence_ids
+                if not _contains_hidden_reference(item, hidden)
+            ]
+            knowledge_entry_ids = [
+                item
+                for item in knowledge_entry_ids
+                if not _contains_hidden_reference(item, hidden)
+            ]
+            runtime_observations = [
+                item
+                for item in runtime_observations
+                if not _serialized_contains_hidden_reference(item, hidden)
+            ]
+            if (
+                knowledge_retrieval_result is not None
+                and _serialized_contains_hidden_reference(
+                    knowledge_retrieval_result, hidden
+                )
+            ):
+                knowledge_retrieval_result = None
         values = {
             "architecture": snapshot.architecture,
-            "subject_id": snapshot.subject_id,
-            "affected_components": snapshot.affected_components,
-            "observed_fact_ids": snapshot.observed_fact_ids,
-            "available_evidence_ids": snapshot.available_evidence_ids,
-            "knowledge_entry_ids": snapshot.knowledge_entry_ids,
-            "runtime_observations": [
-                item.model_dump(mode="json")
-                for item in snapshot.runtime_observations
-            ],
-            "knowledge_retrieval_result": (
-                snapshot.knowledge_retrieval_result.model_dump(mode="json")
-                if snapshot.knowledge_retrieval_result is not None
-                else None
-            ),
+            "subject_id": subject_id,
+            "affected_components": affected_components,
+            "observed_fact_ids": observed_fact_ids,
+            "available_evidence_ids": available_evidence_ids,
+            "knowledge_entry_ids": knowledge_entry_ids,
+            "runtime_observations": runtime_observations,
+            "knowledge_retrieval_result": knowledge_retrieval_result,
             "cross_layer_interaction": (
                 None if masked else snapshot.cross_layer_interaction
             ),

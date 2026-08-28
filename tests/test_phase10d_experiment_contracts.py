@@ -29,6 +29,7 @@ from chipchain.evaluation import (
     ModelInvocationDisposition,
     ModelClaimBindingStatus,
     ModelInvocationRecord,
+    PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT,
     PHASE10D_PROVIDER_ROLE_ORDER,
     PHASE10D_RESPONSES_COMPLETION_CONTRACT,
     PromptVisibilityAuditStatus,
@@ -564,6 +565,9 @@ def _legacy_strict_plan(
         condition_spec_ids=[item.id for item in current.condition_specs],
         case_ids=current.case_ids,
         provider_role_order=current.provider_role_order,
+        masked_prompt_projection_contract=(
+            current.masked_prompt_projection_contract
+        ),
     )
     return RealModelExperimentPlan.model_validate(payload)
 
@@ -638,6 +642,84 @@ def _legacy_responses_plan(
         condition_spec_ids=[item.id for item in current.condition_specs],
         case_ids=current.case_ids,
         provider_role_order=current.provider_role_order,
+        masked_prompt_projection_contract=(
+            current.masked_prompt_projection_contract
+        ),
+    )
+    return RealModelExperimentPlan.model_validate(payload)
+
+
+def _deepseek_descriptor() -> RealModelProviderDescriptor:
+    return RealModelProviderDescriptor.from_provider_config(
+        _config(
+            model="deepseek-v4-flash",
+            api_style=LLMAPIStyle.RESPONSES,
+            reasoning_effort="none",
+            max_completion_tokens=2048,
+        )
+    )
+
+
+def _legacy_projection_plan(
+    execution_mode: ExperimentExecutionMode,
+) -> RealModelExperimentPlan:
+    manifest = _fixture_manifest()
+    ablation = AblationExperimentPlan.create(
+        benchmark_manifest_id=manifest.id,
+        benchmark_version=manifest.benchmark_version,
+    )
+    current = RealModelExperimentPlan.create(
+        manifest=manifest,
+        ablation_plan=ablation,
+        provider_descriptor=_deepseek_descriptor(),
+        execution_mode=execution_mode,
+    )
+    payload = current.model_dump(mode="json")
+    payload.pop("masked_prompt_projection_contract")
+    payload["id"] = real_model_experiment_plan_id(
+        contract=current.contract,
+        benchmark_manifest_id=current.benchmark_manifest_id,
+        benchmark_version=current.benchmark_version,
+        ablation_plan_id=current.ablation_plan_id,
+        provider_descriptor_id=current.provider_descriptor.id,
+        execution_mode=current.execution_mode,
+        condition_spec_ids=[item.id for item in current.condition_specs],
+        case_ids=current.case_ids,
+        provider_role_order=current.provider_role_order,
+    )
+    return RealModelExperimentPlan.model_validate(payload)
+
+
+def _wrong_projection_plan(
+    execution_mode: ExperimentExecutionMode = (
+        ExperimentExecutionMode.OFFLINE_CONTRACT
+    ),
+) -> RealModelExperimentPlan:
+    manifest = _fixture_manifest()
+    ablation = AblationExperimentPlan.create(
+        benchmark_manifest_id=manifest.id,
+        benchmark_version=manifest.benchmark_version,
+    )
+    current = RealModelExperimentPlan.create(
+        manifest=manifest,
+        ablation_plan=ablation,
+        provider_descriptor=_descriptor(),
+        execution_mode=execution_mode,
+    )
+    wrong_contract = "fixture-incompatible-masked-projection"
+    payload = current.model_dump(mode="json")
+    payload["masked_prompt_projection_contract"] = wrong_contract
+    payload["id"] = real_model_experiment_plan_id(
+        contract=current.contract,
+        benchmark_manifest_id=current.benchmark_manifest_id,
+        benchmark_version=current.benchmark_version,
+        ablation_plan_id=current.ablation_plan_id,
+        provider_descriptor_id=current.provider_descriptor.id,
+        execution_mode=current.execution_mode,
+        condition_spec_ids=[item.id for item in current.condition_specs],
+        case_ids=current.case_ids,
+        provider_role_order=current.provider_role_order,
+        masked_prompt_projection_contract=wrong_contract,
     )
     return RealModelExperimentPlan.model_validate(payload)
 
@@ -971,6 +1053,78 @@ def test_plan_binds_exact_four_conditions_one_repetition_and_cases() -> None:
     assert plan.provider_role_order == list(PHASE10D_PROVIDER_ROLE_ORDER)
     assert plan.execution_mode is ExperimentExecutionMode.OFFLINE_CONTRACT
     assert not hasattr(plan.condition_specs[0], "provider_descriptor")
+
+
+def test_new_plan_binds_current_masked_projection_and_changes_legacy_id() -> None:
+    current = _plan()
+    legacy = current.model_dump(mode="json")
+    legacy.pop("masked_prompt_projection_contract")
+    legacy_id = real_model_experiment_plan_id(
+        contract=current.contract,
+        benchmark_manifest_id=current.benchmark_manifest_id,
+        benchmark_version=current.benchmark_version,
+        ablation_plan_id=current.ablation_plan_id,
+        provider_descriptor_id=current.provider_descriptor.id,
+        execution_mode=current.execution_mode,
+        condition_spec_ids=[item.id for item in current.condition_specs],
+        case_ids=current.case_ids,
+        provider_role_order=current.provider_role_order,
+    )
+    legacy["id"] = legacy_id
+    restored = RealModelExperimentPlan.model_validate(legacy)
+
+    assert current.masked_prompt_projection_contract == (
+        PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT
+    )
+    assert current.id != legacy_id
+    assert restored.id == legacy_id
+    assert restored.masked_prompt_projection_contract is None
+
+
+def test_ds5_legacy_plan_and_provider_id_remain_exactly_compatible() -> None:
+    legacy = _legacy_projection_plan(ExperimentExecutionMode.REAL_PROVIDER)
+    descriptor = legacy.provider_descriptor
+    manifest = _fixture_manifest()
+    ablation = AblationExperimentPlan.create(
+        benchmark_manifest_id=manifest.id,
+        benchmark_version=manifest.benchmark_version,
+    )
+    current = RealModelExperimentPlan.create(
+        manifest=manifest,
+        ablation_plan=ablation,
+        provider_descriptor=descriptor,
+        execution_mode=ExperimentExecutionMode.REAL_PROVIDER,
+    )
+
+    assert legacy.masked_prompt_projection_contract is None
+    assert legacy.id == (
+        "real-model-experiment-plan:"
+        "b5bc602d3a78fd250fce29d191691a2ca15d83cae334fc4ec33c20f36edc401a"
+    )
+    assert descriptor.id == (
+        "real-model-provider-descriptor:"
+        "d513870cd06deaaaef40f7d4b341d70b862fbb0dc46471afbd3acb5a9eae6d9b"
+    )
+    assert descriptor.strict_schema_bundle_sha256 == strict_schema_bundle_sha256()
+    assert descriptor.responses_completion_contract == (
+        PHASE10D_RESPONSES_COMPLETION_CONTRACT
+    )
+    assert current.id != legacy.id
+    assert current.masked_prompt_projection_contract == (
+        PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT
+    )
+
+
+def test_offline_legacy_and_wrong_projection_plans_remain_read_compatible() -> None:
+    legacy = _legacy_projection_plan(ExperimentExecutionMode.OFFLINE_CONTRACT)
+    wrong = _wrong_projection_plan()
+
+    assert RealModelExperimentPlan.model_validate_json(
+        legacy.model_dump_json()
+    ) == legacy
+    assert wrong.masked_prompt_projection_contract == (
+        "fixture-incompatible-masked-projection"
+    )
 
 
 def test_phase10d_role_order_matches_frozen_agent_workflow() -> None:

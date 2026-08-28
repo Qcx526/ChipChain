@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～6 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -583,6 +583,26 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   均为空，不伪造 negative objective status
 - [x] production materializer 不接受 Manifest/Case/GroundTruth/runner/comparator，完全离线且不启动 QEMU、
   Provider 或网络
+
+#### Phase 10D Step 7：Collision-Safe Masked Prompt Projection（已完成实现）
+
+- [x] reasoning-layer `masked_chain_hidden_reference_ids()` 集中冻结 interaction、attack-pattern 与
+  dynamic-trigger hidden policy，projection 与 executor audit 复用同一 API
+- [x] MASKED 对 subject/components/facts/evidence/knowledge identifiers 采用与 audit 相同的 substring
+  collision rule；subject 或 all-components collision 在 transport 前 fail closed
+- [x] provider-visible runtime observation / knowledge retrieval 若包含 hidden reference 则整项省略，
+  不构造 placeholder、hash alias 或 invalid partial object
+- [x] `provider_authority.supporting_evidence_ids_allowed_values` 只来自 projected evidence IDs；完整 trusted
+  Context 继续进入 parser/system-owned bindings
+- [x] FULL 与 collision-free historical MASKED prompt byte identity 保持；DS5 positive resource collision
+  被移除且 exact-reference audit PASS
+- [x] 新 plan identity 绑定 `phase10d_collision_safe_masked_projection_v1`；Step 1～6 缺字段的历史 ID/JSON
+  保持可读，legacy/wrong REAL_PROVIDER plan 在 provider call 前 fail closed
+- [x] archive validator 按 archived plan protocol 精确重建 prompt：legacy `None` 恢复 Step 1～6 MASKED
+  bytes/current contract 恢复 collision-safe bytes；历史 hash 不跳过、不接受双解
+- [x] preserved DS5 archive SHA/plan/archive IDs 原样通过只读 validation；legacy execution gate 仍为零调用拒绝
+- [x] provider descriptor、strict schema bundle、Responses completion contract、parser 与 evaluation semantics
+  均未改变
 
 后续人工工作：code review/freeze 后，通过 opt-in CLI 对 owned-synthetic 输入执行一次受控真实
 Qwen/OpenAI-compatible experiment。`TRIGGERABLE` 仍不能脱离

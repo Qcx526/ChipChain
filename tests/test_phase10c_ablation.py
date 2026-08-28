@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
 import inspect
 import json
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
@@ -30,8 +32,15 @@ from chipchain.evaluation import (
     FinalizedCandidateBuilder,
     ModelClaimBinder,
     ModelClaimBindingStatus,
+    ObjectiveExperimentInputSourceSet,
     PromptVisibilityAuditStatus,
     PromptVisibilityAuditor,
+    structured_prompt_request_sha256,
+)
+from chipchain.knowledge import (
+    DeterministicKnowledgeRetriever,
+    InMemoryKnowledgeEntryRepository,
+    KnowledgeRetrievalQuery,
 )
 from chipchain.models import Architecture, CrossLayerInteraction, CrossLayerInteractionType, Layer
 from chipchain.reasoning import (
@@ -43,7 +52,10 @@ from chipchain.reasoning import (
     ReasoningProvider,
     RoleBasedReasoningPromptBuilder,
     StructuredPromptRequest,
+    masked_chain_hidden_reference_ids,
 )
+from chipchain.runtime import RuntimeEventKind, RuntimeObservation
+from chipchain.verification import ProgramAddress
 from tests.test_phase10b_benchmark_evaluation import (
     _bundle,
     _case,
@@ -51,6 +63,9 @@ from tests.test_phase10b_benchmark_evaluation import (
     _manifest,
     _owned_runs,
 )
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _interaction() -> CrossLayerInteraction:
@@ -174,6 +189,24 @@ def test_full_default_prompt_is_byte_for_byte_backward_compatible() -> None:
         visibility=ReasoningPromptVisibility.FULL_CONTEXT,
     )
     assert implicit == explicit
+    assert hashlib.sha256(explicit.model_dump_json().encode()).hexdigest() == (
+        "be5b3de8746e950045cb89531312dc47e0544c9702b6f16ab3676dcf6827f548"
+    )
+    legacy_reconstruction = builder.build_for_projection_contract(
+        _context(),
+        role=ReasoningAgentType.ATTACK_CHAIN,
+        visibility=ReasoningPromptVisibility.FULL_CONTEXT,
+        masked_prompt_projection_contract=None,
+    )
+    assert legacy_reconstruction == explicit
+
+
+def test_collision_free_masked_prompt_is_byte_compatible() -> None:
+    prompt = _prompt(ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT)
+
+    assert hashlib.sha256(prompt.model_dump_json().encode()).hexdigest() == (
+        "e36696c939799dd99dab11948d61bdcbe54f677c4530cd065cd8b0f38967ba86"
+    )
 
 
 def test_masked_view_is_deterministic_and_input_order_neutral() -> None:
@@ -227,6 +260,240 @@ def test_masked_prompt_hides_chain_answer_references(hidden) -> None:
 )
 def test_masked_prompt_retains_non_chain_facts(visible: str) -> None:
     assert visible in _prompt(ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT).user_prompt
+
+
+def test_hidden_reference_policy_is_centralized_deterministic_and_exact() -> None:
+    context = _context()
+    expected = sorted(
+        {
+            context.attack_pattern_reference,
+            context.dynamic_trigger_fact_reference,
+            context.cross_layer_interaction.id,
+            *context.cross_layer_interaction.target_vulnerability_ids,
+            *context.cross_layer_interaction.trigger_behavior_ids,
+            *context.cross_layer_interaction.hardware_resource_ids,
+        }
+    )
+
+    assert masked_chain_hidden_reference_ids(context) == expected
+    assert masked_chain_hidden_reference_ids(context) == expected
+    assert Architecture.ARM.value not in expected
+
+
+def test_owned_step6_collision_is_removed_and_same_policy_audits_pass() -> None:
+    source_set = ObjectiveExperimentInputSourceSet.model_validate_json(
+        (
+            ROOT
+            / "tests/fixtures/evaluation/phase10d_owned_objective_inputs.json"
+        ).read_text(encoding="utf-8")
+    )
+    context = next(
+        item.reasoning_context
+        for item in source_set.case_sources
+        if item.triggerability_source is not None
+    )
+    hidden = masked_chain_hidden_reference_ids(context)
+    masked_view = ReasoningPromptView.create(
+        context,
+        visibility=ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT,
+    )
+    masked_prompt = RoleBasedReasoningPromptBuilder().build(
+        context,
+        role=ReasoningAgentType.CODE,
+        visibility=ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT,
+    )
+    full_prompt = RoleBasedReasoningPromptBuilder().build(
+        context,
+        role=ReasoningAgentType.CODE,
+        visibility=ReasoningPromptVisibility.FULL_CONTEXT,
+    )
+    legacy_prompt = RoleBasedReasoningPromptBuilder().build_for_projection_contract(
+        context,
+        role=ReasoningAgentType.CODE,
+        visibility=ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT,
+        masked_prompt_projection_contract=None,
+    )
+    audit = PromptVisibilityAuditor.audit(
+        masked_prompt,
+        hidden_reference_ids=hidden,
+    )
+
+    assert "synthetic-owned-arm-execution-core" in hidden
+    assert masked_view.affected_components == [
+        "synthetic-owned-arm-firmware"
+    ]
+    assert "synthetic-owned-arm-execution-core" not in masked_prompt.user_prompt
+    assert audit.status is PromptVisibilityAuditStatus.PASS
+    assert audit.leaked_reference_ids == []
+    assert "synthetic-owned-arm-execution-core" in full_prompt.user_prompt
+    assert structured_prompt_request_sha256(legacy_prompt) == (
+        "0934f36721272491e532a18d44467ac0e24aa118c1f5acdf4c285bc61311a341"
+    )
+    assert structured_prompt_request_sha256(legacy_prompt) != (
+        structured_prompt_request_sha256(masked_prompt)
+    )
+    assert "synthetic-owned-arm-execution-core" in legacy_prompt.user_prompt
+    legacy_payload = json.loads(legacy_prompt.user_prompt)
+    assert legacy_payload["provider_authority"][
+        "supporting_evidence_ids_allowed_values"
+    ] == context.available_evidence_ids
+
+
+def test_masked_reconstruction_rejects_unknown_projection_contract() -> None:
+    with pytest.raises(ValueError, match="unsupported masked prompt projection"):
+        RoleBasedReasoningPromptBuilder().build_for_projection_contract(
+            _context(),
+            role=ReasoningAgentType.CODE,
+            visibility=ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT,
+            masked_prompt_projection_contract="fixture-unknown-projection",
+        )
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "affected_components",
+        "observed_fact_ids",
+        "available_evidence_ids",
+        "knowledge_entry_ids",
+    ],
+)
+def test_masked_projection_filters_cross_field_substring_collisions(
+    field_name: str,
+) -> None:
+    hidden = "hidden-trigger-behavior"
+    values = {
+        "affected_components": ["visible-component"],
+        "observed_fact_ids": ["visible-observed-fact"],
+        "available_evidence_ids": ["visible-evidence"],
+        "knowledge_entry_ids": ["visible-knowledge"],
+    }
+    values[field_name] = [f"prefix:{hidden}:suffix", f"visible-{field_name}"]
+    context = ReasoningContext.create(
+        architecture=Architecture.ARM,
+        subject_id="visible-subject",
+        cross_layer_interaction=_interaction(),
+        **values,
+    )
+    prompt = RoleBasedReasoningPromptBuilder().build(
+        context,
+        role=ReasoningAgentType.CODE,
+        visibility=ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT,
+    )
+    payload = json.loads(prompt.user_prompt)
+    legacy_prompt = RoleBasedReasoningPromptBuilder().build_for_projection_contract(
+        context,
+        role=ReasoningAgentType.CODE,
+        visibility=ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT,
+        masked_prompt_projection_contract=None,
+    )
+    legacy_payload = json.loads(legacy_prompt.user_prompt)
+
+    assert hidden not in prompt.user_prompt
+    assert legacy_payload["reasoning_context"][field_name] == sorted(
+        values[field_name]
+    )
+    if field_name == "available_evidence_ids":
+        assert payload["reasoning_context"][field_name] == [
+            "visible-available_evidence_ids"
+        ]
+        assert payload["provider_authority"][
+            "supporting_evidence_ids_allowed_values"
+        ] == ["visible-available_evidence_ids"]
+        assert legacy_payload["provider_authority"][
+            "supporting_evidence_ids_allowed_values"
+        ] == sorted(values[field_name])
+
+
+def test_masked_projection_rejects_subject_and_all_component_collisions() -> None:
+    hidden = "hidden-trigger-behavior"
+    common = {
+        "architecture": Architecture.ARM,
+        "cross_layer_interaction": _interaction(),
+    }
+    subject_collision = ReasoningContext.create(
+        **common,
+        subject_id=f"subject:{hidden}",
+        affected_components=["visible-component"],
+    )
+    component_collision = ReasoningContext.create(
+        **common,
+        subject_id="visible-subject",
+        affected_components=[f"component:{hidden}"],
+    )
+
+    class CountingProvider(ReasoningProvider):
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def generate(self, request: StructuredPromptRequest) -> str:
+            self.calls += 1
+            return MockReasoningProvider().generate(request)
+
+    for context, message in (
+        (subject_collision, "subject ID collides"),
+        (component_collision, "non-hidden affected component"),
+    ):
+        provider = CountingProvider()
+        engine = ReasoningEngine(
+            provider=provider,
+            prompt_visibility=(
+                ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT
+            ),
+        )
+        with pytest.raises(ValueError, match=message):
+            engine.reason(context, role=ReasoningAgentType.CODE)
+        assert provider.calls == 0
+
+
+def test_masked_projection_omits_whole_colliding_nested_objects() -> None:
+    hidden = "hidden-trigger-behavior"
+    observation = RuntimeObservation.create(
+        trace_id=f"trace:{hidden}",
+        architecture=Architecture.ARM,
+        sequence_index=0,
+        vcpu_index=0,
+        event_kind=RuntimeEventKind.INSTRUCTION_EXEC,
+        pc=ProgramAddress(value="0x1000"),
+    )
+    query = KnowledgeRetrievalQuery.create(
+        architecture=Architecture.ARM,
+        text=f"lookup {hidden}",
+    )
+    knowledge = DeterministicKnowledgeRetriever(
+        InMemoryKnowledgeEntryRepository([])
+    ).retrieve(query)
+    context = ReasoningContext.create(
+        architecture=Architecture.ARM,
+        subject_id="visible-subject",
+        affected_components=["visible-component"],
+        cross_layer_interaction=_interaction(),
+        runtime_observations=[observation],
+        knowledge_retrieval_result=knowledge,
+    )
+    view = ReasoningPromptView.create(
+        context,
+        visibility=ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT,
+    )
+    legacy_prompt = RoleBasedReasoningPromptBuilder().build_for_projection_contract(
+        context,
+        role=ReasoningAgentType.CODE,
+        visibility=ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT,
+        masked_prompt_projection_contract=None,
+    )
+    legacy_context = json.loads(legacy_prompt.user_prompt)["reasoning_context"]
+
+    assert view.runtime_observations == []
+    assert view.knowledge_retrieval_result is None
+    assert legacy_context["runtime_observations"] == [
+        item.model_dump(mode="json") for item in context.runtime_observations
+    ]
+    assert legacy_context["knowledge_retrieval_result"] == (
+        context.knowledge_retrieval_result.model_dump(mode="json")
+    )
+    assert context.runtime_observations == [observation]
+    assert context.knowledge_retrieval_result is not None
+    assert "<hidden>" not in json.dumps(view.visible_context())
 
 
 def test_full_prompt_is_intentional_chain_context_control() -> None:

@@ -38,7 +38,7 @@
 
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
   Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
-  与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～6 已完成；Step 3B 仍为 planned/not implemented。
+  与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -195,6 +195,15 @@
   archive。旧 input/archive 缺 record 时仍可反序列化；新的 REAL_PROVIDER input 若携带 triggerability
   则在 create 与 executor preflight 两层强制要求 record。该 provenance 不改变 triggerability、oracle、
   metric、provider、prompt 或 parser 语义。
+- Phase 10D Step 7 以 reasoning-layer 单一 hidden-reference policy 同时驱动 MASKED prompt projection
+  与 transport 前 audit。任何 remaining visible identifier 若包含 hidden reference 必须过滤；required
+  `subject_id` 碰撞或全部 `affected_components` 被过滤时 fail closed。碰撞的 runtime observation 或
+  knowledge retrieval result 必须整项省略，禁止 placeholder、hash alias 或半对象。完整 trusted Context
+  与 FULL prompt 不变，parser 仍使用完整 Context。新的 experiment plan 必须绑定冻结 projection
+  contract；旧 Step 1～6 plan/archive 可读取，但缺失或错误 contract 的 REAL_PROVIDER 重执行必须在
+  provider call 前拒绝。历史 archive prompt provenance 必须按归档 plan 的 protocol 精确重建：`None`
+  使用 Step 1～6 legacy MASKED bytes，当前 contract 使用 collision-safe bytes，禁止跳过或接受双 hash。
+  该变更不修改 provider descriptor、schema、completion、parser 或评测语义。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

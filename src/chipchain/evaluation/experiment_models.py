@@ -38,6 +38,9 @@ from chipchain.reasoning.models import (
 from chipchain.reasoning.parser import (
     reasoning_provider_output_json_schema_for_role,
 )
+from chipchain.reasoning.prompt_view import (
+    PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT,
+)
 
 
 PHASE10D_EXPERIMENT_CONTRACT = "phase10d_real_model_experiment_v1"
@@ -303,25 +306,28 @@ def real_model_experiment_plan_id(
     condition_spec_ids: list[str],
     case_ids: list[str],
     provider_role_order: list[ReasoningAgentType],
+    masked_prompt_projection_contract: str | None = None,
 ) -> str:
     """Build one frozen experiment matrix identity before outputs exist."""
 
-    return _canonical_hash(
-        "real-model-experiment-plan",
-        {
-            "ablation_plan_id": ablation_plan_id,
-            "benchmark_manifest_id": benchmark_manifest_id,
-            "benchmark_version": benchmark_version,
-            "case_ids": sorted(case_ids),
-            "condition_spec_ids": sorted(condition_spec_ids),
-            "contract": contract,
-            "execution_mode": ExperimentExecutionMode(execution_mode).value,
-            "provider_descriptor_id": provider_descriptor_id,
-            "provider_role_order": [
-                ReasoningAgentType(role).value for role in provider_role_order
-            ],
-        },
-    )
+    payload = {
+        "ablation_plan_id": ablation_plan_id,
+        "benchmark_manifest_id": benchmark_manifest_id,
+        "benchmark_version": benchmark_version,
+        "case_ids": sorted(case_ids),
+        "condition_spec_ids": sorted(condition_spec_ids),
+        "contract": contract,
+        "execution_mode": ExperimentExecutionMode(execution_mode).value,
+        "provider_descriptor_id": provider_descriptor_id,
+        "provider_role_order": [
+            ReasoningAgentType(role).value for role in provider_role_order
+        ],
+    }
+    if masked_prompt_projection_contract is not None:
+        payload["masked_prompt_projection_contract"] = (
+            masked_prompt_projection_contract
+        )
+    return _canonical_hash("real-model-experiment-plan", payload)
 
 
 class RealModelExperimentPlan(DomainModel):
@@ -335,6 +341,7 @@ class RealModelExperimentPlan(DomainModel):
     ablation_primary_model_condition: AblationConditionKind
     provider_descriptor: RealModelProviderDescriptor
     execution_mode: ExperimentExecutionMode
+    masked_prompt_projection_contract: Identifier | None = None
     condition_specs: list[AblationConditionSpec]
     case_ids: list[Identifier] = Field(min_length=1)
     provider_role_order: list[ReasoningAgentType]
@@ -397,6 +404,9 @@ class RealModelExperimentPlan(DomainModel):
             condition_spec_ids=[item.id for item in self.condition_specs],
             case_ids=self.case_ids,
             provider_role_order=self.provider_role_order,
+            masked_prompt_projection_contract=(
+                self.masked_prompt_projection_contract
+            ),
         )
         if self.id != expected:
             raise ValueError("RealModelExperimentPlan ID is not deterministic")
@@ -464,6 +474,9 @@ class RealModelExperimentPlan(DomainModel):
             condition_spec_ids=[item.id for item in specs],
             case_ids=cases,
             provider_role_order=list(PHASE10D_PROVIDER_ROLE_ORDER),
+            masked_prompt_projection_contract=(
+                PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT
+            ),
         )
         return cls(
             id=identity,
@@ -476,6 +489,9 @@ class RealModelExperimentPlan(DomainModel):
             ),
             provider_descriptor=descriptor_snapshot,
             execution_mode=mode,
+            masked_prompt_projection_contract=(
+                PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT
+            ),
             condition_specs=specs,
             case_ids=cases,
             provider_role_order=list(PHASE10D_PROVIDER_ROLE_ORDER),

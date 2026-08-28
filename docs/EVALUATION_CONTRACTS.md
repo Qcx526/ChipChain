@@ -274,3 +274,24 @@ trace, runtime trace, static/runtime semantic hash, and aggregation provenance. 
 that carry triggerability require this record before transport, while legacy Step 2–5 JSON without the
 field retains its original identity and remains readable. Materialization launches neither QEMU nor a
 provider and does not change oracle, metric, prompt, parser, or triggerability semantics.
+
+## Phase 10D Step 7 Masked Projection Protocol
+
+The reasoning layer owns one deterministic hidden-reference function shared by MASKED projection and
+the pre-transport exact-reference audit. Remaining scalar/list identifiers use the auditor's substring
+semantics. Colliding optional list entries are removed; a colliding required subject or an empty
+post-filter affected-component set fails closed. A nested runtime observation or knowledge retrieval
+result is either retained unchanged or omitted as a whole when its visible serialization collides.
+No placeholder, pseudonym, hash alias, partial typed object, Ground Truth, or model repair is introduced.
+
+The MASKED provider-authority evidence allowlist is projected with the visible context. The full trusted
+`ReasoningContext` remains the parser and system-binding input, and FULL prompt bytes remain frozen.
+New plans bind `phase10d_collision_safe_masked_projection_v1` into plan identity. A missing optional
+field preserves exact Step 1–6 historical IDs and read compatibility, while REAL_PROVIDER preflight
+rejects missing or non-current projection contracts before any provider call. Provider descriptor,
+strict-schema bundle, Responses completion contract, parser, binder, oracle, and metric semantics remain
+unchanged.
+Historical archive validation is distinct from execution authorization. It reconstructs FULL bytes
+unchanged and selects exactly one MASKED protocol from the archived plan: `None` means the Step 1–6
+projection and the current constant means collision-safe projection. Unknown contracts and prompt-hash
+mismatches fail closed. This read path does not re-enable legacy REAL_PROVIDER execution.

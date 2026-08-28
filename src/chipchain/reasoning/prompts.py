@@ -14,7 +14,11 @@ from chipchain.reasoning.models import (
     StructuredPromptRequest,
 )
 from chipchain.reasoning.enums import ReasoningPromptVisibility
-from chipchain.reasoning.prompt_view import ReasoningPromptView
+from chipchain.reasoning.prompt_view import (
+    PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT,
+    ReasoningPromptView,
+    _legacy_masked_reasoning_prompt_visible_context,
+)
 
 if TYPE_CHECKING:
     from chipchain.agents.base import ReasoningContext
@@ -342,6 +346,25 @@ class RoleBasedReasoningPromptBuilder:
     ) -> StructuredPromptRequest:
         """Serialize only bounded context references and a closed output contract."""
 
+        return self.build_for_projection_contract(
+            context,
+            role=role,
+            visibility=visibility,
+            masked_prompt_projection_contract=(
+                PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT
+            ),
+        )
+
+    def build_for_projection_contract(
+        self,
+        context: "ReasoningContext",
+        *,
+        role: ReasoningAgentType | str,
+        visibility: ReasoningPromptVisibility | str,
+        masked_prompt_projection_contract: str | None,
+    ) -> StructuredPromptRequest:
+        """Reconstruct prompts for one explicitly bound projection protocol."""
+
         from chipchain.agents.base import ReasoningContext
 
         snapshot = ReasoningContext.model_validate(context.model_dump(mode="json"))
@@ -371,6 +394,30 @@ class RoleBasedReasoningPromptBuilder:
                 else "; hypothesis.chain_claim is transport-required but null-only"
             ),
         )
+        visible_context = snapshot.model_dump(
+            mode="json",
+            exclude={"metadata"},
+        )
+        visible_evidence_ids = snapshot.available_evidence_ids
+        if visibility_policy is ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT:
+            if (
+                masked_prompt_projection_contract
+                == PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT
+            ):
+                view = ReasoningPromptView.create(
+                    snapshot,
+                    visibility=visibility_policy,
+                )
+                visible_context = view.visible_context()
+                visible_evidence_ids = view.available_evidence_ids
+            elif masked_prompt_projection_contract is None:
+                visible_context = (
+                    _legacy_masked_reasoning_prompt_visible_context(snapshot)
+                )
+            else:
+                raise ValueError(
+                    "unsupported masked prompt projection contract"
+                )
         payload = {
             "constraints": {
                 "confidence_semantics": "reasoning_only_not_verification_score",
@@ -382,25 +429,17 @@ class RoleBasedReasoningPromptBuilder:
                     normalized_role
                 ),
                 "supporting_evidence_ids_allowed_values": (
-                    snapshot.available_evidence_ids
+                    visible_evidence_ids
                 ),
                 "trusted_binding_semantics": (
                     "context_and_role_fields_are_bound_by_chipchain_not_repaired"
                 ),
             },
-            "reasoning_context": snapshot.model_dump(
-                mode="json",
-                exclude={"metadata"},
-            ),
+            "reasoning_context": visible_context,
             "role": normalized_role.value,
             "role_contract": role_contract,
         }
         if visibility_policy is ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT:
-            view = ReasoningPromptView.create(
-                snapshot,
-                visibility=visibility_policy,
-            )
-            payload["reasoning_context"] = view.visible_context()
             payload["prompt_visibility"] = visibility_policy.value
         return StructuredPromptRequest(
             candidate_id=snapshot.id,

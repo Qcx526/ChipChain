@@ -609,10 +609,13 @@ def _validate_real_provider_prompt_provenance(
             )
             if case_input is None:
                 raise ValueError("prompt invocation has no archived case input")
-            prompt = builder.build(
+            prompt = builder.build_for_projection_contract(
                 case_input.reasoning_context,
                 role=invocation.invocation_key.role,
                 visibility=visibility,
+                masked_prompt_projection_contract=(
+                    plan.masked_prompt_projection_contract
+                ),
             )
             if (
                 structured_prompt_request_sha256(prompt)

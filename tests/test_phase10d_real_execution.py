@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -25,6 +26,7 @@ from chipchain.evaluation import (
     FinalizedCandidateBuilder,
     ModelClaimBindingStatus,
     ModelInvocationDisposition,
+    ObjectiveExperimentInputSourceSet,
     PromptVisibilityAuditStatus,
     ProviderResponseFailureDetail,
     RealExperimentCaseInput,
@@ -37,6 +39,7 @@ from chipchain.evaluation import (
     RealModelInvocationFailureStage,
     RealModelProviderDescriptor,
     StructuredParseFailureDetail,
+    structured_prompt_request_sha256,
 )
 from chipchain.hardware_trigger.enums import TriggerabilityStatus
 from chipchain.reasoning import (
@@ -68,8 +71,10 @@ from tests.test_phase10c_ablation import _context
 from tests.test_phase10d_experiment_contracts import (
     _config,
     _descriptor,
+    _legacy_projection_plan,
     _legacy_responses_plan,
     _legacy_strict_plan,
+    _wrong_projection_plan,
 )
 
 
@@ -1257,6 +1262,138 @@ def test_executor_rejects_legacy_responses_contract_before_provider_call():
 
     assert client.responses.calls == []
     assert client.completions.calls == []
+
+
+def _inputs_for_projection_plan(
+    plan: RealModelExperimentPlan,
+) -> tuple[object, RealExperimentInputSet]:
+    manifest, _, source_inputs = _plan_and_inputs(
+        execution_mode=ExperimentExecutionMode.REAL_PROVIDER
+    )
+    case_inputs = [
+        RealExperimentCaseInput.create(
+            plan,
+            benchmark_case_id=item.benchmark_case_id,
+            reasoning_context=item.reasoning_context,
+            metadata=item.metadata,
+        )
+        for item in source_inputs.case_inputs
+    ]
+    return manifest, RealExperimentInputSet.create(
+        plan,
+        case_inputs=case_inputs,
+        metadata=source_inputs.metadata,
+    )
+
+
+@pytest.mark.parametrize(
+    "plan_factory",
+    [
+        lambda: _legacy_projection_plan(
+            ExperimentExecutionMode.REAL_PROVIDER
+        ),
+        lambda: _wrong_projection_plan(
+            ExperimentExecutionMode.REAL_PROVIDER
+        ),
+    ],
+)
+def test_executor_rejects_noncurrent_projection_before_provider_call(
+    plan_factory,
+) -> None:
+    plan = plan_factory()
+    manifest, inputs = _inputs_for_projection_plan(plan)
+    provider = _CountingProvider()
+
+    with pytest.raises(
+        RealExperimentExecutionError,
+        match="requires current masked prompt projection contract",
+    ):
+        RealModelExperimentExecutor(provider=provider).execute(
+            plan, manifest, inputs
+        )
+
+    assert provider.calls == []
+
+
+def test_current_real_plan_passes_projection_preflight_with_fake_provider() -> None:
+    manifest, plan, inputs = _plan_and_inputs(
+        execution_mode=ExperimentExecutionMode.REAL_PROVIDER
+    )
+    provider, client = _offline_real_provider()
+
+    RealModelExperimentExecutor(provider=provider)._preflight(
+        plan, manifest, inputs
+    )
+
+    assert client.completions.calls == []
+    assert client.responses.calls == []
+
+
+def test_archive_prompt_validator_reconstructs_legacy_projection_exactly() -> None:
+    source_set = ObjectiveExperimentInputSourceSet.model_validate_json(
+        Path(
+            "tests/fixtures/evaluation/phase10d_owned_objective_inputs.json"
+        ).read_text(encoding="utf-8")
+    )
+    case_source = next(
+        item
+        for item in source_set.case_sources
+        if item.triggerability_source is not None
+    )
+    plan = _legacy_projection_plan(ExperimentExecutionMode.REAL_PROVIDER)
+    case_input = RealExperimentCaseInput.create(
+        plan,
+        benchmark_case_id=case_source.benchmark_case_id,
+        reasoning_context=case_source.reasoning_context,
+    )
+    builder = RoleBasedReasoningPromptBuilder()
+    legacy_prompt = builder.build_for_projection_contract(
+        case_source.reasoning_context,
+        role=ReasoningAgentType.CODE,
+        visibility="masked_chain_context",
+        masked_prompt_projection_contract=None,
+    )
+    current_prompt = builder.build(
+        case_source.reasoning_context,
+        role=ReasoningAgentType.CODE,
+        visibility="masked_chain_context",
+    )
+    invocation_key = SimpleNamespace(
+        benchmark_case_id=case_source.benchmark_case_id,
+        role=ReasoningAgentType.CODE,
+    )
+    records = {
+        AblationConditionKind.FULL_CONTEXT_MODEL: SimpleNamespace(
+            invocation_records=[]
+        ),
+        AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL: SimpleNamespace(
+            invocation_records=[
+                SimpleNamespace(
+                    invocation_key=invocation_key,
+                    prompt_sha256=structured_prompt_request_sha256(
+                        legacy_prompt
+                    ),
+                )
+            ]
+        ),
+    }
+
+    _validate_real_provider_prompt_provenance(
+        plan,
+        {case_source.benchmark_case_id: case_input},
+        records,
+    )
+    records[
+        AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL
+    ].invocation_records[0].prompt_sha256 = structured_prompt_request_sha256(
+        current_prompt
+    )
+    with pytest.raises(ValueError, match="does not match archived case input"):
+        _validate_real_provider_prompt_provenance(
+            plan,
+            {case_source.benchmark_case_id: case_input},
+            records,
+        )
 
 
 def test_real_provider_not_attempted_requires_no_prompt_provenance():

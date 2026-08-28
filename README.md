@@ -58,6 +58,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10D Step 2 explicit opt-in execution harness、pre-transport MASKED audit 与 canonical execution archive
 - Phase 10D Step 6 GT-firewalled objective triggerability materialization、persistent source provenance 与
   REAL_PROVIDER completeness gate
+- Phase 10D Step 7 collision-safe MASKED projection、single-policy prompt audit 与 projection-protocol provenance
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -607,6 +608,22 @@ trace IDs、static/runtime semantic hashes 与 aggregation ID，并随 `RealExpe
 旧 input/archive 缺该字段时仍保持原 ID 和反序列化能力；新的 `REAL_PROVIDER` input 若携带
 triggerability，则 create、CLI 和 executor preflight 都要求完整 materialization provenance。整个
 materialization 过程不启动 QEMU、不调用 Provider、不触网，也不改变 Phase 9C/10A/10B/10C 语义。
+
+## Phase 10D Step 7 Collision-Safe MASKED Projection
+
+Step 7 将 MASKED hidden-reference derivation 集中到 reasoning layer，由同一冻结函数同时驱动
+`ReasoningPromptView` 和 transport 前 `PromptVisibilityAuditor`。投影会从 remaining visible ID fields
+删除任何包含 hidden reference 的值；`subject_id` 碰撞或全部 affected component 被删除时在 Provider
+调用前 fail closed。包含 hidden reference 的 runtime observation 或 knowledge retrieval result 整项省略，
+不使用 placeholder、hash alias 或不完整 typed object。
+
+`provider_authority.supporting_evidence_ids_allowed_values` 只来自 MASKED projected evidence IDs。完整
+trusted `ReasoningContext` 不被修改，parser/system-owned binding 仍使用它；FULL prompt 以及没有 collision
+的历史 MASKED prompt 保持 byte-for-byte identity。新建 experiment plan 绑定冻结 projection contract，
+旧 Step 1～6 plan/archive 缺字段时仍可读取，但不能作为新的 `REAL_PROVIDER` execution 重放。
+读取历史 REAL_PROVIDER archive 时，validator 会依据归档 plan 的 optional contract 精确选择 legacy 或
+current reconstruction，再与唯一 archived prompt SHA 比较；不会跳过历史 MASKED hash，也不会同时接受
+legacy/current 两种结果。
 
 ## 文档导航
 

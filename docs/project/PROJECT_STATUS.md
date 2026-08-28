@@ -30,13 +30,17 @@
 - Phase 10D Step 1 sanitized provider descriptor, frozen case×four-role execution matrix, hash-only per-role invocation provenance, fail-stop accounting, and canonical offline artifact envelope
 - Phase 10D Step 2 explicit opt-in execution harness, detached input cohort, pre-transport MASKED audit, case-local failure accounting, and canonical session/case-run archive
 - Phase 10D Step 6 GT-firewalled objective triggerability materialization, persistent source provenance, and REAL_PROVIDER completeness gates
+- Phase 10D Step 7 collision-safe MASKED projection, centralized hidden-reference policy, and projection-protocol provenance
 
 ## Current Work
 
-Phase 10D Step 6 is implemented over the frozen Phase 9C and Phase 10D contracts. It binds one detached
+Phase 10D Step 7 is implemented over the frozen Phase 9C and Phase 10D contracts. It binds one detached
 candidate-side input cohort to FULL/MASKED/NO_MODEL/UPPER, delegates to the frozen reasoning workflow,
-audits MASKED prompts before transport, continues later cases after case-local failure, and archives
+projects and audits MASKED prompts through one collision-safe hidden-reference policy before transport,
+continues later cases after case-local failure, and archives
 parsed sessions, exact Phase 10B case runs, and persistent objective source/materialization provenance.
+Historical Step 1–6 archives reconstruct their legacy MASKED bytes from the archived optional protocol
+without weakening exact prompt-hash validation or reopening legacy REAL_PROVIDER execution.
 NO_MODEL/UPPER make zero provider calls. The CLI is
 fail-closed unless `--execute-real-provider` is explicit. No raw prompt, raw response, API key,
 endpoint, or host path belongs in canonical artifacts. Every automated fixture is `OFFLINE_CONTRACT`;
