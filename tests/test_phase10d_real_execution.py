@@ -1396,6 +1396,25 @@ def test_archive_prompt_validator_reconstructs_legacy_projection_exactly() -> No
         )
 
 
+def test_archive_prompt_validator_rejects_unknown_projection_without_hashes(
+) -> None:
+    plan = _wrong_projection_plan(ExperimentExecutionMode.REAL_PROVIDER)
+    records = {
+        AblationConditionKind.FULL_CONTEXT_MODEL: SimpleNamespace(
+            invocation_records=[]
+        ),
+        AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL: SimpleNamespace(
+            invocation_records=[SimpleNamespace(prompt_sha256=None)]
+        ),
+    }
+
+    with pytest.raises(
+        ValueError,
+        match="unsupported archived masked prompt projection contract",
+    ):
+        _validate_real_provider_prompt_provenance(plan, {}, records)
+
+
 def test_real_provider_not_attempted_requires_no_prompt_provenance():
     manifest, plan, inputs = _plan_and_inputs(
         execution_mode=ExperimentExecutionMode.REAL_PROVIDER

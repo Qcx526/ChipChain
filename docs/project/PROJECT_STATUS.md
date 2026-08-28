@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step5-stable`
-- Stable commit: `9148aceeb3844f2239805467a06bbf0c63219f69`
-- Baseline: Phase 10D Step 5 final accepted and frozen
+- Stable tag: `phase-10d-step6-stable`
+- Stable commit: `fbebc0f312b433fc96157a40a8d32917962eed38`
+- Baseline: Phase 10D Step 6 final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -43,13 +43,15 @@ Historical Step 1–6 archives reconstruct their legacy MASKED bytes from the ar
 without weakening exact prompt-hash validation or reopening legacy REAL_PROVIDER execution.
 NO_MODEL/UPPER make zero provider calls. The CLI is
 fail-closed unless `--execute-real-provider` is explicit. No raw prompt, raw response, API key,
-endpoint, or host path belongs in canonical artifacts. Every automated fixture is `OFFLINE_CONTRACT`;
-no Phase 10D real-model run or >=80% conclusion was performed. Phase 9C Step 3B remains deferred.
+endpoint, or host path belongs in canonical artifacts. Every automated fixture is `OFFLINE_CONTRACT`.
+Manual owned-synthetic real-provider smoke/evaluation runs have been executed, but no final
+benchmark-scale accepted performance result or >=80% conclusion exists. DS5 remained incomplete
+because its MASKED firewall failed closed. Phase 9C Step 3B remains deferred.
 
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- code review/freeze, then one explicit owned-synthetic real-provider experiment through the opt-in CLI
+- Step 7 code review/freeze, then a benchmark-scale accepted real-provider experiment through the opt-in CLI
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation
 - Phase 12 additional architectures, only after the ARM loop is stable and evaluated

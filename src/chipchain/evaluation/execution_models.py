@@ -29,6 +29,9 @@ from chipchain.evaluation.objective_input_models import (
 from chipchain.hardware_trigger.aggregation import TriggerabilityAggregationResult
 from chipchain.models.common import DomainModel, Identifier, Metadata
 from chipchain.reasoning.enums import ReasoningPromptVisibility
+from chipchain.reasoning.prompt_view import (
+    PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT,
+)
 from chipchain.reasoning.prompts import RoleBasedReasoningPromptBuilder
 
 
@@ -591,6 +594,13 @@ def _validate_real_provider_prompt_provenance(
 
     if plan.execution_mode is not ExperimentExecutionMode.REAL_PROVIDER:
         return
+    if plan.masked_prompt_projection_contract not in (
+        None,
+        PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT,
+    ):
+        raise ValueError(
+            "unsupported archived masked prompt projection contract"
+        )
     builder = RoleBasedReasoningPromptBuilder()
     visibility_by_condition = {
         AblationConditionKind.FULL_CONTEXT_MODEL: (
