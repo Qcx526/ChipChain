@@ -22,10 +22,14 @@ _ISSUE_KEY = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 _FORBIDDEN_TEXT_FRAGMENTS = (
     "<!doctype",
     "<html",
-    "file://",
-    "/home/",
-    "/users/",
     "owned_synthetic",
+)
+_LOCAL_PATH_PATTERNS = (
+    re.compile(r"(?:^|[\s(\"'=])/(?!/)[^\s]+"),
+    re.compile(r"(?:^|[\s(\"'=])~/[^\s]+"),
+    re.compile(r"(?:^|[\s(\"'=])[a-z]:[\\/][^\s]+", re.IGNORECASE),
+    re.compile(r"(?:^|[\s(\"'=])\\+[^\s]+"),
+    re.compile(r"\bfile:/+[^\s]+", re.IGNORECASE),
 )
 _FORBIDDEN_METADATA_KEYS = frozenset(
     {
@@ -114,7 +118,7 @@ def _validate_safe_text(value: str) -> str:
     lowered = value.lower()
     if any(fragment in lowered for fragment in _FORBIDDEN_TEXT_FRAGMENTS):
         raise ValueError("public CVE corpus contains forbidden raw or host text")
-    if re.search(r"(?:^|\s)[a-zA-Z]:\\", value):
+    if any(pattern.search(value) for pattern in _LOCAL_PATH_PATTERNS):
         raise ValueError("public CVE corpus contains a host path")
     return value
 

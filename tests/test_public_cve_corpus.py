@@ -291,6 +291,56 @@ def test_corpus_contains_no_host_raw_html_or_payload_material(
         PublicCveResearchSample.model_validate(payload)
 
 
+@pytest.mark.parametrize(
+    ("field_name", "path_value"),
+    [
+        ("title", "/tmp/chipchain/file.json"),
+        ("summary", "/var/lib/file"),
+        ("affected_components", "/opt/example"),
+        ("trigger_summary", "~/secret"),
+        ("precondition_summary", r"C:\Users\name\file"),
+        ("hardware_effect_summary", "C:/Users/name/file"),
+        ("source_references", r"\server\share\file"),
+        ("source_references", r"\\server\share\file"),
+        ("metadata", r"\local-root"),
+        ("source_references", "file:/tmp/file"),
+        ("metadata", "file:///tmp/file"),
+        ("metadata", "FiLe:/tmp/mixed-case"),
+    ],
+)
+def test_local_host_paths_fail_closed_in_all_corpus_text_surfaces(
+    corpus: PublicCveCorpus,
+    field_name: str,
+    path_value: str,
+) -> None:
+    replacement: object = path_value
+    if field_name in {"affected_components", "source_references"}:
+        replacement = [path_value]
+    elif field_name == "metadata":
+        replacement = {"curator_note": path_value}
+
+    with pytest.raises(ValidationError, match="contains a host path"):
+        _recreate(corpus.records[0], **{field_name: replacement})
+
+
+@pytest.mark.parametrize(
+    "reference",
+    [
+        "https://nvd.nist.gov/vuln/detail/CVE-2023-34320",
+        "https://xenbits.xenproject.org/xsa/advisory-436.html",
+        "Arm Spectre-BHB security publication",
+        "Normal prose about CVE-2023-34320 on Arm.",
+    ],
+)
+def test_public_urls_and_named_publications_are_not_host_paths(
+    corpus: PublicCveCorpus,
+    reference: str,
+) -> None:
+    sample = _recreate(corpus.records[0], source_references=[reference])
+
+    assert sample.source_references == [reference]
+
+
 def test_corpus_does_not_contaminate_owned_evaluation_fixtures() -> None:
     for relative_path in (
         "tests/fixtures/evaluation/phase10a_owned_arm.json",
