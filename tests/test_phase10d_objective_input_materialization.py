@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+import chipchain.evaluation.objective_input_materialization as materialization_module
 from chipchain.analysis import ProgramArtifact
 from chipchain.evaluation import (
     ExperimentExecutionMode,
@@ -272,6 +273,52 @@ def test_materializer_rejects_tampered_source_bytes(
         _materializer().materialize_case_input(
             _plan_and_inputs()[1], _objective_case(), fixture_root=root
         )
+
+
+def test_signature_hash_and_parse_share_one_exact_byte_snapshot(
+    monkeypatch,
+) -> None:
+    signature_path = (ROOT / SIGNATURE_REFERENCE).resolve()
+    original_bytes = signature_path.read_bytes()
+    altered_bytes = json.dumps(
+        json.loads(original_bytes), indent=2, sort_keys=True
+    ).encode("utf-8")
+    source = _objective_case().triggerability_source
+    assert source is not None
+    assert altered_bytes != original_bytes
+    assert (
+        HardwareTriggerSignature.model_validate_json(altered_bytes).id
+        == source.expected_signature_id
+    )
+
+    original_sha256_file = materialization_module._sha256_file
+    original_read_bytes = Path.read_bytes
+    signature_snapshot_reads = 0
+
+    def stale_path_hash(path: Path) -> str:
+        if path.resolve() == signature_path:
+            return source.expected_signature_file_sha256
+        return original_sha256_file(path)
+
+    def raced_read_bytes(path: Path) -> bytes:
+        nonlocal signature_snapshot_reads
+        if path.resolve() == signature_path:
+            signature_snapshot_reads += 1
+            return altered_bytes
+        return original_read_bytes(path)
+
+    monkeypatch.setattr(materialization_module, "_sha256_file", stale_path_hash)
+    monkeypatch.setattr(Path, "read_bytes", raced_read_bytes)
+
+    with pytest.raises(
+        ObjectiveInputMaterializationError,
+        match="signature file SHA-256",
+    ):
+        _materializer().materialize_case_input(
+            _plan_and_inputs()[1], _objective_case(), fixture_root=ROOT
+        )
+
+    assert signature_snapshot_reads == 1
 
 
 def test_signature_semantic_id_mismatch_fails_closed() -> None:

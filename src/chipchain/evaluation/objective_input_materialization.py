@@ -46,6 +46,15 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _read_file_bytes(path: Path) -> bytes:
+    try:
+        return path.read_bytes()
+    except OSError as exc:
+        raise ObjectiveInputMaterializationError(
+            "objective source file could not be read"
+        ) from exc
+
+
 def _resolve_source_file(fixture_root: Path, logical_reference: str) -> Path:
     try:
         root = fixture_root.resolve(strict=True)
@@ -128,7 +137,8 @@ class Phase10DObjectiveInputMaterializer:
             raise ObjectiveInputMaterializationError(
                 "objective artifact SHA-256 mismatch"
             )
-        signature_file_sha256 = _sha256_file(signature_path)
+        signature_bytes = _read_file_bytes(signature_path)
+        signature_file_sha256 = hashlib.sha256(signature_bytes).hexdigest()
         if signature_file_sha256 != source.expected_signature_file_sha256:
             raise ObjectiveInputMaterializationError(
                 "objective signature file SHA-256 mismatch"
@@ -141,9 +151,9 @@ class Phase10DObjectiveInputMaterializer:
 
         try:
             signature = HardwareTriggerSignature.model_validate_json(
-                signature_path.read_bytes()
+                signature_bytes
             )
-        except (OSError, TypeError, ValueError) as exc:
+        except (TypeError, ValueError) as exc:
             raise ObjectiveInputMaterializationError(
                 "objective signature contract is invalid"
             ) from exc
