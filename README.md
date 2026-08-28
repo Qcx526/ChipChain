@@ -60,6 +60,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   REAL_PROVIDER completeness gate
 - Phase 10D Step 7 collision-safe MASKED projection、single-policy prompt audit 与 projection-protocol provenance
 - Phase 10D Step 8A public CVE research intake、A/M profile admission staging 与 issue-level dedup reporting
+- Phase 10D Step 8B-0 single-source public CVE builder、derived IDs 与 byte-stable committed snapshot
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -636,6 +637,24 @@ staging：它不创建 Evidence、VerificationRecord、Ground Truth、triggerabi
 Corpus 显式区分 A-profile/M-profile、CVE record 与 `underlying_issue_key`，并把 related CVE 保持为
 关系引用。`NEXT_OBJECTIVE_CANDIDATE` 只表示后续客观输入研究优先级；在独立 admission 评审完成前，
 不得写入 owned-synthetic Phase 10A/10D fixture。
+
+Phase 10D Step 8B-0 将 `data/public_cve/source/*.json` 固定为唯一人工维护来源。source loader 经纯
+deterministic builder 派生一个 `VulnerabilityKnowledgeEntry` 和对应 `PublicCveResearchSample`，再生成
+继续提交的 `PublicCveCorpus` snapshot：
+
+```text
+data/public_cve/source/
+        ↓
+source loader → deterministic builder
+        ↓
+VulnerabilityKnowledgeEntry + PublicCveResearchSample
+        ↓
+PublicCveCorpus generated snapshot
+```
+
+维护者不手算或手改 `knowledge_entry_id`、sample ID、knowledge entries 或 corpus ID。运行
+`python scripts/build_public_cve_corpus.py --check` 可离线核对 committed snapshot；`--write` 只执行
+确定性本地重建，不访问 NVD 或任何外部服务。
 
 ## 文档导航
 

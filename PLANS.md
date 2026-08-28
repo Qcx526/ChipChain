@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7 与 Step 8A 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A 与 Step 8B-0 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -615,6 +615,19 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   Phase 10A/10D fixture、`PRIMARY_TARGET`、oracle、triggerability 或 Ground Truth
 - [x] corpus summary 分别报告 record/underlying-issue、classification 和 admission counts；加载与
   retrieval 完全离线，不保存 raw HTML、host path 或 exploit/PoC payload
+
+#### Phase 10D Step 8B-0：Single-Source Public CVE Build Pipeline（已完成实现）
+
+- [x] `chipchain_public_cve_source_v1` 只保存 curator facts，不允许 source/document/record 携带任何
+  generated ID、knowledge duplication、metadata、evaluation 或 execution 字段
+- [x] source record 与 generated sample 复用同一 CVE/profile/classification/admission/path safety policy；
+  source document 强制唯一 CVE、in-source reciprocal relation 与 CVE 排序
+- [x] pure builder 一次性派生既有 `VulnerabilityKnowledgeEntry`、knowledge binding、sample identity、
+  corpus identity 与冻结 metadata，不引入第二种 knowledge entry
+- [x] deterministic UTF-8/indent-2/final-newline writer 与 `--check`/`--write` 离线维护脚本；committed
+  generated snapshot 可由唯一 source byte-for-byte 重建
+- [x] frozen Step 8A 七条事实、knowledge/sample IDs、corpus ID、ordering 与 metadata exact 保持；
+  expansion、mutation propagation、source-order independence 和 safety 均有离线 regression
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE` 另行完成证据审查与 objective input 设计后，才能提出
 SECONDARY/PRIMARY admission 变更。`TRIGGERABLE` 仍不能脱离 Type II exact candidate binding 被通用

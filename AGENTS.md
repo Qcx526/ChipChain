@@ -39,7 +39,7 @@
 - Phase 0～8R、Phase 9A-R1/R2/R3、Phase 9B0、Phase 9B0-R1、Phase 9B1、
   Phase 9B2A、Phase 9B2B Step 1～7、Phase 9B2C Step 1～3、Phase 9C Step 1～3A
   与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7 及
-  Step 8A 已完成；Step 3B 仍为 planned/not implemented。
+  Step 8A 与 Step 8B-0 已完成；Step 3B 仍为 planned/not implemented。
   Phase 9B1 已在
   Ubuntu 22.04、QEMU 11.0.3、ARM32
   `virt` / `cortex-a15` / 单 vCPU 环境完成 real acceptance，并由
@@ -212,6 +212,11 @@
   A-profile objective evaluation。CVE record 数与 curator-declared `underlying_issue_key` 数分别统计，
   related software mitigation CVE 不会自动成为独立硬件漏洞。Step 8A 不运行 Provider/QEMU、不联网，
   也不修改 Phase 9C/10A/10B/10C/10D evaluation semantics。
+- Phase 10D Step 8B-0 规定 `data/public_cve/source/*.json` 是公开 corpus 的唯一人工事实来源；生成的
+  `VulnerabilityKnowledgeEntry`、`knowledge_entry_id`、research sample ID、knowledge entries 与 corpus
+  ID 不得手工维护。generated snapshot 继续提交，但必须由 source 经纯离线 builder byte-for-byte 重建。
+  source 不含 derived ID、metadata、Ground Truth、triggerability、provider output 或 benchmark outcome；
+  构建脚本不得联网、抓取 CVE、运行 Provider/QEMU 或修改 evaluation contracts。
 - 从 mutable RuntimeTrace 生成 verified Dynamic Evidence 前，必须经过 detached serialized
   snapshot revalidation；不得信任先前校验过但可能被原地修改的 Pydantic object。
 - Runtime Trace 独立于 Behavior Graph；不得伪造 reverse BehaviorEdge，也不得绕过显式

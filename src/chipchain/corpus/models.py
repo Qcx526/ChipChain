@@ -142,6 +142,70 @@ def _validate_corpus_metadata(metadata: Metadata) -> Metadata:
     return metadata
 
 
+def _validate_public_cve_research_facts(
+    *,
+    cve_id: str,
+    architecture_profile: ArmArchitectureProfile,
+    cross_layer_classification: CrossLayerResearchClassification,
+    underlying_issue_key: str,
+    related_cve_ids: list[str],
+    admission_status: BenchmarkAdmissionStatus,
+    admission_blockers: list[BenchmarkAdmissionBlocker],
+) -> None:
+    """Apply shared source/generated research-scope invariants."""
+
+    if not _CVE_ID.fullmatch(cve_id):
+        raise ValueError("public CVE ID must use canonical CVE syntax")
+    if not _ISSUE_KEY.fullmatch(underlying_issue_key):
+        raise ValueError("underlying issue key must be a lowercase slug")
+    if any(not _CVE_ID.fullmatch(item) for item in related_cve_ids):
+        raise ValueError("related CVE IDs must use canonical CVE syntax")
+    if cve_id in related_cve_ids:
+        raise ValueError("a public CVE cannot relate to itself")
+
+    out_of_scope = (
+        cross_layer_classification
+        is CrossLayerResearchClassification.OUT_OF_CURRENT_ARCH_SCOPE
+    )
+    if architecture_profile is ArmArchitectureProfile.M_PROFILE:
+        if not out_of_scope or admission_status is not (
+            BenchmarkAdmissionStatus.OUT_OF_CURRENT_ARCH_SCOPE
+        ):
+            raise ValueError(
+                "M-profile research cannot enter current objective admission"
+            )
+        if BenchmarkAdmissionBlocker.M_PROFILE_OUT_OF_CURRENT_SCOPE not in (
+            admission_blockers
+        ):
+            raise ValueError("M-profile research requires its scope blocker")
+    if out_of_scope != (
+        admission_status is BenchmarkAdmissionStatus.OUT_OF_CURRENT_ARCH_SCOPE
+    ):
+        raise ValueError("out-of-scope classification and admission must align")
+    if (
+        cross_layer_classification
+        is CrossLayerResearchClassification.CROSS_LAYER_RELATED
+        and admission_status
+        is BenchmarkAdmissionStatus.NEXT_OBJECTIVE_CANDIDATE
+    ):
+        raise ValueError(
+            "cross-layer-related research cannot become an objective candidate"
+        )
+    if (
+        BenchmarkAdmissionBlocker.TARGET_HARDWARE_VULNERABILITY_UNCLEAR
+        in admission_blockers
+        and cross_layer_classification
+        in {
+            CrossLayerResearchClassification.TYPE_I_CANDIDATE,
+            CrossLayerResearchClassification.TYPE_II_CANDIDATE,
+            CrossLayerResearchClassification.TYPE_III_CANDIDATE,
+        }
+    ):
+        raise ValueError(
+            "unclear target hardware cannot receive a strict type candidate"
+        )
+
+
 def public_cve_research_sample_id(
     *,
     cve_id: str,
@@ -244,57 +308,15 @@ class PublicCveResearchSample(DomainModel):
 
     @model_validator(mode="after")
     def validate_scope_relations_and_identity(self) -> "PublicCveResearchSample":
-        if not _CVE_ID.fullmatch(self.cve_id):
-            raise ValueError("public CVE ID must use canonical CVE syntax")
-        if not _ISSUE_KEY.fullmatch(self.underlying_issue_key):
-            raise ValueError("underlying issue key must be a lowercase slug")
-        if any(not _CVE_ID.fullmatch(item) for item in self.related_cve_ids):
-            raise ValueError("related CVE IDs must use canonical CVE syntax")
-        if self.cve_id in self.related_cve_ids:
-            raise ValueError("a public CVE cannot relate to itself")
-
-        out_of_scope = (
-            self.cross_layer_classification
-            is CrossLayerResearchClassification.OUT_OF_CURRENT_ARCH_SCOPE
+        _validate_public_cve_research_facts(
+            cve_id=self.cve_id,
+            architecture_profile=self.architecture_profile,
+            cross_layer_classification=self.cross_layer_classification,
+            underlying_issue_key=self.underlying_issue_key,
+            related_cve_ids=self.related_cve_ids,
+            admission_status=self.admission_status,
+            admission_blockers=self.admission_blockers,
         )
-        if self.architecture_profile is ArmArchitectureProfile.M_PROFILE:
-            if not out_of_scope or self.admission_status is not (
-                BenchmarkAdmissionStatus.OUT_OF_CURRENT_ARCH_SCOPE
-            ):
-                raise ValueError(
-                    "M-profile research cannot enter current objective admission"
-                )
-            if BenchmarkAdmissionBlocker.M_PROFILE_OUT_OF_CURRENT_SCOPE not in (
-                self.admission_blockers
-            ):
-                raise ValueError("M-profile research requires its scope blocker")
-        if out_of_scope != (
-            self.admission_status
-            is BenchmarkAdmissionStatus.OUT_OF_CURRENT_ARCH_SCOPE
-        ):
-            raise ValueError("out-of-scope classification and admission must align")
-        if (
-            self.cross_layer_classification
-            is CrossLayerResearchClassification.CROSS_LAYER_RELATED
-            and self.admission_status
-            is BenchmarkAdmissionStatus.NEXT_OBJECTIVE_CANDIDATE
-        ):
-            raise ValueError(
-                "cross-layer-related research cannot become an objective candidate"
-            )
-        if (
-            BenchmarkAdmissionBlocker.TARGET_HARDWARE_VULNERABILITY_UNCLEAR
-            in self.admission_blockers
-            and self.cross_layer_classification
-            in {
-                CrossLayerResearchClassification.TYPE_I_CANDIDATE,
-                CrossLayerResearchClassification.TYPE_II_CANDIDATE,
-                CrossLayerResearchClassification.TYPE_III_CANDIDATE,
-            }
-        ):
-            raise ValueError(
-                "unclear target hardware cannot receive a strict type candidate"
-            )
 
         expected_id = public_cve_research_sample_id(
             cve_id=self.cve_id,
