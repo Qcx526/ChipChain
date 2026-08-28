@@ -1,0 +1,26 @@
+{
+  "contract": "phase10d_public_secondary_selection_v1",
+  "cohort_name": "arm_a_profile_public_documented_secondary_v1",
+  "records": [
+    {
+      "cve_id": "CVE-2022-23960",
+      "software_source_layer": "interface"
+    },
+    {
+      "cve_id": "CVE-2023-34320",
+      "software_source_layer": "interface"
+    },
+    {
+      "cve_id": "CVE-2023-52481",
+      "software_source_layer": "interface"
+    },
+    {
+      "cve_id": "CVE-2024-26670",
+      "software_source_layer": "driver"
+    },
+    {
+      "cve_id": "CVE-2025-10263",
+      "software_source_layer": "interface"
+    }
+  ]
+}

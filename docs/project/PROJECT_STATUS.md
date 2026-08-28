@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step8a-stable`
-- Stable commit: `b31b9af52f166a6e0774be7bac71063ea4ef6fd1`
-- Baseline: Phase 10D Step 8A final accepted and frozen
+- Stable tag: `phase-10d-step8b0-stable`
+- Stable commit: `636253361accd7c9ec63056f8ff85e1dfb2bd94e`
+- Baseline: Phase 10D Step 8B-0 final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -33,14 +33,22 @@
 - Phase 10D Step 7 collision-safe MASKED projection, centralized hidden-reference policy, and projection-protocol provenance
 - Phase 10D Step 8A public CVE research intake, profile-aware admission staging, and issue-level deduplication
 - Phase 10D Step 8B-0 single-source public corpus build and byte-stable generated snapshot workflow
+- Phase 10D Step 8B-1A five-case public-documented SECONDARY materialization and exact prompt-readiness audit
 
 ## Current Work
 
-Phase 10D Step 8B-0 makes `data/public_cve/source/*.json` the only human-maintained corpus fact source.
-The offline builder derives retrieval-only `VulnerabilityKnowledgeEntry`, sample bindings and all IDs,
-then reproduces the committed Step 8A generated snapshot byte-for-byte. Human editors do not maintain
-derived IDs or duplicated knowledge facts. No record is a current `PRIMARY_TARGET`, Ground Truth,
-objective triggerability input, or vulnerability verdict, and the build performs no network fetching.
+Phase 10D Step 8B-1A derives five A-profile `PUBLIC_DOCUMENTED` / `SECONDARY_ONLY` cases from the
+single source and deterministic corpus. The separate selection document contains only CVE and software
+source-layer choices. Per-case source hashes, documented interactions, knowledge bindings, contexts,
+FULL/MASKED prompt hashes and MASKED audits are materialized offline. The actual prompts expose CVE IDs,
+components and knowledge-entry references but no public descriptive vulnerability content or stable public
+references, so the cohort fails closed as `REFERENCE_CONTENT_INSUFFICIENT`. No prompt contract was changed
+and no real provider was invoked.
+
+These documented Ground Truth annotations are SECONDARY reasoning-evaluation inputs, not objective
+verification. They contain no HardwareTriggerSignature, runtime observation, Evidence, triggerability or
+objective materialization. Existing oracle results remain `UNRESOLVED`, and existing PRIMARY metrics are
+unchanged.
 Manual owned-synthetic real-provider smoke/evaluation runs have occurred, but no final benchmark-scale
 accepted performance result or >=80% conclusion exists. DS5 remained incomplete because its MASKED
 firewall failed closed. Phase 9C Step 3B remains deferred.
@@ -48,7 +56,8 @@ firewall failed closed. Phase 9C Step 3B remains deferred.
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- objective evidence review and explicit SECONDARY/PRIMARY admission decisions for eligible public CVE records
+- an explicit, separately reviewed projection of descriptive public content before any public-provider run
+- objective evidence review and explicit PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation
 - Phase 12 additional architectures, only after the ARM loop is stable and evaluated

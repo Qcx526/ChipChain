@@ -23,3 +23,18 @@ benchmark admission 的 staging 状态。它不是 owned/synthetic fixture，不
 
 `total_cve_records` 与按 curator-declared `underlying_issue_key` 计算的独立问题数必须分别报告；
 `related_cve_ids` 不会自动创建额外 corpus record 或独立硬件漏洞计数。
+
+`public_cve/evaluation/arm_secondary_v1.json` 是独立的人工 evaluation-selection 文件，只允许保存 CVE
+选择与 `software_source_layer`；不得复制 public source 中的技术事实。运行：
+
+```bash
+python scripts/build_public_secondary_cohort.py --check
+python scripts/build_public_secondary_cohort.py --write
+```
+
+会从 authoritative source、generated corpus 与 selection 完全离线生成
+`evaluation/public_documented_arm_secondary_v1.json`。该 artifact 包含五条 `PUBLIC_DOCUMENTED` /
+`SECONDARY_ONLY` case、documented interaction、reference-only reasoning context、FULL/MASKED prompt
+SHA-256 与 MASKED visibility audit，不包含 raw prompt、provider response、model output、runtime Evidence、
+triggerability 或 benchmark result。当前 readiness 为 `REFERENCE_CONTENT_INSUFFICIENT`，因为实际 prompt
+没有承载 public references 或描述性漏洞文本；这不会改变 PRIMARY metrics，也不构成 public-CVE hit rate。

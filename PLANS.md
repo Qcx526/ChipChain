@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A 与 Step 8B-0 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0 与 Step 8B-1A 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -629,9 +629,26 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] frozen Step 8A 七条事实、knowledge/sample IDs、corpus ID、ordering 与 metadata exact 保持；
   expansion、mutation propagation、source-order independence 和 safety 均有离线 regression
 
-后续工作：对 `NEXT_OBJECTIVE_CANDIDATE` 另行完成证据审查与 objective input 设计后，才能提出
-SECONDARY/PRIMARY admission 变更。`TRIGGERABLE` 仍不能脱离 Type II exact candidate binding 被通用
-映射为 `CONFIRMED_FEASIBLE`。
+#### Phase 10D Step 8B-1A：Public-Documented SECONDARY Cohort and Prompt Readiness（已完成实现）
+
+- [x] 仅用单一 public source 与 deterministic corpus，为五条预选 A-profile CVE 派生
+  `PUBLIC_DOCUMENTED` / `SECONDARY_ONLY` cases；selection 文件只保存 CVE 与软件 source-layer 选择
+- [x] 每 case 绑定 source-record canonical SHA-256、path-neutral artifact reference、一个最小 Type I/II
+  documented interaction、一个 retrieval-only knowledge ID 与 detached `ReasoningContext`
+- [x] `POSITIVE_FEASIBLE` 仅表达 public documentation 描述了 vulnerability scenario，不表示 objective
+  triggerability、oracle confirmation 或独立漏洞验证；五条 case 均无 signature/runtime/Evidence/triggerability
+- [x] 对 5×4 roles 分别构造 FULL/MASKED prompt；20 个 MASKED exact-reference audit 全部 PASS，且 artifact
+  只保存 prompt SHA-256、audit 与可见性布尔事实，不保存 prompt/model/provider output
+- [x] 实际 provider-visible payload 仅包含 CVE ID、affected components 与 knowledge-entry reference，不包含
+  stable public references 或描述性公开漏洞文本，因此 readiness fail closed 为
+  `REFERENCE_CONTENT_INSUFFICIENT`；本步骤不修改 prompt/RAG/projection
+- [x] 现有 oracle 对无 triggerability 的四个 Type II 与一个 Type I 均保持 `UNRESOLVED`；SECONDARY case
+  不进入 verification hit rate、Ground Truth recall、negative-control false-positive rate 或 PRIMARY coverage
+
+后续工作：如需执行 public provider，必须另行设计可审计的 descriptive public content projection 并通过
+readiness gate；不得用 participant ID、metadata 或 fake Evidence 编码答案。对 `NEXT_OBJECTIVE_CANDIDATE`
+仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能
+脱离 Type II exact candidate binding 被通用映射为 `CONFIRMED_FEASIBLE`。
 
 ### Phase 11：API / Visualization
 

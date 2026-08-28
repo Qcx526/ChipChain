@@ -1,0 +1,1481 @@
+{
+  "id": "public-secondary-cohort:9587452d6c9ae26debb73c7511dfd417c8cb7f0d383084d432a3ad91da8800b5",
+  "contract": "phase10d_public_documented_secondary_cohort_v1",
+  "cohort_name": "arm_a_profile_public_documented_secondary_v1",
+  "source_corpus_id": "public-cve-corpus:778765c51a0d9b939eb37b390367a3d0cd02720942c8746c19eb0a1c38930e49",
+  "selected_cve_ids": [
+    "CVE-2022-23960",
+    "CVE-2023-34320",
+    "CVE-2023-52481",
+    "CVE-2024-26670",
+    "CVE-2025-10263"
+  ],
+  "benchmark_manifest": {
+    "id": "benchmark-manifest:193ba6a515500cb9dac521c9db9fa3bbcc2d37ccf935c1b46e8878972fe94a5a",
+    "benchmark_version": "phase10d_public_documented_arm_secondary_v1",
+    "architecture_scope": [
+      "arm"
+    ],
+    "cases": [
+      {
+        "id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+        "benchmark_version": "phase10d_public_documented_arm_secondary_v1",
+        "architecture": "arm",
+        "source_kind": "public_documented",
+        "label": "positive_feasible",
+        "artifact": {
+          "artifact_id": "public-cve-source-record:7073014fc5aa9768eceb8dd4bd7b13307310a71e75c2be5ff71e7116c94225ff",
+          "architecture": "arm",
+          "artifact_type": "public_cve_source_record",
+          "artifact_sha256": "980a723600d6288617bf924fcc9e6a95e89079c498d8890286c6bb01e43c5a42",
+          "artifact_reference": "data/public_cve/source/arm_cross_layer_seed_v1.source.json#record=CVE-2023-34320"
+        },
+        "ground_truth_chains": [
+          {
+            "id": "ground-truth-chain:17e8ef3c46923663aed54e2c0fed46c1ed51aff6e82cea7e432f6eeaff088c98",
+            "architecture": "arm",
+            "cross_layer_interaction": {
+              "id": "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+              "architecture": "arm",
+              "interaction_type": "firmware_behavior_to_hardware",
+              "direction": "software_to_hardware",
+              "source_layer": "interface",
+              "target_layer": "hardware",
+              "initiating_vulnerability_ids": [],
+              "target_vulnerability_ids": [
+                "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513"
+              ],
+              "trigger_behavior_ids": [
+                "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+              ],
+              "propagation_behavior_ids": [],
+              "affected_execution_ids": [],
+              "fault_state_ids": [],
+              "hardware_resource_ids": [],
+              "security_mechanism_ids": [],
+              "evidence_ids": [],
+              "referenced_architectures": [],
+              "metadata": {}
+            },
+            "hardware_trigger_signature_id": null,
+            "expected_attack_pattern_reference": null,
+            "source_reference_ids": [
+              "https://nvd.nist.gov/vuln/detail/CVE-2023-34320",
+              "https://xenbits.xenproject.org/xsa/advisory-436.html"
+            ],
+            "metadata": {
+              "metric_scope": "secondary_only",
+              "truth_basis": "public_documentation"
+            }
+          }
+        ],
+        "source_reference_ids": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2023-34320",
+          "https://xenbits.xenproject.org/xsa/advisory-436.html"
+        ],
+        "evaluation_scope": "secondary_only",
+        "metadata": {}
+      },
+      {
+        "id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+        "benchmark_version": "phase10d_public_documented_arm_secondary_v1",
+        "architecture": "arm",
+        "source_kind": "public_documented",
+        "label": "positive_feasible",
+        "artifact": {
+          "artifact_id": "public-cve-source-record:28d9f87c3f5c209d604d09f6e962237fed507872c4d4eaabef40ef16d1a6932e",
+          "architecture": "arm",
+          "artifact_type": "public_cve_source_record",
+          "artifact_sha256": "fc6ad81d8dace067181b9dab41cd6b989e8a00e7ffccad81033acd25ed17f241",
+          "artifact_reference": "data/public_cve/source/arm_cross_layer_seed_v1.source.json#record=CVE-2023-52481"
+        },
+        "ground_truth_chains": [
+          {
+            "id": "ground-truth-chain:fde76fadb7c3abd0707ad3f90acaa55a9248a68771de009c378f90453f49729e",
+            "architecture": "arm",
+            "cross_layer_interaction": {
+              "id": "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+              "architecture": "arm",
+              "interaction_type": "firmware_behavior_to_hardware",
+              "direction": "software_to_hardware",
+              "source_layer": "interface",
+              "target_layer": "hardware",
+              "initiating_vulnerability_ids": [],
+              "target_vulnerability_ids": [
+                "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2"
+              ],
+              "trigger_behavior_ids": [
+                "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+              ],
+              "propagation_behavior_ids": [],
+              "affected_execution_ids": [],
+              "fault_state_ids": [],
+              "hardware_resource_ids": [],
+              "security_mechanism_ids": [],
+              "evidence_ids": [],
+              "referenced_architectures": [],
+              "metadata": {}
+            },
+            "hardware_trigger_signature_id": null,
+            "expected_attack_pattern_reference": null,
+            "source_reference_ids": [
+              "Arm Cortex-A520 erratum 2966298",
+              "https://nvd.nist.gov/vuln/detail/CVE-2023-52481"
+            ],
+            "metadata": {
+              "metric_scope": "secondary_only",
+              "truth_basis": "public_documentation"
+            }
+          }
+        ],
+        "source_reference_ids": [
+          "Arm Cortex-A520 erratum 2966298",
+          "https://nvd.nist.gov/vuln/detail/CVE-2023-52481"
+        ],
+        "evaluation_scope": "secondary_only",
+        "metadata": {}
+      },
+      {
+        "id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+        "benchmark_version": "phase10d_public_documented_arm_secondary_v1",
+        "architecture": "arm",
+        "source_kind": "public_documented",
+        "label": "positive_feasible",
+        "artifact": {
+          "artifact_id": "public-cve-source-record:eba26aca107ad56dabbf2646842b4b209abcfd74040039e710bcf34c8d8bd682",
+          "architecture": "arm",
+          "artifact_type": "public_cve_source_record",
+          "artifact_sha256": "8e4e831d8f90876c75028bc0591ef51e9c6a898acb1260b751cc2c70d8200802",
+          "artifact_reference": "data/public_cve/source/arm_cross_layer_seed_v1.source.json#record=CVE-2024-26670"
+        },
+        "ground_truth_chains": [
+          {
+            "id": "ground-truth-chain:862431139936be7ce4b8f3f516cb00be3cfe223b44fbfe7101afc02a97eb8173",
+            "architecture": "arm",
+            "cross_layer_interaction": {
+              "id": "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+              "architecture": "arm",
+              "interaction_type": "firmware_vulnerability_to_hardware",
+              "direction": "software_to_hardware",
+              "source_layer": "driver",
+              "target_layer": "hardware",
+              "initiating_vulnerability_ids": [
+                "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+              ],
+              "target_vulnerability_ids": [
+                "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8"
+              ],
+              "trigger_behavior_ids": [
+                "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add"
+              ],
+              "propagation_behavior_ids": [],
+              "affected_execution_ids": [],
+              "fault_state_ids": [],
+              "hardware_resource_ids": [],
+              "security_mechanism_ids": [],
+              "evidence_ids": [],
+              "referenced_architectures": [],
+              "metadata": {}
+            },
+            "hardware_trigger_signature_id": null,
+            "expected_attack_pattern_reference": null,
+            "source_reference_ids": [
+              "https://nvd.nist.gov/vuln/detail/CVE-2024-26670"
+            ],
+            "metadata": {
+              "metric_scope": "secondary_only",
+              "truth_basis": "public_documentation"
+            }
+          }
+        ],
+        "source_reference_ids": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2024-26670"
+        ],
+        "evaluation_scope": "secondary_only",
+        "metadata": {}
+      },
+      {
+        "id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+        "benchmark_version": "phase10d_public_documented_arm_secondary_v1",
+        "architecture": "arm",
+        "source_kind": "public_documented",
+        "label": "positive_feasible",
+        "artifact": {
+          "artifact_id": "public-cve-source-record:6d13214ec863c8cdf209c34a5a9a436579c77e5a644bea494b7ed2322c03301c",
+          "architecture": "arm",
+          "artifact_type": "public_cve_source_record",
+          "artifact_sha256": "5081d47d87b6012cf5ab507e2166139040790a06db660ee2346d08b308260efd",
+          "artifact_reference": "data/public_cve/source/arm_cross_layer_seed_v1.source.json#record=CVE-2022-23960"
+        },
+        "ground_truth_chains": [
+          {
+            "id": "ground-truth-chain:d915bf79386c43c0ce120612f598b6002a271dff4899817163b1aa7f7a8448ed",
+            "architecture": "arm",
+            "cross_layer_interaction": {
+              "id": "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+              "architecture": "arm",
+              "interaction_type": "firmware_behavior_to_hardware",
+              "direction": "software_to_hardware",
+              "source_layer": "interface",
+              "target_layer": "hardware",
+              "initiating_vulnerability_ids": [],
+              "target_vulnerability_ids": [
+                "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+              ],
+              "trigger_behavior_ids": [
+                "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71"
+              ],
+              "propagation_behavior_ids": [],
+              "affected_execution_ids": [],
+              "fault_state_ids": [],
+              "hardware_resource_ids": [],
+              "security_mechanism_ids": [],
+              "evidence_ids": [],
+              "referenced_architectures": [],
+              "metadata": {}
+            },
+            "hardware_trigger_signature_id": null,
+            "expected_attack_pattern_reference": null,
+            "source_reference_ids": [
+              "Arm Spectre-BHB security publication",
+              "https://nvd.nist.gov/vuln/detail/CVE-2022-23960"
+            ],
+            "metadata": {
+              "metric_scope": "secondary_only",
+              "truth_basis": "public_documentation"
+            }
+          }
+        ],
+        "source_reference_ids": [
+          "Arm Spectre-BHB security publication",
+          "https://nvd.nist.gov/vuln/detail/CVE-2022-23960"
+        ],
+        "evaluation_scope": "secondary_only",
+        "metadata": {}
+      },
+      {
+        "id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+        "benchmark_version": "phase10d_public_documented_arm_secondary_v1",
+        "architecture": "arm",
+        "source_kind": "public_documented",
+        "label": "positive_feasible",
+        "artifact": {
+          "artifact_id": "public-cve-source-record:9be51a50ae3733d3c819cf3f0e059d1684c9cbca14d7cf91a4f3f278a2068a6c",
+          "architecture": "arm",
+          "artifact_type": "public_cve_source_record",
+          "artifact_sha256": "1913e1bef673692572e76c233b3af6234d55eaf70c25a45cc2a8a9275a672826",
+          "artifact_reference": "data/public_cve/source/arm_cross_layer_seed_v1.source.json#record=CVE-2025-10263"
+        },
+        "ground_truth_chains": [
+          {
+            "id": "ground-truth-chain:013c31a65c34bdeb902b6bb45ac2076bae5d9a5e4aa6cb98bdc094b11d7af3cc",
+            "architecture": "arm",
+            "cross_layer_interaction": {
+              "id": "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+              "architecture": "arm",
+              "interaction_type": "firmware_behavior_to_hardware",
+              "direction": "software_to_hardware",
+              "source_layer": "interface",
+              "target_layer": "hardware",
+              "initiating_vulnerability_ids": [],
+              "target_vulnerability_ids": [
+                "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+              ],
+              "trigger_behavior_ids": [
+                "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7"
+              ],
+              "propagation_behavior_ids": [],
+              "affected_execution_ids": [],
+              "fault_state_ids": [],
+              "hardware_resource_ids": [],
+              "security_mechanism_ids": [],
+              "evidence_ids": [],
+              "referenced_architectures": [],
+              "metadata": {}
+            },
+            "hardware_trigger_signature_id": null,
+            "expected_attack_pattern_reference": null,
+            "source_reference_ids": [
+              "https://nvd.nist.gov/vuln/detail/CVE-2025-10263",
+              "https://nvd.nist.gov/vuln/detail/CVE-2026-53354"
+            ],
+            "metadata": {
+              "metric_scope": "secondary_only",
+              "truth_basis": "public_documentation"
+            }
+          }
+        ],
+        "source_reference_ids": [
+          "https://nvd.nist.gov/vuln/detail/CVE-2025-10263",
+          "https://nvd.nist.gov/vuln/detail/CVE-2026-53354"
+        ],
+        "evaluation_scope": "secondary_only",
+        "metadata": {}
+      }
+    ],
+    "metadata": {}
+  },
+  "case_materializations": [
+    {
+      "id": "public-secondary-case-materialization:22692e18ffa7b039bb80e08864fbb2e50c239c0bc0799fafd3437ed7d8e33dde",
+      "cve_id": "CVE-2022-23960",
+      "source_record_sha256": "5081d47d87b6012cf5ab507e2166139040790a06db660ee2346d08b308260efd",
+      "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+      "documented_interaction": {
+        "id": "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+        "architecture": "arm",
+        "interaction_type": "firmware_behavior_to_hardware",
+        "direction": "software_to_hardware",
+        "source_layer": "interface",
+        "target_layer": "hardware",
+        "initiating_vulnerability_ids": [],
+        "target_vulnerability_ids": [
+          "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+        ],
+        "trigger_behavior_ids": [
+          "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71"
+        ],
+        "propagation_behavior_ids": [],
+        "affected_execution_ids": [],
+        "fault_state_ids": [],
+        "hardware_resource_ids": [],
+        "security_mechanism_ids": [],
+        "evidence_ids": [],
+        "referenced_architectures": [],
+        "metadata": {}
+      },
+      "reasoning_context": {
+        "id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+        "architecture": "arm",
+        "subject_id": "CVE-2022-23960",
+        "affected_components": [
+          "documented affected Cortex and Neoverse processors"
+        ],
+        "observed_fact_ids": [],
+        "available_evidence_ids": [],
+        "knowledge_entry_ids": [
+          "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb"
+        ],
+        "dynamic_trigger_fact_reference": null,
+        "attack_pattern_reference": null,
+        "cross_layer_interaction": {
+          "id": "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+          "architecture": "arm",
+          "interaction_type": "firmware_behavior_to_hardware",
+          "direction": "software_to_hardware",
+          "source_layer": "interface",
+          "target_layer": "hardware",
+          "initiating_vulnerability_ids": [],
+          "target_vulnerability_ids": [
+            "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+          ],
+          "trigger_behavior_ids": [
+            "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71"
+          ],
+          "propagation_behavior_ids": [],
+          "affected_execution_ids": [],
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "security_mechanism_ids": [],
+          "evidence_ids": [],
+          "referenced_architectures": [],
+          "metadata": {}
+        },
+        "runtime_observations": [],
+        "knowledge_retrieval_result": null,
+        "metadata": {}
+      },
+      "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+      "prompt_assessments": [
+        {
+          "id": "public-prompt-content-assessment:30853e045216871c1fde27b333b514ac3b5047ab49e57509fb6cc5b5a1153b3a",
+          "cve_id": "CVE-2022-23960",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "role": "code",
+          "visibility": "full_context",
+          "prompt_sha256": "88c63efe325d53117738e8cca5e230e476b2c2489f6e487b7e7785db990fc883",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:62e983aa31273413d232edd5f96c8d1dc2f2d9a9e5f37c2317d7e495a5622e95",
+          "cve_id": "CVE-2022-23960",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "role": "hardware",
+          "visibility": "full_context",
+          "prompt_sha256": "a773b130cfaf4b55f5b65f189ece9cf93a81a153a82e10b3649facff6628cbf6",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:db1a9e102c690d7b0f8ab2bf8ef334bd1394fcb94e9d73778339bbe746340168",
+          "cve_id": "CVE-2022-23960",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "role": "vulnerability",
+          "visibility": "full_context",
+          "prompt_sha256": "de3beb3061ad94dafd3eb705124e987deb0e9439b4df2932c07f43ea3d4680d5",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:19a4c4a024b4c70669a8e0d77b0fde3b4a6989f2a7d75e92972ca43cdff4e228",
+          "cve_id": "CVE-2022-23960",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "role": "attack_chain",
+          "visibility": "full_context",
+          "prompt_sha256": "dd90dd9f615ef5ea4cf62a77e76abe1164cb489d4845cfec755530a9a8a11820",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:670c76b144a1990bf639728a5659503f32ad9a7e83d9df4aba010b2576ec4c83",
+          "cve_id": "CVE-2022-23960",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "role": "code",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "a57a297da0a3035c5a21e268144cabe11aeae6056640dbfd34a4c96b9096fb75",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:4840132fda8809f3742869260a8ed789691431a42a08ccc11a8aa9876a116afc",
+            "prompt_sha256": "a57a297da0a3035c5a21e268144cabe11aeae6056640dbfd34a4c96b9096fb75",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+              "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71",
+              "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:10e2cbb8f40d28c3a44ab1b91048952fae4b3a92839929aab36cfd6779422941",
+          "cve_id": "CVE-2022-23960",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "role": "hardware",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "a20d48bfebf172fe63eba02253e4d4e1468ed75186b6bbd1eb9dd7d6d3f1be7a",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:9cd4642dc32e564f8ddfd0caa9886a7245d8ed57c8af6973c45699ec0f841ce7",
+            "prompt_sha256": "a20d48bfebf172fe63eba02253e4d4e1468ed75186b6bbd1eb9dd7d6d3f1be7a",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+              "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71",
+              "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:cbb74cea72a060ad240a33835684231fa35f10c0d558adf8d31b19c5aeabc358",
+          "cve_id": "CVE-2022-23960",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "role": "vulnerability",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "826f6ad46cb7e82f773c5405f6716c97f1326fcfd49852f07feea51a91c91414",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:b27e186679b785506e1aa602fec946f65189b85188c433466657b2de27edf462",
+            "prompt_sha256": "826f6ad46cb7e82f773c5405f6716c97f1326fcfd49852f07feea51a91c91414",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+              "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71",
+              "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:24b48e3e1780514f4e40a23cbbe28f08599d27a3c6bde0147d0ce2a9380dec3d",
+          "cve_id": "CVE-2022-23960",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "role": "attack_chain",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "82fa39a261e53915cfde9a15846e23cbba81fe5ebfd8c00f2683ae9efe30a435",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:daa21af56e6a146414eff0475d8127fb23030c13b34c33b692eb757ae835fce0",
+            "prompt_sha256": "82fa39a261e53915cfde9a15846e23cbba81fe5ebfd8c00f2683ae9efe30a435",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+              "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71",
+              "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        }
+      ]
+    },
+    {
+      "id": "public-secondary-case-materialization:1c46864b130294619cb0a1dcc1922ba3423010d86cd4389107db4cbcb909075f",
+      "cve_id": "CVE-2023-34320",
+      "source_record_sha256": "980a723600d6288617bf924fcc9e6a95e89079c498d8890286c6bb01e43c5a42",
+      "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+      "documented_interaction": {
+        "id": "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+        "architecture": "arm",
+        "interaction_type": "firmware_behavior_to_hardware",
+        "direction": "software_to_hardware",
+        "source_layer": "interface",
+        "target_layer": "hardware",
+        "initiating_vulnerability_ids": [],
+        "target_vulnerability_ids": [
+          "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513"
+        ],
+        "trigger_behavior_ids": [
+          "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+        ],
+        "propagation_behavior_ids": [],
+        "affected_execution_ids": [],
+        "fault_state_ids": [],
+        "hardware_resource_ids": [],
+        "security_mechanism_ids": [],
+        "evidence_ids": [],
+        "referenced_architectures": [],
+        "metadata": {}
+      },
+      "reasoning_context": {
+        "id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+        "architecture": "arm",
+        "subject_id": "CVE-2023-34320",
+        "affected_components": [
+          "Cortex-A77 r0p0/r1p0",
+          "Xen/guest software"
+        ],
+        "observed_fact_ids": [],
+        "available_evidence_ids": [],
+        "knowledge_entry_ids": [
+          "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d"
+        ],
+        "dynamic_trigger_fact_reference": null,
+        "attack_pattern_reference": null,
+        "cross_layer_interaction": {
+          "id": "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+          "architecture": "arm",
+          "interaction_type": "firmware_behavior_to_hardware",
+          "direction": "software_to_hardware",
+          "source_layer": "interface",
+          "target_layer": "hardware",
+          "initiating_vulnerability_ids": [],
+          "target_vulnerability_ids": [
+            "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513"
+          ],
+          "trigger_behavior_ids": [
+            "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+          ],
+          "propagation_behavior_ids": [],
+          "affected_execution_ids": [],
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "security_mechanism_ids": [],
+          "evidence_ids": [],
+          "referenced_architectures": [],
+          "metadata": {}
+        },
+        "runtime_observations": [],
+        "knowledge_retrieval_result": null,
+        "metadata": {}
+      },
+      "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+      "prompt_assessments": [
+        {
+          "id": "public-prompt-content-assessment:61b47e84deea845af22b4348680342a358b383098505871f249c20deacefdb63",
+          "cve_id": "CVE-2023-34320",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "role": "code",
+          "visibility": "full_context",
+          "prompt_sha256": "1995443b323d8bf99c332c29ac2ec3f51de22865afc344169925eb3d75c2e9a9",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:796ab884bb3f92db002197400c8260b9cf7dbd6ceac9b9447904287f4975ba26",
+          "cve_id": "CVE-2023-34320",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "role": "hardware",
+          "visibility": "full_context",
+          "prompt_sha256": "52adf33f9d52488e63f3b7f87816be5a736e425b734881f461c81e6fab1a006f",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:3c15682b3bb97fad9d2eb74a2fb2a81fe6fbe58e2dde30971303c99ba48a0258",
+          "cve_id": "CVE-2023-34320",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "role": "vulnerability",
+          "visibility": "full_context",
+          "prompt_sha256": "9327e976ebe46017539a91a221919549a440e399013cc9e856f484500cffd75e",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:8a86a28524fe4a228b1f2482e577e1f92c0812820d740378621594b092abea0b",
+          "cve_id": "CVE-2023-34320",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "role": "attack_chain",
+          "visibility": "full_context",
+          "prompt_sha256": "6eb1ea58bce87455347ef7a2e34f051e22986c738fcc9d88b79f0e2a609d2b17",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:97d4e7fb813346b3e2e116895e68b63ed8f361aad22074d0b74ec4f662914115",
+          "cve_id": "CVE-2023-34320",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "role": "code",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "0f538520d849d88a892f4c0fb871b3d3884688ca5eccb91ed11b4992e0256cec",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:15f26f2c3f74fbaf650845b32acda256e0e0ca5258b0529a762bc4284e71fcda",
+            "prompt_sha256": "0f538520d849d88a892f4c0fb871b3d3884688ca5eccb91ed11b4992e0256cec",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+              "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513",
+              "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:e24b75f23f526dcd9ceeeafe4fa2e9a3af6530dead791ee070d58d8de559739b",
+          "cve_id": "CVE-2023-34320",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "role": "hardware",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "c64459a78a98574394ea9907969cc6f80ae5c5116b8ada725587062242d36e52",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:7416d2d855bdcd86f622e0a4deb9231994aeb5f550615a6f3f9ca4c4dcdb2063",
+            "prompt_sha256": "c64459a78a98574394ea9907969cc6f80ae5c5116b8ada725587062242d36e52",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+              "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513",
+              "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:022df89c81b85c4af656f853bbe31455cc135237060334bc7b435156be943d00",
+          "cve_id": "CVE-2023-34320",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "role": "vulnerability",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "764d34165ce05a9f6be59b46d45fade8ab11a60ba3a9b9a23689ad955f24090e",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:c89d443b6b967a82258cb594b27fbf6893f00f6d2d3664319d2194d4ebb57c53",
+            "prompt_sha256": "764d34165ce05a9f6be59b46d45fade8ab11a60ba3a9b9a23689ad955f24090e",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+              "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513",
+              "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:fbbfe577afab8c243aace4c55f00854047f0da91f790435be0f04a752f547a74",
+          "cve_id": "CVE-2023-34320",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "role": "attack_chain",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "66667f603fdbba1399956ddfb66a2e0046f8000c3da905c819263a7bf26bbdb8",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:cc6c7e106162d9365430f2147c956fe3552190638b59a170dd067bccf488de74",
+            "prompt_sha256": "66667f603fdbba1399956ddfb66a2e0046f8000c3da905c819263a7bf26bbdb8",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+              "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513",
+              "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        }
+      ]
+    },
+    {
+      "id": "public-secondary-case-materialization:9565251282ecc948a6fa8a4cd2098ffc77b0c340bf3b9ab05c73f81914c653b3",
+      "cve_id": "CVE-2023-52481",
+      "source_record_sha256": "fc6ad81d8dace067181b9dab41cd6b989e8a00e7ffccad81033acd25ed17f241",
+      "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+      "documented_interaction": {
+        "id": "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+        "architecture": "arm",
+        "interaction_type": "firmware_behavior_to_hardware",
+        "direction": "software_to_hardware",
+        "source_layer": "interface",
+        "target_layer": "hardware",
+        "initiating_vulnerability_ids": [],
+        "target_vulnerability_ids": [
+          "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2"
+        ],
+        "trigger_behavior_ids": [
+          "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+        ],
+        "propagation_behavior_ids": [],
+        "affected_execution_ids": [],
+        "fault_state_ids": [],
+        "hardware_resource_ids": [],
+        "security_mechanism_ids": [],
+        "evidence_ids": [],
+        "referenced_architectures": [],
+        "metadata": {}
+      },
+      "reasoning_context": {
+        "id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+        "architecture": "arm",
+        "subject_id": "CVE-2023-52481",
+        "affected_components": [
+          "Cortex-A520",
+          "Linux arm64 exception return"
+        ],
+        "observed_fact_ids": [],
+        "available_evidence_ids": [],
+        "knowledge_entry_ids": [
+          "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831"
+        ],
+        "dynamic_trigger_fact_reference": null,
+        "attack_pattern_reference": null,
+        "cross_layer_interaction": {
+          "id": "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+          "architecture": "arm",
+          "interaction_type": "firmware_behavior_to_hardware",
+          "direction": "software_to_hardware",
+          "source_layer": "interface",
+          "target_layer": "hardware",
+          "initiating_vulnerability_ids": [],
+          "target_vulnerability_ids": [
+            "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2"
+          ],
+          "trigger_behavior_ids": [
+            "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+          ],
+          "propagation_behavior_ids": [],
+          "affected_execution_ids": [],
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "security_mechanism_ids": [],
+          "evidence_ids": [],
+          "referenced_architectures": [],
+          "metadata": {}
+        },
+        "runtime_observations": [],
+        "knowledge_retrieval_result": null,
+        "metadata": {}
+      },
+      "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+      "prompt_assessments": [
+        {
+          "id": "public-prompt-content-assessment:404d2470fda1575267cdab18a0961a4eac8a3c66794edf9836424a1186dbcb1a",
+          "cve_id": "CVE-2023-52481",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "role": "code",
+          "visibility": "full_context",
+          "prompt_sha256": "c2764ea7c787c17584acd006ae7fc71fbc7dde5c067b4e3f4b61bfa6e3f72ef2",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:40360b7771e062f24ddd318da4c0e68c7eba97717ba2770b788fba4f6ca43f37",
+          "cve_id": "CVE-2023-52481",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "role": "hardware",
+          "visibility": "full_context",
+          "prompt_sha256": "88ded70091357359df0dc793d3dea62a53acbd28de4c99b5f6a9b4aea8905c0a",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:b21f07650cf2a1efb067c26c7521d2520133adde1fc3aebe127f65bf00b52c43",
+          "cve_id": "CVE-2023-52481",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "role": "vulnerability",
+          "visibility": "full_context",
+          "prompt_sha256": "8a1e839ad95ec0c5c17f9451ef33913e63a8dcd29cab106d58a344b8f3269be2",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:6250e9f5a0061e76e2239733c747fc19af8f9e4b5330609efe7e8bc6757512a2",
+          "cve_id": "CVE-2023-52481",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "role": "attack_chain",
+          "visibility": "full_context",
+          "prompt_sha256": "3a9dc410fc23701ae3a98d612f7c6b22adfb835f7e47ecd05b54b6367b191bb8",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:a88a8eae14412e6a9de6f9e9ab58c73726a73bfa903e60a27f209da3fadd5d2b",
+          "cve_id": "CVE-2023-52481",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "role": "code",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "b919bf9a89ae2f109700b8f11c02c4531e609a83d838c08f3747adf6340fd645",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:cbaea89a142cf42cf230f671e042cf01dce04c1ba0ded04d4db61cf46f7865d5",
+            "prompt_sha256": "b919bf9a89ae2f109700b8f11c02c4531e609a83d838c08f3747adf6340fd645",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+              "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2",
+              "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:78d455a51c85613fccc55f7c9f96cb5fc8c9b602bc8a847875abd4b860b47823",
+          "cve_id": "CVE-2023-52481",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "role": "hardware",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "07afee91d95edd9c542690ecfde7522b4d8a3e8f367570a7496f55fb161b89ba",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:52eb7d8aaa88c4a4afffd7f37abe47a7c50f29058c8a14c64ceefee77c71a300",
+            "prompt_sha256": "07afee91d95edd9c542690ecfde7522b4d8a3e8f367570a7496f55fb161b89ba",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+              "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2",
+              "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:da94be9fa43bf348392476fb674484e22654af51f546204eb6149f6d47b1f575",
+          "cve_id": "CVE-2023-52481",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "role": "vulnerability",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "3b2d92b00646b2dc06f4177e61848b84bda5262f89f604830cf72e74ed501e8e",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:f779e4f67682413b6ece3128fcec3d0392a92fb837fa8028ca006157fe905f28",
+            "prompt_sha256": "3b2d92b00646b2dc06f4177e61848b84bda5262f89f604830cf72e74ed501e8e",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+              "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2",
+              "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:743d9b0d9a3ebfa4eba645fd7ea5c04b82cbc7dd91d001546bb32c8e2552961b",
+          "cve_id": "CVE-2023-52481",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "role": "attack_chain",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "415279cda8a5a6315e5d506bee14fa84685c06ca153098cb8ed9d684b74c1531",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:a06897c74037adfa23deafee54911f487e5e011732ae877c477d0ae169cddf2a",
+            "prompt_sha256": "415279cda8a5a6315e5d506bee14fa84685c06ca153098cb8ed9d684b74c1531",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+              "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2",
+              "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        }
+      ]
+    },
+    {
+      "id": "public-secondary-case-materialization:586f8226327055c014cf3c990ee0e765d1ff0355c12e55df1d913d06086ebd91",
+      "cve_id": "CVE-2024-26670",
+      "source_record_sha256": "8e4e831d8f90876c75028bc0591ef51e9c6a898acb1260b751cc2c70d8200802",
+      "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+      "documented_interaction": {
+        "id": "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+        "architecture": "arm",
+        "interaction_type": "firmware_vulnerability_to_hardware",
+        "direction": "software_to_hardware",
+        "source_layer": "driver",
+        "target_layer": "hardware",
+        "initiating_vulnerability_ids": [
+          "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+        ],
+        "target_vulnerability_ids": [
+          "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8"
+        ],
+        "trigger_behavior_ids": [
+          "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add"
+        ],
+        "propagation_behavior_ids": [],
+        "affected_execution_ids": [],
+        "fault_state_ids": [],
+        "hardware_resource_ids": [],
+        "security_mechanism_ids": [],
+        "evidence_ids": [],
+        "referenced_architectures": [],
+        "metadata": {}
+      },
+      "reasoning_context": {
+        "id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+        "architecture": "arm",
+        "subject_id": "CVE-2024-26670",
+        "affected_components": [
+          "Cortex-A510 erratum 3117295",
+          "Cortex-A520 erratum 2966298",
+          "Linux arm64 entry path"
+        ],
+        "observed_fact_ids": [],
+        "available_evidence_ids": [],
+        "knowledge_entry_ids": [
+          "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd"
+        ],
+        "dynamic_trigger_fact_reference": null,
+        "attack_pattern_reference": null,
+        "cross_layer_interaction": {
+          "id": "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+          "architecture": "arm",
+          "interaction_type": "firmware_vulnerability_to_hardware",
+          "direction": "software_to_hardware",
+          "source_layer": "driver",
+          "target_layer": "hardware",
+          "initiating_vulnerability_ids": [
+            "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+          ],
+          "target_vulnerability_ids": [
+            "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8"
+          ],
+          "trigger_behavior_ids": [
+            "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add"
+          ],
+          "propagation_behavior_ids": [],
+          "affected_execution_ids": [],
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "security_mechanism_ids": [],
+          "evidence_ids": [],
+          "referenced_architectures": [],
+          "metadata": {}
+        },
+        "runtime_observations": [],
+        "knowledge_retrieval_result": null,
+        "metadata": {}
+      },
+      "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+      "prompt_assessments": [
+        {
+          "id": "public-prompt-content-assessment:f7c77415a1f6c2dcec27f2f39ce37672402e6b0d373324073cf7abca64e2c30a",
+          "cve_id": "CVE-2024-26670",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "role": "code",
+          "visibility": "full_context",
+          "prompt_sha256": "0ee7f816b5b779b56cda334cec6e33e7d40eec9e65bd7f5cfa5687aea62f403a",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:6694e4cc3056561bf90ccd0b0bcc9a2c3442a4b25a8f47c35538d018a1ed55ff",
+          "cve_id": "CVE-2024-26670",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "role": "hardware",
+          "visibility": "full_context",
+          "prompt_sha256": "e626eea8b15a457a09393d699be87c39d389fefe9c9a8f62037e33e9e919d5a2",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:9f8aa522743eddb432ff6a89671cc090bc25b835ce10dca344485e21698ce16b",
+          "cve_id": "CVE-2024-26670",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "role": "vulnerability",
+          "visibility": "full_context",
+          "prompt_sha256": "c33c88d9f33152f136752ef437eb8987a48acd53c64f5d9ea6bbc963deee3b5b",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:e83b5b503a42aa0489107b9c9785bdf7f796bd1b091004d445695ae1d78e2f55",
+          "cve_id": "CVE-2024-26670",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "role": "attack_chain",
+          "visibility": "full_context",
+          "prompt_sha256": "281c93b5f52740427ae050e1d4a382debb43bf8449d351d0a889e9673557a718",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:80317373c478988d10b48fd25e31f9f82f2a820e14be07498bfac6ff0a67afda",
+          "cve_id": "CVE-2024-26670",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "role": "code",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "bd1d1d83bdf6bd3e0371985fa7d0fe02c01feec9740206932d67cf79361334c4",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:c393a39b35dcc25776678709d33c5811d48d662b44bd78fe2d27b604919f93d6",
+            "prompt_sha256": "bd1d1d83bdf6bd3e0371985fa7d0fe02c01feec9740206932d67cf79361334c4",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+              "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add",
+              "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8",
+              "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:04bb84a6933de78237877889694a364ce6216a76bed2839d9935bf157777503f",
+          "cve_id": "CVE-2024-26670",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "role": "hardware",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "842afa88dd61a4e8c28c32258506f7960345f25fba8efc77ac239ccf725e80d5",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:4cb6258b54881887c8e85c9a3a87f2909603ee01cac879fa739fe04f746c67bb",
+            "prompt_sha256": "842afa88dd61a4e8c28c32258506f7960345f25fba8efc77ac239ccf725e80d5",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+              "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add",
+              "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8",
+              "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:d1a97e926e09eae938c461b00f36157667540ce77deccb09b2ed30e4f300d474",
+          "cve_id": "CVE-2024-26670",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "role": "vulnerability",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "36ac52031bc3618dc4f573c5183d470f19d496ee9465c7eb09c47b5234e7a0d6",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:8990d1484446f8daee7e10229a5628dec1681395a69c6e86a49ccbfa2c3d1913",
+            "prompt_sha256": "36ac52031bc3618dc4f573c5183d470f19d496ee9465c7eb09c47b5234e7a0d6",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+              "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add",
+              "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8",
+              "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:347638aa68865ce0ae89debc2d133b1a7c3810e6fbf51d91001fa93e793f2186",
+          "cve_id": "CVE-2024-26670",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "role": "attack_chain",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "0f79cd516f4870fdf94eb1cc0fcd737242d4e9c49429bd244d828205108b5a44",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:6ebd421a61480fa2471c25d0cb92932a1031a0ac5fd984033033b9b497210cfe",
+            "prompt_sha256": "0f79cd516f4870fdf94eb1cc0fcd737242d4e9c49429bd244d828205108b5a44",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+              "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add",
+              "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8",
+              "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        }
+      ]
+    },
+    {
+      "id": "public-secondary-case-materialization:fa2860b160fa3358c4cf11b7bf0ac5de81f68e25b95691d90afc7bf20204d8a4",
+      "cve_id": "CVE-2025-10263",
+      "source_record_sha256": "1913e1bef673692572e76c233b3af6234d55eaf70c25a45cc2a8a9275a672826",
+      "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+      "documented_interaction": {
+        "id": "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+        "architecture": "arm",
+        "interaction_type": "firmware_behavior_to_hardware",
+        "direction": "software_to_hardware",
+        "source_layer": "interface",
+        "target_layer": "hardware",
+        "initiating_vulnerability_ids": [],
+        "target_vulnerability_ids": [
+          "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+        ],
+        "trigger_behavior_ids": [
+          "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7"
+        ],
+        "propagation_behavior_ids": [],
+        "affected_execution_ids": [],
+        "fault_state_ids": [],
+        "hardware_resource_ids": [],
+        "security_mechanism_ids": [],
+        "evidence_ids": [],
+        "referenced_architectures": [],
+        "metadata": {}
+      },
+      "reasoning_context": {
+        "id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+        "architecture": "arm",
+        "subject_id": "CVE-2025-10263",
+        "affected_components": [
+          "Arm C1 families",
+          "Arm Cortex-A710/A78/A77/A76 families",
+          "Arm Cortex-X families",
+          "Arm Neoverse families"
+        ],
+        "observed_fact_ids": [],
+        "available_evidence_ids": [],
+        "knowledge_entry_ids": [
+          "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77"
+        ],
+        "dynamic_trigger_fact_reference": null,
+        "attack_pattern_reference": null,
+        "cross_layer_interaction": {
+          "id": "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+          "architecture": "arm",
+          "interaction_type": "firmware_behavior_to_hardware",
+          "direction": "software_to_hardware",
+          "source_layer": "interface",
+          "target_layer": "hardware",
+          "initiating_vulnerability_ids": [],
+          "target_vulnerability_ids": [
+            "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+          ],
+          "trigger_behavior_ids": [
+            "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7"
+          ],
+          "propagation_behavior_ids": [],
+          "affected_execution_ids": [],
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "security_mechanism_ids": [],
+          "evidence_ids": [],
+          "referenced_architectures": [],
+          "metadata": {}
+        },
+        "runtime_observations": [],
+        "knowledge_retrieval_result": null,
+        "metadata": {}
+      },
+      "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+      "prompt_assessments": [
+        {
+          "id": "public-prompt-content-assessment:a102f35040f01111b36518e4ef214c0240cb9acf46a8f3029459166d1192b8e8",
+          "cve_id": "CVE-2025-10263",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "role": "code",
+          "visibility": "full_context",
+          "prompt_sha256": "b31d9df13d958330aff41c35bad9eb6099d30f24c32dc60ad3505fb3653719fc",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:663c787142c91e8868434dc2ae5d880dfde752da9620ffb9a16db04ad5c4ace7",
+          "cve_id": "CVE-2025-10263",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "role": "hardware",
+          "visibility": "full_context",
+          "prompt_sha256": "2219c32f0d324f7b901ccc50d0a3b104de5199e6ee7a1de4115e721d1e434fab",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:95667b46ee38e19e323bea9ca1a8cc4c761ecaf6184a9f780f61aac24834776f",
+          "cve_id": "CVE-2025-10263",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "role": "vulnerability",
+          "visibility": "full_context",
+          "prompt_sha256": "0da14054afffe581d1db9f7e40492209c507759e4027519d58cffb89d933607b",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:ef941ecebc7e95cd1e99fe313e4c536ca7aed0a63354576a17ec69d484bfb1fc",
+          "cve_id": "CVE-2025-10263",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "role": "attack_chain",
+          "visibility": "full_context",
+          "prompt_sha256": "095ee09be2ecefd67ccb2904e55b1bdfdbd73ac47f12fac17c05f3906b1b3656",
+          "visibility_audit": null,
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:51aa41ee4f79d30162bbf52b3465245f1eed6614ac1a5c82b0df02eee23b0926",
+          "cve_id": "CVE-2025-10263",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "role": "code",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "5c3deb0575ad874be7e9490d106462d1e594f39eebf1afa7e77b5d84df28200b",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:50ec484e595629349438c1f5f942dc3335e5a106306cc143cf636672026972f3",
+            "prompt_sha256": "5c3deb0575ad874be7e9490d106462d1e594f39eebf1afa7e77b5d84df28200b",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+              "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7",
+              "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:a95aa6519c99f26fd15ff2457601abc3d0b9b3e33bacd698ebccb318c1918d1c",
+          "cve_id": "CVE-2025-10263",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "role": "hardware",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "71e2d45b43e32be5286c66ed8b0f725b0928a11f7d5219ca50d27bac5c177588",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:ce19d2e0b4974c0cdc312781f2e8472406f43a31a904d87dfbefc657421bf4e8",
+            "prompt_sha256": "71e2d45b43e32be5286c66ed8b0f725b0928a11f7d5219ca50d27bac5c177588",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+              "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7",
+              "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:a0470b79d894e62046b019019d615dfa628ce7c69e0f20b89894ba33e05decb0",
+          "cve_id": "CVE-2025-10263",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "role": "vulnerability",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "8106206373830617c8a2a0f445752f3c9850ca4540b2ff864baecbbbb1c30073",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:06d6aee56edeadc59c332bea7b90a3518d1bafa49a2b3cb382c21aa390bffb38",
+            "prompt_sha256": "8106206373830617c8a2a0f445752f3c9850ca4540b2ff864baecbbbb1c30073",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+              "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7",
+              "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        },
+        {
+          "id": "public-prompt-content-assessment:246cc8934c632f6fd01470bf8ef255fac797fc4cd03b9dc0e14523273902d5c8",
+          "cve_id": "CVE-2025-10263",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "role": "attack_chain",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "3491d106a171e26fc796835f8e96f9195a5a78dcd1e59da431c40ffe6a1eeb22",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:c86594dc66c0ef488a9a90d92577877865a625b9c96989d345c5e38620b06e52",
+            "prompt_sha256": "3491d106a171e26fc796835f8e96f9195a5a78dcd1e59da431c40ffe6a1eeb22",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+              "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7",
+              "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "cve_id_visible": true,
+          "affected_components_visible": true,
+          "knowledge_entry_reference_visible": true,
+          "public_source_references_visible": false,
+          "descriptive_public_content_visible": false
+        }
+      ]
+    }
+  ],
+  "readiness_result": "reference_content_insufficient"
+}

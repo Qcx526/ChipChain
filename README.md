@@ -61,6 +61,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10D Step 7 collision-safe MASKED projection、single-policy prompt audit 与 projection-protocol provenance
 - Phase 10D Step 8A public CVE research intake、A/M profile admission staging 与 issue-level dedup reporting
 - Phase 10D Step 8B-0 single-source public CVE builder、derived IDs 与 byte-stable committed snapshot
+- Phase 10D Step 8B-1A 五条 public-documented SECONDARY cohort、FULL/MASKED hash audit 与
+  model-visible content readiness gate
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -655,6 +657,24 @@ PublicCveCorpus generated snapshot
 维护者不手算或手改 `knowledge_entry_id`、sample ID、knowledge entries 或 corpus ID。运行
 `python scripts/build_public_cve_corpus.py --check` 可离线核对 committed snapshot；`--write` 只执行
 确定性本地重建，不访问 NVD 或任何外部服务。
+
+## Phase 10D Step 8B-1A Public SECONDARY Cohort
+
+Step 8B-1A 从上述 source 与 generated corpus 派生首批五条 A-profile public-documented case。人工维护的
+`data/public_cve/evaluation/arm_secondary_v1.json` 只记录 CVE 选择及 ChipChain 软件 source-layer 抽象；
+title、summary、trigger/precondition/effect、components、references 与 classification 不在 selection 中
+重复维护。每个 `EvaluationBenchmarkCase` 均为 `PUBLIC_DOCUMENTED` / `SECONDARY_ONLY`，其
+`POSITIVE_FEASIBLE` label 只表示公开文档描述了 vulnerability scenario，不表示 ChipChain 已确认
+triggerability、feasibility 或 vulnerability。
+
+Materializer 为每条 CVE 生成 source-record canonical SHA-256、path-neutral artifact reference、最小
+documented Type I/II interaction、唯一 knowledge-entry binding 与没有 runtime/Evidence/triggerability 的
+`ReasoningContext`，并对四角色的 FULL/MASKED prompt 分别保存 exact SHA-256。20 个 MASKED audit 均为
+`PASS`。当前实际 prompt payload 可见 CVE ID、components 与 knowledge-entry ID，但 knowledge contract
+仅提供 reference，未把 public source references 或描述性漏洞内容序列化给模型。因此 committed readiness
+结果是 `REFERENCE_CONTENT_INSUFFICIENT`；本步骤不修改 prompt、masking 或检索合同，也没有调用真实
+Provider。SECONDARY cohort 完全排除在 PRIMARY hit rate、recall、false-positive rate 与 coverage 之外，
+目前没有 public-CVE hit-rate 声明。
 
 ## 文档导航
 
