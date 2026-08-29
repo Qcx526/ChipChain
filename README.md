@@ -65,6 +65,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   model-visible content readiness gate
 - Phase 10D Step 8B-1B versioned neutral public-knowledge projection、legacy Prompt compatibility 与
   structured-label leakage audit
+- Phase 10D Step 8B-1C 独立 public execution binding、40-key pre-transport provenance gate 与
+  显式 opt-in execution wrapper
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -694,6 +696,26 @@ versioned structured-label leakage audit；新的 hash-only readiness artifact �
 `READY_FOR_PUBLIC_PROVIDER`。这只说明离线 Prompt 输入合同已就绪：public reference content 不是 Evidence、
 Ground Truth、漏洞 verdict、因果证明或 model-authored content，且尚未调用任何真实 Provider、未产生模型
 性能结果。
+
+## Phase 10D Step 8B-1C Public Knowledge Execution Wiring
+
+Step 8B-1C 不修改历史 `RealModelExperimentPlan`、`RealExperimentInputSet` 或
+`RealModelExecutionArchive` 字段，而以独立
+`phase10d_public_knowledge_execution_binding_v1` 连接冻结的五条 SECONDARY cohort、Step 8B-1B
+readiness、每案精确 `KnowledgeContentProjection` 和普通 candidate-side inputs。Binding 内恰好保存
+5 × 2 visibility × 4 role 的 40 个 expected prompt SHA-256；projection 必须从本地 corpus 的精确 entry
+重建并与冻结 readiness projection ID 一致。
+
+`RealModelExperimentExecutor.execute_with_public_knowledge()` 仍经过官方
+`RoleBasedReasoningPromptBuilder.build_with_knowledge_projection()`。本地 preflight 会先重建全部 40 个
+prompt，并在任何 transport 前检查冻结 hash、MASKED hidden-reference audit 与既有 structured leakage
+audit；任何缺失、额外、crosswire 或 prompt drift 都 fail closed，且没有 legacy prompt fallback。
+输出使用独立 `phase10d_public_knowledge_execution_archive_v1` wrapper 绑定 public provenance 与历史
+hash-only execution archive，不保存 assembled prompt、raw provider response、secret 或 endpoint。
+
+本步骤只完成 wiring、deterministic fake-provider integration 和 offline preflight；没有调用真实 Provider，
+也没有产生真实模型性能结果。五条 case 继续是 `PUBLIC_DOCUMENTED` / `SECONDARY_ONLY`，所有 PRIMARY
+metric denominator 仍为 0。
 
 ## 文档导航
 

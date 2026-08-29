@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, ValidationInfo, field_validator, model_validator
 
 from chipchain.agents.base import ReasoningContext
 from chipchain.agents.state import ReasoningSession
@@ -589,6 +589,8 @@ def _validate_real_provider_prompt_provenance(
     condition_records: dict[
         AblationConditionKind, RealExperimentConditionRecord
     ],
+    *,
+    public_knowledge_expected_prompt_hashes: dict[str, str] | None = None,
 ) -> None:
     """Rebuild frozen REAL_PROVIDER prompts without invoking a provider."""
 
@@ -613,6 +615,22 @@ def _validate_real_provider_prompt_provenance(
     for condition, visibility in visibility_by_condition.items():
         for invocation in condition_records[condition].invocation_records:
             if invocation.prompt_sha256 is None:
+                continue
+            if public_knowledge_expected_prompt_hashes is not None:
+                key = "|".join(
+                    (
+                        condition.value,
+                        invocation.invocation_key.benchmark_case_id,
+                        invocation.invocation_key.role.value,
+                    )
+                )
+                if (
+                    invocation.prompt_sha256
+                    != public_knowledge_expected_prompt_hashes.get(key)
+                ):
+                    raise ValueError(
+                        "REAL_PROVIDER public prompt does not match binding"
+                    )
                 continue
             case_input = input_by_case.get(
                 invocation.invocation_key.benchmark_case_id
@@ -746,7 +764,9 @@ class RealModelExecutionArchive(DomainModel):
         return _validate_experiment_metadata(value)
 
     @model_validator(mode="after")
-    def validate_cross_bindings_and_identity(self) -> "RealModelExecutionArchive":
+    def validate_cross_bindings_and_identity(
+        self, info: ValidationInfo
+    ) -> "RealModelExecutionArchive":
         if self.contract != PHASE10D_EXECUTION_CONTRACT:
             raise ValueError("unsupported Phase 10D execution archive contract")
         self._validate_nested_metadata()
@@ -859,8 +879,38 @@ class RealModelExecutionArchive(DomainModel):
             item.condition_kind: item
             for item in self.experiment_artifact.condition_records
         }
+        public_expected_hashes = None
+        public_binding_value = (
+            info.context.get("public_knowledge_execution_binding")
+            if info.context is not None
+            else None
+        )
+        if public_binding_value is not None:
+            from chipchain.evaluation.public_knowledge_execution_models import (
+                PublicKnowledgeExecutionBinding,
+            )
+
+            public_binding = PublicKnowledgeExecutionBinding.model_validate(
+                public_binding_value
+            )
+            if (
+                public_binding.experiment_plan_id,
+                public_binding.benchmark_manifest_id,
+                public_binding.real_experiment_input_set_id,
+            ) != (plan.id, self.benchmark_manifest.id, self.input_set.id):
+                raise ValueError(
+                    "REAL_PROVIDER public archive binding mismatch"
+                )
+            public_expected_hashes = (
+                public_binding.expected_prompt_hashes_for_archive()
+            )
         _validate_real_provider_prompt_provenance(
-            plan, input_by_case, condition_records
+            plan,
+            input_by_case,
+            condition_records,
+            public_knowledge_expected_prompt_hashes=(
+                public_expected_hashes
+            ),
         )
         for condition in (
             AblationConditionKind.FULL_CONTEXT_MODEL,
@@ -941,6 +991,7 @@ class RealModelExecutionArchive(DomainModel):
         reasoning_sessions: list[ExperimentCaseReasoningSession],
         case_run_records_by_condition: list[ExperimentConditionCaseRun],
         metadata: Metadata | None = None,
+        _public_knowledge_execution_binding: object | None = None,
     ) -> "RealModelExecutionArchive":
         plan = experiment_artifact.experiment_plan
         values = {
@@ -956,14 +1007,26 @@ class RealModelExecutionArchive(DomainModel):
                 item.id for item in case_run_records_by_condition
             ],
         }
-        return cls(
-            id=real_model_execution_archive_id(**values),
-            contract=PHASE10D_EXECUTION_CONTRACT,
-            experiment_plan_id=plan.id,
-            benchmark_manifest=manifest,
-            input_set=input_set,
-            experiment_artifact=experiment_artifact,
-            reasoning_sessions=reasoning_sessions,
-            case_run_records_by_condition=case_run_records_by_condition,
-            metadata=metadata or {},
+        payload = {
+            "id": real_model_execution_archive_id(**values),
+            "contract": PHASE10D_EXECUTION_CONTRACT,
+            "experiment_plan_id": plan.id,
+            "benchmark_manifest": manifest,
+            "input_set": input_set,
+            "experiment_artifact": experiment_artifact,
+            "reasoning_sessions": reasoning_sessions,
+            "case_run_records_by_condition": case_run_records_by_condition,
+            "metadata": metadata or {},
+        }
+        return cls.model_validate(
+            payload,
+            context=(
+                {
+                    "public_knowledge_execution_binding": (
+                        _public_knowledge_execution_binding
+                    )
+                }
+                if _public_knowledge_execution_binding is not None
+                else None
+            ),
         )

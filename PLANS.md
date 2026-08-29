@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A 与 Step 8B-1B 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A、Step 8B-1B 与 Step 8B-1C 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -661,8 +661,26 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 新 readiness artifact 精确引用 frozen Step 8B-1A cohort 并保持全部 case/interaction/context/knowledge
   IDs；结果为 `READY_FOR_PUBLIC_PROVIDER`，但本步骤未连接或调用 Provider，也不产生性能结论
 
-后续工作：public Provider execution wiring 必须作为后续独立步骤，在本 projection/prompt contract 冻结后
-另行评审；不得用 participant ID、metadata 或 fake Evidence 编码答案。对 `NEXT_OBJECTIVE_CANDIDATE`
+#### Phase 10D Step 8B-1C：Public Knowledge Real-Provider Wiring（已完成实现）
+
+- [x] 用独立 `phase10d_public_knowledge_execution_binding_v1` 连接既有 experiment plan、五案 frozen
+  SECONDARY manifest/input、Step 8B-1B readiness 与精确重建的 knowledge projection；不向历史
+  plan/input/archive 增加 optional 字段
+- [x] 每案绑定 FULL/MASKED × 固定四角色的 8 个 expected prompt record，共精确 40 个 SHA-256；缺失、
+  重复、额外、case/context/entry/projection/readiness/plan/manifest crosswire 全部 fail closed
+- [x] 新显式 `execute_with_public_knowledge()` 仍使用官方 frozen prompt builder；legacy `execute()` 不进入
+  projected builder，历史 input/plan identity、legacy prompt hash 与 archive parsing 保持不变
+- [x] transport 前离线重建 prompt 并依次约束 structured leakage、exact frozen hash 与 MASKED visibility；
+  runtime recorder 再做 defense-in-depth gate，不一致时 provider call 为 0 且无 legacy fallback/retry
+- [x] `phase10d_public_knowledge_execution_archive_v1` wrapper 绑定 public input provenance、实际 reached
+  prompt hashes 与 PASS leakage audits；不保存 raw assembled prompt、raw response、secret 或 endpoint
+- [x] 受控脚本提供 `--preflight-only` 和显式 `--execute-real-provider`；preflight 不读取 Provider 环境、
+  不实例化 Provider、不访问网络，本步骤没有运行真实 Provider
+- [x] deterministic fake Provider 完整走过官方 Executor/Engine/four-Agent/parser/evaluation 路径并产生
+  40 次 model-condition invocation；NO_MODEL/UPPER 零调用，所有 SECONDARY/PRIMARY metric denominator 为 0
+
+后续工作：真实 public Provider one-shot execution 必须作为 Step 8B-1D 独立审批后显式运行；不得用
+participant ID、metadata 或 fake Evidence 编码答案。对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能
 脱离 Type II exact candidate binding 被通用映射为 `CONFIRMED_FEASIBLE`。
 

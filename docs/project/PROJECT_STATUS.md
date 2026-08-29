@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step8b1a-stable`
-- Stable commit: `4cc3e7e7edc822f6180c84182a995c0281aefdba`
-- Baseline: Phase 10D Step 8B-1A final accepted and frozen
+- Stable tag: `phase-10d-step8b1b-stable`
+- Stable commit: `8d7707361e760cbd087eb7f690fb766b0cf0f55b`
+- Baseline: Phase 10D Step 8B-1B final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -35,20 +35,22 @@
 - Phase 10D Step 8B-0 single-source public corpus build and byte-stable generated snapshot workflow
 - Phase 10D Step 8B-1A five-case public-documented SECONDARY materialization and exact prompt-readiness audit
 - Phase 10D Step 8B-1B versioned neutral public-knowledge projection and structured prompt leakage audit
+- Phase 10D Step 8B-1C explicit public execution binding, exact pre-transport provenance gates, and wrapper archive
 
 ## Current Work
 
-Phase 10D Step 8B-1B adds an explicit versioned attachment that projects only neutral fields from each
-context-bound `VulnerabilityKnowledgeEntry`: identity/kind, external ID, architecture, title, summary,
-components and references. `ReasoningContext` remains reference-only and unchanged. Legacy prompt bytes
-remain frozen; only the new explicit builder path adds the projection contract, projection ID and public
-reference content. FULL and MASKED receive identical knowledge content while Step 7 continues to hide
-chain-answer references from MASKED.
+Phase 10D Step 8B-1C wraps the frozen Step 8B-1B projection semantics in a separate typed execution binding.
+It links the unchanged experiment plan/input contracts to exactly five case projections and exactly forty
+case×visibility×role prompt hashes from the frozen `READY_FOR_PUBLIC_PROVIDER` artifact. Local preflight
+reconstructs all forty prompts with the official builder and checks structured leakage, exact hash equality,
+and MASKED hidden-reference visibility before any transport. The executor repeats these gates immediately
+before each provider invocation and never falls back to a legacy prompt.
 
-All 40 projected public prompts expose the required neutral content, all 20 MASKED exact-reference audits
-pass, and the separate structured-label audit finds no curator/evaluation field or exact forbidden value.
-The new offline artifact is therefore `READY_FOR_PUBLIC_PROVIDER`. This is input-contract readiness only:
-no provider has been called and no model output or performance result exists.
+The separate public execution wrapper validates plan/manifest/input/context identity, reached invocation
+hashes, and transport leakage-audit provenance without adding fields to the historical execution archive.
+The new script has a provider-free `--preflight-only` mode and an explicit `--execute-real-provider` opt-in.
+Step 8B-1C used only a deterministic fake provider; no real provider was called and no model performance
+result exists.
 
 These documented Ground Truth annotations are SECONDARY reasoning-evaluation inputs, not objective
 verification. They contain no HardwareTriggerSignature, runtime observation, Evidence, triggerability or
@@ -61,7 +63,7 @@ firewall failed closed. Phase 9C Step 3B remains deferred.
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- separately reviewed public-provider execution wiring after the projection contract is frozen
+- separately reviewed Step 8B-1D one-shot public-provider execution
 - objective evidence review and explicit PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation

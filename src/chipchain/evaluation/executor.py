@@ -52,9 +52,21 @@ from chipchain.evaluation.execution_models import (
 from chipchain.evaluation.execution_instrumentation import (
     _PerCaseInvocationTrace,
     _PromptVisibilityLeakError,
+    _PublicKnowledgePromptGateError,
     _RecordingPromptBuilder,
     _RecordingReasoningParser,
     _RecordingReasoningProvider,
+)
+from chipchain.evaluation.public_knowledge_execution import (
+    PublicKnowledgeExecutionPreflightError,
+    PublicKnowledgeRealExecutionPreflight,
+)
+from chipchain.evaluation.public_knowledge_execution_models import (
+    PublicKnowledgeExecutionArchive,
+    PublicKnowledgeExecutionBinding,
+)
+from chipchain.evaluation.public_knowledge_readiness_models import (
+    PublicKnowledgeLeakageAudit,
 )
 from chipchain.evaluation.experiment_artifact import (
     RealExperimentConditionRecord,
@@ -105,6 +117,9 @@ class _ConditionExecution:
     condition: AblationConditionKind
     invocation_records: list[ModelInvocationRecord] = field(default_factory=list)
     audits: list[PromptVisibilityAudit] = field(default_factory=list)
+    public_knowledge_audits: list[PublicKnowledgeLeakageAudit] = field(
+        default_factory=list
+    )
     sessions: list[ExperimentCaseReasoningSession] = field(default_factory=list)
     case_runs: list[ExperimentConditionCaseRun] = field(default_factory=list)
     report: object | None = None
@@ -137,9 +152,64 @@ class RealModelExperimentExecutor:
     ) -> RealModelExecutionArchive:
         """Run one exact plan; REAL_PROVIDER must be explicitly supplied upstream."""
 
+        result = self._execute(
+            plan,
+            manifest,
+            input_set,
+            public_knowledge_binding=None,
+        )
+        if not isinstance(result, RealModelExecutionArchive):
+            raise RuntimeError("legacy execution returned public wrapper")
+        return result
+
+    def execute_with_public_knowledge(
+        self,
+        plan: RealModelExperimentPlan,
+        manifest: BenchmarkManifest,
+        input_set: RealExperimentInputSet,
+        *,
+        public_knowledge_binding: PublicKnowledgeExecutionBinding,
+    ) -> PublicKnowledgeExecutionArchive:
+        """Run the explicit frozen public-projection path without fallback."""
+
+        result = self._execute(
+            plan,
+            manifest,
+            input_set,
+            public_knowledge_binding=public_knowledge_binding,
+        )
+        if not isinstance(result, PublicKnowledgeExecutionArchive):
+            raise RuntimeError("public execution did not return public wrapper")
+        return result
+
+    def _execute(
+        self,
+        plan: RealModelExperimentPlan,
+        manifest: BenchmarkManifest,
+        input_set: RealExperimentInputSet,
+        *,
+        public_knowledge_binding: PublicKnowledgeExecutionBinding | None,
+    ) -> RealModelExecutionArchive | PublicKnowledgeExecutionArchive:
+        """Execute one legacy or explicitly bound public experiment."""
+
         plan_snapshot, manifest_snapshot, inputs = self._preflight(
             plan, manifest, input_set
         )
+        binding = None
+        if public_knowledge_binding is not None:
+            if self._uses_custom_prompt_builder:
+                raise RealExperimentExecutionError(
+                    "public knowledge execution requires the frozen prompt builder"
+                )
+            try:
+                binding = PublicKnowledgeRealExecutionPreflight.validate(
+                    experiment_plan=plan_snapshot,
+                    manifest=manifest_snapshot,
+                    input_set=inputs,
+                    binding=public_knowledge_binding,
+                )
+            except PublicKnowledgeExecutionPreflightError as exc:
+                raise RealExperimentExecutionError(str(exc)) from exc
         ablation_plan = self._ablation_plan(plan_snapshot)
         cases = {item.id: item for item in manifest_snapshot.cases}
         inputs_by_case = {
@@ -164,6 +234,7 @@ class RealModelExperimentExecutor:
                 inputs_by_case,
                 condition=condition,
                 visibility=visibility,
+                public_knowledge_binding=binding,
             )
 
         no_model = self._execute_no_model_condition(
@@ -202,7 +273,7 @@ class RealModelExperimentExecutor:
             for execution in executions.values()
             for item in execution.case_runs
         ]
-        return RealModelExecutionArchive.create(
+        archive = RealModelExecutionArchive.create(
             manifest=manifest_snapshot,
             input_set=inputs,
             experiment_artifact=artifact,
@@ -212,6 +283,19 @@ class RealModelExperimentExecutor:
                 "canonical_content_scope": "parsed_semantics_and_hashes_only",
                 "transport_content_archived": False,
             },
+            _public_knowledge_execution_binding=binding,
+        )
+        if binding is None:
+            return archive
+        leakage_audits = [
+            audit
+            for execution in executions.values()
+            for audit in execution.public_knowledge_audits
+        ]
+        return PublicKnowledgeExecutionArchive.create(
+            binding=binding,
+            archive=archive,
+            transport_leakage_audits=leakage_audits,
         )
 
     def _preflight(self, plan, manifest, input_set):
@@ -342,6 +426,7 @@ class RealModelExperimentExecutor:
         *,
         condition,
         visibility,
+        public_knowledge_binding=None,
     ) -> _ConditionExecution:
         execution = _ConditionExecution(condition=condition)
         pipeline_failed = False
@@ -358,12 +443,56 @@ class RealModelExperimentExecutor:
                 is AblationConditionKind.MASKED_CHAIN_CONTEXT_MODEL
                 else None
             )
+            public_case_binding = (
+                public_knowledge_binding.case_binding(case_id)
+                if public_knowledge_binding is not None
+                else None
+            )
+            expected_records = (
+                {
+                    role: public_case_binding.expected_record(visibility, role)
+                    for role in PHASE10D_PROVIDER_ROLE_ORDER
+                }
+                if public_case_binding is not None
+                else None
+            )
             engine = ReasoningEngine(
                 provider=_RecordingReasoningProvider(self._provider, trace),
                 prompt_builder=_RecordingPromptBuilder(
                     self._prompt_builder_factory(),
                     trace,
                     masked_hidden_reference_ids=hidden,
+                    knowledge_projection=(
+                        public_case_binding.knowledge_projection
+                        if public_case_binding is not None
+                        else None
+                    ),
+                    expected_prompt_sha256_by_role=(
+                        {
+                            role: record.expected_prompt_sha256
+                            for role, record in expected_records.items()
+                        }
+                        if expected_records is not None
+                        else None
+                    ),
+                    expected_leakage_audit_id_by_role=(
+                        {
+                            role: record.expected_leakage_audit_id
+                            for role, record in expected_records.items()
+                        }
+                        if expected_records is not None
+                        else None
+                    ),
+                    expected_visibility_audit_id_by_role=(
+                        {
+                            role: record.expected_visibility_audit_id
+                            for role, record in expected_records.items()
+                        }
+                        if expected_records is not None
+                        and visibility
+                        is ReasoningPromptVisibility.MASKED_CHAIN_CONTEXT
+                        else None
+                    ),
                 ),
                 parser=_RecordingReasoningParser(
                     ConstrainedReasoningOutputParser(), trace
@@ -377,6 +506,15 @@ class RealModelExperimentExecutor:
                 session = workflow.execute(context)
             except ProviderBackedWorkflowExecutionError as error:
                 workflow_error = error
+            if workflow_error is not None and public_case_binding is not None:
+                failed_attempt = trace.attempts.get(workflow_error.failed_role)
+                if failed_attempt is not None and isinstance(
+                    failed_attempt.error,
+                    (_PromptVisibilityLeakError, _PublicKnowledgePromptGateError),
+                ):
+                    raise RealExperimentExecutionError(
+                        "public prompt failed before transport"
+                    ) from failed_attempt.error
             execution.invocation_records.extend(
                 self._invocation_records_for_case(
                     plan,
@@ -390,6 +528,11 @@ class RealModelExperimentExecutor:
                 item.audit
                 for item in trace.attempts.values()
                 if item.audit is not None
+            )
+            execution.public_knowledge_audits.extend(
+                item.public_knowledge_audit
+                for item in trace.attempts.values()
+                if item.public_knowledge_audit is not None
             )
             if session is None:
                 execution.case_runs.append(

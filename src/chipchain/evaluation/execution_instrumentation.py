@@ -13,10 +13,18 @@ from chipchain.evaluation.enums import PromptVisibilityAuditStatus
 from chipchain.evaluation.experiment_models import (
     structured_prompt_request_sha256,
 )
+from chipchain.evaluation.public_knowledge_readiness import (
+    PublicKnowledgeLeakageAuditor,
+)
+from chipchain.evaluation.public_knowledge_readiness_models import (
+    PublicKnowledgeLeakageAudit,
+    PublicKnowledgeLeakageAuditStatus,
+)
 from chipchain.reasoning.enums import (
     ReasoningAgentType,
     ReasoningPromptVisibility,
 )
+from chipchain.reasoning.knowledge_projection import KnowledgeContentProjection
 from chipchain.reasoning.models import StructuredPromptRequest
 from chipchain.reasoning.parser import ConstrainedReasoningOutputParser
 from chipchain.reasoning.prompts import RoleBasedReasoningPromptBuilder
@@ -25,6 +33,10 @@ from chipchain.reasoning.provider import ReasoningProvider
 
 class _PromptVisibilityLeakError(RuntimeError):
     """Private control-flow error for a masked pre-transport audit failure."""
+
+
+class _PublicKnowledgePromptGateError(RuntimeError):
+    """Private error for projected hash or structured-leakage mismatch."""
 
 
 @dataclass
@@ -38,6 +50,7 @@ class _InvocationAttempt:
     parse_completed: bool = False
     error: Exception | None = None
     audit: PromptVisibilityAudit | None = None
+    public_knowledge_audit: PublicKnowledgeLeakageAudit | None = None
 
 
 @dataclass
@@ -62,10 +75,30 @@ class _RecordingPromptBuilder:
         trace: _PerCaseInvocationTrace,
         *,
         masked_hidden_reference_ids: list[str] | None,
+        knowledge_projection: KnowledgeContentProjection | None = None,
+        expected_prompt_sha256_by_role: dict[ReasoningAgentType, str]
+        | None = None,
+        expected_leakage_audit_id_by_role: dict[ReasoningAgentType, str]
+        | None = None,
+        expected_visibility_audit_id_by_role: dict[ReasoningAgentType, str]
+        | None = None,
     ) -> None:
         self._delegate = delegate
         self._trace = trace
         self._hidden = masked_hidden_reference_ids
+        self._projection = knowledge_projection
+        self._expected_hashes = expected_prompt_sha256_by_role
+        self._expected_leakage_audits = expected_leakage_audit_id_by_role
+        self._expected_visibility_audits = expected_visibility_audit_id_by_role
+        attachments = (
+            self._projection,
+            self._expected_hashes,
+            self._expected_leakage_audits,
+        )
+        if any(item is not None for item in attachments) and not all(
+            item is not None for item in attachments
+        ):
+            raise ValueError("public prompt gate requires complete attachment")
 
     def build(
         self,
@@ -77,16 +110,53 @@ class _RecordingPromptBuilder:
         attempt = self._trace.attempt(role)
         attempt.prompt_entered = True
         try:
-            prompt = self._delegate.build(
-                context, role=role, visibility=visibility
-            )
+            if self._projection is None:
+                prompt = self._delegate.build(
+                    context, role=role, visibility=visibility
+                )
+            else:
+                prompt = self._delegate.build_with_knowledge_projection(
+                    context,
+                    role=role,
+                    visibility=visibility,
+                    knowledge_projection=self._projection,
+                )
             attempt.prompt = prompt
+            if self._projection is not None:
+                normalized_role = ReasoningAgentType(role)
+                leakage = PublicKnowledgeLeakageAuditor.audit(
+                    prompt,
+                    forbidden_exact_values=[],
+                )
+                attempt.public_knowledge_audit = leakage
+                if (
+                    leakage.status
+                    is not PublicKnowledgeLeakageAuditStatus.PASS
+                    or leakage.id
+                    != self._expected_leakage_audits[normalized_role]
+                    or structured_prompt_request_sha256(prompt)
+                    != self._expected_hashes[normalized_role]
+                ):
+                    raise _PublicKnowledgePromptGateError(
+                        "public projected prompt provenance gate failed"
+                    )
             if self._hidden is not None:
                 audit = self._audit_masked_prompt(prompt)
                 attempt.audit = audit
                 if audit.status is PromptVisibilityAuditStatus.LEAK_DETECTED:
                     raise _PromptVisibilityLeakError(
                         "masked prompt visibility audit failed"
+                    )
+                if (
+                    self._projection is not None
+                    and self._expected_visibility_audits is not None
+                    and audit.id
+                    != self._expected_visibility_audits[
+                        ReasoningAgentType(role)
+                    ]
+                ):
+                    raise _PublicKnowledgePromptGateError(
+                        "public projected MASKED audit provenance failed"
                     )
             return prompt
         except Exception as error:
