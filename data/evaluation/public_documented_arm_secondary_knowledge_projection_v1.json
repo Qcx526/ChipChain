@@ -1,0 +1,1336 @@
+{
+  "id": "public-knowledge-readiness-artifact:4a0f6ba0db963ba42130667e17ccc407fe093677fd5a019742dc70a279768e26",
+  "contract": "phase10d_public_knowledge_readiness_v1",
+  "frozen_public_secondary_cohort_id": "public-secondary-cohort:9587452d6c9ae26debb73c7511dfd417c8cb7f0d383084d432a3ad91da8800b5",
+  "source_corpus_id": "public-cve-corpus:778765c51a0d9b939eb37b390367a3d0cd02720942c8746c19eb0a1c38930e49",
+  "knowledge_projection_contract": "phase10d_public_knowledge_content_projection_v1",
+  "selected_cve_ids": [
+    "CVE-2022-23960",
+    "CVE-2023-34320",
+    "CVE-2023-52481",
+    "CVE-2024-26670",
+    "CVE-2025-10263"
+  ],
+  "case_readiness": [
+    {
+      "id": "public-knowledge-case-readiness:c9a25e1bfc8a43b5deb0d040432f000edaa5bf4cf75b0a9e6af5ea302b45805a",
+      "cve_id": "CVE-2022-23960",
+      "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+      "documented_interaction_id": "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+      "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+      "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+      "knowledge_projection_id": "knowledge-content-projection:a33bcf3984e88d7a265f7cfcb2cff65ceb3171226dec163762931adeceaaf7a8",
+      "prompt_assessments": [
+        {
+          "id": "public-knowledge-prompt-assessment:e382dfe2d00c82a5504e638674b36b34cf8731414297732230a8a203b72a0e59",
+          "cve_id": "CVE-2022-23960",
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+          "knowledge_projection_id": "knowledge-content-projection:a33bcf3984e88d7a265f7cfcb2cff65ceb3171226dec163762931adeceaaf7a8",
+          "role": "code",
+          "visibility": "full_context",
+          "prompt_sha256": "d73f07b834ee50e4cc90820d54be8655fa33475ff76dc8abf99ff496b6ba80b9",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:dd84fe6129a96e49853e531c305b1c1259793db7951e94fbcd0cdc85a78936b3",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "d73f07b834ee50e4cc90820d54be8655fa33475ff76dc8abf99ff496b6ba80b9",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:f0cfe80fe27de363fb8ba225780dd5b820b5dae0b5be94551e07106941ea8800",
+          "cve_id": "CVE-2022-23960",
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+          "knowledge_projection_id": "knowledge-content-projection:a33bcf3984e88d7a265f7cfcb2cff65ceb3171226dec163762931adeceaaf7a8",
+          "role": "hardware",
+          "visibility": "full_context",
+          "prompt_sha256": "76623ea51d2bbba08e10de413e229cf0d995cba3ed535b9ac7043e84d35d509c",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:2e8dbe06c6fd5106e8f1289007044f7604e05ceb902e9567179f31dbe7430115",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "76623ea51d2bbba08e10de413e229cf0d995cba3ed535b9ac7043e84d35d509c",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:a4d50cbe4806b2444dd676e8db960794881e00407d0dda3bb43f8331c9888a62",
+          "cve_id": "CVE-2022-23960",
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+          "knowledge_projection_id": "knowledge-content-projection:a33bcf3984e88d7a265f7cfcb2cff65ceb3171226dec163762931adeceaaf7a8",
+          "role": "vulnerability",
+          "visibility": "full_context",
+          "prompt_sha256": "b4ff039c45527db0239aa74e6618957519dacb38a14afddc55e665b790de13be",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:1432d76632e5bac1dbaeacff4d10da9761792c95d1a84145a9f73ebff29def1a",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "b4ff039c45527db0239aa74e6618957519dacb38a14afddc55e665b790de13be",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:18248088d4180896a34b88fa66aae8a4e2b2db8752303fb598d50b3c60941a43",
+          "cve_id": "CVE-2022-23960",
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+          "knowledge_projection_id": "knowledge-content-projection:a33bcf3984e88d7a265f7cfcb2cff65ceb3171226dec163762931adeceaaf7a8",
+          "role": "attack_chain",
+          "visibility": "full_context",
+          "prompt_sha256": "ef78be738742bd778db7ba8917958b2ea668b4372aa94eec5c1da15cea4cb152",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:9e2abd2f5b28867cbf4a110d3f8ed576a6c58b7f729f992827b93fca72889629",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "ef78be738742bd778db7ba8917958b2ea668b4372aa94eec5c1da15cea4cb152",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:1ea77fcf61ce2dc41965c3faf781a51618f18f738d7f14483611a32c68d31b8f",
+          "cve_id": "CVE-2022-23960",
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+          "knowledge_projection_id": "knowledge-content-projection:a33bcf3984e88d7a265f7cfcb2cff65ceb3171226dec163762931adeceaaf7a8",
+          "role": "code",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "f12b6d5325b0b5f133a0d2ea2a4ea8039319e4d7ffd8b9c777e94d109f35dc80",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:2eea976659e75cf9a392ad37d70c452a1d19aac5a894fe0dae8c4d08e2a0876b",
+            "prompt_sha256": "f12b6d5325b0b5f133a0d2ea2a4ea8039319e4d7ffd8b9c777e94d109f35dc80",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+              "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71",
+              "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:20fe5efa53471f94d423d7b637e195ef24f9dfe79a1275b2ac00f22c165221be",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "f12b6d5325b0b5f133a0d2ea2a4ea8039319e4d7ffd8b9c777e94d109f35dc80",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:7658ca5848a09fb7e2f07b4d22c73a77848d4cb8662d6bb1032c898ece0e8202",
+          "cve_id": "CVE-2022-23960",
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+          "knowledge_projection_id": "knowledge-content-projection:a33bcf3984e88d7a265f7cfcb2cff65ceb3171226dec163762931adeceaaf7a8",
+          "role": "hardware",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "6f1656a22dd1712837574cd6b1bfcc0581a02e30c70a5148e275b1d34752ec6e",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:f2c2a72d0695fbedbb87d5acc3fc1595316926e6dc6b27acdc639916a583824e",
+            "prompt_sha256": "6f1656a22dd1712837574cd6b1bfcc0581a02e30c70a5148e275b1d34752ec6e",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+              "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71",
+              "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:1617c00451a7f0d8ec04690bf0209f2e5a738b0d1ab156e35e41411708a90dca",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "6f1656a22dd1712837574cd6b1bfcc0581a02e30c70a5148e275b1d34752ec6e",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:a1f803820e0b7616674f4b57532c726db71d325203e9d45fc920ac07d3f17d60",
+          "cve_id": "CVE-2022-23960",
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+          "knowledge_projection_id": "knowledge-content-projection:a33bcf3984e88d7a265f7cfcb2cff65ceb3171226dec163762931adeceaaf7a8",
+          "role": "vulnerability",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "24392691ddceb9da084bd1074ba2830089f3621b7808e254cd35b1a7d626f2b9",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:1372ca3b00dccebf9af62dbece5cc43b2fe7a8ed196dfcf4888a559f25d235d7",
+            "prompt_sha256": "24392691ddceb9da084bd1074ba2830089f3621b7808e254cd35b1a7d626f2b9",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+              "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71",
+              "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:db05eafce9917b7eb1520e1a9bd82908262af6334099263c0b85748745c79dc5",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "24392691ddceb9da084bd1074ba2830089f3621b7808e254cd35b1a7d626f2b9",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:47337f32afe7e0973b20429afdbfa999bd3f97f674f81d5fd4d5d2ab56e2d354",
+          "cve_id": "CVE-2022-23960",
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "reasoning_context_id": "reasoning-context:9f8ab9d709d761a22abd8de121a6612b611a099c8f531f5a17a344fb1879ede3",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb",
+          "knowledge_projection_id": "knowledge-content-projection:a33bcf3984e88d7a265f7cfcb2cff65ceb3171226dec163762931adeceaaf7a8",
+          "role": "attack_chain",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "58b4f281074a946c71ebcdbf63d847b76c937b0c6c5f15abdd53c681ae1b252a",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:7b85a57946603d09d59457dddc4836df41d489da3c3372f42aafb48350a7373b",
+            "prompt_sha256": "58b4f281074a946c71ebcdbf63d847b76c937b0c6c5f15abdd53c681ae1b252a",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:44d906fa1310f8079c3cf6836fa596e779a10f52b00f06e6822a2d872941b4c5",
+              "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71",
+              "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:b755513161ae1272ffefc63a88d805f3c9ea0d745413b5eee3ddb2fb44b5428a",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "58b4f281074a946c71ebcdbf63d847b76c937b0c6c5f15abdd53c681ae1b252a",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        }
+      ]
+    },
+    {
+      "id": "public-knowledge-case-readiness:6ea0476617308b975cc21df449fc1f58f48a015fd9bbb7e9b7025366c932881d",
+      "cve_id": "CVE-2023-34320",
+      "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+      "documented_interaction_id": "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+      "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+      "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+      "knowledge_projection_id": "knowledge-content-projection:d16c347cc1a231c651fe9a6a175e00b1d3591cab882449a332b57640f2e6149d",
+      "prompt_assessments": [
+        {
+          "id": "public-knowledge-prompt-assessment:f25fd03e8722a868e7aeab836ea576174a4fc7efa9a75a89d94487010c267b45",
+          "cve_id": "CVE-2023-34320",
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+          "knowledge_projection_id": "knowledge-content-projection:d16c347cc1a231c651fe9a6a175e00b1d3591cab882449a332b57640f2e6149d",
+          "role": "code",
+          "visibility": "full_context",
+          "prompt_sha256": "7677cf56ed1966278eada592864a6692d85c036214f3e032b3c50df17565f624",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:20cf6c8aa2986f912fd6a46bdfe106148f89f294991269b0a4ce153b7d0cedb5",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "7677cf56ed1966278eada592864a6692d85c036214f3e032b3c50df17565f624",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:7156e18ce4889fc1be76973865de70c72d453abf57cd8f72bea8f1d572863f3b",
+          "cve_id": "CVE-2023-34320",
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+          "knowledge_projection_id": "knowledge-content-projection:d16c347cc1a231c651fe9a6a175e00b1d3591cab882449a332b57640f2e6149d",
+          "role": "hardware",
+          "visibility": "full_context",
+          "prompt_sha256": "33558fb1a194bff8440d591f9830cd627938d951249385ebee7a06dcf3f74dc4",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:1a570ce90c5e0818cd4ef8961c0296cc90ced07d65a6c8dd3ddc8363086f0ea3",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "33558fb1a194bff8440d591f9830cd627938d951249385ebee7a06dcf3f74dc4",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:3d1f9e7ed807b077924edad64b99b58dae4354b8803ea5e976a56658b38c9ad5",
+          "cve_id": "CVE-2023-34320",
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+          "knowledge_projection_id": "knowledge-content-projection:d16c347cc1a231c651fe9a6a175e00b1d3591cab882449a332b57640f2e6149d",
+          "role": "vulnerability",
+          "visibility": "full_context",
+          "prompt_sha256": "76ba90c359347888ef2c68e905cf01832f88201f6d6f170989376bb12213cf5f",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:ea04395c990bd3bc086047f88ffd6c45a5407ed0f6a7a1d23fedee80b9595d4d",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "76ba90c359347888ef2c68e905cf01832f88201f6d6f170989376bb12213cf5f",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:2373936a3208556d2d57f4197e1783f43bf63b5db9336da9e2245164da31d6fa",
+          "cve_id": "CVE-2023-34320",
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+          "knowledge_projection_id": "knowledge-content-projection:d16c347cc1a231c651fe9a6a175e00b1d3591cab882449a332b57640f2e6149d",
+          "role": "attack_chain",
+          "visibility": "full_context",
+          "prompt_sha256": "c952158ca61ebae8f7496eb027272f967a7581a63c11633793d343e74df8467f",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:98d2487f865021e30fb921e23c46b1ce5afd6601cbbaa40846f0a12eed072329",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "c952158ca61ebae8f7496eb027272f967a7581a63c11633793d343e74df8467f",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:587a93fbf8cc4aa3504f319da60eb48aad7b569797b9dd8670b5e5a3e932bcb6",
+          "cve_id": "CVE-2023-34320",
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+          "knowledge_projection_id": "knowledge-content-projection:d16c347cc1a231c651fe9a6a175e00b1d3591cab882449a332b57640f2e6149d",
+          "role": "code",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "4a09add4e2c690ced6715b46d30f411c600baca3b67470d43c6450d8d6cde1cc",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:f980712bb455dc176cc6abbe1616a789c78e1ef48fd910c2c0aa03a5d94eb149",
+            "prompt_sha256": "4a09add4e2c690ced6715b46d30f411c600baca3b67470d43c6450d8d6cde1cc",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+              "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513",
+              "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:ed5d133bd17595d367184429c36d1ee63817b585b682a44d1cc1d4a194824487",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "4a09add4e2c690ced6715b46d30f411c600baca3b67470d43c6450d8d6cde1cc",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:72c01378888cf08bd0b1d816e521d21840df616bfe53cfe5c361e2a4504756e1",
+          "cve_id": "CVE-2023-34320",
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+          "knowledge_projection_id": "knowledge-content-projection:d16c347cc1a231c651fe9a6a175e00b1d3591cab882449a332b57640f2e6149d",
+          "role": "hardware",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "ed0d37d72f4ccca70c255458ad860535b7f236315b851bba99cc47e8fa608b1a",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:3bdf4c47f29b70631801ddb8098e518bac06e2038f444d542f19b7be83aeb8cb",
+            "prompt_sha256": "ed0d37d72f4ccca70c255458ad860535b7f236315b851bba99cc47e8fa608b1a",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+              "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513",
+              "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:28f43499199c4cbfdc130b95c274a70c033417b45d27e836b9789bf2354883bd",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "ed0d37d72f4ccca70c255458ad860535b7f236315b851bba99cc47e8fa608b1a",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:706f01e0b9b96efca2b90b814db7c831b295a2b185e64f0f9e81616929766a7f",
+          "cve_id": "CVE-2023-34320",
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+          "knowledge_projection_id": "knowledge-content-projection:d16c347cc1a231c651fe9a6a175e00b1d3591cab882449a332b57640f2e6149d",
+          "role": "vulnerability",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "3164f0a1166332094991eb0d4e8afc57b23201c220ba00cfcab5400c8e80f9cd",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:8edad6576712d8fb680f95849283abeb1cace965758300721fea33a0f133d003",
+            "prompt_sha256": "3164f0a1166332094991eb0d4e8afc57b23201c220ba00cfcab5400c8e80f9cd",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+              "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513",
+              "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:c055c82c230e01bd5a471a235ec9af16d0f1e1f87c253335a0dd168a6ef040a1",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "3164f0a1166332094991eb0d4e8afc57b23201c220ba00cfcab5400c8e80f9cd",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:0e3bd38ee4b074675164ba3f864f5be971a9a9c5db364648454236192df99e7a",
+          "cve_id": "CVE-2023-34320",
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "reasoning_context_id": "reasoning-context:efb28cbf0e867d7877f87ca8dfda118e57ae8cbefeb2f235e6acb0ca3d36d5e4",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d",
+          "knowledge_projection_id": "knowledge-content-projection:d16c347cc1a231c651fe9a6a175e00b1d3591cab882449a332b57640f2e6149d",
+          "role": "attack_chain",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "785fff8651812e2a5c6d53ea5e88317a3dc76f6544c40ad46e45739c38c62e5e",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:eab090d377b84a578fec0172a8fd89a31e95f5dab3b6701ac9bb3387b60b217d",
+            "prompt_sha256": "785fff8651812e2a5c6d53ea5e88317a3dc76f6544c40ad46e45739c38c62e5e",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:385cb79780cbd7ae90a1a0da7fa94f50d438f7e7985c505502019f77254c2ee5",
+              "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513",
+              "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:86137844e2e47a18d56496a50a3bcfe25ee0e37a56f1257d63359aeb9d84baf1",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "785fff8651812e2a5c6d53ea5e88317a3dc76f6544c40ad46e45739c38c62e5e",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        }
+      ]
+    },
+    {
+      "id": "public-knowledge-case-readiness:7ef63fb21dfee351a46e403683e0c712d3dc54cad9850e8639477d6d4db3b16a",
+      "cve_id": "CVE-2023-52481",
+      "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+      "documented_interaction_id": "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+      "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+      "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+      "knowledge_projection_id": "knowledge-content-projection:040c9a33c653779df5cc9d0f92e64f2736353f559466147a810259f129c01546",
+      "prompt_assessments": [
+        {
+          "id": "public-knowledge-prompt-assessment:2fafd2b981e32c055acefea84a813384e0825bab7c554e62d6189067ca090dba",
+          "cve_id": "CVE-2023-52481",
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+          "knowledge_projection_id": "knowledge-content-projection:040c9a33c653779df5cc9d0f92e64f2736353f559466147a810259f129c01546",
+          "role": "code",
+          "visibility": "full_context",
+          "prompt_sha256": "fef644067670b7a900d2598ea08f9755e1728f4b562f011a1f81bd02bc82858e",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:51ec5ad69edfb85e0c2a95a4d26063c606f4d2574d5884a4e9987f88ea13e789",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "fef644067670b7a900d2598ea08f9755e1728f4b562f011a1f81bd02bc82858e",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:deb0d2c6b111fd4f05c25298af138c42a00b0fac4c509011d6d1ee935077ec7e",
+          "cve_id": "CVE-2023-52481",
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+          "knowledge_projection_id": "knowledge-content-projection:040c9a33c653779df5cc9d0f92e64f2736353f559466147a810259f129c01546",
+          "role": "hardware",
+          "visibility": "full_context",
+          "prompt_sha256": "f42d19074448e499fbc640ce55af52b31bac9d70fd0c1aaa6bd745cae98598dd",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:be6f6257f4ea9ecd1cbdcc5b40f257821eaf09d3471e4ccf96d707914b017d06",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "f42d19074448e499fbc640ce55af52b31bac9d70fd0c1aaa6bd745cae98598dd",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:15007d81fed1d6f98002cc00ed27ddb39da51a9dd7ffb079ff601226250ded3c",
+          "cve_id": "CVE-2023-52481",
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+          "knowledge_projection_id": "knowledge-content-projection:040c9a33c653779df5cc9d0f92e64f2736353f559466147a810259f129c01546",
+          "role": "vulnerability",
+          "visibility": "full_context",
+          "prompt_sha256": "165182484c679ac7ff127ce9fe3d4914c0c44117c1570432b33986b3f57f3339",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:5eebe07faf5b75f2667da69ca0b9190a30d44dd816467200fa082a39ff95e23e",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "165182484c679ac7ff127ce9fe3d4914c0c44117c1570432b33986b3f57f3339",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:d450d4367ea0a75800d22288ba72b867250da572a701407e320b5dc6af8354e8",
+          "cve_id": "CVE-2023-52481",
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+          "knowledge_projection_id": "knowledge-content-projection:040c9a33c653779df5cc9d0f92e64f2736353f559466147a810259f129c01546",
+          "role": "attack_chain",
+          "visibility": "full_context",
+          "prompt_sha256": "9f4fd8ca43a14c0ee13ed822dedf0557d47abdd850b46d43e0f4ee249d830c38",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:24f8afb1012a8473cd4039c57d684c6c02b9418a69d67c7d57aac48a7a98177d",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "9f4fd8ca43a14c0ee13ed822dedf0557d47abdd850b46d43e0f4ee249d830c38",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:610920b6e4b83676cabe3f38379a3443990486d8c99dbc497b3c47b7bd824b02",
+          "cve_id": "CVE-2023-52481",
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+          "knowledge_projection_id": "knowledge-content-projection:040c9a33c653779df5cc9d0f92e64f2736353f559466147a810259f129c01546",
+          "role": "code",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "2c0df2e8ffa1c47a4632de6b0a109b3ff9a8a0eb60a02bfc1494e06d56056779",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:85a35446371162a078a0699ec861ef47d4bd22bc7ed71650f9f80ce2dde8e502",
+            "prompt_sha256": "2c0df2e8ffa1c47a4632de6b0a109b3ff9a8a0eb60a02bfc1494e06d56056779",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+              "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2",
+              "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:5f5a9890361dc2b44374e92e9d6072b20677412094e517bfd08d747bc7cd9e5e",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "2c0df2e8ffa1c47a4632de6b0a109b3ff9a8a0eb60a02bfc1494e06d56056779",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:0768390b8d0c69dee9979840e344af3c48ae88076f6cb5479157f66ebe7ab661",
+          "cve_id": "CVE-2023-52481",
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+          "knowledge_projection_id": "knowledge-content-projection:040c9a33c653779df5cc9d0f92e64f2736353f559466147a810259f129c01546",
+          "role": "hardware",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "9b1a3a5dfb61c31fd8835a6914af180a1862d4f7e03304f2032abfe7609f06f2",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:1b7f3b331ec94637f158cc1ba093e963633bfc3388bc77d2241690ef7c15a776",
+            "prompt_sha256": "9b1a3a5dfb61c31fd8835a6914af180a1862d4f7e03304f2032abfe7609f06f2",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+              "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2",
+              "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:028ad4f3811a5fa8d0fb94819c267676e1b2a94ae38d6bab5e294cc6d07df0cc",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "9b1a3a5dfb61c31fd8835a6914af180a1862d4f7e03304f2032abfe7609f06f2",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:d624ca8bbface20b1b74cbf65fbd8b24407f952fc88ab7b2690b42f0826b2014",
+          "cve_id": "CVE-2023-52481",
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+          "knowledge_projection_id": "knowledge-content-projection:040c9a33c653779df5cc9d0f92e64f2736353f559466147a810259f129c01546",
+          "role": "vulnerability",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "e19f4bf1f9feee4e77b2a30a63e8e0076236283ddf5ed0d40c370e18f02de0e7",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:f7e68cf48960b9243fce4fc2251288ca10223462c21b13c1f38f31887a721fc5",
+            "prompt_sha256": "e19f4bf1f9feee4e77b2a30a63e8e0076236283ddf5ed0d40c370e18f02de0e7",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+              "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2",
+              "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:9bed2fece3ca5acafffa96a80f3bb77fc4a8c997d75a6eaf9083d747ea0ae558",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "e19f4bf1f9feee4e77b2a30a63e8e0076236283ddf5ed0d40c370e18f02de0e7",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:558c8ff90b922119e8394fc022619495b7ad89f114983301b6bdc2520b8aef31",
+          "cve_id": "CVE-2023-52481",
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "reasoning_context_id": "reasoning-context:9dda1f4afb85dd2a65eae2c3210b09e820c17b4e32742c170cd3bedacc588ed0",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831",
+          "knowledge_projection_id": "knowledge-content-projection:040c9a33c653779df5cc9d0f92e64f2736353f559466147a810259f129c01546",
+          "role": "attack_chain",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "5077d560afbf504c9a426ced155385d5fec26336ea94967e349fe49635e2a2c4",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:b8708ea4434fc5cc4b1d5fd0dc8da9343474a22e8cb865ff5ffacb41ce8774fa",
+            "prompt_sha256": "5077d560afbf504c9a426ced155385d5fec26336ea94967e349fe49635e2a2c4",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:f4ee301ab7567f70d8a66d16db8a036fb6b84fe7643cd7627e0ba7fb27a7ea28",
+              "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2",
+              "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:c2a3f64e80d990566f1aa716167fd5f901389a25496f95b5b08e5e25eda33ecb",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "5077d560afbf504c9a426ced155385d5fec26336ea94967e349fe49635e2a2c4",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        }
+      ]
+    },
+    {
+      "id": "public-knowledge-case-readiness:e18888c46953b9759ca928648e1539127c416dfb4bdd610ec378d6c56d049cde",
+      "cve_id": "CVE-2024-26670",
+      "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+      "documented_interaction_id": "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+      "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+      "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+      "knowledge_projection_id": "knowledge-content-projection:fa39da6e92b3bc5491328aa459d59c8cef3e819d20af727f064751e2572517c8",
+      "prompt_assessments": [
+        {
+          "id": "public-knowledge-prompt-assessment:7b3a97da571d9d4701b654450a81b60a51b3de76001cff133ceedb088204e987",
+          "cve_id": "CVE-2024-26670",
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+          "knowledge_projection_id": "knowledge-content-projection:fa39da6e92b3bc5491328aa459d59c8cef3e819d20af727f064751e2572517c8",
+          "role": "code",
+          "visibility": "full_context",
+          "prompt_sha256": "fdb3556f3f0a11a0fbd86795e48a6cd36bda824ee44597c55a9adcd1c9ede7d5",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:6eed7395e4f705aecb77408058ea933ba2e98c6333f8ff7a4611f2ee56123bd3",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "fdb3556f3f0a11a0fbd86795e48a6cd36bda824ee44597c55a9adcd1c9ede7d5",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:762142535cebc6ab9309e141a032c49814f37e9e57240c18a4e41760d1e81fde",
+          "cve_id": "CVE-2024-26670",
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+          "knowledge_projection_id": "knowledge-content-projection:fa39da6e92b3bc5491328aa459d59c8cef3e819d20af727f064751e2572517c8",
+          "role": "hardware",
+          "visibility": "full_context",
+          "prompt_sha256": "4c469095704fc493fccecce0831b5f5194cfe6183eb0cda949561682fd2e6c0a",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:406181513636d60bd24bff23c805ff9d5f36fd868bd00c72b95561d2cb32c7c5",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "4c469095704fc493fccecce0831b5f5194cfe6183eb0cda949561682fd2e6c0a",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:83d2b751587990b9078e2398cd0d20b130be4324951fe1f06abc1ca73b86ca43",
+          "cve_id": "CVE-2024-26670",
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+          "knowledge_projection_id": "knowledge-content-projection:fa39da6e92b3bc5491328aa459d59c8cef3e819d20af727f064751e2572517c8",
+          "role": "vulnerability",
+          "visibility": "full_context",
+          "prompt_sha256": "52f2117f1b7dfe2c28c34e862e1a1315703c402c80e290bb6121f12530a76512",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:ff10d2b8bde79057669fb8cdbabfd3b980c43dff4f23ce72538822d4b964ad33",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "52f2117f1b7dfe2c28c34e862e1a1315703c402c80e290bb6121f12530a76512",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:475cc2e16629e9c984b9bed2d1060f46c59b106d0281dce608a6ce583daf79f5",
+          "cve_id": "CVE-2024-26670",
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+          "knowledge_projection_id": "knowledge-content-projection:fa39da6e92b3bc5491328aa459d59c8cef3e819d20af727f064751e2572517c8",
+          "role": "attack_chain",
+          "visibility": "full_context",
+          "prompt_sha256": "b2b7cb83788d846cf330b879412f5b365c6a2ce22a8828b33e9978a8fdbd4ddc",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:8a781095386ec5732610f9c8617cfb957b5c827e8643171b0041554227e04a9c",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "b2b7cb83788d846cf330b879412f5b365c6a2ce22a8828b33e9978a8fdbd4ddc",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:e2df31ed50edbb0f48cf3e518c7122c0996214fe1e005771019b7178c7d67fa0",
+          "cve_id": "CVE-2024-26670",
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+          "knowledge_projection_id": "knowledge-content-projection:fa39da6e92b3bc5491328aa459d59c8cef3e819d20af727f064751e2572517c8",
+          "role": "code",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "097817d3386cd0fa63c7ef427d39cc093e637584beeb50d52da388d98ad64f88",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:3e7f81c3c1adb06eb6e4c61abe541bfde2ea7b4a401399fcedf50edaa6641035",
+            "prompt_sha256": "097817d3386cd0fa63c7ef427d39cc093e637584beeb50d52da388d98ad64f88",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+              "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add",
+              "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8",
+              "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:e4e2390722504c02cd8c69b6d09ad88c3dfa74d9116ba9e0894bd52d5663bf14",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "097817d3386cd0fa63c7ef427d39cc093e637584beeb50d52da388d98ad64f88",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:600241a58dcdb76b5879ced17da9807b5b35500a6668c3be5cc2d9aeb78f39df",
+          "cve_id": "CVE-2024-26670",
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+          "knowledge_projection_id": "knowledge-content-projection:fa39da6e92b3bc5491328aa459d59c8cef3e819d20af727f064751e2572517c8",
+          "role": "hardware",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "00a7780375b318767afb678cf2ffb5c4af19184dfa242d18d92d7bb149e5a9aa",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:83c47d08cfa7f426126c8c153ecbcbcd5928a1712aa7a1ddbda96ae390210c7c",
+            "prompt_sha256": "00a7780375b318767afb678cf2ffb5c4af19184dfa242d18d92d7bb149e5a9aa",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+              "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add",
+              "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8",
+              "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:f1282276d4b7679e20e5fe636a4a22b23a6f0b31ca48abf0050113bae0cc0930",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "00a7780375b318767afb678cf2ffb5c4af19184dfa242d18d92d7bb149e5a9aa",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:1325d37c94756e9d417379aa49fa29d5a735a6c587d7c95ec0f8e3702cc091b8",
+          "cve_id": "CVE-2024-26670",
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+          "knowledge_projection_id": "knowledge-content-projection:fa39da6e92b3bc5491328aa459d59c8cef3e819d20af727f064751e2572517c8",
+          "role": "vulnerability",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "6684be4c41f92a03d6695d1ba524af27d794c274ecf1f3a96bfcc2136dc09c8f",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:29fd6142490ebb965cfbe31b88b646be38f7b8ad16d4a46603b809b945600ed0",
+            "prompt_sha256": "6684be4c41f92a03d6695d1ba524af27d794c274ecf1f3a96bfcc2136dc09c8f",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+              "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add",
+              "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8",
+              "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:7db5cba790f7b33feed4d513087f4f66d3c49e2ae1ecb8675278cd845a3dd4a8",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "6684be4c41f92a03d6695d1ba524af27d794c274ecf1f3a96bfcc2136dc09c8f",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:c9b3680ded415b112ed0855241ed42cc8b4739f385c5ae85aca25de914255ded",
+          "cve_id": "CVE-2024-26670",
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "reasoning_context_id": "reasoning-context:d5de2cb89c686cc3f92d3c39143d020cfa33a7f4c3969ba64da95ebd1bf7e0a6",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd",
+          "knowledge_projection_id": "knowledge-content-projection:fa39da6e92b3bc5491328aa459d59c8cef3e819d20af727f064751e2572517c8",
+          "role": "attack_chain",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "2bfd4407231ac1e7a9e803012f1a9a357340b7d7af35267dbf3adb484c560acf",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:e9ba0fe343c84e0d58fbdafd1bf35609da55da999c715bcdb623e0c047dd3724",
+            "prompt_sha256": "2bfd4407231ac1e7a9e803012f1a9a357340b7d7af35267dbf3adb484c560acf",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:285c1af57fcb9a98962206b7180c8d9d711a73eb94c61ccba62f2d5f1d1c2207",
+              "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add",
+              "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8",
+              "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:675eaf1965ec9c072999b3d7dcb03b68def3bc7870120568b458d203fcbc972a",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "2bfd4407231ac1e7a9e803012f1a9a357340b7d7af35267dbf3adb484c560acf",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        }
+      ]
+    },
+    {
+      "id": "public-knowledge-case-readiness:45fa36b2ef32511e4acae7b8044628ad849e2768ff7d089f113861fecace9896",
+      "cve_id": "CVE-2025-10263",
+      "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+      "documented_interaction_id": "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+      "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+      "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+      "knowledge_projection_id": "knowledge-content-projection:14baa4c1b076374037d02ce41c44181d9601008d4e0649fd58bf781c12ce4509",
+      "prompt_assessments": [
+        {
+          "id": "public-knowledge-prompt-assessment:7514360b451ad8a70129dbc545152fd697da591e1ff74d676070609e96b3921f",
+          "cve_id": "CVE-2025-10263",
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+          "knowledge_projection_id": "knowledge-content-projection:14baa4c1b076374037d02ce41c44181d9601008d4e0649fd58bf781c12ce4509",
+          "role": "code",
+          "visibility": "full_context",
+          "prompt_sha256": "a7fb4a20c38582846bf35b670859601752925014ba5846b842f09a6386598a1d",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:be1e3f867e0fbe2a47b1f4a6687a29f6336096ac839c1ef035ecec928fc832bf",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "a7fb4a20c38582846bf35b670859601752925014ba5846b842f09a6386598a1d",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:f52b0d4b3e6fde7415b6799f469a42222f1efc003dfa26680912af3645dbf913",
+          "cve_id": "CVE-2025-10263",
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+          "knowledge_projection_id": "knowledge-content-projection:14baa4c1b076374037d02ce41c44181d9601008d4e0649fd58bf781c12ce4509",
+          "role": "hardware",
+          "visibility": "full_context",
+          "prompt_sha256": "619be65169a691873ea30d77016fd4893cf202f94476b48a2bcccf2c4f4a7da6",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:f80c8be1cdfbb89138bc9c08c96923c1128d061e4f77190a471e67bd93c0430f",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "619be65169a691873ea30d77016fd4893cf202f94476b48a2bcccf2c4f4a7da6",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:311d8f2326be1d1309a2279e0f1ba921cda05725884237919d796a279a4b8bd7",
+          "cve_id": "CVE-2025-10263",
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+          "knowledge_projection_id": "knowledge-content-projection:14baa4c1b076374037d02ce41c44181d9601008d4e0649fd58bf781c12ce4509",
+          "role": "vulnerability",
+          "visibility": "full_context",
+          "prompt_sha256": "5b496b5338c242d23d2f4b23355677b4b561c93ef6097ca33b5e1fe07e915b53",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:f80aeeed19543346c86ada528a093dd72946ba0f7a5e6c4c19526f652593294a",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "5b496b5338c242d23d2f4b23355677b4b561c93ef6097ca33b5e1fe07e915b53",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:823513969db455b31d66cd23ec5c2fe09cb2720e3e192cbfc7d06189da90bd1c",
+          "cve_id": "CVE-2025-10263",
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+          "knowledge_projection_id": "knowledge-content-projection:14baa4c1b076374037d02ce41c44181d9601008d4e0649fd58bf781c12ce4509",
+          "role": "attack_chain",
+          "visibility": "full_context",
+          "prompt_sha256": "a7ab4a1c723c74ff5779cb23bc1ce20f21ae611d7f322f9e6c117011acd38bda",
+          "visibility_audit": null,
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:fd04de86c6816ed33f7109fab393ede74a528adbdf1fa538d0d16ffb63207a95",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "a7ab4a1c723c74ff5779cb23bc1ce20f21ae611d7f322f9e6c117011acd38bda",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:3c07ab2db580b5ff828025cbbc2cd26597be143c63b4f9cecbe3cfbd04b21b11",
+          "cve_id": "CVE-2025-10263",
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+          "knowledge_projection_id": "knowledge-content-projection:14baa4c1b076374037d02ce41c44181d9601008d4e0649fd58bf781c12ce4509",
+          "role": "code",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "9f54990761740558357b7b9b5fb36890e5f82b006b41317b815ffbeb5aea9555",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:10316c232928b98b4a4cd2ca79d2245bde49316fc92b732e7a159605f9b77ec4",
+            "prompt_sha256": "9f54990761740558357b7b9b5fb36890e5f82b006b41317b815ffbeb5aea9555",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+              "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7",
+              "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:658472745bde8b82c27f13ebcec78fec693298ee8972f0fef31784969f64d7e3",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "9f54990761740558357b7b9b5fb36890e5f82b006b41317b815ffbeb5aea9555",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:1f3f99f598e55364105f5bd83ba038caf318d57b1fcdb164b6f76985728e6c49",
+          "cve_id": "CVE-2025-10263",
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+          "knowledge_projection_id": "knowledge-content-projection:14baa4c1b076374037d02ce41c44181d9601008d4e0649fd58bf781c12ce4509",
+          "role": "hardware",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "ef80e2ff78e0ec9294272b0c05f491b608396c32d251b6cb435266388f344ee3",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:3c3bf8335a72a9227cb4c9bb391d1016f7e2e2032272a0d5fd2b01db0e102472",
+            "prompt_sha256": "ef80e2ff78e0ec9294272b0c05f491b608396c32d251b6cb435266388f344ee3",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+              "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7",
+              "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:830aa635bfb78b5f64eb54d325716808a6f63855f5982f0f0cda15f804df3188",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "ef80e2ff78e0ec9294272b0c05f491b608396c32d251b6cb435266388f344ee3",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:b1d1cfaf777cca7ef20aff80f2587c7fbeac1d05af4706e9a1240deec2b1e273",
+          "cve_id": "CVE-2025-10263",
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+          "knowledge_projection_id": "knowledge-content-projection:14baa4c1b076374037d02ce41c44181d9601008d4e0649fd58bf781c12ce4509",
+          "role": "vulnerability",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "6d2d9bee278f10be88ac5ebb8c1aab8e4e3fc16b18cb3d3cf22ebff4b8c73073",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:f7be755b520e7290310fbdc8f98666995857153b9a0f11a1884b018724526844",
+            "prompt_sha256": "6d2d9bee278f10be88ac5ebb8c1aab8e4e3fc16b18cb3d3cf22ebff4b8c73073",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+              "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7",
+              "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:a9571c680a88bc5afddf4682e3bc7336fff32d07b9c790fab2e0e8d686dc0a98",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "6d2d9bee278f10be88ac5ebb8c1aab8e4e3fc16b18cb3d3cf22ebff4b8c73073",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        },
+        {
+          "id": "public-knowledge-prompt-assessment:d19d688b5e737857fdcb0fcda246df4b926f8f25e03e1cbd99ddca4a5565bfeb",
+          "cve_id": "CVE-2025-10263",
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "reasoning_context_id": "reasoning-context:3cc8e945e626363a2e88443df361cacbd897840a42d4eacaa4671966b060e238",
+          "knowledge_entry_id": "vulnerability-knowledge-entry:e4ee3ae67d42720e5539d524626faff7d32a1bc0bfedf32487101e53b551cf77",
+          "knowledge_projection_id": "knowledge-content-projection:14baa4c1b076374037d02ce41c44181d9601008d4e0649fd58bf781c12ce4509",
+          "role": "attack_chain",
+          "visibility": "masked_chain_context",
+          "prompt_sha256": "0dc51fd9cefc07516a0fc72090795be180190aace74041842242e0691ca80b69",
+          "visibility_audit": {
+            "id": "prompt-visibility-audit:bfd0dd713cd58c9d60d8514177d9cf6eee6e2a1f879c7d723f8e307fa47e090d",
+            "prompt_sha256": "0dc51fd9cefc07516a0fc72090795be180190aace74041842242e0691ca80b69",
+            "hidden_reference_ids": [
+              "cross-layer-interaction:arm:1235469ee284cbefa159c4da25b7c3272eaf41814c5462033e5ac5eb258e2063",
+              "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7",
+              "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+            ],
+            "leaked_reference_ids": [],
+            "status": "pass",
+            "metadata": {}
+          },
+          "leakage_audit": {
+            "id": "public-knowledge-leakage-audit:2ba969d4f390f1fb867330a74afb20dd972d65debe723163a601cb1883f3b6cd",
+            "contract": "phase10d_public_knowledge_leakage_audit_v1",
+            "prompt_sha256": "0dc51fd9cefc07516a0fc72090795be180190aace74041842242e0691ca80b69",
+            "detected_forbidden_field_names": [],
+            "detected_forbidden_value_sha256s": [],
+            "status": "pass"
+          },
+          "cve_external_id_visible": true,
+          "knowledge_entry_id_visible": true,
+          "title_visible": true,
+          "summary_visible": true,
+          "affected_components_visible": true,
+          "public_references_visible": true
+        }
+      ]
+    }
+  ],
+  "readiness_result": "ready_for_public_provider"
+}

@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0 与 Step 8B-1A 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A 与 Step 8B-1B 已完成；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -645,8 +645,24 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 现有 oracle 对无 triggerability 的四个 Type II 与一个 Type I 均保持 `UNRESOLVED`；SECONDARY case
   不进入 verification hit rate、Ground Truth recall、negative-control false-positive rate 或 PRIMARY coverage
 
-后续工作：如需执行 public provider，必须另行设计可审计的 descriptive public content projection 并通过
-readiness gate；不得用 participant ID、metadata 或 fake Evidence 编码答案。对 `NEXT_OBJECTIVE_CANDIDATE`
+#### Phase 10D Step 8B-1B：Versioned Public Knowledge Content Projection（已完成实现）
+
+- [x] 新增 `phase10d_public_knowledge_content_projection_v1`，只从 Context 精确引用的 validated
+  `VulnerabilityKnowledgeEntry(CVE)` 投影 entry ID/kind、external ID、architecture、title、summary、
+  affected components 与 references；metadata 和 curator/evaluation/objective 字段均不进入 projection
+- [x] `ReasoningContext` 继续只承担 reference binding，identity 与字段未改变；projection 是单独、typed、
+  deterministic 的 provider-visible attachment，缺失/额外/重复/跨架构/non-CVE/stale entry 全部拒绝
+- [x] 新增显式 `build_with_knowledge_projection()`；legacy `build()`/`build_for_projection_contract()` 未改
+  byte semantics，冻结 Step 8B-1A public Prompt SHA 有 exact regression
+- [x] FULL/MASKED 使用同一 projection；5×4×2 prompts 均暴露 external ID、entry ID、title、summary、
+  components 与 references，20 个 MASKED hidden-reference audit 全部 PASS
+- [x] versioned structured-label leakage audit 检查最终 serialized prompt 的 forbidden keys 与 exact values；
+  全部 40 个 prompt 为 PASS，detected value 仅允许以 SHA-256 记账
+- [x] 新 readiness artifact 精确引用 frozen Step 8B-1A cohort 并保持全部 case/interaction/context/knowledge
+  IDs；结果为 `READY_FOR_PUBLIC_PROVIDER`，但本步骤未连接或调用 Provider，也不产生性能结论
+
+后续工作：public Provider execution wiring 必须作为后续独立步骤，在本 projection/prompt contract 冻结后
+另行评审；不得用 participant ID、metadata 或 fake Evidence 编码答案。对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能
 脱离 Type II exact candidate binding 被通用映射为 `CONFIRMED_FEASIBLE`。
 

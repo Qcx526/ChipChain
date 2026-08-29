@@ -38,3 +38,17 @@ python scripts/build_public_secondary_cohort.py --write
 SHA-256 与 MASKED visibility audit，不包含 raw prompt、provider response、model output、runtime Evidence、
 triggerability 或 benchmark result。当前 readiness 为 `REFERENCE_CONTENT_INSUFFICIENT`，因为实际 prompt
 没有承载 public references 或描述性漏洞文本；这不会改变 PRIMARY metrics，也不构成 public-CVE hit rate。
+
+Step 8B-1B 不重写上述 frozen artifact。运行：
+
+```bash
+python scripts/build_public_knowledge_readiness.py --check
+python scripts/build_public_knowledge_readiness.py --write
+```
+
+会从 frozen Step 8B-1A cohort 与 generated corpus 中已绑定的 `VulnerabilityKnowledgeEntry`，离线生成
+`evaluation/public_documented_arm_secondary_knowledge_projection_v1.json`。新 artifact 只保存 projection
+ID、case/context/interaction/knowledge bindings、FULL/MASKED Prompt SHA-256、MASKED visibility audit、
+structured-label leakage audit 与 visibility booleans，不保存 raw Prompt、knowledge metadata、Provider
+response 或模型输出。FULL/MASKED 获得相同的 title/summary/components/references public reference content；
+当前 readiness 为 `READY_FOR_PUBLIC_PROVIDER`，但这不表示 Provider 已执行、漏洞已验证或指标已产生。

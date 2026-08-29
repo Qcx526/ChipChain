@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step8b0-stable`
-- Stable commit: `636253361accd7c9ec63056f8ff85e1dfb2bd94e`
-- Baseline: Phase 10D Step 8B-0 final accepted and frozen
+- Stable tag: `phase-10d-step8b1a-stable`
+- Stable commit: `4cc3e7e7edc822f6180c84182a995c0281aefdba`
+- Baseline: Phase 10D Step 8B-1A final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -34,16 +34,21 @@
 - Phase 10D Step 8A public CVE research intake, profile-aware admission staging, and issue-level deduplication
 - Phase 10D Step 8B-0 single-source public corpus build and byte-stable generated snapshot workflow
 - Phase 10D Step 8B-1A five-case public-documented SECONDARY materialization and exact prompt-readiness audit
+- Phase 10D Step 8B-1B versioned neutral public-knowledge projection and structured prompt leakage audit
 
 ## Current Work
 
-Phase 10D Step 8B-1A derives five A-profile `PUBLIC_DOCUMENTED` / `SECONDARY_ONLY` cases from the
-single source and deterministic corpus. The separate selection document contains only CVE and software
-source-layer choices. Per-case source hashes, documented interactions, knowledge bindings, contexts,
-FULL/MASKED prompt hashes and MASKED audits are materialized offline. The actual prompts expose CVE IDs,
-components and knowledge-entry references but no public descriptive vulnerability content or stable public
-references, so the cohort fails closed as `REFERENCE_CONTENT_INSUFFICIENT`. No prompt contract was changed
-and no real provider was invoked.
+Phase 10D Step 8B-1B adds an explicit versioned attachment that projects only neutral fields from each
+context-bound `VulnerabilityKnowledgeEntry`: identity/kind, external ID, architecture, title, summary,
+components and references. `ReasoningContext` remains reference-only and unchanged. Legacy prompt bytes
+remain frozen; only the new explicit builder path adds the projection contract, projection ID and public
+reference content. FULL and MASKED receive identical knowledge content while Step 7 continues to hide
+chain-answer references from MASKED.
+
+All 40 projected public prompts expose the required neutral content, all 20 MASKED exact-reference audits
+pass, and the separate structured-label audit finds no curator/evaluation field or exact forbidden value.
+The new offline artifact is therefore `READY_FOR_PUBLIC_PROVIDER`. This is input-contract readiness only:
+no provider has been called and no model output or performance result exists.
 
 These documented Ground Truth annotations are SECONDARY reasoning-evaluation inputs, not objective
 verification. They contain no HardwareTriggerSignature, runtime observation, Evidence, triggerability or
@@ -56,7 +61,7 @@ firewall failed closed. Phase 9C Step 3B remains deferred.
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- an explicit, separately reviewed projection of descriptive public content before any public-provider run
+- separately reviewed public-provider execution wiring after the projection contract is frozen
 - objective evidence review and explicit PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation

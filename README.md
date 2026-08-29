@@ -63,6 +63,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10D Step 8B-0 single-source public CVE builder、derived IDs 与 byte-stable committed snapshot
 - Phase 10D Step 8B-1A 五条 public-documented SECONDARY cohort、FULL/MASKED hash audit 与
   model-visible content readiness gate
+- Phase 10D Step 8B-1B versioned neutral public-knowledge projection、legacy Prompt compatibility 与
+  structured-label leakage audit
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -675,6 +677,23 @@ documented Type I/II interaction、唯一 knowledge-entry binding 与没有 runt
 结果是 `REFERENCE_CONTENT_INSUFFICIENT`；本步骤不修改 prompt、masking 或检索合同，也没有调用真实
 Provider。SECONDARY cohort 完全排除在 PRIMARY hit rate、recall、false-positive rate 与 coverage 之外，
 目前没有 public-CVE hit-rate 声明。
+
+## Phase 10D Step 8B-1B Public Knowledge Projection
+
+Step 8B-1B 保持 `ReasoningContext` 为纯 structural/reference binding，并新增独立的
+`phase10d_public_knowledge_content_projection_v1` attachment。Projection 只能从 Context 精确绑定且已通过
+deterministic ID revalidation 的 `VulnerabilityKnowledgeEntry(CVE)` 构造，只向模型暴露 entry ID/kind、
+external ID、architecture、title、summary、affected components 与 public references；knowledge metadata、
+curator classification/admission/trigger/precondition/effect 字段、Ground Truth、objective status 与 metrics
+均不进入 attachment。
+
+`RoleBasedReasoningPromptBuilder.build_with_knowledge_projection()` 是显式新路径，原 `build()` 与历史
+projection-contract 路径字节不变。FULL 与 MASKED 接收同一份 public reference content，MASKED 仍按冻结
+Step 7 policy 隐藏 chain-answer context。最终 serialized Prompt 同时经过 exact hidden-reference audit 和
+versioned structured-label leakage audit；新的 hash-only readiness artifact 为
+`READY_FOR_PUBLIC_PROVIDER`。这只说明离线 Prompt 输入合同已就绪：public reference content 不是 Evidence、
+Ground Truth、漏洞 verdict、因果证明或 model-authored content，且尚未调用任何真实 Provider、未产生模型
+性能结果。
 
 ## 文档导航
 

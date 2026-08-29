@@ -33,6 +33,13 @@ from chipchain.reasoning.errors import (
     RetrievalError,
 )
 from chipchain.reasoning.hypothesis import AttackHypothesis, attack_hypothesis_id
+from chipchain.reasoning.knowledge_projection import (
+    PHASE10D_PUBLIC_KNOWLEDGE_CONTENT_PROJECTION_CONTRACT,
+    KnowledgeContentProjection,
+    ProjectedKnowledgeEntry,
+    knowledge_content_projection_id,
+    validate_knowledge_projection_binding,
+)
 from chipchain.reasoning.chain_claim import (
     ModelAuthoredChainClaim,
     model_authored_chain_claim_id,
@@ -130,6 +137,7 @@ __all__ = [
     "EvidenceResolver",
     "InMemoryEvidenceResolver",
     "KnowledgeRetriever",
+    "KnowledgeContentProjection",
     "HypothesisSource",
     "LLMAPIStyle",
     "LLMOutputValidationError",
@@ -159,6 +167,8 @@ __all__ = [
     "ReasoningResult",
     "ReasoningPromptView",
     "PHASE10D_MASKED_PROMPT_PROJECTION_CONTRACT",
+    "PHASE10D_PUBLIC_KNOWLEDGE_CONTENT_PROJECTION_CONTRACT",
+    "ProjectedKnowledgeEntry",
     "REASONING_RESULT_BOUNDARY",
     "REASONING_PROVIDER_SCHEMA_NAME",
     "RetrievalError",
@@ -170,6 +180,7 @@ __all__ = [
     "evidence_feedback_id",
     "evidence_feedback_status",
     "load_architecture_knowledge_documents",
+    "knowledge_content_projection_id",
     "model_authored_chain_claim_id",
     "masked_chain_hidden_reference_ids",
     "reasoning_result_id",
@@ -179,5 +190,6 @@ __all__ = [
     "reasoning_prompt_view_id",
     "reasoning_provider_output_json_schema",
     "reasoning_provider_output_json_schema_for_role",
+    "validate_knowledge_projection_binding",
     "ParsedReasoningContracts",
 ]
