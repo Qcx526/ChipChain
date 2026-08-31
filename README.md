@@ -71,6 +71,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10D Step 8B-1E retrospective MASKED ATTACK_CHAIN hypothesis-description content diagnostic
 - Phase 10D Step 8B-2B0 Cortex-A77 erratum 1508412 authoritative documented-semantics contract
 - Phase 10D Step 8B-2B1 versioned ARM A-profile semantic trigger-pattern predicate language
+- Phase 10D Step 8B-2B2-A deterministic A-profile static semantic extraction plan、A64 decoded-instruction fact
+  与 unresolved-obligation predicate-candidate contracts（不含真实 extractor）
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -827,6 +829,52 @@ memory type facts，但即使 trace 完整，也不能在 v1 下把 qualitative 
 
 ```bash
 python scripts/build_cve_2023_34320_a_profile_semantic_trigger_pattern.py --check
+```
+
+## Phase 10D Step 8B-2B2-A Static Semantic Extraction Contract
+
+Step 8B-2B2-A 只把冻结 2B1 pattern 翻译为 artifact-neutral、确定性的
+`AProfileStaticSemanticExtractionPlan`，并冻结未来 extractor 可输出的静态事实、谓词候选与结果合同：
+
+```text
+DocumentedHardwareErratumContract
+        ↓
+AProfileSemanticTriggerPattern
+        ↓
+AProfileStaticSemanticExtractionPlan
+        ↓ future 2B2-B (not implemented)
+AProfileStaticSemanticInstructionFact
+        ↓ exact predicate binding
+AProfileStaticPredicateCandidate
+        ↓ future 2B2-C (not implemented)
+Case / program-order candidates
+        ↓ future runtime/stateful evidence
+Triggerability
+```
+
+计划的唯一 production 输入是 2B1 artifact 的同一 immutable byte snapshot，并同时校验其 SHA-256、semantic
+ID 与 contract。每个 source alternative 都由 pattern ID、case ID、position index 和 canonical predicate
+content 生成独立 deterministic reference；reference 不依赖 alternative 的展示索引。
+
+新 static namespace 的 v1 只支持 AArch64 decoded semantics，使用 16 位十六进制 code address 和 8 位
+十六进制 logical instruction word；它没有给旧 A32 `ArmExecutionMode` 增加 A64，也没有改变 Phase 9C
+signature/matcher/triggerability 合同。`AProfileStaticSemanticInstructionFact` 仅表示该指令存在于被分析的
+immutable artifact，`AProfileStaticPredicateCandidate` 仅表示 decoded semantics 可作为某个 pattern predicate
+的候选。两者都不表示指令已执行、predicate 已满足或 Case A/B 已成立。
+
+尤其是 decoded `MEMORY_LOAD` 不等于 Device/Normal-NC 已建立：事实只能记录
+`REQUIRES_OBJECTIVE_TRANSLATION_CONTEXT`，物理 MMIO、section、地址范围或 opcode 都不能替代 effective
+architectural memory type。静态识别 `SYSTEM_REGISTER_READ(PAR_EL1)` 也不证明 runtime EL/privilege。所有
+候选继续携带 runtime execution、适用的 runtime context/effective memory type、qualitative proximity 和
+additional hardware timing obligations。
+
+本步骤不打开 ELF、不执行 angr、不组装 Case、不判断 CFG/program order、不发明 proximity 数值界限，也不
+创建 runtime observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility 或
+PRIMARY 结论。2B2-B 才可在独立评审后实现 AArch64 decoded-event extractor；2B2-C 才可定义 case/path/order
+assembly。确定性计划可完全离线复核：
+
+```bash
+python scripts/build_cve_2023_34320_a_profile_static_semantic_extraction_plan.py --check
 ```
 
 ## 文档导航

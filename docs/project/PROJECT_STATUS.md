@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step8b2b0-stable`
-- Stable commit: `47eacdb27fd54cb4dac90f0cb1ac1d655bdd34e6`
-- Baseline: Phase 10D Step 8B-2B0 final accepted and frozen
+- Stable tag: `phase-10d-step8b2b1-stable`
+- Stable commit: `00810a132bdc0285c80c6f13088fac99159b932c`
+- Baseline: Phase 10D Step 8B-2B1 final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -39,14 +39,15 @@
 - Phase 10D Step 8B-1D frozen five-case public-provider one-shot hash-only archive
 - Phase 10D Step 8B-1E deterministic retrospective MASKED semantic/content recovery diagnostic
 - Phase 10D Step 8B-2B0 authoritative documented semantics contract for Cortex-A77 erratum 1508412
-- Phase 10D Step 8B-2B1 versioned ARM A-profile semantic trigger-pattern predicates (implemented, pending final review)
+- Phase 10D Step 8B-2B1 versioned ARM A-profile semantic trigger-pattern predicates
+- Phase 10D Step 8B-2B2-A A-profile static semantic extraction contracts and deterministic plan (implemented, pending final review)
 
 ## Current Work
 
-Phase 10D Step 8B-2B1 translates the exact frozen Step 8B-2B0 generated artifact into one deterministic
-`AProfileSemanticTriggerPattern`. The generic model contains semantic predicates only: two ordered positions,
-OR alternatives, execution applicability, effective architectural memory-type constraints, source obligations,
-qualitative relation precision, documented effect reference, and documented mitigation references.
+Phase 10D Step 8B-2B2-A translates the exact frozen Step 8B-2B1 artifact into one deterministic,
+artifact-neutral `AProfileStaticSemanticExtractionPlan`. It also freezes independent contracts for a future
+AArch64 decoder's objective instruction facts, exact fact-to-predicate candidates, and a cross-bound extraction
+result. No ELF occurrence is produced in this step.
 
 Step 8B-1E adds Axis B as a supplemental offline diagnostic while leaving Axis A (the exact
 `ModelClaimBinder`) and Axis C (the objective `ChainFeasibilityOracle`) unchanged. Current frozen sessions use
@@ -78,16 +79,17 @@ possible core deadlock, and additional timing conditions unspecified by the publ
 `SEMANTIC_PATTERN_REFERENCE_ONLY`; CVE-2023-34320 remains `NEXT_OBJECTIVE_CANDIDATE` and `SECONDARY_ONLY`.
 
 The Step 8B-2B1 pattern is also not an occurrence, runtime observation, `HardwareTriggerSignature`, proof, or
-triggerability result. Effective memory type remains an objective property a future translation/runtime route
-must establish; load opcode, MMIO classification, section naming, and address ranges are insufficient. Program
-order is typed, but CLOSE_PROXIMITY has no quantitative bound and cannot be marked satisfied by an invented
-software-only threshold. Static occurrence extraction (2B2) and runtime semantic observation (2B3) remain
-unimplemented.
+triggerability result. Step 8B-2B2-A preserves that boundary: static instruction existence is not runtime
+execution, a decoded load does not establish Device/Normal-NC, and a static predicate candidate does not mean
+the predicate is satisfied. Program order remains only source-plan structure; no Case A/B pair, CFG path outcome,
+proximity result, triggerability, verification, or feasibility is represented. The AArch64 extractor (2B2-B),
+case/program-order assembly (2B2-C), and runtime semantic observation (2B3) remain unimplemented.
 
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- final review/freeze of the Step 8B-2B1 semantic trigger-pattern contract
+- final review/freeze of the Step 8B-2B2-A static semantic extraction contracts
+- Step 8B-2B2-B AArch64 decoded-event extraction and Step 8B-2B2-C case/order assembly, each only after separate review
 - objective evidence review and explicit PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation

@@ -112,5 +112,22 @@ QEMU、Ground Truth 或网络。
 生成物是 `AProfileSemanticTriggerPattern` predicate，不是 static occurrence、runtime observation、
 `HardwareTriggerSignature`、proof 或 triggerability。Load 的 memory constraints 只表示 future analyzer 必须
 建立 effective architectural memory type，并不表示当前已观测 Device/Normal-NC；qualitative
-`CLOSE_PROXIMITY` 仍没有数值界限。后续 2B2/2B3 objective facts 与 stateful evaluation 尚未实现，当前
-public CVE scope 和 PRIMARY metrics 均不改变。
+`CLOSE_PROXIMITY` 仍没有数值界限。当前 public CVE scope 和 PRIMARY metrics 均不改变。
+
+Step 8B-2B2-A 继续只读取上述 byte-exact 2B1 artifact。运行：
+
+```bash
+python scripts/build_cve_2023_34320_a_profile_static_semantic_extraction_plan.py --check
+python scripts/build_cve_2023_34320_a_profile_static_semantic_extraction_plan.py --write
+```
+
+会确定性生成
+`evaluation/cve_2023_34320_a_profile_static_semantic_extraction_plan_v1.json`。该计划为 2B1 中每个 exact
+alternative 保存 canonical predicate reference、case/position、decoded-semantics recognition rule，以及全部
+未解决的 runtime execution、适用的 privilege/effective-memory-type、qualitative proximity 和 hardware timing
+义务。生成物不含 artifact-specific instruction occurrence、ELF 路径、runtime observation 或结果 verdict。
+
+未来 `AProfileStaticSemanticInstructionFact` 只表示 immutable artifact 中存在一个 decoded A64 instruction；
+`AProfileStaticPredicateCandidate` 只表示该事实可作为一个 pattern predicate 的候选。静态存在不等于运行时
+执行，decoded load 不等于 Device/Normal-NC 已解析，candidate 不等于 predicate satisfied，也不等于
+triggerability。2B2-B extractor、2B2-C case/program-order assembly 与后续 stateful evaluation 仍未实现。

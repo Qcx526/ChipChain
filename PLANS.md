@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E 与 Step 8B-2B0 已完成并冻结；Step 8B-2B1 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0 与 Step 8B-2B1 已完成并冻结；Step 8B-2B2-A 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -726,7 +726,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] CVE 继续是 public-source `NEXT_OBJECTIVE_CANDIDATE` / evaluation `SECONDARY_ONLY`，没有 PRIMARY
   admission 或 benchmark metric 变化
 
-#### Phase 10D Step 8B-2B1：Versioned ARM A-profile Semantic Trigger Pattern（已完成实现，待 final review）
+#### Phase 10D Step 8B-2B1：Versioned ARM A-profile Semantic Trigger Pattern（已完成并冻结）
 
 - [x] 新增通用 `phase10d_a_profile_semantic_trigger_pattern_v1`，只表达 future objective analyzer 所需的
   `MEMORY_LOAD`、`STORE_EXCLUSIVE`、`SYSTEM_REGISTER_READ(PAR_EL1)` predicates，不创建 occurrence 或 observation
@@ -742,6 +742,23 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   identity 绑定全部 predicates、source obligations 与 2B0 provenance
 - [x] 2B1 不实现 2B2 static occurrence extraction 或 2B3 runtime observation，不修改旧 A32 enums、signature、
   matcher、aggregator、fixture identity 或 PRIMARY admission
+
+#### Phase 10D Step 8B-2B2-A：A-profile Static Semantic Extraction Contract（已完成实现，待 final review）
+
+- [x] 新增独立 A64 static namespace 与四个版本化合同：deterministic extraction plan、objective decoded
+  instruction fact、fact-to-predicate candidate，以及只包含 facts/candidates/diagnostics 的 extraction result
+- [x] plan builder 的唯一输入是 byte/hash/ID/contract 精确冻结的 2B1 artifact；每个 source alternative
+  恰好映射一个由 pattern ID、case ID、position 与 canonical predicate content 共同确定的 predicate ref
+- [x] v1 static ISA 只允许 AArch64；新事实独立使用 16-hex-digit code address 与 8-hex-digit A64 logical
+  instruction word，不扩大或修改 Phase 9C A32 `ArmExecutionMode`、address、signature、matcher 或 fixture
+- [x] static fact 只表示不可变 artifact 中存在一个 decoded instruction；load 的 effective memory type 固定为
+  `REQUIRES_OBJECTIVE_TRANSLATION_CONTEXT`，PAR_EL1 静态识别也不证明 runtime privilege 或 execution
+- [x] candidate 始终保留 runtime execution、适用时 runtime context/effective memory type，以及 qualitative
+  proximity/additional hardware timing 等 objective obligations；candidate 不表示 predicate satisfied
+- [x] result 对 plan/source/artifact/fact/predicate references 做 exact cross-binding 与 deterministic ordering，
+  不产生 Case A/B assembly、CFG/program-order outcome、proximity outcome、triggerability、verification 或 feasibility
+- [x] 生成 artifact 只包含 extraction plan，不含 ELF occurrence；2B2-B AArch64 extractor 与 2B2-C case/order
+  assembly 均保留为后续独立评审步骤
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能
