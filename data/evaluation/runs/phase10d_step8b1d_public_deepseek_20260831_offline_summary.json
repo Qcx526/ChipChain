@@ -1,0 +1,1666 @@
+{
+  "archive_id": "public-knowledge-execution-archive:f688bca23b0ef1f3d348c7e5c41ab2af8326d06c507e5090b1b15b0e9cf017d7",
+  "cases": {
+    "CVE-2022-23960": {
+      "full_context_model": {
+        "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+        "final_reasoning_result": {
+          "boundary_statement": "The result represents reasoning over available evidence. It is not a vulnerability verification result.",
+          "confidence": 0.2,
+          "hypothesis_id": "attack-hypothesis:03c276080fb57ee5525598017a17ff9be9cf3b574e83430cc00fda9bf81ff539",
+          "id": "reasoning-result:4f98514b44043cc3dc2a20ec5f2973d8d0c29ab56f05c2d3aa1f5adc4b9cd8c4",
+          "metadata": {
+            "confidence_semantics": "reasoning_only_not_verification_score",
+            "domain_truth_creation": false,
+            "merge_scope": "multi_agent_reasoning_only",
+            "source_reasoning_result_ids": [
+              "reasoning-result:a5317f56271acc7c194f1b4dd2781e9ecd87c1ce6c37eafd34283b64d72a9161",
+              "reasoning-result:c7dad8ec4f529d1f2b721202ddf212b09cb73b2e111b6872385651ad7291fccb",
+              "reasoning-result:f36298821b55e2aca7432c34c155bee7c6230216eb0c6855733c0b90472fa959"
+            ],
+            "supporting_evidence_semantics": "reference_only_not_verified_evidence"
+          },
+          "missing_evidence": [
+            "evidence-request:03846e1637e479308215b1472616860368966217bcfacad198c4f03ada1e5856",
+            "evidence-request:44c71f4189d533566b4ac7a530aa4c0e22c2566ce175d83266993f4fa0e680ed",
+            "evidence-request:7d4449301c0cf4cd44897cf93c9ebb3abc17f7b16914bef8c99187f077420c5e",
+            "evidence-request:aad087b5ca4bcbaf2b43a1ef596b68a06bb8a477633d9c7d194f2943aa66be76",
+            "evidence-request:d2f0284048d8ae9f1e8b3ca425bc5a0d57088cf2caf3376a110eb772362e3350",
+            "evidence-request:e5cb338aa9e3d6b7234e7a7dc549e842f51d637e09486307684918e5d09d08e8"
+          ],
+          "reasoning_steps": [
+            "The referenced knowledge entry describes CVE-2022-23960, a vulnerability where shared branch history in the BHB can influence branch misprediction, leading to cache effects that may allow sensitive-information inference on affected Arm processors.",
+            "The cross-layer interaction context indicates a firmware_behavior_to_hardware direction, with target vulnerability and trigger behavior participants referencing this documented vulnerability.",
+            "As the code role, the hypothesis focuses on the software/firmware behavior that could trigger or propagate the branch-history condition to the hardware, without yet asserting causality or a vulnerability verdict.",
+            "Static and runtime evidence are needed to identify and observe the precise code behavior involved, consistent with the role contract's evidence request templates.",
+            "Supporting evidence IDs are empty because no evidence is currently available in the reasoning context; therefore, the reasoning confidence is preliminary and low.",
+            "Hardware reasoning considered the supplied reference to CVE-2022-23960, which describes shared branch history influencing branch misprediction and resulting cache effects on affected ARM processors.",
+            "The cross-layer interaction specifies firmware_behavior_to_hardware, indicating that the initiating event is a software/firmware behavior that impacts hardware resources (branch prediction and cache).",
+            "Since available_evidence_ids is empty, no supplied evidence directly supports the reasoning; therefore supporting_evidence_ids is empty.",
+            "The lack of any MMIO access or runtime observation evidence weakens confidence in the hypothesis that hardware resources are directly involved, so confidence is set low.",
+            "The knowledge entry for CVE-2022-23960 describes shared branch history in the BHB on affected Cortex and Neoverse processors, which can influence branch misprediction and produce cache effects useful for sensitive-information inference.",
+            "The interaction context indicates a firmware_behavior_to_hardware interaction with a trigger behavior and a target vulnerability, suggesting that certain firmware-level behaviors may interact with hardware branch prediction mechanisms.",
+            "No evidence is currently available in the reasoning context (available_evidence_ids is empty), so any connection between the described behavior and a concrete weakness remains unverified.",
+            "As the vulnerability role, the weakness hypothesis is proposed without asserting a verified vulnerability or causality, and confidence is set conservatively given the absence of supporting evidence."
+          ],
+          "supporting_evidence_ids": []
+        },
+        "merged_hypothesis": {
+          "affected_components": [
+            "documented affected Cortex and Neoverse processors"
+          ],
+          "attack_pattern_reference": null,
+          "confidence": 0.3,
+          "description": "Merged multi-agent hypothesis over source references: attack-hypothesis:0dd1709ce6d5b18c193db59a90b333a68787dccd8acdaedfc1f4abf6e79f5941, attack-hypothesis:307f1786708f54931d580ce98b2fa34d666ab105c863d4bfec52d6b8cccb8d98, attack-hypothesis:594133ef158461c4d8c9440faf1ddb2b471d2d92ce80e251a9320914d89b10b8, attack-hypothesis:9578fe1c7818460e901797dda3d0b8615fb9b366d2b9f20103f09eaee2496c9a",
+          "id": "attack-hypothesis:03c276080fb57ee5525598017a17ff9be9cf3b574e83430cc00fda9bf81ff539",
+          "required_evidence_types": [
+            "mmio_access",
+            "privilege_transition",
+            "runtime_observation",
+            "static_behavior"
+          ]
+        },
+        "model_authored_chain_claim": {
+          "affected_execution_ids": [],
+          "architecture": "arm",
+          "author_role": "attack_chain",
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "id": "model-authored-chain-claim:795412b8e579c5775c8db2b4ca7a2b1d2bb67cc3dc08a768fe520ee2357d1557",
+          "initiating_vulnerability_ids": [],
+          "interaction_type": "firmware_behavior_to_hardware",
+          "metadata": {
+            "authorship_semantics": "model_proposal_not_verified_truth",
+            "provider_output": "constrained",
+            "reasoning_role": "attack_chain"
+          },
+          "propagation_behavior_ids": [],
+          "security_mechanism_ids": [],
+          "target_vulnerability_ids": [
+            "public-documented-participant:ffec7b70238e874231970006e61cf67af881909591f20752daf2a1154a2f9b0a"
+          ],
+          "trigger_behavior_ids": [
+            "public-documented-participant:7cba31b20716d04a254a1e30c69bc1b0547b70d12fd6b081e013f5aa6e0b5b71"
+          ]
+        },
+        "reasoning_session_id": "reasoning-session:f60661216d38c677bae1c3f67e3e3fb1dcf66bba30caa10768311a2640a902e0"
+      },
+      "masked_chain_context_model": {
+        "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+        "final_reasoning_result": {
+          "boundary_statement": "The result represents reasoning over available evidence. It is not a vulnerability verification result.",
+          "confidence": 0.2,
+          "hypothesis_id": "attack-hypothesis:ccd3cedcca74803d447ae5157802512cd2188ef308613ae9e80fb2c59bb8be28",
+          "id": "reasoning-result:6f2ddfaec1761cabe595a6048a447b35009d2a4a3e7b69e6a9129be977832212",
+          "metadata": {
+            "confidence_semantics": "reasoning_only_not_verification_score",
+            "domain_truth_creation": false,
+            "merge_scope": "multi_agent_reasoning_only",
+            "source_reasoning_result_ids": [
+              "reasoning-result:4c20f46927036cf0c41c1beb729c256b1cdde3532442d869f2eb348725ff1689",
+              "reasoning-result:7084ce520b1ddcfd5726d4e82b0076faaa1fab3046949b72be0898415aeb5930",
+              "reasoning-result:f48f2e1828c27dd95fada9ed679b530a88133a79b9bccd218a885d2d2c1e4158"
+            ],
+            "supporting_evidence_semantics": "reference_only_not_verified_evidence"
+          },
+          "missing_evidence": [
+            "evidence-request:2a195c540749dbfbee04906fd819fce7c3a31326f718d7f136594ee448b49d8b",
+            "evidence-request:353c69397e097dc11e14526db03cbbd60f5189897a6362d64724d315ac942f30",
+            "evidence-request:3e7ea1540a9ad25ede984c1dcfc748009b1fb7b6e2c2ad45de3f1054255ad11e",
+            "evidence-request:87cee3ad8944ae74894a860d53438e92aea805a3d72895b11ed016e24f7288cf",
+            "evidence-request:a0dc5d4303eabcb11042454b8250fb05efd2e6bac7c95469a4270baafedd2a3f",
+            "evidence-request:c03266f98ff14f2e43352e5a8c7b7ac3f3b33d8535ddf58ebe6af93c9298e3d3"
+          ],
+          "reasoning_steps": [
+            "The referenced knowledge entry describes CVE-2022-23960 as an Arm Spectre-BHB vulnerability involving shared branch history influencing branch misprediction with cache effects for sensitive-information inference on Cortex and Neoverse processors.",
+            "Code behavior on the affected processors is relevant to how Spectre-BHB manifests, as speculative execution and branch prediction depend on the executed instruction stream.",
+            "The subject_id CVE-2022-23960 points to a known architectural vulnerability, and code-level behavior (e.g., branch patterns, cache access sequences) may be a necessary component in a cross-layer condition, but no runtime observations or static code analysis are currently available.",
+            "Given the absence of specific code artifacts or runtime observations in the reasoning context, the hypothesis remains speculative, and evidence requests focus on obtaining the referenced static behavior and runtime observations.",
+            "The reasoning confidence is low because supporting evidence_ids is empty and no observed facts are present to substantiate code participation in the vulnerability chain.",
+            "The hardware role reviewed the provided CVE-2022-23960 knowledge entry, which documents shared BHB influence on branch misprediction and resulting cache effects on affected Cortex and Neoverse processors.",
+            "As hardware role, I consider the MMIO interaction hypothesis: speculative cache effects could be observable if MMIO mappings are configured as cacheable or if side-channel measurement uses MMIO-triggered cache operations.",
+            "Given the lack of supplied evidence references and runtime observations, the hardware reasoning is limited to the public knowledge content and should not be treated as confirmation.",
+            "The hypothesis is proposed as a direction for further evidence gathering, with low confidence due to missing corroborating data.",
+            "The knowledge reference describes a shared branch history behavior in the BHB that can influence branch misprediction with cache effects usable for sensitive-information inference on documented affected processors.",
+            "This suggests an unverified weakness hypothesis involving a speculation-based side channel, but the reference does not confirm whether the speculative effects actually cross a privilege boundary or enable concrete information disclosure.",
+            "Available evidence IDs are empty; therefore reasoning cannot be supported by any supplied evidence and remains at a provisional confidence level.",
+            "Vulnerability reasoning kept weakness claims unresolved for CVE-2022-23960."
+          ],
+          "supporting_evidence_ids": []
+        },
+        "merged_hypothesis": {
+          "affected_components": [
+            "documented affected Cortex and Neoverse processors"
+          ],
+          "attack_pattern_reference": null,
+          "confidence": 0.3,
+          "description": "Merged multi-agent hypothesis over source references: attack-hypothesis:7128adfcb6ba25f489620f3ded1f8ac0d3a9ede19ce040e9c146d60f2e3ccff5, attack-hypothesis:7399fec887ddb2c2d186f7c832e0c221bf9287a7ce49a44a226cf09c29ce0691, attack-hypothesis:81a75960fc0676b1ef575dc6583c1e9663293ca678735d3f1dffabf9f9d0e48d, attack-hypothesis:f1c02ab44c0f9a02d02da3063908c29e2ed522d59f5bc63279c443513a910f78",
+          "id": "attack-hypothesis:ccd3cedcca74803d447ae5157802512cd2188ef308613ae9e80fb2c59bb8be28",
+          "required_evidence_types": [
+            "mmio_access",
+            "privilege_transition",
+            "runtime_observation",
+            "static_behavior"
+          ]
+        },
+        "model_authored_chain_claim": {
+          "affected_execution_ids": [],
+          "architecture": "arm",
+          "author_role": "attack_chain",
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "id": "model-authored-chain-claim:7b2be716a82646c1c447693fe795319928bd41cd133fe4485ece36cab3716e23",
+          "initiating_vulnerability_ids": [
+            "vulnerability-knowledge-entry:9c874f980f9eafc7ef9a6faefb5c1a91271207e22853279e19b75c001feb82bb"
+          ],
+          "interaction_type": "firmware_behavior_to_hardware",
+          "metadata": {
+            "authorship_semantics": "model_proposal_not_verified_truth",
+            "provider_output": "constrained",
+            "reasoning_role": "attack_chain"
+          },
+          "propagation_behavior_ids": [],
+          "security_mechanism_ids": [],
+          "target_vulnerability_ids": [],
+          "trigger_behavior_ids": []
+        },
+        "reasoning_session_id": "reasoning-session:f60661216d38c677bae1c3f67e3e3fb1dcf66bba30caa10768311a2640a902e0"
+      }
+    },
+    "CVE-2023-34320": {
+      "full_context_model": {
+        "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+        "final_reasoning_result": {
+          "boundary_statement": "The result represents reasoning over available evidence. It is not a vulnerability verification result.",
+          "confidence": 0.3,
+          "hypothesis_id": "attack-hypothesis:556a735691994bef3e270b0a4ea3dfb4aa3d064689560dc6f7986a4938b3e988",
+          "id": "reasoning-result:87a810c4b24fdd10ab4823c83973c8824e91922025ad94b1b4d34c3685e72d1a",
+          "metadata": {
+            "confidence_semantics": "reasoning_only_not_verification_score",
+            "domain_truth_creation": false,
+            "merge_scope": "multi_agent_reasoning_only",
+            "source_reasoning_result_ids": [
+              "reasoning-result:6a5eac37e2a75d7a16d0b7fdf284ceec5cdbd38880992dcbe4cba6b3983fae45",
+              "reasoning-result:b67cfbd3e4b0a04ef54b2c59309ecba07a32b5049ca183097b3d00aa067d1c85",
+              "reasoning-result:e59a1fcafe6faa7eccef5653cddfe26dc8c7772b4c1952b8ad0ed23f315ccefb"
+            ],
+            "supporting_evidence_semantics": "reference_only_not_verified_evidence"
+          },
+          "missing_evidence": [
+            "evidence-request:43a43fe3cb25ddf73db341c85540d435d4e27f5abed494700f11e472370270ea",
+            "evidence-request:4461a2040612071d7de3cb200ff472ffc3dd4c43a6ccd20dba7d287094e28b9d",
+            "evidence-request:82f81802a5e048445110efdc4eb4527e15fcf6d8914e7e2ba019c19f4e08bc56",
+            "evidence-request:bf5d30a1bc72b58a924f6a7b4bfe03a09e5178f1fa66fb661a3a7f10e2eede25",
+            "evidence-request:ed0e9da25a05a44f4492d84d4258d138b1ce3b9d93a143a1706c3873cf297092",
+            "evidence-request:ed4c1f1a29bfbff1b6ee7ecbecb8e2e01fb77dacdbe99c1ff3197415504d7085"
+          ],
+          "reasoning_steps": [
+            "Code reasoning considered supplied references for CVE-2023-34320.",
+            "The referenced vulnerability knowledge describes a software-triggered core deadlock in Cortex-A77 related to device or non-cacheable memory accesses.",
+            "The cross-layer interaction context indicates a firmware_behavior_to_hardware direction with a target vulnerability participant and a trigger behavior participant.",
+            "The candidate hypothesis is a plausible code-behavior-to-hardware condition, but requires static and runtime evidence to establish details.",
+            "Hardware reasoning considered the supplied reference describing Cortex-A77 erratum 1508412, which indicates a core deadlock triggered by software execution involving device or non-cacheable memory accesses.",
+            "The interaction type is firmware_behavior_to_hardware, with the hardware resource being the Cortex-A77 core and the trigger behavior being the software memory access pattern.",
+            "Since the available evidence IDs are empty, the reasoning relies solely on the provided knowledge content and does not assert a hardware vulnerability verdict.",
+            "Confidence is set to 0.3 reflecting that the hypothesis is plausible but unverified without additional MMIO or runtime observation evidence.",
+            "The knowledge reference describes CVE-2023-34320 as a Cortex-A77 erratum 1508412 deadlock triggered by software execution around device or non-cacheable memory accesses, with the affected components being Cortex-A77 r0p0/r1p0 and Xen/guest software.",
+            "The cross-layer interaction context indicates a firmware_behavior_to_hardware interaction type, where a trigger behavior (public-documented-participant aa9a68e5...) targets a hardware vulnerability (public-documented-participant 2a4bf43e...), consistent with software-controlled behavior inducing a hardware fault.",
+            "The weakness hypothesis is framed as a potential hardware design flaw (erratum) that manifests as a system denial of service when specific memory access patterns occur, but no evidence is available in the current context to verify the exploitability or the precise triggering conditions.",
+            "Confidence is set to 0.6 to reflect that the reference material supports the existence of the erratum and its potential for denial of service, but verification of the vulnerability and its exploitation path remains unresolved."
+          ],
+          "supporting_evidence_ids": []
+        },
+        "merged_hypothesis": {
+          "affected_components": [
+            "Cortex-A77 r0p0/r1p0",
+            "Xen/guest software"
+          ],
+          "attack_pattern_reference": null,
+          "confidence": 0.3,
+          "description": "Merged multi-agent hypothesis over source references: attack-hypothesis:4e5095a3cd837e6a5909754b3aeb289289c8ded821b0dfbccfa7d7745f986c99, attack-hypothesis:646c2fdabbbd080f26b26dc690c3c08fdd4093afb41727e54fe031cdf9b315cd, attack-hypothesis:c90376d8deb3a4f98bcc9179bc99deecc2ff65c301e971d92ee2c261f9735f89, attack-hypothesis:e6fbe2fb89c3ab14cf04a35c8726f9fe63209f3355cd75f60c290a34673ba1ee",
+          "id": "attack-hypothesis:556a735691994bef3e270b0a4ea3dfb4aa3d064689560dc6f7986a4938b3e988",
+          "required_evidence_types": [
+            "mmio_access",
+            "privilege_transition",
+            "runtime_observation",
+            "static_behavior"
+          ]
+        },
+        "model_authored_chain_claim": {
+          "affected_execution_ids": [],
+          "architecture": "arm",
+          "author_role": "attack_chain",
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "id": "model-authored-chain-claim:5f4cd679e98364528b9f5b03effb767ad123b48b7cfec1689264b35a02a170ae",
+          "initiating_vulnerability_ids": [],
+          "interaction_type": "firmware_behavior_to_hardware",
+          "metadata": {
+            "authorship_semantics": "model_proposal_not_verified_truth",
+            "provider_output": "constrained",
+            "reasoning_role": "attack_chain"
+          },
+          "propagation_behavior_ids": [],
+          "security_mechanism_ids": [],
+          "target_vulnerability_ids": [
+            "public-documented-participant:2a4bf43e8ea1c4e44bab59a916cb9c788866bfdc3deaabfbf1206862c6762513"
+          ],
+          "trigger_behavior_ids": [
+            "public-documented-participant:aa9a68e57cb8176e60cf97a54a85dafeb9c17211a73a46052f42f677fd78e9fd"
+          ]
+        },
+        "reasoning_session_id": "reasoning-session:9e01fc18b4e458f7d1b63fdfd2471ec2427967b84d241895c3f59f46f30ebac0"
+      },
+      "masked_chain_context_model": {
+        "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+        "final_reasoning_result": {
+          "boundary_statement": "The result represents reasoning over available evidence. It is not a vulnerability verification result.",
+          "confidence": 0.2,
+          "hypothesis_id": "attack-hypothesis:33f4d549755a81e014ac2868d2dc015fb9d0923c3be11133910806ee90595140",
+          "id": "reasoning-result:49a6ddb9a69a93c0043789b0652d15e4ab4410ce529c3d4f3f74d2de294d86bd",
+          "metadata": {
+            "confidence_semantics": "reasoning_only_not_verification_score",
+            "domain_truth_creation": false,
+            "merge_scope": "multi_agent_reasoning_only",
+            "source_reasoning_result_ids": [
+              "reasoning-result:9fa792a78fad30a28f2ace33ff48084d1508156150fa1c2dae6926eca76f1311",
+              "reasoning-result:afba3e5f61467b99a5f79db44e2ffb9fb4b260fec71c0900959f766e8d4b7dc5",
+              "reasoning-result:fefc1b759f9dd6268b6ee7465de6d0aacaa05b33b80e11df0a4ee32415545a6e"
+            ],
+            "supporting_evidence_semantics": "reference_only_not_verified_evidence"
+          },
+          "missing_evidence": [
+            "evidence-request:34e2baf1e46eee0c2cdf2862cf00dd29a7e92d7d00f107274cb0de78d0e150f5",
+            "evidence-request:4cdbf221cd36abf3145de89a2a5207b14a07bd9f25a831d72ac2e35a325c465d",
+            "evidence-request:5bbabb959c7b911542154f1d75172d7e7f67f2617c20edd00a4b7a0a4a4d9830",
+            "evidence-request:758341cfb71ec592f6e8e0f30f7749bda9fba8f3448ae9beb13a5bed1daf54cc",
+            "evidence-request:91533076ca8b43d420470a2f33dddf4db343f106bf33999353d09b56bb11acca",
+            "evidence-request:cc95eb2d2ae85c40ad104faaf2a994f44b7fdc44cfcdaabed91da6c1ef014b11"
+          ],
+          "reasoning_steps": [
+            "The only supplied knowledge entry is a public CVE summary describing Cortex-A77 erratum 1508412, a hardware erratum that software can trigger via device or non-cacheable memory accesses, resulting in core deadlock and denial of service.",
+            "The entry indicates affected components are Cortex-A77 and Xen/guest software, suggesting a firmware/software-to-hardware interaction, but the summary does not specify the exact triggering code path or instruction sequence.",
+            "No observed facts or runtime observations are provided; available_evidence_ids is empty, so there is no direct evidence to support a specific code-level trigger.",
+            "As the code role, the hypothesis is limited to a plausible trigger-behavior relationship requiring confirmation of the static code behavior and runtime manifestation; confidence is low due to lack of verified details.",
+            "Hardware reasoning considered supplied references for CVE-2023-34320",
+            "The knowledge entry indicates software execution around device or non-cacheable memory accesses is associated with Cortex-A77 erratum 1508412, causing core deadlock and denial of service.",
+            "No additional evidence was supplied; therefore confidence is limited to the provided reference.",
+            "The knowledge reference entry describes CVE-2023-34320 as Cortex-A77 erratum 1508412, indicating a hardware defect in Cortex-A77 r0p0/r1p0 triggered by software execution around device or non-cacheable memory accesses.",
+            "Public reports associate this trigger with core deadlock and system denial of service, suggesting a potential weakness in the interaction between software memory access behavior and the affected hardware.",
+            "Affected components include Xen/guest software, implying the trigger might be reachable from a guest context, but the reference does not confirm any privilege transition or escalation.",
+            "In the absence of available evidence IDs, the supporting evidence set is empty; the reasoning is based solely on the supplied knowledge reference and remains an unverified hypothesis without causality or verdict."
+          ],
+          "supporting_evidence_ids": []
+        },
+        "merged_hypothesis": {
+          "affected_components": [
+            "Cortex-A77 r0p0/r1p0",
+            "Xen/guest software"
+          ],
+          "attack_pattern_reference": null,
+          "confidence": 0.25,
+          "description": "Merged multi-agent hypothesis over source references: attack-hypothesis:320560ee31a1ed09d5026f47a0242616fcbbbfe9644647f2d4a61bfcac453b14, attack-hypothesis:4162ef6daad6f4c99b7d298487fd74826f4e4ff8a5420d20120ca617e69594d8, attack-hypothesis:d329acd0b1bc5e3d649ae93b6a0fe3da394322dc52fc60174ffd8a2d9b4721a0, attack-hypothesis:ef3f031972c94df26ea86f9f4acb0c1c56d666add22d7d910a6328c25748e4ba",
+          "id": "attack-hypothesis:33f4d549755a81e014ac2868d2dc015fb9d0923c3be11133910806ee90595140",
+          "required_evidence_types": [
+            "mmio_access",
+            "privilege_transition",
+            "runtime_observation",
+            "static_behavior"
+          ]
+        },
+        "model_authored_chain_claim": {
+          "affected_execution_ids": [],
+          "architecture": "arm",
+          "author_role": "attack_chain",
+          "fault_state_ids": [],
+          "hardware_resource_ids": [
+            "Cortex-A77 r0p0/r1p0"
+          ],
+          "id": "model-authored-chain-claim:a60bd4ed3abc3a9c3918371964b56714fc3ec705769d0b2ada8a7a80114d52eb",
+          "initiating_vulnerability_ids": [],
+          "interaction_type": "firmware_behavior_to_hardware",
+          "metadata": {
+            "authorship_semantics": "model_proposal_not_verified_truth",
+            "provider_output": "constrained",
+            "reasoning_role": "attack_chain"
+          },
+          "propagation_behavior_ids": [],
+          "security_mechanism_ids": [],
+          "target_vulnerability_ids": [
+            "vulnerability-knowledge-entry:07a5b605c58075884a7448d62391d1bbbe0a1cdef65f6cf323aaefedf325031d"
+          ],
+          "trigger_behavior_ids": []
+        },
+        "reasoning_session_id": "reasoning-session:9e01fc18b4e458f7d1b63fdfd2471ec2427967b84d241895c3f59f46f30ebac0"
+      }
+    },
+    "CVE-2023-52481": {
+      "full_context_model": {
+        "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+        "final_reasoning_result": {
+          "boundary_statement": "The result represents reasoning over available evidence. It is not a vulnerability verification result.",
+          "confidence": 0.3,
+          "hypothesis_id": "attack-hypothesis:cc2389487f83152ae936f6b6139ef451c201f99bfc84552ad73b8344a57a92c1",
+          "id": "reasoning-result:fbea4cda81d921c9f2bea870fad61033e962eb8c8588804303458585c16d9e13",
+          "metadata": {
+            "confidence_semantics": "reasoning_only_not_verification_score",
+            "domain_truth_creation": false,
+            "merge_scope": "multi_agent_reasoning_only",
+            "source_reasoning_result_ids": [
+              "reasoning-result:9e2a4d781db864e0c2a0fc67453371a3b0ee6f378d0657798ce41d7a62431df9",
+              "reasoning-result:aa2a299efff78f93a45efc500544c2acbcdafc1ef3fa08025a93ce5e173bec16",
+              "reasoning-result:cc4f87d67d96b85db0c62d6c9a63d106393fe28d949878c508d78fb2bfff76c7"
+            ],
+            "supporting_evidence_semantics": "reference_only_not_verified_evidence"
+          },
+          "missing_evidence": [
+            "evidence-request:09bcc66d1de0ec31ce781cbbc674fdc8b7d04cd76125ac57073e86c87a8a942d",
+            "evidence-request:13569e426084aace2be0a82285f15a2be7ab3051162af405364653206b16872a",
+            "evidence-request:5548379d33cd77bd6d4c7c8ecfe8c9d60013d73283f4482c87c0e256db83c06f",
+            "evidence-request:91af3426db89093948d2b0f13b8398963a773be4ee4224dfd2e934bc0fe88c59",
+            "evidence-request:beb30e9e52a1d7f2ad83d01b1950716034b93c539c293cc2e2c1b85c381711f4",
+            "evidence-request:f579bd10eef82bb9e2b89929b637a052a074236898dbbc4dd4843aae9bb1fcfc"
+          ],
+          "reasoning_steps": [
+            "CVE-2023-52481 describes a speculative EL0 unprivileged load that may access mapped memory without EL0 permission and expose privileged data via a cache side channel.",
+            "The affected component list includes Cortex-A520 and Linux arm64 exception return, suggesting the vulnerable behavior occurs during exception return handling.",
+            "The cross-layer interaction is firmware_behavior_to_hardware, initiated by a code behavior and targeting a hardware vulnerability.",
+            "The trigger behavior is the speculative unprivileged load during exception return, and the propagation involves cache side-channel exposure.",
+            "No concrete evidence is currently available to confirm the exact code path or runtime manifestation, so confidence remains low.",
+            "The hardware role analyzed the supplied reference for CVE-2023-52481, which describes a speculative EL0 unprivileged load accessing mapped memory without EL0 permission and exposing privileged data through a cache side channel.",
+            "The reasoning context indicates a firmware_behavior_to_hardware interaction, with a target vulnerability participant related to the erratum and a trigger behavior participant, but no specific hardware resources are identified.",
+            "Hardware reasoning considered supplied references for CVE-2023-52481: the MMIO access attributes are not yet resolved, and no hardware-facing event has been observed. These evidence gaps must be filled before any hardware-level hypothesis can be supported.",
+            "Given the absence of available evidence IDs and the lack of corroborating runtime observations, the reasoning confidence is low, reflecting that the hypothesis is plausible but unverified.",
+            "The knowledge reference describes a microarchitectural condition in the Cortex-A520 where an EL0 unprivileged load may speculatively access memory without EL0 permissions, implying a privilege-related weakness.",
+            "The referenced erratum is documented as a CVE, indicating a recognized security-relevant defect, but the description does not confirm exploitation or establish causality.",
+            "The interaction context suggests a firmware_behavior_to_hardware direction with target vulnerability and trigger behavior participants, consistent with a speculative execution behavior triggering a hardware weakness.",
+            "No evidence is currently available (available_evidence_ids is empty), so the weakness hypothesis remains unverified and requires code-level and privilege-transition facts to progress."
+          ],
+          "supporting_evidence_ids": []
+        },
+        "merged_hypothesis": {
+          "affected_components": [
+            "Cortex-A520",
+            "Linux arm64 exception return"
+          ],
+          "attack_pattern_reference": null,
+          "confidence": 0.25,
+          "description": "Merged multi-agent hypothesis over source references: attack-hypothesis:370da7e2f0cf1552c360bb05046189d0dac218d748ef5dd678ce60307e4550f7, attack-hypothesis:609b9f9acaedfba972af2edc65cd30f26bd91b12f7599d23d94020a07852080b, attack-hypothesis:859d929acba1834f58562872e56e42c503e605c17e4e1d3b2a463e033b66c2b2, attack-hypothesis:f5b942a31ee05f90e27e8dda11214aa657fa47ffbd9195a9b4672824dc388064",
+          "id": "attack-hypothesis:cc2389487f83152ae936f6b6139ef451c201f99bfc84552ad73b8344a57a92c1",
+          "required_evidence_types": [
+            "mmio_access",
+            "privilege_transition",
+            "runtime_observation",
+            "static_behavior"
+          ]
+        },
+        "model_authored_chain_claim": {
+          "affected_execution_ids": [],
+          "architecture": "arm",
+          "author_role": "attack_chain",
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "id": "model-authored-chain-claim:f1bea0a63d3d7d1bb96ac4d4297d9ab8d50cdffc6748a0791718407bd1b805ad",
+          "initiating_vulnerability_ids": [],
+          "interaction_type": "firmware_behavior_to_hardware",
+          "metadata": {
+            "authorship_semantics": "model_proposal_not_verified_truth",
+            "provider_output": "constrained",
+            "reasoning_role": "attack_chain"
+          },
+          "propagation_behavior_ids": [],
+          "security_mechanism_ids": [],
+          "target_vulnerability_ids": [
+            "public-documented-participant:00130c5fc4020b8e904e0a9b9d31dd465dfa0a952a6d54e805ddf1f9e9edf1b2"
+          ],
+          "trigger_behavior_ids": [
+            "public-documented-participant:250847bbde6a854f3ecc405e871c40bf0c8d7e7d1afc019bd53e0d93ccec7a18"
+          ]
+        },
+        "reasoning_session_id": "reasoning-session:37b926694b3a05023c6bf16a6c8e176e0cfbe8699eed4581dd660c37c99363cc"
+      },
+      "masked_chain_context_model": {
+        "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+        "final_reasoning_result": {
+          "boundary_statement": "The result represents reasoning over available evidence. It is not a vulnerability verification result.",
+          "confidence": 0.25,
+          "hypothesis_id": "attack-hypothesis:21206d802311acc36a3023f43309903202450bda071adb383014d869a5aef5b8",
+          "id": "reasoning-result:038a54d965464138ac66af4dd50673e7069603ab86e80429979791e16b432e49",
+          "metadata": {
+            "confidence_semantics": "reasoning_only_not_verification_score",
+            "domain_truth_creation": false,
+            "merge_scope": "multi_agent_reasoning_only",
+            "source_reasoning_result_ids": [
+              "reasoning-result:5708feb388eecba657c117b4f63834b2916840bc7790a850a6bd55b93d5ff062",
+              "reasoning-result:a669845c24892d780b747ee77322b60aedeb8327e80738c7a5966698d31e8465",
+              "reasoning-result:c1d3ebb1f0615e1a1faee290e008399f6aa79305ef3ea9d34e50982810ff8226"
+            ],
+            "supporting_evidence_semantics": "reference_only_not_verified_evidence"
+          },
+          "missing_evidence": [
+            "evidence-request:2a33fd1e082de2dfe06d6443384b3cb1292501c0208c6c942671b3386e4e61ba",
+            "evidence-request:5938292d9b0e37a4e5e6e84c643510fbacd565b768d0b1654cbce6fb0f437b8e",
+            "evidence-request:810aa7d2f7070800f8546df9534f84923ada1a268acf14ecfa733925fbf5b666",
+            "evidence-request:dba7fcd9df23780587602f1abb4d76e30d14c29d42ee2c68c19675a8867dfb7b",
+            "evidence-request:f209e9dfd4336aeb078a03d8c6766b516524957fb002ac9213c59616fa4d87de",
+            "evidence-request:f997455b89f47bb1834ef0ecc95bc1bec2731c8ecd788911259b87e3321fcfc9"
+          ],
+          "reasoning_steps": [
+            "The referenced CVE entry indicates a speculative EL0 unprivileged load can access mapped memory without EL0 permission on Cortex-A520.",
+            "The affected components list includes Cortex-A520 and Linux arm64 exception return, suggesting the code behavior is in the exception return path of the Linux kernel.",
+            "As the code role, the hypothesis focuses on how code behavior in the exception return path might enable the speculative load condition.",
+            "Requesting static behavior facts and runtime observations to validate the code-level participation.",
+            "Hardware reasoning considered supplied references for CVE-2023-52481",
+            "The referenced erratum describes a speculative execution condition in the Cortex-A520 involving EL0 load permissions and cache side-channel exposure.",
+            "The role is hardware-centric, so focus is on MMIO access attributes and hardware-facing runtime events that could corroborate or refine the trigger conditions.",
+            "No available evidence IDs were provided; supporting evidence is therefore empty.",
+            "The vulnerability knowledge entry indicates a speculative EL0 load may bypass EL0 permission checks and expose privileged data via cache side channel.",
+            "The affected components include Cortex-A520 and Linux arm64 exception return, suggesting a privilege-related context.",
+            "Without evidence artifacts, the precise code path and privilege transition details remain unresolved; the weakness hypothesis is explicitly unverified."
+          ],
+          "supporting_evidence_ids": []
+        },
+        "merged_hypothesis": {
+          "affected_components": [
+            "Cortex-A520",
+            "Linux arm64 exception return"
+          ],
+          "attack_pattern_reference": null,
+          "confidence": 0.3,
+          "description": "Merged multi-agent hypothesis over source references: attack-hypothesis:484bb64d4975103333bcfdc69ca9c9cddd6e8a1de9a5c7c3ee8b02dc8a767f2f, attack-hypothesis:a357d917e79d777e3bae4fcc3f665cc630d274c76c05948975fb66085603d7b4, attack-hypothesis:a8e949f4f367ad949e123abb58089cb98ffe452da0d40816e5541a2d4c0827e4, attack-hypothesis:f8c63faf546720f1364504ecc9b4082698d7b31a5db5ee61343be2de9807006f",
+          "id": "attack-hypothesis:21206d802311acc36a3023f43309903202450bda071adb383014d869a5aef5b8",
+          "required_evidence_types": [
+            "mmio_access",
+            "privilege_transition",
+            "runtime_observation",
+            "static_behavior"
+          ]
+        },
+        "model_authored_chain_claim": {
+          "affected_execution_ids": [],
+          "architecture": "arm",
+          "author_role": "attack_chain",
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "id": "model-authored-chain-claim:02a48dac60d5fb7665f1a22ad716e89bd3a5b204bbdad2be7ed66048d367759f",
+          "initiating_vulnerability_ids": [
+            "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831"
+          ],
+          "interaction_type": "hardware_vulnerability_to_firmware",
+          "metadata": {
+            "authorship_semantics": "model_proposal_not_verified_truth",
+            "provider_output": "constrained",
+            "reasoning_role": "attack_chain"
+          },
+          "propagation_behavior_ids": [],
+          "security_mechanism_ids": [],
+          "target_vulnerability_ids": [],
+          "trigger_behavior_ids": [
+            "vulnerability-knowledge-entry:a9a3ddcf3f05630392c2610e81fcd240f7dcc035e945d7db29785a98cb76c831"
+          ]
+        },
+        "reasoning_session_id": "reasoning-session:37b926694b3a05023c6bf16a6c8e176e0cfbe8699eed4581dd660c37c99363cc"
+      }
+    },
+    "CVE-2024-26670": {
+      "full_context_model": {
+        "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+        "final_reasoning_result": {
+          "boundary_statement": "The result represents reasoning over available evidence. It is not a vulnerability verification result.",
+          "confidence": 0.3,
+          "hypothesis_id": "attack-hypothesis:c23a57295f7813117881fe949a4b18c31f1d8fe4bd1e53d8f27aa07a46d7c35f",
+          "id": "reasoning-result:0a5a8cdd4431be322f35e40e22764632aed12fa4e2a6c27386af21227158c12c",
+          "metadata": {
+            "confidence_semantics": "reasoning_only_not_verification_score",
+            "domain_truth_creation": false,
+            "merge_scope": "multi_agent_reasoning_only",
+            "source_reasoning_result_ids": [
+              "reasoning-result:54bb789bfbebbda6764797f38646d4e26169b55e5d40337ee04354d2d7d004ff",
+              "reasoning-result:c7bc5b975ce63fca6315ef6bfc9df57d12501a7200623ad784592ad9e8f7d320",
+              "reasoning-result:cc7f12c93f26e6afb345c5eb5ec04d05a830b0e2b7bcec20a0d54bd5568bae12"
+            ],
+            "supporting_evidence_semantics": "reference_only_not_verified_evidence"
+          },
+          "missing_evidence": [
+            "evidence-request:017dc692923f20d65de59321b9b134ae74aa401cff74ae3baaf3556104305c14",
+            "evidence-request:08bed344e9199f879a177dbfe5c628375c56f971f3ff306b9c24be51184a6db2",
+            "evidence-request:08dc0f897e67547e9629ae4cfab8de0c91a4389e6d12710690d0f73b9ee561f8",
+            "evidence-request:72869686512ff8c2492366509059ddc8b2ed73522ff3c8d99688350790131030",
+            "evidence-request:99c5285f5769ea36d1a2f0e6793b959819beefb6118b536ec775277529e565fc",
+            "evidence-request:d6b36408a820fbf5200e6fe07c35d99bf9a35374eb47fe9a7ba5d1f25a1a6252"
+          ],
+          "reasoning_steps": [
+            "The referenced CVE summary states that ARM64_WORKAROUND_SPECULATIVE_UNPRIV_LOAD is placed before a later LDR in the Linux arm64 entry path.",
+            "The summary indicates that the workaround requires all explicit memory accesses (the later LDR) to be followed by TLBI and DSB before returning to EL0.",
+            "Placing the workaround before the later LDR implies the later memory access may not be covered by the required TLBI/DSB sequence, which is a plausible code-level condition.",
+            "No supporting evidence is currently available to validate the exact instruction ordering or runtime behavior.",
+            "Code reasoning considered supplied references for CVE-2024-26670.",
+            "The provided knowledge entry describes a placement error in the Linux arm64 entry path where ARM64_WORKAROUND_SPECULATIVE_UNPRIV_LOAD is placed before a later LDR, violating the requirement that TLBI and DSB follow all explicit memory accesses before return to EL0.",
+            "As hardware role, the focus is on the hardware-facing aspects: the affected Cortex-A510 and Cortex-A520 cores implement erratum workarounds that require specific instruction ordering to prevent speculative unprivileged loads from bypassing TLB invalidation.",
+            "The cross-layer interaction indicates firmware vulnerability to hardware, with initiating vulnerability in the Linux driver (source layer) and target vulnerability in the hardware (target layer), triggered by a specific behavior in the entry path.",
+            "No available evidence IDs are supplied, so supporting evidence is empty. The reasoning confidence is limited to 0.3 because the hardware corroboration (MMIO access attributes and runtime observation) is not yet available.",
+            "The evidence requests are aligned with the role contract: one for MMIO access resolution and one for runtime observation of the hardware-facing event, both required to further validate the hypothesis.",
+            "The knowledge entry for CVE-2024-26670 describes that the Linux arm64 entry path placed ARM64_WORKAROUND_SPECULATIVE_UNPRIV_LOAD before a later LDR, which is a misordering because the TLBI and DSB operations must follow all explicit memory accesses before returning to EL0.",
+            "This misordering could weaken the speculative-unprivileged-load mitigation on affected Cortex-A510/A520 cores, potentially allowing a subsequent memory access to occur before the required barriers take effect, which is a plausible unverified weakness.",
+            "The reasoning context classifies the interaction as firmware_vulnerability_to_hardware with initiating, trigger, and target participant IDs, consistent with a software-side placement flaw impacting hardware behavior.",
+            "No evidence IDs are available in the context, so the supporting evidence list is empty; the hypothesis remains explicitly unverified and is proposed for further static and privilege-transition analysis."
+          ],
+          "supporting_evidence_ids": []
+        },
+        "merged_hypothesis": {
+          "affected_components": [
+            "Cortex-A510 erratum 3117295",
+            "Cortex-A520 erratum 2966298",
+            "Linux arm64 entry path"
+          ],
+          "attack_pattern_reference": null,
+          "confidence": 0.3,
+          "description": "Merged multi-agent hypothesis over source references: attack-hypothesis:45b6aa09ad2339241e61245a796c9b86b7974ea4b8f51504cd3fb745ba5a7969, attack-hypothesis:49198aa75b618f06f7851b61271caf4f2b278993ac907bb81d11d4fec268a81d, attack-hypothesis:57a90766599f8bb70d2becc6a8c3d54d0fe39cc4ac1c7e8df3dac5f57bd76494, attack-hypothesis:714e01e43b15d45777a8acf3d3d0e785ddd3141800c497e6e7b7ab487c4713d7",
+          "id": "attack-hypothesis:c23a57295f7813117881fe949a4b18c31f1d8fe4bd1e53d8f27aa07a46d7c35f",
+          "required_evidence_types": [
+            "mmio_access",
+            "privilege_transition",
+            "runtime_observation",
+            "static_behavior"
+          ]
+        },
+        "model_authored_chain_claim": {
+          "affected_execution_ids": [],
+          "architecture": "arm",
+          "author_role": "attack_chain",
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "id": "model-authored-chain-claim:a4ce1e7d1e27e8944a8f00b29c859036059d31ed601a3e98401522ea68f051ad",
+          "initiating_vulnerability_ids": [
+            "public-documented-participant:fcbcbab37109e322861e3ed137ebed38481f3ef08ec0ec7e00b10a5b88dfa850"
+          ],
+          "interaction_type": "firmware_vulnerability_to_hardware",
+          "metadata": {
+            "authorship_semantics": "model_proposal_not_verified_truth",
+            "provider_output": "constrained",
+            "reasoning_role": "attack_chain"
+          },
+          "propagation_behavior_ids": [],
+          "security_mechanism_ids": [],
+          "target_vulnerability_ids": [
+            "public-documented-participant:ee5bd8c02be270f62789ae855fc7c03c3ab6fabae981246045e0ee6ef73c1dd8"
+          ],
+          "trigger_behavior_ids": [
+            "public-documented-participant:6c590902c290b571fbf326e22cba144c6afd72da0174524ddbf591edaef93add"
+          ]
+        },
+        "reasoning_session_id": "reasoning-session:bc00982beae879928accc137e8dafbf55fb7fc5c41d1c86f5e0f46bce4459013"
+      },
+      "masked_chain_context_model": {
+        "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+        "final_reasoning_result": {
+          "boundary_statement": "The result represents reasoning over available evidence. It is not a vulnerability verification result.",
+          "confidence": 0.1,
+          "hypothesis_id": "attack-hypothesis:89942d7c2697d2f5cd1972c4b708ad2fa58abe1a1860d142188f7a0fac3384ba",
+          "id": "reasoning-result:5d4d24e66bce5d967e2e6e6b63390edafd7ad3b8e2d20852c6e44e3d6181916f",
+          "metadata": {
+            "confidence_semantics": "reasoning_only_not_verification_score",
+            "domain_truth_creation": false,
+            "merge_scope": "multi_agent_reasoning_only",
+            "source_reasoning_result_ids": [
+              "reasoning-result:329b3c9ea2810030d925e213f85fc00413d0584d6ed0e049a3b96f783be29d11",
+              "reasoning-result:a8e200576f00c687bc6f89c65e27a8e558eaffea35d9a6f8c821b268157db5a6",
+              "reasoning-result:ff1b75d7e287d2c0a40f51b4d2a44250b933315668d6d84e3afbfafccc3d5bb8"
+            ],
+            "supporting_evidence_semantics": "reference_only_not_verified_evidence"
+          },
+          "missing_evidence": [
+            "evidence-request:45d88afe865513b28258831e9c9661f03434ad9a2102335dad8516da6c7b03a2",
+            "evidence-request:474d126c7216f953be38aa03576df12c1f64b36da814daa659210c38397fcd8b",
+            "evidence-request:4b1b1e12a5ca5cd5ac36c5704b278d9fd908a9843d6e65a5cef4e8976f87e83c",
+            "evidence-request:514e5794ab00ea5aed6073a6a89891ef812fbc77968cf42600c5c17e82fa621f",
+            "evidence-request:7422842b4043ce531fdb15cc9ee5002c3b69f343bd636b0ea85f35ca793dec46",
+            "evidence-request:77bf897776d842a9119387cd7bcbc13466c4e31b164c59c8cad4284b55f4c5ad"
+          ],
+          "reasoning_steps": [
+            "The supplied knowledge entry states that ARM64_WORKAROUND_SPECULATIVE_UNPRIV_LOAD is placed before a later LDR in the Linux arm64 entry path, and that TLBI and DSB must follow all explicit memory accesses before return to EL0.",
+            "Without runtime or additional static evidence, the relative ordering of the workaround LDR, TLBI, and DSB cannot be confirmed from this entry alone, so the placement issue remains only a hypothesized inconsistency.",
+            "No available evidence IDs were supplied, so no evidence can be cited as supporting this reasoning.",
+            "Hardware reasoning considered supplied references for CVE-2024-26670, focusing on the Cortex-A510 and Cortex-A520 erratum details.",
+            "The workaround placement issue is hardware-ordering sensitive: if TLBI/DSB are not after all explicit memory accesses, a speculative unprivileged load could still execute after the barrier, violating the intended mitigation.",
+            "MMIO accesses are a class of explicit memory accesses that must be accounted for in the barrier ordering; absence of MMIO may make the issue purely architectural, but presence would strengthen the hardware interaction hypothesis.",
+            "No available evidence IDs were supplied, so supporting_evidence_ids is empty and confidence is bounded low.",
+            "The supplied knowledge entry for CVE-2024-26670 indicates a placement issue in the Linux arm64 entry path regarding the speculative-unprivileged-load workaround, with affected components including Cortex-A510 and Cortex-A520 errata.",
+            "No available evidence IDs were supplied to support or refute the weakness hypothesis, so the reasoning remains unverified.",
+            "The hypothesis is proposed as an unverified weakness claim, with confidence reflecting only the reasoning about the supplied reference material, not a verification score."
+          ],
+          "supporting_evidence_ids": []
+        },
+        "merged_hypothesis": {
+          "affected_components": [
+            "Cortex-A510 erratum 3117295",
+            "Cortex-A520 erratum 2966298",
+            "Linux arm64 entry path"
+          ],
+          "attack_pattern_reference": null,
+          "confidence": 0.2,
+          "description": "Merged multi-agent hypothesis over source references: attack-hypothesis:89d384bbb8015991b79721bc7ccd9c8012795e9a3eb250fdcb9ceeff2e3c8c59, attack-hypothesis:947d49cb7fd1efcd85990fd381cd4b97b0e568585d35273686c7e50dd8a3d34b, attack-hypothesis:d40cc4c8d9751666dbccc23af71ffac32d4e2b91508340a57045c61ed6131417, attack-hypothesis:e23176a19032dcfbe06408c6ff52ea2c4132c124c5daca583e075ac2efc309cf",
+          "id": "attack-hypothesis:89942d7c2697d2f5cd1972c4b708ad2fa58abe1a1860d142188f7a0fac3384ba",
+          "required_evidence_types": [
+            "mmio_access",
+            "privilege_transition",
+            "runtime_observation",
+            "static_behavior"
+          ]
+        },
+        "model_authored_chain_claim": {
+          "affected_execution_ids": [],
+          "architecture": "arm",
+          "author_role": "attack_chain",
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "id": "model-authored-chain-claim:732051660e44427ec838879feede31f94416aa2271ccc6a3386212955106e2af",
+          "initiating_vulnerability_ids": [
+            "vulnerability-knowledge-entry:46b28bdd88f0d38800da5f892772864d425d073c00d314179edaf35419748ccd"
+          ],
+          "interaction_type": "firmware_vulnerability_to_hardware",
+          "metadata": {
+            "authorship_semantics": "model_proposal_not_verified_truth",
+            "provider_output": "constrained",
+            "reasoning_role": "attack_chain"
+          },
+          "propagation_behavior_ids": [],
+          "security_mechanism_ids": [],
+          "target_vulnerability_ids": [],
+          "trigger_behavior_ids": []
+        },
+        "reasoning_session_id": "reasoning-session:bc00982beae879928accc137e8dafbf55fb7fc5c41d1c86f5e0f46bce4459013"
+      }
+    },
+    "CVE-2025-10263": {
+      "full_context_model": {
+        "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+        "final_reasoning_result": {
+          "boundary_statement": "The result represents reasoning over available evidence. It is not a vulnerability verification result.",
+          "confidence": 0.3,
+          "hypothesis_id": "attack-hypothesis:bfc0d86cd539fcc0480f6b2b1d08ecc983e4a25d480ac72ca37c0675b7e132c2",
+          "id": "reasoning-result:90a1920be98a34f0b2d2a83e192529f20b4a9bc398188eaf32cdf239a380f7d0",
+          "metadata": {
+            "confidence_semantics": "reasoning_only_not_verification_score",
+            "domain_truth_creation": false,
+            "merge_scope": "multi_agent_reasoning_only",
+            "source_reasoning_result_ids": [
+              "reasoning-result:5aa5839fb539d60e670f6b970eb00177dac52aac5678c90e0b340ac67b9f7f91",
+              "reasoning-result:66a0322d57fb3662e195434e5b402a0c346dd4f20853fd3d22ea451fcca3b28c",
+              "reasoning-result:7821fe9897bf2a2e6300c42629f811abc7ca8d552c499284ab97c587a13d5c05"
+            ],
+            "supporting_evidence_semantics": "reference_only_not_verified_evidence"
+          },
+          "missing_evidence": [
+            "evidence-request:1b9b587d6f2d4289ff4733acce31950e6bc8a5ffc7033af9fc265c6282f0359b",
+            "evidence-request:6bc362a4f3f5197ac155cd11876ae59528e997da2fd93bbf4e960740da40b211",
+            "evidence-request:6c4849b4c62d89c7c4ce5912c3aaf5d9d64d7439918a7df9621eeaa919e6574f",
+            "evidence-request:6fd17d1121da95e2fa2829a9cd233ffbe74734646d08c1ee454262c501e7c4c3",
+            "evidence-request:ae3b73f4d89978fa3f5456c9b28698e6e00a2b1972f41a31f200e1b263f8b223",
+            "evidence-request:b09352652f28ac68e89416efe0b2e91da2bd81807da88194d6b4ba16cada7445"
+          ],
+          "reasoning_steps": [
+            "The knowledge content indicates a CVE describing a TLBI and DSB completion ordering issue in Arm families, where broadcast TLBI plus DSB may complete before global observation of affected writes.",
+            "This suggests a potential ordering violation that could affect writes to resources owned by a higher exception level, implying a cross-layer condition.",
+            "The interaction type is firmware_behavior_to_hardware, with a trigger behavior and target vulnerability participant provided in the reasoning context.",
+            "No evidence is currently available to confirm or refute the specific code behavior, so the reasoning confidence is modest and further static/runtime facts are requested.",
+            "The supplied knowledge entry describes an issue where broadcast TLBI and DSB completion may precede global observation of affected writes, potentially allowing writes to higher exception level resources.",
+            "As the hardware role, I analyze this as a potential memory ordering hazard in the Arm architecture's TLBI and DSB synchronization mechanisms.",
+            "The affected components include multiple Arm families, suggesting a design-level characteristic rather than a single implementation bug.",
+            "The interaction type firmware_behavior_to_hardware indicates that software memory management operations (TLBI/DSB) interact with hardware ordering guarantees.",
+            "No direct evidence is available to confirm or refute the behavior; supporting evidence IDs are therefore empty.",
+            "Hardware reasoning confidence is moderate-low because the description is public documentation and lacks corroborating runtime or MMIO-level evidence.",
+            "The referenced vulnerability knowledge entry describes a public report of an Arm ordering issue involving broadcast TLBI and DSB completion preceding global observation of affected writes, potentially affecting higher exception level resources.",
+            "This is an unverified weakness hypothesis derived solely from the supplied knowledge reference content; no independent evidence or verification is available in the current context.",
+            "The interaction type firmware_behavior_to_hardware indicates the suspected weakness manifests through firmware-issued memory management operations interacting with hardware ordering semantics.",
+            "The hypothesis is proposed with low-to-moderate confidence, reflecting that the source is a public report without confirmed code-level or privilege-transition facts."
+          ],
+          "supporting_evidence_ids": []
+        },
+        "merged_hypothesis": {
+          "affected_components": [
+            "Arm C1 families",
+            "Arm Cortex-A710/A78/A77/A76 families",
+            "Arm Cortex-X families",
+            "Arm Neoverse families"
+          ],
+          "attack_pattern_reference": null,
+          "confidence": 0.3,
+          "description": "Merged multi-agent hypothesis over source references: attack-hypothesis:0b8a884a9874e3915311e73645b1ceec08e1e6f0ea6850952681e41a76392779, attack-hypothesis:303eecbf36f9c34d1a4ba27eb5efe1de2601373936515d20b478284ad1b3b817, attack-hypothesis:7113789036fb17040d8b6cf2392859c5fa19b565ce8f515fc4c6ec1865a77a6f, attack-hypothesis:8484305765a9edd38d7d5103f0fe6f1c80bf5231b9981f5ea15ce81cf368a451",
+          "id": "attack-hypothesis:bfc0d86cd539fcc0480f6b2b1d08ecc983e4a25d480ac72ca37c0675b7e132c2",
+          "required_evidence_types": [
+            "mmio_access",
+            "privilege_transition",
+            "runtime_observation",
+            "static_behavior"
+          ]
+        },
+        "model_authored_chain_claim": {
+          "affected_execution_ids": [],
+          "architecture": "arm",
+          "author_role": "attack_chain",
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "id": "model-authored-chain-claim:8ce71559e033921eedf863e642298f3888ebf69da5392aab6efbf3d8a84bb815",
+          "initiating_vulnerability_ids": [],
+          "interaction_type": "firmware_behavior_to_hardware",
+          "metadata": {
+            "authorship_semantics": "model_proposal_not_verified_truth",
+            "provider_output": "constrained",
+            "reasoning_role": "attack_chain"
+          },
+          "propagation_behavior_ids": [],
+          "security_mechanism_ids": [],
+          "target_vulnerability_ids": [
+            "public-documented-participant:a44b8479e47b54a006b77c233acaabcdd34b4a853586d7666224ccc02e9bcdb2"
+          ],
+          "trigger_behavior_ids": [
+            "public-documented-participant:9157a6091599d01081d9a52ff98ea5feb7d6a31106c60eff5d29d0380ef54cc7"
+          ]
+        },
+        "reasoning_session_id": "reasoning-session:28d129abab6ad2e06cb624e94e16a586b95ea248a03a6889945b97b58703eba5"
+      },
+      "masked_chain_context_model": {
+        "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+        "final_reasoning_result": {
+          "boundary_statement": "The result represents reasoning over available evidence. It is not a vulnerability verification result.",
+          "confidence": 0.3,
+          "hypothesis_id": "attack-hypothesis:68767be11bf5f6af0f6ea98d16085fd858dee87057b7575396cd15831554b797",
+          "id": "reasoning-result:29ec95852326d9aae3267076219e906effba081273ca1ade24c8d5518b6056ff",
+          "metadata": {
+            "confidence_semantics": "reasoning_only_not_verification_score",
+            "domain_truth_creation": false,
+            "merge_scope": "multi_agent_reasoning_only",
+            "source_reasoning_result_ids": [
+              "reasoning-result:1435de0cec1a77e84ef550992bb0fce46cf4a33e5a82500fae9c941ccd4ece34",
+              "reasoning-result:24165d6fe5ba2dab82eff55d063bc4c0e756ed863dcc24d05d6f24be71924d3c",
+              "reasoning-result:eabcef5bc71b2963427b918f95bd1e2b1a3feabdf1786b05389c9c5f7d3285a4"
+            ],
+            "supporting_evidence_semantics": "reference_only_not_verified_evidence"
+          },
+          "missing_evidence": [
+            "evidence-request:164adc248422f5dde406a56d2f2148d0dcd80ff35e18524e452e753270982790",
+            "evidence-request:ac141f654f14e3f6479e8c4e0ab772ac128893ce1c86c2f60534492187a2f568",
+            "evidence-request:c5b99d19c8ae195da1aac1f529e011cde3a5e90166e1db0b006881e9f22424fb",
+            "evidence-request:cb00aaafba3a44a69f42f85a167de607d2ed3655a68b50e0e10efda2d53ab5d1",
+            "evidence-request:deaf6ad18414856cd43c98776853e7663ac3a55d95f5d304714002d8fa8141a3",
+            "evidence-request:f87783f835988b13ad9a63c1abdbc18603dfa3a003faf60eb48a3a4580a6e084"
+          ],
+          "reasoning_steps": [
+            "Code reasoning considered supplied references for CVE-2025-10263, which describes a TLBI and DSB completion ordering issue affecting multiple Arm families.",
+            "The referenced vulnerability concerns ordering between broadcast TLB invalidation completion and global observation of writes, potentially allowing writes to higher exception level resources to be observed after DSB completion should have ordered them.",
+            "The code role focuses on the instruction sequencing and barrier behavior that could create this condition; however, no runtime or static evidence beyond the public reference is currently available.",
+            "A hypothesis is proposed that firmware code sequences TLBI and DSB such that completion may precede global observation, but confidence is limited by lack of concrete code-level evidence.",
+            "Two evidence requests are made: one for static instruction/barrier analysis and one for runtime observation of the ordering behavior.",
+            "The supplied knowledge reference describes a public CVE-2025-10263 issue affecting multiple Arm processor families, where broadcast TLBI and DSB completion may occur before global observation of affected writes.",
+            "As hardware reasoning, I interpret this as a potential memory-ordering weakness in the TLBI/DSB pipeline, which could allow writes to higher-exception-level resources to be perceived as completed before they are globally visible.",
+            "The affected components include Arm C1, Cortex-A (A710/A78/A77/A76), Cortex-X, and Neoverse families, indicating a broad architectural impact.",
+            "Because the issue is inherently hardware-related (ordering of TLBI and DSB events), corroboration requires MMIO access attribute analysis and runtime observation of the hardware event sequence.",
+            "No supplied evidence IDs are available for direct support; therefore, supporting_evidence_ids is empty.",
+            "Reasoning confidence is moderate (0.55) given that the CVE reference is a public summary without confirmed hardware verification details.",
+            "The provided knowledge entry describes a public report of a TLBI/DSB completion ordering issue affecting specific Arm families; this is reference material, not verified evidence.",
+            "The summary indicates a potential ordering violation where broadcast TLBI plus DSB completion may occur before global observation of writes, creating a potential window for writes to higher-privilege resources.",
+            "No supporting evidence IDs were available to corroborate or refute the ordering behavior or the affected-software impact; the hypothesis remains unverified.",
+            "The confidence reflects the presence of a plausible but unconfirmed weakness based solely on the referenced public description."
+          ],
+          "supporting_evidence_ids": []
+        },
+        "merged_hypothesis": {
+          "affected_components": [
+            "Arm C1 families",
+            "Arm Cortex-A710/A78/A77/A76 families",
+            "Arm Cortex-X families",
+            "Arm Neoverse families"
+          ],
+          "attack_pattern_reference": null,
+          "confidence": 0.3,
+          "description": "Merged multi-agent hypothesis over source references: attack-hypothesis:8060ce307ed765137c7ba2712d4a3a0245873641419c642d581a1041e63e274b, attack-hypothesis:851c3df7ce169406bfbb419df4d65fee445bd865664c3dfb18ec90a0baba791d, attack-hypothesis:9ca344246339583ab14dda8cd6eb5dcc4c314bf41f131ccdeaa7907c05f67fc5, attack-hypothesis:bdbe632a2a657cbcadcec12ae58d2179c5520b46a06e23a33a3fbac92fa905c7",
+          "id": "attack-hypothesis:68767be11bf5f6af0f6ea98d16085fd858dee87057b7575396cd15831554b797",
+          "required_evidence_types": [
+            "mmio_access",
+            "privilege_transition",
+            "runtime_observation",
+            "static_behavior"
+          ]
+        },
+        "model_authored_chain_claim": {
+          "affected_execution_ids": [],
+          "architecture": "arm",
+          "author_role": "attack_chain",
+          "fault_state_ids": [],
+          "hardware_resource_ids": [],
+          "id": "model-authored-chain-claim:7d950c648c8332cbf842e596a6bec4175d93e74ac8ac5619e1529acd57ffc8de",
+          "initiating_vulnerability_ids": [],
+          "interaction_type": "firmware_behavior_to_hardware",
+          "metadata": {
+            "authorship_semantics": "model_proposal_not_verified_truth",
+            "provider_output": "constrained",
+            "reasoning_role": "attack_chain"
+          },
+          "propagation_behavior_ids": [],
+          "security_mechanism_ids": [],
+          "target_vulnerability_ids": [],
+          "trigger_behavior_ids": []
+        },
+        "reasoning_session_id": "reasoning-session:28d129abab6ad2e06cb624e94e16a586b95ea248a03a6889945b97b58703eba5"
+      }
+    }
+  },
+  "conditions": {
+    "context_objective_upper_bound": {
+      "condition_failure": null,
+      "invocation_count": 0,
+      "invocation_dispositions": {},
+      "invocations": [],
+      "prompt_visibility_audit_count": 0,
+      "report_present": false
+    },
+    "full_context_model": {
+      "candidate_assessments": [
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "candidate_id": "finalized-candidate:b6fb2cccd5ceceb193b9bb13cbe96caf914b44ac011918f88b6617e11c7fc7a5",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "aligned",
+          "cve_id": "CVE-2024-26670",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "candidate_id": "finalized-candidate:f79d456e6f99aee4c93d3b99d0fdc6b118c2304d7eb62368e9d69321416ea73e",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "aligned",
+          "cve_id": "CVE-2022-23960",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "candidate_id": "finalized-candidate:a6487c204bcf66654e5c3c8b9808ecc03a2ae792c3bc027937e6a5c5397ff452",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "aligned",
+          "cve_id": "CVE-2025-10263",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "candidate_id": "finalized-candidate:91cd01f69b9936f5363cf6be7dd9af798da4e5abdfb2f955cf309190525ca6a8",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "aligned",
+          "cve_id": "CVE-2023-52481",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "candidate_id": "finalized-candidate:79e50d613c5a6d4896118ef4139b14d27bf6b330655f634be3b76d15f99b2ae2",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "aligned",
+          "cve_id": "CVE-2023-34320",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        }
+      ],
+      "condition_failure": null,
+      "invocation_count": 20,
+      "invocation_dispositions": {
+        "completed": 20
+      },
+      "invocations": [
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-34320",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "7677cf56ed1966278eada592864a6692d85c036214f3e032b3c50df17565f624",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "452fdcbb61c23134125a5577433bc41a81a50c53c15d2750b9778f7c0e604be7",
+          "role": "code"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-34320",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "33558fb1a194bff8440d591f9830cd627938d951249385ebee7a06dcf3f74dc4",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "3762eb4d829b27fa796f5b1a557323aedf4402296a5efac871b90692d7f9a8b1",
+          "role": "hardware"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-34320",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "76ba90c359347888ef2c68e905cf01832f88201f6d6f170989376bb12213cf5f",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "8097864f296674198da3362c3dc4fe198aff5536f28e0dd083ea6c4a1715b0df",
+          "role": "vulnerability"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-34320",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "c952158ca61ebae8f7496eb027272f967a7581a63c11633793d343e74df8467f",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "aaed67a49c039f9e08502bd6edec680ece27be128d34db5cc2664fef5e84b58b",
+          "role": "attack_chain"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-52481",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "fef644067670b7a900d2598ea08f9755e1728f4b562f011a1f81bd02bc82858e",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "114a66aea00f6481e61c4fd4d139b0ff047fe876f1f4224d1ed2e8bdffadf55f",
+          "role": "code"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-52481",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "f42d19074448e499fbc640ce55af52b31bac9d70fd0c1aaa6bd745cae98598dd",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "52afed7aec4661aab3ccd48507c5a5c8df9fdab730587b0dfd49b57fc03cf6b6",
+          "role": "hardware"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-52481",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "165182484c679ac7ff127ce9fe3d4914c0c44117c1570432b33986b3f57f3339",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "6015997dc9f9f426e30ee3bbae66ae97d01da502c18a529dca060ea37c7e09d3",
+          "role": "vulnerability"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-52481",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "9f4fd8ca43a14c0ee13ed822dedf0557d47abdd850b46d43e0f4ee249d830c38",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "0402ee22839f4a3303c56ba1d027b56d7677e5d267103f8c45c261fd3e9063a7",
+          "role": "attack_chain"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2024-26670",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "fdb3556f3f0a11a0fbd86795e48a6cd36bda824ee44597c55a9adcd1c9ede7d5",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "50fcf23e8d2cba62e0e35e412a552906692e93b7869e76571d891f76c0065b9d",
+          "role": "code"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2024-26670",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "4c469095704fc493fccecce0831b5f5194cfe6183eb0cda949561682fd2e6c0a",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "9c5d0095cd0090da56220aedd1f089ad4cbb7ccaae9fd94e21096a001c45a266",
+          "role": "hardware"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2024-26670",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "52f2117f1b7dfe2c28c34e862e1a1315703c402c80e290bb6121f12530a76512",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "50c1e8205876233c73d78381f2ce88cdaba4b6df856f4d9597ff6df343e6c008",
+          "role": "vulnerability"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2024-26670",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "b2b7cb83788d846cf330b879412f5b365c6a2ce22a8828b33e9978a8fdbd4ddc",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "c4dd603a57f106d9fe0784b9101dbddbb08238c14aac9176203282876463bc7d",
+          "role": "attack_chain"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2022-23960",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "d73f07b834ee50e4cc90820d54be8655fa33475ff76dc8abf99ff496b6ba80b9",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "c69e133f5a997e4253d722a0bdbf56a1270c50573e9a381b40a27da87a215b2b",
+          "role": "code"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2022-23960",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "76623ea51d2bbba08e10de413e229cf0d995cba3ed535b9ac7043e84d35d509c",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "dcac85c3c476d3fa670470eaf77b7427eff4bbd69acdd43fd626a5b9f25383c3",
+          "role": "hardware"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2022-23960",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "b4ff039c45527db0239aa74e6618957519dacb38a14afddc55e665b790de13be",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "f8816402513457e213093dce5bf798dcd57f4e327eda0f33e7ce5f109f501df8",
+          "role": "vulnerability"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2022-23960",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "ef78be738742bd778db7ba8917958b2ea668b4372aa94eec5c1da15cea4cb152",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "b12a18b5576e5abd792ae4540f0c28659d585208706377326f1d6ba49633731c",
+          "role": "attack_chain"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2025-10263",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "a7fb4a20c38582846bf35b670859601752925014ba5846b842f09a6386598a1d",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "e80857f7d6717e59e747108300d64217fd398be9b0692b24c47f9defb3051e6e",
+          "role": "code"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2025-10263",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "619be65169a691873ea30d77016fd4893cf202f94476b48a2bcccf2c4f4a7da6",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "aec2a0abe46988c8a5c217af9d15e787ba44220a1ef7889b28450fb0961fb61a",
+          "role": "hardware"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2025-10263",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "5b496b5338c242d23d2f4b23355677b4b561c93ef6097ca33b5e1fe07e915b53",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "0afe477cb69b35fdb5d7f071d8cdda8a428f9212ab667ccf4fe5f481fda28a30",
+          "role": "vulnerability"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2025-10263",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "a7ab4a1c723c74ff5779cb23bc1ce20f21ae611d7f322f9e6c117011acd38bda",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "0dd9f1168e8ed746a44b43f669c40eed3559d31e6d6750add0ee65e1868f31c5",
+          "role": "attack_chain"
+        }
+      ],
+      "metrics": {
+        "ground_truth_chain_recall": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        },
+        "negative_control_false_positive_rate": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        },
+        "primary_case_coverage": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        },
+        "verification_hit_rate": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        }
+      },
+      "prompt_visibility_audit_count": 0,
+      "report_present": true
+    },
+    "masked_chain_context_model": {
+      "candidate_assessments": [
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "candidate_id": "finalized-candidate:bda7ed920fb5a1e19fad77f18882bee8a7051b73c89bffe787e6b4261cd14631",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "mismatched",
+          "cve_id": "CVE-2022-23960",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "candidate_id": "finalized-candidate:e7aec7f2035ad128932f15ff3a26106483987fbc736734e3dc318eb6bd7f7e44",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "mismatched",
+          "cve_id": "CVE-2023-52481",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "candidate_id": "finalized-candidate:56a81e5edc88cdfd27323e75db9532d88aabd0ac1ae4ae22bedf02328f38c87d",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "incomplete",
+          "cve_id": "CVE-2025-10263",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "candidate_id": "finalized-candidate:a4fd4f82cdd9e7c2655e40b0b377548cbfcad2665ccb6edb32882b68aa9f1449",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "incomplete",
+          "cve_id": "CVE-2023-34320",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "candidate_id": "finalized-candidate:9f30713c86cb1ec190c0bb699d1a1e4006394559f5c1c482d6369b942b7be8eb",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "incomplete",
+          "cve_id": "CVE-2024-26670",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        }
+      ],
+      "condition_failure": null,
+      "invocation_count": 20,
+      "invocation_dispositions": {
+        "completed": 20
+      },
+      "invocations": [
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-34320",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "4a09add4e2c690ced6715b46d30f411c600baca3b67470d43c6450d8d6cde1cc",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "1d485b4140a62a69d64a5cd87d06909b585531cbff837a4e2f322e97fd213ef0",
+          "role": "code"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-34320",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "ed0d37d72f4ccca70c255458ad860535b7f236315b851bba99cc47e8fa608b1a",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "433fc10f35bcb13d829995f237dbbf5e7e0909f5cdd92294653d1d2a41ccb98b",
+          "role": "hardware"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-34320",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "3164f0a1166332094991eb0d4e8afc57b23201c220ba00cfcab5400c8e80f9cd",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "2ccc5770baa055e3035a45ee8a78be8dd4469e01df568c4e293c1a6a69214955",
+          "role": "vulnerability"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-34320",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "785fff8651812e2a5c6d53ea5e88317a3dc76f6544c40ad46e45739c38c62e5e",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "2ed025b7ff7682e5dbb177845e02fdee0348ed58ab77c9be93d83288c0c1b948",
+          "role": "attack_chain"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-52481",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "2c0df2e8ffa1c47a4632de6b0a109b3ff9a8a0eb60a02bfc1494e06d56056779",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "a188b2e99d5d104e47a62c9f1581789fd255be18583e2bb392386e0ac29c43da",
+          "role": "code"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-52481",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "9b1a3a5dfb61c31fd8835a6914af180a1862d4f7e03304f2032abfe7609f06f2",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "05d94b0c95cd3dc2aea97c328fd96aed6a3589c05ed22558b20eeebf7669438d",
+          "role": "hardware"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-52481",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "e19f4bf1f9feee4e77b2a30a63e8e0076236283ddf5ed0d40c370e18f02de0e7",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "343de4518a26f64347a03cc1545d3471aec0cc1192954d89c32ac77b21c8c875",
+          "role": "vulnerability"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2023-52481",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "5077d560afbf504c9a426ced155385d5fec26336ea94967e349fe49635e2a2c4",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "1fd1b89ab7d9960f4bddf09e594102d0b6ec3be45faa891473dc6e48932ca9dc",
+          "role": "attack_chain"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2024-26670",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "097817d3386cd0fa63c7ef427d39cc093e637584beeb50d52da388d98ad64f88",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "7365418198623f0bff08b041e8f764731a712982d6dbcd688c8a593b98fa6fa3",
+          "role": "code"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2024-26670",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "00a7780375b318767afb678cf2ffb5c4af19184dfa242d18d92d7bb149e5a9aa",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "50689ecd7b02d92f2f9797e85a5b9bb4920399d65e6b96d900d047705c8f9714",
+          "role": "hardware"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2024-26670",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "6684be4c41f92a03d6695d1ba524af27d794c274ecf1f3a96bfcc2136dc09c8f",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "b9b29ecc33287e721e69c540c62fc4d335d64ce5830066b08dc493c31e60325a",
+          "role": "vulnerability"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2024-26670",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "2bfd4407231ac1e7a9e803012f1a9a357340b7d7af35267dbf3adb484c560acf",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "4709d3ba5653ded26c8afcf15e48a34a855ac3766f3bef5fc6c5c8d49056c12f",
+          "role": "attack_chain"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2022-23960",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "f12b6d5325b0b5f133a0d2ea2a4ea8039319e4d7ffd8b9c777e94d109f35dc80",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "2dbfe8ac926a29f4aca211a79510b0c17649f8a2455de895eec4e5ba47446427",
+          "role": "code"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2022-23960",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "6f1656a22dd1712837574cd6b1bfcc0581a02e30c70a5148e275b1d34752ec6e",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "7278cd5e9ec4e8050795e4791ef8fca0a5f93c38fd1c0a4ed476cfacd029ae2f",
+          "role": "hardware"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2022-23960",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "24392691ddceb9da084bd1074ba2830089f3621b7808e254cd35b1a7d626f2b9",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "42b9a3dd4e7a3c7cc4ec92afc4ff9c531a5f037d01aef25d6a7d495c23cde730",
+          "role": "vulnerability"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2022-23960",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "58b4f281074a946c71ebcdbf63d847b76c937b0c6c5f15abdd53c681ae1b252a",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "105b97e89d1d9c62240d1a30020df292d47e10bdbf238dbdeae6fa89c52aed9a",
+          "role": "attack_chain"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2025-10263",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "9f54990761740558357b7b9b5fb36890e5f82b006b41317b815ffbeb5aea9555",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "8760ead389c6667dd471a1a3143cad950b50a72f296b1b5dfd252dfc105566f6",
+          "role": "code"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2025-10263",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "ef80e2ff78e0ec9294272b0c05f491b608396c32d251b6cb435266388f344ee3",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "ec5084a86c65a3f81b491d98e449d7d8ac9e92910fc2f6045f39701074ce2ebe",
+          "role": "hardware"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2025-10263",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "6d2d9bee278f10be88ac5ebb8c1aab8e4e3fc16b18cb3d3cf22ebff4b8c73073",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "043204c9a636a435889301412048d7b09c8fc372c86b54bb61d1549940399462",
+          "role": "vulnerability"
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "blocked_by_role": null,
+          "cve_id": "CVE-2025-10263",
+          "disposition": "completed",
+          "failure_code": null,
+          "failure_stage": null,
+          "parser_failure_detail": null,
+          "prompt_sha256": "0dc51fd9cefc07516a0fc72090795be180190aace74041842242e0691ca80b69",
+          "provider_response_failure_detail": null,
+          "provider_response_sha256": "4334e2d185a6de7ff387a4e71a6015372b784bbef30f036b4017b9ad942ca295",
+          "role": "attack_chain"
+        }
+      ],
+      "metrics": {
+        "ground_truth_chain_recall": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        },
+        "negative_control_false_positive_rate": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        },
+        "primary_case_coverage": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        },
+        "verification_hit_rate": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        }
+      },
+      "prompt_visibility_audit_count": 20,
+      "report_present": true
+    },
+    "no_model_baseline": {
+      "candidate_assessments": [
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:2418f2dbb967c0f0938318811a001004680f6a0a1b3fda2d3397d746c48cb280",
+          "candidate_id": "finalized-candidate:f23c24b87e63c82993d0473847dbc39735a04b2031bc51907d31782e0ea01760",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "missing",
+          "cve_id": "CVE-2023-34320",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:784723145384f7893bc6e2130d26ed4c88137da0986431011ed08c77ef7c30c9",
+          "candidate_id": "finalized-candidate:f9fecb800eb18730ffc6e9a17a914e407702694e77430a4954059ded3b022051",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "missing",
+          "cve_id": "CVE-2022-23960",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:e0b909a69bcae5a5cd4d66aa65d2fa9ffb0edb0e8de4e77e5ac848b9454765df",
+          "candidate_id": "finalized-candidate:8894d81ddecfc2d8dd57a8dc7b0073c91e12bb8903f16dacc602ecab92e7bf4a",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "missing",
+          "cve_id": "CVE-2025-10263",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:710b201196be5152bec593439989bf862e00454982a0eb5ba489104e78d5eb9c",
+          "candidate_id": "finalized-candidate:b09ba60a50687e95d4720214ad97635584071525e2463387cbbbddbf27707d53",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "missing",
+          "cve_id": "CVE-2024-26670",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        },
+        {
+          "benchmark_case_id": "evaluation-benchmark-case:3f7ee84445b5eab6cc0a02eb8a462a0760c1178f7b78d77e64b3841eaf208e70",
+          "candidate_id": "finalized-candidate:9986369b6b263358cf1a50df8bc55dc23123114e4269145e180ac976ef735d63",
+          "case_label": "positive_feasible",
+          "chain_feasibility_status": "unresolved",
+          "claim_binding_status": "missing",
+          "cve_id": "CVE-2023-52481",
+          "evaluation_scope": "secondary_only",
+          "matched_ground_truth_chain_ids": [],
+          "negative_control_false_positive": false,
+          "strict_hit": false
+        }
+      ],
+      "condition_failure": null,
+      "invocation_count": 0,
+      "invocation_dispositions": {},
+      "invocations": [],
+      "metrics": {
+        "ground_truth_chain_recall": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        },
+        "negative_control_false_positive_rate": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        },
+        "primary_case_coverage": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        },
+        "verification_hit_rate": {
+          "defined": false,
+          "denominator": 0,
+          "numerator": 0
+        }
+      },
+      "prompt_visibility_audit_count": 0,
+      "report_present": true
+    }
+  },
+  "experiment_plan_id": "real-model-experiment-plan:70b5490561783d6048a63baa31b5737595c77646bc1248a1a8639c598ab525ba",
+  "input_set_id": "real-experiment-input-set:a3e8110a16a97287999af9f0615ffb0c74e0066321e6bc1268226545f12dbaa5",
+  "manifest_id": "benchmark-manifest:193ba6a515500cb9dac521c9db9fa3bbcc2d37ccf935c1b46e8878972fe94a5a",
+  "public_knowledge_binding_id": "public-knowledge-execution-binding:bc4cc2613df0853cb80da4d5bb2c1c93b44299405cf5e28d22ea703ae0798415",
+  "transport_leakage_audit_count": 40
+}
