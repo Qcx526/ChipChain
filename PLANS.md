@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1D 已完成；Step 8B-1E 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E 已完成并冻结；Step 8B-2B0 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -688,7 +688,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] one-shot 不是 PRIMARY benchmark、验证命中率、模型准确率或 `>=80%` 结论；reasoning 与 claim 仍不是
   Evidence、VerificationRecord、AttackChain 或 vulnerability verdict
 
-#### Phase 10D Step 8B-1E：Masked Semantic Recovery Diagnostic（已完成实现，待 final review）
+#### Phase 10D Step 8B-1E：Masked Semantic Recovery Diagnostic（已完成并冻结）
 
 - [x] 新增 `phase10d_masked_semantic_recovery_diagnostic_v1`，只离线读取 exact frozen Step 8B-1D archive
   与运行前已冻结的 authoritative public source；不调用 Provider、网络、QEMU 或第二个 LLM judge
@@ -706,6 +706,25 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   ATTACK_CHAIN hypothesis-description content coverage；后续 contract freeze 后的新 run 才可 prospective 使用
 - [x] 当前派生结构结果为 type recovery 4 MATCH/1 MISMATCH、MASKED exact binder 3 INCOMPLETE/2 MISMATCHED、
   objective feasibility 5 UNRESOLVED；这些是多轴描述，不合成为模型成功率
+
+#### Phase 10D Step 8B-2B0：Authoritative Documented Erratum Contract Freeze（已完成实现，待 final review）
+
+- [x] 新增 `phase10d_documented_erratum_source_v1` 人工审阅输入与
+  `phase10d_documented_hardware_erratum_v1` 确定性生成合同，只冻结 Arm SDEN-1152370 v11.0 对
+  CVE-2023-34320 / Cortex-A77 erratum 1508412 的 concise documented semantics
+- [x] 精确编码 r0p0/r1p0 affected、r1p1 fixed，以及有向 Case A/Case B event alternatives；Case A load
+  支持 Device/Normal Non-cacheable，Case B first load 严格 Device-only，PAR_EL1 只标记 privileged AArch64
+- [x] `CLOSE_PROXIMITY` 固定为 `QUALITATIVE_ONLY`、`quantitative_bound=null`；额外 timing conditions 未由
+  public source 完整定义，effect 只可为 possible core deadlock
+- [x] 只保存 documentation-only mitigation categories，不保存实现定义寄存器序列、机器码或 observed
+  mitigation state；source precision 显式声明没有 unique machine-code sequence、runtime environment 或
+  hardware failure observation
+- [x] builder 只离线读取 exact frozen public-source bytes 与新 curation source，fail closed 校验 source-file
+  SHA、CVE record canonical SHA 与 corpus ID；不读取 Ground Truth、Provider、QEMU 或网络
+- [x] `SEMANTIC_PATTERN_REFERENCE_ONLY` 不创建或复用 `HardwareTriggerSignature`、`HardwareTriggerProof`、
+  `TriggerabilityAggregationResult`、Evidence、VerificationRecord、AttackChain 或 feasibility assessment
+- [x] CVE 继续是 public-source `NEXT_OBJECTIVE_CANDIDATE` / evaluation `SECONDARY_ONLY`，没有 PRIMARY
+  admission 或 benchmark metric 变化
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

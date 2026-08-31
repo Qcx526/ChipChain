@@ -75,3 +75,24 @@ coverage，以及原 objective feasibility。Coverage 是 token-set exact numera
 不是 semantic correctness、verification、模型准确率或攻击链检测率；没有阈值、综合成功分数或 PASS/FAIL。
 当前输出固定为 `RETROSPECTIVE_DIAGNOSTIC` / `prospective_metric_eligible=false`，因为诊断合同在第一次
 one-shot 输出被观察后才定义。构建器不调用 Provider、网络、QEMU，也不重写任何 frozen public input。
+
+`public_cve/objective/cve_2023_34320_erratum_1508412.source.json` 是 Step 8B-2B0 的窄范围人工审阅
+curation input，只保存 Arm SDEN-1152370 v11.0 对 erratum 1508412 的 concise normalized semantics，
+不保存 PDF、长摘录、machine-code sequence、workaround 可执行序列、Ground Truth、模型输出或 metric。
+运行：
+
+```bash
+python scripts/build_cve_2023_34320_documented_erratum.py --check
+python scripts/build_cve_2023_34320_documented_erratum.py --write
+```
+
+会从该 source 与 byte-exact frozen public CVE source 完全离线生成
+`evaluation/cve_2023_34320_documented_erratum_1508412_v1.json`。生成物绑定 source-file SHA-256、exact
+CVE source-record canonical SHA-256 与 public corpus ID；Case A/B 的有向 program order、memory-type
+限制、CPU revision disposition、documented mitigations 与所有 precision flags 均进入 deterministic ID。
+
+该生成物只回答 authoritative Arm documentation 声明了什么：
+`DocumentedHardwareErratumContract != HardwareTriggerSignature`，documentation 也不等于 hardware
+experimental proof。`CLOSE_PROXIMITY` 是 qualitative-only 且 `quantitative_bound=null`；semantic pattern
+reference 不等于 objective observation、triggerability、feasibility、verification 或 PRIMARY admission。
+CVE-2023-34320 仍属于 `NEXT_OBJECTIVE_CANDIDATE` / `SECONDARY_ONLY`。

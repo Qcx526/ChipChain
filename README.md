@@ -69,6 +69,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   显式 opt-in execution wrapper
 - Phase 10D Step 8B-1D 冻结五案 public-provider one-shot hash-only archive
 - Phase 10D Step 8B-1E retrospective MASKED ATTACK_CHAIN hypothesis-description content diagnostic
+- Phase 10D Step 8B-2B0 Cortex-A77 erratum 1508412 authoritative documented-semantics contract
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -756,6 +757,37 @@ rate。运行以下命令可在无 Provider、网络或 QEMU 的环境中逐字�
 
 ```bash
 python scripts/build_masked_semantic_recovery_diagnostic.py --check
+```
+
+## Phase 10D Step 8B-2B0 Documented Erratum Contract
+
+Step 8B-2B0 以独立的 `DocumentedHardwareErratumContract` 冻结 Arm SDEN-1152370 v11.0 对
+Cortex-A77 erratum 1508412 的规范性文档语义。人工审阅的 concise curation source 与冻结的
+CVE-2023-34320 public-source file/record/corpus identity 共同输入完全离线 builder；它不下载或提交 Arm
+PDF，也不保存长摘录、机器码或 workaround 可执行序列：
+
+```text
+frozen public CVE source + authoritative erratum curation
+                         ↓
+              deterministic offline builder
+                         ↓
+       DocumentedHardwareErratumContract
+```
+
+该合同精确保留 r0p0/r1p0 affected、r1p1 fixed、Case A/Case B 的 program order、Device 与
+Normal Non-cacheable 的不同适用范围、`CLOSE_PROXIMITY` 以及 `CORE_DEADLOCK/POSSIBLE`。Program order
+由来源明确，但 proximity 只有 `QUALITATIVE_ONLY`，没有 instruction/cycle/distance 数值界限；额外 timing
+conditions 仍是 `UNSPECIFIED_BY_PUBLIC_SOURCE`。`PAR_EL1` alternative 明确限 privileged AArch64，其他
+load/store-exclusive 路径仍保持 ARM A-profile applicability，不把整个 Cortex-A77 erratum 错写为 A64-only。
+
+`DocumentedHardwareErratumContract != HardwareTriggerSignature`；authoritative documentation 也不等于
+`HardwareTriggerProof` 或 hardware experimental proof。`SEMANTIC_PATTERN_REFERENCE_ONLY` 不是 objective
+observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility 或漏洞 verdict。
+CVE-2023-34320 继续是 `NEXT_OBJECTIVE_CANDIDATE`，其 evaluation cohort 继续是 `SECONDARY_ONLY`，没有
+PRIMARY admission 变化。可用下列命令离线核对唯一生成物：
+
+```bash
+python scripts/build_cve_2023_34320_documented_erratum.py --check
 ```
 
 ## 文档导航

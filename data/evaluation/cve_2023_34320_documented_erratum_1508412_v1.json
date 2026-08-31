@@ -1,0 +1,142 @@
+{
+  "curation_basis": "authoritative_vendor_documentation",
+  "architecture": "arm",
+  "architecture_profile": "a_profile",
+  "processor": "Cortex-A77",
+  "cve_id": "CVE-2023-34320",
+  "configurations": "all_configurations",
+  "authoritative_source": {
+    "vendor": "Arm",
+    "document_id": "SDEN-1152370",
+    "document_version": "11.0",
+    "issue_date": "2020-09-01",
+    "erratum_id": "1508412",
+    "section_title": "NC/Device Load and Store Exclusive or PAR-Read collision can cause deadlock",
+    "source_locator": "arm-document:SDEN-1152370:11.0:erratum-1508412",
+    "source_kind": "vendor_errata_notice",
+    "source_access_status": "publicly_accessible_at_curation"
+  },
+  "revision_records": [
+    {
+      "processor": "Cortex-A77",
+      "revision": "r0p0",
+      "disposition": "affected"
+    },
+    {
+      "processor": "Cortex-A77",
+      "revision": "r1p0",
+      "disposition": "affected"
+    },
+    {
+      "processor": "Cortex-A77",
+      "revision": "r1p1",
+      "disposition": "fixed"
+    }
+  ],
+  "program_order_cases": [
+    {
+      "case_id": "case_a",
+      "event_1": {
+        "alternatives": [
+          {
+            "kind": "store_exclusive",
+            "memory_types": [],
+            "system_register": null,
+            "applicability": "arm_a_profile"
+          },
+          {
+            "kind": "system_register_read",
+            "memory_types": [],
+            "system_register": "PAR_EL1",
+            "applicability": "privileged_aarch64"
+          }
+        ]
+      },
+      "event_2": {
+        "alternatives": [
+          {
+            "kind": "memory_load",
+            "memory_types": [
+              "device",
+              "normal_non_cacheable"
+            ],
+            "system_register": null,
+            "applicability": "arm_a_profile"
+          }
+        ]
+      },
+      "relation": "close_proximity",
+      "relation_precision": "qualitative_only",
+      "quantitative_bound": null
+    },
+    {
+      "case_id": "case_b",
+      "event_1": {
+        "alternatives": [
+          {
+            "kind": "memory_load",
+            "memory_types": [
+              "device"
+            ],
+            "system_register": null,
+            "applicability": "arm_a_profile"
+          }
+        ]
+      },
+      "event_2": {
+        "alternatives": [
+          {
+            "kind": "store_exclusive",
+            "memory_types": [],
+            "system_register": null,
+            "applicability": "arm_a_profile"
+          },
+          {
+            "kind": "system_register_read",
+            "memory_types": [],
+            "system_register": "PAR_EL1",
+            "applicability": "privileged_aarch64"
+          }
+        ]
+      },
+      "relation": "close_proximity",
+      "relation_precision": "qualitative_only",
+      "quantitative_bound": null
+    }
+  ],
+  "additional_timing_condition_precision": "unspecified_by_public_source",
+  "documented_effect": {
+    "kind": "core_deadlock",
+    "modality": "possible"
+  },
+  "documented_mitigations": [
+    {
+      "kind": "case_b_el0_device_access_restriction",
+      "semantics": "documented_mitigation"
+    },
+    {
+      "kind": "exclusive_related_firmware_or_hardware",
+      "semantics": "documented_mitigation"
+    },
+    {
+      "kind": "par_el1_dmb_sy_ordering",
+      "semantics": "documented_mitigation"
+    }
+  ],
+  "source_precision": {
+    "program_order_defined": true,
+    "quantitative_proximity_bound_defined": false,
+    "additional_timing_conditions_fully_defined": false,
+    "unique_machine_code_sequence_defined": false,
+    "effective_memory_type_resolution_defined": false,
+    "runtime_environment_defined": false,
+    "hardware_failure_observation_present": false
+  },
+  "objective_use": "semantic_pattern_reference_only",
+  "public_source_artifact": "public-cve-source:arm_cross_layer_seed_v1.source.json",
+  "public_source_file_sha256": "32a1f9782a2c966123f7f7bc141adb2d82a7ee8452705e06b1d4835e00f0e848",
+  "public_source_record_sha256": "980a723600d6288617bf924fcc9e6a95e89079c498d8890286c6bb01e43c5a42",
+  "public_corpus_id": "public-cve-corpus:778765c51a0d9b939eb37b390367a3d0cd02720942c8746c19eb0a1c38930e49",
+  "id": "documented-hardware-erratum:8ad52bee747242179997fd58989c92f419ff051f618682e07e158d00a787096c",
+  "contract": "phase10d_documented_hardware_erratum_v1"
+}

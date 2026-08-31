@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step8b1d-stable`
-- Stable commit: `9948fed3a3581e5b9d74f742e0a12a50fac17921`
-- Baseline: Phase 10D Step 8B-1D final accepted and frozen
+- Stable tag: `phase-10d-step8b1e-stable`
+- Stable commit: `d67374cecb82e8fb2014738bcb0e4035c3c3e030`
+- Baseline: Phase 10D Step 8B-1E final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -37,13 +37,15 @@
 - Phase 10D Step 8B-1B versioned neutral public-knowledge projection and structured prompt leakage audit
 - Phase 10D Step 8B-1C explicit public execution binding, exact pre-transport provenance gates, and wrapper archive
 - Phase 10D Step 8B-1D frozen five-case public-provider one-shot hash-only archive
-- Phase 10D Step 8B-1E deterministic retrospective MASKED semantic/content recovery diagnostic (implemented, pending final review)
+- Phase 10D Step 8B-1E deterministic retrospective MASKED semantic/content recovery diagnostic
+- Phase 10D Step 8B-2B0 authoritative documented semantics contract for Cortex-A77 erratum 1508412 (implemented, pending final review)
 
 ## Current Work
 
-Phase 10D Step 8B-1D completed one separately approved five-case public-provider one-shot and froze its
-hash-only public execution wrapper. This does not promote the `SECONDARY_ONLY` cohort into PRIMARY scope and
-does not create an accepted hit-rate, accuracy, verification, or `>=80%` result.
+Phase 10D Step 8B-2B0 adds one narrow, deterministic, offline
+`DocumentedHardwareErratumContract` for the authoritative Arm SDEN-1152370 v11.0 semantics of
+CVE-2023-34320 / Cortex-A77 erratum 1508412. It binds the frozen public-source file SHA-256, exact CVE source
+record SHA-256, and public corpus ID, while leaving all frozen public cohort and provider artifacts byte-exact.
 
 Step 8B-1E adds Axis B as a supplemental offline diagnostic while leaving Axis A (the exact
 `ModelClaimBinder`) and Axis C (the objective `ChainFeasibilityOracle`) unchanged. Current frozen sessions use
@@ -68,10 +70,16 @@ Manual owned-synthetic real-provider smoke/evaluation runs have occurred, but no
 accepted performance result or >=80% conclusion exists. DS5 remained incomplete because its MASKED
 firewall failed closed. Phase 9C Step 3B remains deferred.
 
+The new documented-erratum object is not a `HardwareTriggerSignature`, `HardwareTriggerProof`, experimental
+result, runtime observation, Evidence, VerificationRecord, triggerability result, or feasibility assessment.
+It preserves exact program order but explicitly records qualitative-only proximity with no numeric bound,
+possible core deadlock, and additional timing conditions unspecified by the public source. Its objective use is
+`SEMANTIC_PATTERN_REFERENCE_ONLY`; CVE-2023-34320 remains `NEXT_OBJECTIVE_CANDIDATE` and `SECONDARY_ONLY`.
+
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- final review/freeze of the Step 8B-1E retrospective diagnostic contract
+- final review/freeze of the Step 8B-2B0 documented-erratum contract
 - objective evidence review and explicit PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation
