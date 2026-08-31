@@ -25,6 +25,7 @@ from chipchain.hardware_trigger import (
     AProfileSemanticTriggerPattern,
     AProfileStaticInstructionSetState,
     AProfileStaticPredicateCandidate,
+    AProfileStaticPredicatePlanEntry,
     AProfileStaticSemanticExtractionPlan,
     AProfileStaticSemanticExtractionResult,
     AProfileStaticSemanticInstructionFact,
@@ -37,6 +38,7 @@ from chipchain.hardware_trigger import (
     StaticInstructionLocation,
     StaticRecognitionSemantics,
     a_profile_semantic_predicate_ref,
+    a_profile_static_predicate_candidate_id,
     build_a_profile_static_semantic_extraction_plan,
     serialize_a_profile_static_semantic_extraction_plan,
     translate_a_profile_pattern_to_static_extraction_plan,
@@ -160,6 +162,12 @@ def _candidate(
         predicate_entry=_entry(plan, case_id, position_index, kind),
         static_instruction_fact=fact,
     )
+
+
+def _recompute_candidate_id(payload: dict[str, object]) -> dict[str, object]:
+    identity_payload = {key: value for key, value in payload.items() if key != "id"}
+    payload["id"] = a_profile_static_predicate_candidate_id(identity_payload)
+    return payload
 
 
 def test_exact_contracts_source_binding_and_plan_identity(
@@ -462,6 +470,219 @@ def test_candidate_exact_binding_and_conservative_meaning(
         in case_a.remaining_objective_obligations
     )
     assert "satisfied" not in type(case_a).model_fields
+
+
+def test_standalone_valid_load_candidate_round_trips(
+    plan: AProfileStaticSemanticExtractionPlan,
+) -> None:
+    candidate = _candidate(plan, _fact())
+
+    restored = AProfileStaticPredicateCandidate.model_validate_json(
+        candidate.model_dump_json()
+    )
+
+    assert restored == candidate
+    assert restored.predicate_entry_snapshot == _entry(
+        plan,
+        "case_a",
+        2,
+        AProfileSemanticEventKind.MEMORY_LOAD,
+    )
+
+
+def test_standalone_load_candidate_cannot_drop_conditional_obligation(
+    plan: AProfileStaticSemanticExtractionPlan,
+) -> None:
+    payload = _candidate(plan, _fact()).model_dump(mode="json")
+    original_id = payload["id"]
+    payload["remaining_objective_obligations"].remove(
+        RemainingObjectiveObligation.EFFECTIVE_MEMORY_TYPE_RESOLUTION_REQUIRED.value
+    )
+    _recompute_candidate_id(payload)
+    assert payload["id"] != original_id
+
+    with pytest.raises(
+        ValidationError,
+        match="objective obligations do not match predicate-entry snapshot",
+    ):
+        AProfileStaticPredicateCandidate.model_validate(payload)
+
+
+def test_standalone_par_candidate_cannot_drop_runtime_context_obligation(
+    plan: AProfileStaticSemanticExtractionPlan,
+) -> None:
+    fact = _fact(kind=AProfileSemanticEventKind.SYSTEM_REGISTER_READ)
+    candidate = _candidate(
+        plan,
+        fact,
+        case_id="case_a",
+        position_index=1,
+        kind=AProfileSemanticEventKind.SYSTEM_REGISTER_READ,
+    )
+    payload = candidate.model_dump(mode="json")
+    original_id = payload["id"]
+    payload["remaining_objective_obligations"].remove(
+        RemainingObjectiveObligation.RUNTIME_EXECUTION_CONTEXT_REQUIRED.value
+    )
+    _recompute_candidate_id(payload)
+    assert payload["id"] != original_id
+
+    with pytest.raises(
+        ValidationError,
+        match="objective obligations do not match predicate-entry snapshot",
+    ):
+        AProfileStaticPredicateCandidate.model_validate(payload)
+
+
+def test_standalone_candidate_rejects_snapshot_applicability_tamper(
+    plan: AProfileStaticSemanticExtractionPlan,
+) -> None:
+    fact = _fact(kind=AProfileSemanticEventKind.STORE_EXCLUSIVE)
+    payload = _candidate(
+        plan,
+        fact,
+        case_id="case_a",
+        position_index=1,
+        kind=AProfileSemanticEventKind.STORE_EXCLUSIVE,
+    ).model_dump(mode="json")
+    payload["predicate_entry_snapshot"]["applicability"] = (
+        AProfileExecutionApplicability.PRIVILEGED_AARCH64.value
+    )
+    _recompute_candidate_id(payload)
+
+    with pytest.raises(ValidationError):
+        AProfileStaticPredicateCandidate.model_validate(payload)
+
+
+def test_standalone_candidate_rejects_snapshot_event_kind_tamper(
+    plan: AProfileStaticSemanticExtractionPlan,
+) -> None:
+    fact = _fact(kind=AProfileSemanticEventKind.STORE_EXCLUSIVE)
+    payload = _candidate(
+        plan,
+        fact,
+        case_id="case_a",
+        position_index=1,
+        kind=AProfileSemanticEventKind.STORE_EXCLUSIVE,
+    ).model_dump(mode="json")
+    payload["predicate_entry_snapshot"]["event_kind"] = (
+        AProfileSemanticEventKind.MEMORY_LOAD.value
+    )
+    _recompute_candidate_id(payload)
+
+    with pytest.raises(ValidationError):
+        AProfileStaticPredicateCandidate.model_validate(payload)
+
+
+def test_standalone_candidate_rejects_snapshot_par_payload_tamper(
+    plan: AProfileStaticSemanticExtractionPlan,
+) -> None:
+    fact = _fact(kind=AProfileSemanticEventKind.SYSTEM_REGISTER_READ)
+    payload = _candidate(
+        plan,
+        fact,
+        case_id="case_a",
+        position_index=1,
+        kind=AProfileSemanticEventKind.SYSTEM_REGISTER_READ,
+    ).model_dump(mode="json")
+    payload["predicate_entry_snapshot"]["system_register"] = None
+    _recompute_candidate_id(payload)
+
+    with pytest.raises(ValidationError):
+        AProfileStaticPredicateCandidate.model_validate(payload)
+
+
+def test_standalone_candidate_rejects_snapshot_memory_constraint_tamper(
+    plan: AProfileStaticSemanticExtractionPlan,
+) -> None:
+    payload = _candidate(plan, _fact()).model_dump(mode="json")
+    original_id = payload["id"]
+    payload["predicate_entry_snapshot"][
+        "required_memory_type_constraints"
+    ] = [AProfileMemoryType.DEVICE.value]
+    _recompute_candidate_id(payload)
+    assert payload["id"] != original_id
+
+    with pytest.raises(
+        ValidationError,
+        match="predicate reference does not match snapshot semantic content",
+    ):
+        AProfileStaticPredicateCandidate.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("case_id", "case_other", "case does not match"),
+        ("position_index", 1, "position does not match"),
+    ],
+)
+def test_standalone_candidate_rejects_snapshot_location_tamper(
+    plan: AProfileStaticSemanticExtractionPlan,
+    field: str,
+    value: object,
+    message: str,
+) -> None:
+    payload = _candidate(plan, _fact()).model_dump(mode="json")
+    payload["predicate_entry_snapshot"][field] = value
+    _recompute_candidate_id(payload)
+
+    with pytest.raises(ValidationError, match=message):
+        AProfileStaticPredicateCandidate.model_validate(payload)
+
+
+def test_result_rejects_standalone_valid_snapshot_outside_exact_plan(
+    plan: AProfileStaticSemanticExtractionPlan,
+) -> None:
+    fact = _fact()
+    payload = _candidate(plan, fact).model_dump(mode="json")
+    snapshot_payload = payload["predicate_entry_snapshot"]
+    snapshot_payload["required_memory_type_constraints"] = [
+        AProfileMemoryType.DEVICE.value
+    ]
+    changed_entry = AProfileStaticPredicatePlanEntry.model_validate(
+        snapshot_payload
+    )
+    changed_ref = a_profile_semantic_predicate_ref(
+        pattern_id=payload["source_pattern_id"],
+        case_id=payload["case_id"],
+        position_index=payload["position_index"],
+        predicate=changed_entry.as_predicate(),
+    )
+    snapshot_payload["predicate_ref"] = changed_ref
+    payload["predicate_ref"] = changed_ref
+    _recompute_candidate_id(payload)
+    candidate = AProfileStaticPredicateCandidate.model_validate(payload)
+
+    with pytest.raises(ValidationError, match="outside the plan"):
+        AProfileStaticSemanticExtractionResult.create(
+            artifact_id=fact.artifact_id,
+            artifact_sha256=fact.artifact_sha256,
+            extraction_plan=plan,
+            instruction_facts=[fact],
+            predicate_candidates=[candidate],
+        )
+
+
+def test_result_rejects_post_validation_candidate_snapshot_substitution(
+    plan: AProfileStaticSemanticExtractionPlan,
+) -> None:
+    fact = _fact()
+    candidate = _candidate(plan, fact).model_copy(deep=True)
+    object.__setattr__(
+        candidate,
+        "predicate_entry_snapshot",
+        _entry(plan, "case_b", 1, AProfileSemanticEventKind.MEMORY_LOAD),
+    )
+
+    with pytest.raises(ValidationError, match="predicate reference"):
+        AProfileStaticSemanticExtractionResult.create(
+            artifact_id=fact.artifact_id,
+            artifact_sha256=fact.artifact_sha256,
+            extraction_plan=plan,
+            instruction_facts=[fact],
+            predicate_candidates=[candidate],
+        )
 
 
 def test_candidate_rejects_wrong_fact_or_predicate(

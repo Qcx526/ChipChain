@@ -515,6 +515,7 @@ class _AProfileStaticPredicateCandidateBody(DomainModel):
     extraction_plan_id: Identifier
     source_pattern_id: Identifier
     predicate_ref: Identifier
+    predicate_entry_snapshot: AProfileStaticPredicatePlanEntry
     static_instruction_fact_id: Identifier
     case_id: Identifier
     position_index: int = Field(ge=1)
@@ -536,6 +537,40 @@ class _AProfileStaticPredicateCandidateBody(DomainModel):
         if not mandatory.issubset(values):
             raise ValueError("static candidate dropped mandatory obligations")
         return values
+
+    @model_validator(mode="after")
+    def validate_predicate_entry_snapshot(
+        self,
+    ) -> "_AProfileStaticPredicateCandidateBody":
+        entry = self.predicate_entry_snapshot
+        if self.predicate_ref != entry.predicate_ref:
+            raise ValueError("candidate predicate reference does not match snapshot")
+        if self.case_id != entry.case_id:
+            raise ValueError("candidate case does not match predicate-entry snapshot")
+        if self.position_index != entry.position_index:
+            raise ValueError(
+                "candidate position does not match predicate-entry snapshot"
+            )
+        if (
+            self.remaining_objective_obligations
+            != entry.remaining_objective_obligations
+        ):
+            raise ValueError(
+                "candidate objective obligations do not match "
+                "predicate-entry snapshot"
+            )
+        expected_ref = a_profile_semantic_predicate_ref(
+            pattern_id=self.source_pattern_id,
+            case_id=self.case_id,
+            position_index=self.position_index,
+            predicate=entry.as_predicate(),
+        )
+        if self.predicate_ref != expected_ref:
+            raise ValueError(
+                "candidate predicate reference does not match snapshot "
+                "semantic content"
+            )
+        return self
 
 
 class AProfileStaticPredicateCandidate(
@@ -576,6 +611,7 @@ class AProfileStaticPredicateCandidate(
             "extraction_plan_id": plan.id,
             "source_pattern_id": plan.source_pattern_id,
             "predicate_ref": entry.predicate_ref,
+            "predicate_entry_snapshot": entry,
             "static_instruction_fact_id": fact.id,
             "case_id": entry.case_id,
             "position_index": entry.position_index,
@@ -731,6 +767,10 @@ class _AProfileStaticSemanticExtractionResultBody(DomainModel):
             entry = entry_by_ref.get(candidate.predicate_ref)
             if entry is None:
                 raise ValueError("candidate references a predicate outside the plan")
+            if candidate.predicate_entry_snapshot != entry:
+                raise ValueError(
+                    "candidate predicate-entry snapshot does not match exact plan entry"
+                )
             if (
                 candidate.case_id,
                 candidate.position_index,
