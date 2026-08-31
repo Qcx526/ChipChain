@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E 已完成并冻结；Step 8B-2B0 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E 与 Step 8B-2B0 已完成并冻结；Step 8B-2B1 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -707,7 +707,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 当前派生结构结果为 type recovery 4 MATCH/1 MISMATCH、MASKED exact binder 3 INCOMPLETE/2 MISMATCHED、
   objective feasibility 5 UNRESOLVED；这些是多轴描述，不合成为模型成功率
 
-#### Phase 10D Step 8B-2B0：Authoritative Documented Erratum Contract Freeze（已完成实现，待 final review）
+#### Phase 10D Step 8B-2B0：Authoritative Documented Erratum Contract Freeze（已完成并冻结）
 
 - [x] 新增 `phase10d_documented_erratum_source_v1` 人工审阅输入与
   `phase10d_documented_hardware_erratum_v1` 确定性生成合同，只冻结 Arm SDEN-1152370 v11.0 对
@@ -725,6 +725,23 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   `TriggerabilityAggregationResult`、Evidence、VerificationRecord、AttackChain 或 feasibility assessment
 - [x] CVE 继续是 public-source `NEXT_OBJECTIVE_CANDIDATE` / evaluation `SECONDARY_ONLY`，没有 PRIMARY
   admission 或 benchmark metric 变化
+
+#### Phase 10D Step 8B-2B1：Versioned ARM A-profile Semantic Trigger Pattern（已完成实现，待 final review）
+
+- [x] 新增通用 `phase10d_a_profile_semantic_trigger_pattern_v1`，只表达 future objective analyzer 所需的
+  `MEMORY_LOAD`、`STORE_EXCLUSIVE`、`SYSTEM_REGISTER_READ(PAR_EL1)` predicates，不创建 occurrence 或 observation
+- [x] 翻译器只读取 byte/hash/ID/contract 精确冻结的 2B0 generated artifact，不读取人工 curation、Arm 文档、
+  Ground Truth、Provider、QEMU、angr 或网络
+- [x] positions 1/2 保持 `PROGRAM_ORDER`，同 position alternatives 固定为 OR；Case A 与 Case B 的方向、
+  Device/Normal-NC 限制以及 PAR_EL1 privileged-AArch64 applicability 完整翻译
+- [x] load memory-type semantics 固定为 `EFFECTIVE_ARCHITECTURAL_MEMORY_TYPE`，并携带
+  `OBJECTIVE_EFFECTIVE_MEMORY_TYPE_REQUIRED`；opcode/MMIO/address-range 不能单独满足该义务
+- [x] `CLOSE_PROXIMITY` 保持 qualitative-only/null bound，并显式声明 source 不足以进行 exact software-only
+  satisfaction；额外 timing conditions 保持 unresolved from public documentation
+- [x] effect 与 mitigation 只作为 documented reference，revision scope 不构成 runtime CPU observation；pattern
+  identity 绑定全部 predicates、source obligations 与 2B0 provenance
+- [x] 2B1 不实现 2B2 static occurrence extraction 或 2B3 runtime observation，不修改旧 A32 enums、signature、
+  matcher、aggregator、fixture identity 或 PRIMARY admission
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

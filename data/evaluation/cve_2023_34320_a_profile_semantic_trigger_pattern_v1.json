@@ -1,0 +1,159 @@
+{
+  "architecture": "arm",
+  "architecture_profile": "a_profile",
+  "processor": "Cortex-A77",
+  "cve_id": "CVE-2023-34320",
+  "erratum_id": "1508412",
+  "configurations": "all_configurations",
+  "source_documented_erratum_id": "documented-hardware-erratum:8ad52bee747242179997fd58989c92f419ff051f618682e07e158d00a787096c",
+  "source_documented_erratum_sha256": "bd50b8b50313041c3d5245cccaf51a0d4d479914033ad233d79a740180b0c5a1",
+  "source_documented_erratum_contract": "phase10d_documented_hardware_erratum_v1",
+  "revision_scope": [
+    {
+      "processor": "Cortex-A77",
+      "revision": "r0p0",
+      "disposition": "affected"
+    },
+    {
+      "processor": "Cortex-A77",
+      "revision": "r1p0",
+      "disposition": "affected"
+    },
+    {
+      "processor": "Cortex-A77",
+      "revision": "r1p1",
+      "disposition": "fixed"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "case_a",
+      "position_order": "program_order",
+      "positions": [
+        {
+          "position_index": 1,
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "kind": "store_exclusive",
+              "applicability": "arm_a_profile",
+              "system_register": null,
+              "memory_type_constraints": [],
+              "memory_type_semantics": null,
+              "memory_type_observation_requirement": null
+            },
+            {
+              "kind": "system_register_read",
+              "applicability": "privileged_aarch64",
+              "system_register": "PAR_EL1",
+              "memory_type_constraints": [],
+              "memory_type_semantics": null,
+              "memory_type_observation_requirement": null
+            }
+          ]
+        },
+        {
+          "position_index": 2,
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "kind": "memory_load",
+              "applicability": "arm_a_profile",
+              "system_register": null,
+              "memory_type_constraints": [
+                "device",
+                "normal_non_cacheable"
+              ],
+              "memory_type_semantics": "effective_architectural_memory_type",
+              "memory_type_observation_requirement": "objective_effective_memory_type_required"
+            }
+          ]
+        }
+      ],
+      "relation": "close_proximity",
+      "relation_precision": "qualitative_only",
+      "quantitative_bound": null,
+      "relation_evaluability": "source_insufficient_for_exact_software_only_satisfaction"
+    },
+    {
+      "case_id": "case_b",
+      "position_order": "program_order",
+      "positions": [
+        {
+          "position_index": 1,
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "kind": "memory_load",
+              "applicability": "arm_a_profile",
+              "system_register": null,
+              "memory_type_constraints": [
+                "device"
+              ],
+              "memory_type_semantics": "effective_architectural_memory_type",
+              "memory_type_observation_requirement": "objective_effective_memory_type_required"
+            }
+          ]
+        },
+        {
+          "position_index": 2,
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "kind": "store_exclusive",
+              "applicability": "arm_a_profile",
+              "system_register": null,
+              "memory_type_constraints": [],
+              "memory_type_semantics": null,
+              "memory_type_observation_requirement": null
+            },
+            {
+              "kind": "system_register_read",
+              "applicability": "privileged_aarch64",
+              "system_register": "PAR_EL1",
+              "memory_type_constraints": [],
+              "memory_type_semantics": null,
+              "memory_type_observation_requirement": null
+            }
+          ]
+        }
+      ],
+      "relation": "close_proximity",
+      "relation_precision": "qualitative_only",
+      "quantitative_bound": null,
+      "relation_evaluability": "source_insufficient_for_exact_software_only_satisfaction"
+    }
+  ],
+  "source_additional_timing_precision": "unspecified_by_public_source",
+  "additional_timing_condition_requirement": "unresolved_from_public_documentation",
+  "documented_effect_reference": {
+    "kind": "core_deadlock",
+    "modality": "possible"
+  },
+  "mitigation_references": [
+    {
+      "kind": "case_b_el0_device_access_restriction",
+      "semantics": "documented_mitigation_reference"
+    },
+    {
+      "kind": "exclusive_related_firmware_or_hardware",
+      "semantics": "documented_mitigation_reference"
+    },
+    {
+      "kind": "par_el1_dmb_sy_ordering",
+      "semantics": "documented_mitigation_reference"
+    }
+  ],
+  "source_precision_obligations": {
+    "program_order_source_defined": true,
+    "quantitative_proximity_source_defined": false,
+    "additional_timing_conditions_source_defined": false,
+    "machine_code_sequence_source_defined": false,
+    "effective_memory_type_resolution_source_defined": false,
+    "runtime_environment_source_defined": false,
+    "hardware_effect_empirical_source_defined": false
+  },
+  "pattern_use": "objective_analyzer_predicates_only",
+  "id": "a-profile-semantic-trigger-pattern:25599b751ead0dc36a39787000fad60aa0cea6485913cdf52b248e037ec21d77",
+  "contract": "phase10d_a_profile_semantic_trigger_pattern_v1"
+}

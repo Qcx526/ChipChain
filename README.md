@@ -70,6 +70,7 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10D Step 8B-1D 冻结五案 public-provider one-shot hash-only archive
 - Phase 10D Step 8B-1E retrospective MASKED ATTACK_CHAIN hypothesis-description content diagnostic
 - Phase 10D Step 8B-2B0 Cortex-A77 erratum 1508412 authoritative documented-semantics contract
+- Phase 10D Step 8B-2B1 versioned ARM A-profile semantic trigger-pattern predicate language
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -788,6 +789,44 @@ PRIMARY admission 变化。可用下列命令离线核对唯一生成物：
 
 ```bash
 python scripts/build_cve_2023_34320_documented_erratum.py --check
+```
+
+## Phase 10D Step 8B-2B1 A-profile Semantic Trigger Pattern
+
+Step 8B-2B1 只从冻结的 2B0 generated artifact 翻译出
+`phase10d_a_profile_semantic_trigger_pattern_v1`；production builder 不再读取 Arm 文档或人工 curation
+source。该通用合同描述未来 objective analyzer 需要寻找的 event predicates、ordered positions、OR
+alternatives 与 source obligations：
+
+```text
+DocumentedHardwareErratumContract
+        ↓ semantic translation only
+AProfileSemanticTriggerPattern
+        ↓ future extraction (not implemented in 2B1)
+Static / Runtime objective facts
+        ↓ future stateful evaluation
+Triggerability
+```
+
+`AProfileSemanticTriggerPattern` 不是 observation、occurrence、`HardwareTriggerSignature`、
+`HardwareTriggerProof` 或 `TriggerabilityAggregationResult`。2B1 没有 PC、instruction address、machine-code
+word、effective address、trace position 或任何 matched/executed/satisfied outcome。它仅保留 Case A/B 的
+有向 program order：alternatives 是 OR，positions 不能交换。
+
+`MEMORY_LOAD` 的 Device/Normal Non-cacheable 条件明确指
+`EFFECTIVE_ARCHITECTURAL_MEMORY_TYPE`，并携带
+`OBJECTIVE_EFFECTIVE_MEMORY_TYPE_REQUIRED` obligation。未来静态/运行时分析不能仅凭 load opcode、MMIO
+分类、section 名或地址范围声称 effective memory type 已成立。`CLOSE_PROXIMITY` 仍为
+`QUALITATIVE_ONLY` / `quantitative_bound=null`，并明确是
+`SOURCE_INSUFFICIENT_FOR_EXACT_SOFTWARE_ONLY_SATISFACTION`；不得发明 instruction/cycle/window threshold。
+
+未来 2B2 可产生带 PC/instruction provenance 的静态 candidate occurrences，但不能仅由 opcode 解析 memory
+type；未来 2B3 可产生 event execution、program order、effective address/context 与解析后的 effective
+memory type facts，但即使 trace 完整，也不能在 v1 下把 qualitative proximity 标记为 satisfied。当前 CVE
+继续是 `NEXT_OBJECTIVE_CANDIDATE` / `SECONDARY_ONLY`，没有 PRIMARY admission 变化。离线复核命令：
+
+```bash
+python scripts/build_cve_2023_34320_a_profile_semantic_trigger_pattern.py --check
 ```
 
 ## 文档导航

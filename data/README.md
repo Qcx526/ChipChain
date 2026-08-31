@@ -96,3 +96,21 @@ CVE source-record canonical SHA-256 与 public corpus ID；Case A/B 的有向 pr
 experimental proof。`CLOSE_PROXIMITY` 是 qualitative-only 且 `quantitative_bound=null`；semantic pattern
 reference 不等于 objective observation、triggerability、feasibility、verification 或 PRIMARY admission。
 CVE-2023-34320 仍属于 `NEXT_OBJECTIVE_CANDIDATE` / `SECONDARY_ONLY`。
+
+Step 8B-2B1 不增加第二份人工 source。运行：
+
+```bash
+python scripts/build_cve_2023_34320_a_profile_semantic_trigger_pattern.py --check
+python scripts/build_cve_2023_34320_a_profile_semantic_trigger_pattern.py --write
+```
+
+只读取 byte-exact `evaluation/cve_2023_34320_documented_erratum_1508412_v1.json`，并离线生成
+`evaluation/cve_2023_34320_a_profile_semantic_trigger_pattern_v1.json`。Builder 对冻结 2B0 artifact 的
+SHA-256、documented-erratum ID 与 contract version 全部 fail closed，不读取 2B0 curation source、Provider、
+QEMU、Ground Truth 或网络。
+
+生成物是 `AProfileSemanticTriggerPattern` predicate，不是 static occurrence、runtime observation、
+`HardwareTriggerSignature`、proof 或 triggerability。Load 的 memory constraints 只表示 future analyzer 必须
+建立 effective architectural memory type，并不表示当前已观测 Device/Normal-NC；qualitative
+`CLOSE_PROXIMITY` 仍没有数值界限。后续 2B2/2B3 objective facts 与 stateful evaluation 尚未实现，当前
+public CVE scope 和 PRIMARY metrics 均不改变。
