@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A、Step 8B-1B 与 Step 8B-1C 已完成；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1D 已完成；Step 8B-1E 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -679,8 +679,35 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] deterministic fake Provider 完整走过官方 Executor/Engine/four-Agent/parser/evaluation 路径并产生
   40 次 model-condition invocation；NO_MODEL/UPPER 零调用，所有 SECONDARY/PRIMARY metric denominator 为 0
 
-后续工作：真实 public Provider one-shot execution 必须作为 Step 8B-1D 独立审批后显式运行；不得用
-participant ID、metadata 或 fake Evidence 编码答案。对 `NEXT_OBJECTIVE_CANDIDATE`
+#### Phase 10D Step 8B-1D：Public Provider One-Shot（已完成并冻结）
+
+- [x] 在独立审批下对 frozen 五案 SECONDARY cohort 执行一次 public-provider run，并保存 hash-only
+  `phase10d_public_knowledge_execution_archive_v1`；不保存 raw prompt/response、secret 或 endpoint
+- [x] frozen archive、public binding、plan、manifest 与 input set 均由 exact ID/SHA-256 绑定；FULL/MASKED
+  各四角色保持固定顺序与完整记账
+- [x] one-shot 不是 PRIMARY benchmark、验证命中率、模型准确率或 `>=80%` 结论；reasoning 与 claim 仍不是
+  Evidence、VerificationRecord、AttackChain 或 vulnerability verdict
+
+#### Phase 10D Step 8B-1E：Masked Semantic Recovery Diagnostic（已完成实现，待 final review）
+
+- [x] 新增 `phase10d_masked_semantic_recovery_diagnostic_v1`，只离线读取 exact frozen Step 8B-1D archive
+  与运行前已冻结的 authoritative public source；不调用 Provider、网络、QEMU 或第二个 LLM judge
+- [x] 保持三轴分离：Axis A 为既有 exact `ModelClaimBinder`，Axis B 为新 type/content diagnostic，Axis C
+  为既有 `ChainFeasibilityOracle`；不修改 binder、oracle、metric、prompt、parser 或 masking
+- [x] R1 按 workflow contract 从唯一携带 claim 的 ATTACK_CHAIN hypothesis 提取 description；仅当 archive
+  存在 exact same-hypothesis `ReasoningResult` 时才允许附加 steps。当前五案均显式记录 result ID 为 null、
+  steps unavailable 与 description-only source，不读取 merged/final/other-role/FULL 文本
+- [x] exact type recovery 保持 MATCH/MISMATCH/CLAIM_MISSING；participant diagnostic 只解释既有 binder
+  reason 与 visible/hidden reference 关系，不修复或替换 opaque participant ID
+- [x] `phase10d_semantic_tokenization_v1` 使用统一 NFKC/lowercase/generic-stopword 规则，对 trigger、
+  precondition、hardware effect 分别生成 content 与 visible-summary-subtracted held-out exact fractions；只保存
+  counts 与 token-set SHA-256，无 threshold、weighted score、PASS/FAIL 或 semantic-success 字段
+- [x] 当前 artifact 固定为 `RETROSPECTIVE_DIAGNOSTIC` / `prospective_metric_eligible=false`，只能描述为
+  ATTACK_CHAIN hypothesis-description content coverage；后续 contract freeze 后的新 run 才可 prospective 使用
+- [x] 当前派生结构结果为 type recovery 4 MATCH/1 MISMATCH、MASKED exact binder 3 INCOMPLETE/2 MISMATCHED、
+  objective feasibility 5 UNRESOLVED；这些是多轴描述，不合成为模型成功率
+
+后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能
 脱离 Type II exact candidate binding 被通用映射为 `CONFIRMED_FEASIBLE`。
 

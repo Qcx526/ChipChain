@@ -67,6 +67,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   structured-label leakage audit
 - Phase 10D Step 8B-1C 独立 public execution binding、40-key pre-transport provenance gate 与
   显式 opt-in execution wrapper
+- Phase 10D Step 8B-1D 冻结五案 public-provider one-shot hash-only archive
+- Phase 10D Step 8B-1E retrospective MASKED ATTACK_CHAIN hypothesis-description content diagnostic
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -716,6 +718,45 @@ hash-only execution archive，不保存 assembled prompt、raw provider response
 本步骤只完成 wiring、deterministic fake-provider integration 和 offline preflight；没有调用真实 Provider，
 也没有产生真实模型性能结果。五条 case 继续是 `PUBLIC_DOCUMENTED` / `SECONDARY_ONLY`，所有 PRIMARY
 metric denominator 仍为 0。
+
+## Phase 10D Step 8B-1D Frozen Public One-Shot
+
+Step 8B-1D 在独立审批下完成一次五案 public-provider one-shot，并把 hash-only execution archive 冻结在
+`phase-10d-step8b1d-stable`。归档仍不保存 raw prompt、raw provider response、secret 或 endpoint；五案
+继续是 `SECONDARY_ONLY`，不能进入 PRIMARY denominator，也不能据此宣称验证命中率、模型准确率或
+`>=80%` 结论。该执行不会把 reasoning、claim 或 agent agreement 提升为 Evidence、VerificationRecord、
+AttackChain 或 vulnerability verdict。
+
+## Phase 10D Step 8B-1E Masked Semantic Recovery Diagnostic
+
+Step 8B-1E 新增版本化、确定性、完全离线的
+`phase10d_masked_semantic_recovery_diagnostic_v1`，把三个独立问题明确分开：
+
+1. Axis A：既有 `ModelClaimBinder` 的 exact candidate-reference alignment；
+2. Axis B：新的 MASKED cross-layer type 与 lexical content recovery diagnostic；
+3. Axis C：既有 `ChainFeasibilityOracle` 的 objective feasibility。
+
+Axis B 不修改或放宽 Axis A/C。当前冻结 workflow 中 ATTACK_CHAIN 是 hypothesis-only role，因此五案的
+诊断文本都严格来自唯一携带 `ModelAuthoredChainClaim` 的 ATTACK_CHAIN hypothesis description；归档中
+没有同 hypothesis ID 的 `ReasoningResult`，故 artifact 明确保存 `reasoning_result_id=null`、
+`reasoning_steps_available=false` 与 `ATTACK_CHAIN_HYPOTHESIS_DESCRIPTION_ONLY`。实现不会回退到 merged
+hypothesis、final result、其他角色文本、FULL condition 或重建 raw provider response。
+
+交互类型只与 frozen typed interaction 做 exact comparison；participant diagnostic 只解释既有 binder
+结果，不修复 hidden opaque participant ID。`phase10d_semantic_tokenization_v1` 对 evaluator-side、运行前
+已存在且未投影给 Provider 的 trigger/precondition/hardware-effect 字段计算精确 token-set content coverage，
+并另行扣除 Provider-visible public summary tokens 得到 held-out coverage。所有 coverage 都保存 exact
+numerator/denominator、defined flag 与 token-set SHA-256，不设置阈值、加权分数、PASS/FAIL 或 semantic
+success。
+
+当前 artifact 是 `RETROSPECTIVE_DIAGNOSTIC` 且 `prospective_metric_eligible=false`：合同是在第一次
+one-shot 输出已被观察后定义的。它只可称为“ATTACK_CHAIN hypothesis-description content coverage”，不是
+完整 ATTACK_CHAIN reasoning coverage、semantic correctness、模型准确率、漏洞验证或 attack-chain detection
+rate。运行以下命令可在无 Provider、网络或 QEMU 的环境中逐字节复现：
+
+```bash
+python scripts/build_masked_semantic_recovery_diagnostic.py --check
+```
 
 ## 文档导航
 

@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step8b1b-stable`
-- Stable commit: `8d7707361e760cbd087eb7f690fb766b0cf0f55b`
-- Baseline: Phase 10D Step 8B-1B final accepted and frozen
+- Stable tag: `phase-10d-step8b1d-stable`
+- Stable commit: `9948fed3a3581e5b9d74f742e0a12a50fac17921`
+- Baseline: Phase 10D Step 8B-1D final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -36,21 +36,29 @@
 - Phase 10D Step 8B-1A five-case public-documented SECONDARY materialization and exact prompt-readiness audit
 - Phase 10D Step 8B-1B versioned neutral public-knowledge projection and structured prompt leakage audit
 - Phase 10D Step 8B-1C explicit public execution binding, exact pre-transport provenance gates, and wrapper archive
+- Phase 10D Step 8B-1D frozen five-case public-provider one-shot hash-only archive
+- Phase 10D Step 8B-1E deterministic retrospective MASKED semantic/content recovery diagnostic (implemented, pending final review)
 
 ## Current Work
 
-Phase 10D Step 8B-1C wraps the frozen Step 8B-1B projection semantics in a separate typed execution binding.
-It links the unchanged experiment plan/input contracts to exactly five case projections and exactly forty
-case×visibility×role prompt hashes from the frozen `READY_FOR_PUBLIC_PROVIDER` artifact. Local preflight
-reconstructs all forty prompts with the official builder and checks structured leakage, exact hash equality,
-and MASKED hidden-reference visibility before any transport. The executor repeats these gates immediately
-before each provider invocation and never falls back to a legacy prompt.
+Phase 10D Step 8B-1D completed one separately approved five-case public-provider one-shot and froze its
+hash-only public execution wrapper. This does not promote the `SECONDARY_ONLY` cohort into PRIMARY scope and
+does not create an accepted hit-rate, accuracy, verification, or `>=80%` result.
 
-The separate public execution wrapper validates plan/manifest/input/context identity, reached invocation
-hashes, and transport leakage-audit provenance without adding fields to the historical execution archive.
-The new script has a provider-free `--preflight-only` mode and an explicit `--execute-real-provider` opt-in.
-Step 8B-1C used only a deterministic fake provider; no real provider was called and no model performance
-result exists.
+Step 8B-1E adds Axis B as a supplemental offline diagnostic while leaving Axis A (the exact
+`ModelClaimBinder`) and Axis C (the objective `ChainFeasibilityOracle`) unchanged. Current frozen sessions use
+the Phase 9B2B hypothesis-only ATTACK_CHAIN contract: the exact claim-carrying source hypothesis description is
+the only scored model-authored text, and all five cases record no same-hypothesis ATTACK_CHAIN
+`ReasoningResult`. Merged/final results, other roles, FULL condition text, parser-bound fields, and raw response
+reconstruction are excluded.
+
+The diagnostic uses one frozen generic lexical contract to report exact trigger/precondition/hardware-effect
+content coverage and public-summary-subtracted held-out coverage. It has no threshold, weighted score,
+PASS/FAIL, semantic-success field, or model-confidence interpretation. The current artifact is explicitly
+`RETROSPECTIVE_DIAGNOSTIC` and not prospectively metric-eligible because the contract was defined after the
+one-shot output had been observed. Its current structural distributions are 4 type MATCH / 1 MISMATCH,
+3 exact-binding INCOMPLETE / 2 MISMATCHED, and 5 objective-feasibility UNRESOLVED; these are independent
+descriptive axes, not a semantic success percentage.
 
 These documented Ground Truth annotations are SECONDARY reasoning-evaluation inputs, not objective
 verification. They contain no HardwareTriggerSignature, runtime observation, Evidence, triggerability or
@@ -63,7 +71,7 @@ firewall failed closed. Phase 9C Step 3B remains deferred.
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- separately reviewed Step 8B-1D one-shot public-provider execution
+- final review/freeze of the Step 8B-1E retrospective diagnostic contract
 - objective evidence review and explicit PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation

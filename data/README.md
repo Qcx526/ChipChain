@@ -52,3 +52,26 @@ ID、case/context/interaction/knowledge bindings、FULL/MASKED Prompt SHA-256、
 structured-label leakage audit 与 visibility booleans，不保存 raw Prompt、knowledge metadata、Provider
 response 或模型输出。FULL/MASKED 获得相同的 title/summary/components/references public reference content；
 当前 readiness 为 `READY_FOR_PUBLIC_PROVIDER`，但这不表示 Provider 已执行、漏洞已验证或指标已产生。
+
+`evaluation/runs/phase10d_step8b1d_public_deepseek_20260831_one_shot.json` 是经独立审批后冻结的
+Step 8B-1D 五案 public-provider hash-only archive。它不保存 raw prompt、raw response、secret 或 endpoint，
+且 `SECONDARY_ONLY` 结果不进入 PRIMARY metrics。
+
+运行：
+
+```bash
+python scripts/build_masked_semantic_recovery_diagnostic.py --check
+```
+
+会完全离线地从上述 frozen archive 与运行前已存在的 authoritative source 重建
+`evaluation/public_documented_arm_secondary_masked_semantic_recovery_v1.json`。该 Step 8B-1E artifact 只使用
+MASKED session 中唯一携带 model-authored claim 的 ATTACK_CHAIN hypothesis description；当前五案没有匹配
+该 hypothesis ID 的 ATTACK_CHAIN `ReasoningResult`，因此显式保存 null result provenance 和
+description-only text source，不使用 merged/final/其他角色/FULL 文本。
+
+Artifact 分别保留 exact binder status、interaction-type exact comparison、participant-grounding diagnostic、
+trigger/precondition/hardware-effect content coverage、扣除 Provider-visible public summary 后的 held-out
+coverage，以及原 objective feasibility。Coverage 是 token-set exact numerator/denominator 与 SHA-256，
+不是 semantic correctness、verification、模型准确率或攻击链检测率；没有阈值、综合成功分数或 PASS/FAIL。
+当前输出固定为 `RETROSPECTIVE_DIAGNOSTIC` / `prospective_metric_eligible=false`，因为诊断合同在第一次
+one-shot 输出被观察后才定义。构建器不调用 Provider、网络、QEMU，也不重写任何 frozen public input。
