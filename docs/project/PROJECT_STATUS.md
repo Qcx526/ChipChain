@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step8b2b2c1-stable`
-- Stable commit: `f2071be3ef17e85f585231db7a90e22bce53e9fd`
-- Baseline: Phase 10D Step 8B-2B2-C1 final accepted and frozen
+- Stable tag: `phase-10d-step8b2b2c2-stable`
+- Stable commit: `16f209284fc3e3d7827a96861a0101bd4d099a45`
+- Baseline: Phase 10D Step 8B-2B2-C2 final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -43,15 +43,21 @@
 - Phase 10D Step 8B-2B2-A A-profile static semantic extraction contracts and deterministic plan
 - Phase 10D Step 8B-2B2-B real angr AArch64 decoded-event extraction over an owned synthetic ELF
 - Phase 10D Step 8B-2B2-C1 frozen pure function-local static CFG order candidate contracts
-- Phase 10D Step 8B-2B2-C2 generic real-angr AArch64 CFG materialization and pattern-driven C1 assembly (implemented, pending final review)
+- Phase 10D Step 8B-2B2-C2 generic real-angr AArch64 CFG materialization and pattern-driven C1 assembly
+- Phase 10D Step 8B-2D1 typed static behavior-analysis projection (implemented, pending final review)
 
 ## Current Work
 
-Phase 10D Step 8B-2B2-C2 adds a binary-first generic AArch64 backend over the frozen B extractor and C1 evaluator.
-It reuses the exact semantic extraction result, independently binds the CFG pass to the same immutable artifact SHA,
-and materializes only predicate-referenced exact main-object executable function CFGs. Blocks and intrafunction edges
-are deterministic, address-normalized and filtered against the exact function block set before the frozen C1 assembler
-runs. The production backend knows no CVE, processor, erratum, Case A/B, event kind or system register.
+Phase 10D Step 8B-2D1 adds an independent typed projection from the frozen C2 assembly result to a lower-level static
+program-analysis representation. Its `program_graph` contains only objective function/block/semantic-instruction facts
+and non-causal containment/CFG-successor relations. Deterministic pattern candidates are held in a separate sibling
+projection, bind exact fact-node IDs, and preserve every unresolved objective obligation. The top-level snapshot and
+reconstruction checks bind exact artifact/result/fact/CFG/candidate provenance even under recomputed outer IDs.
+
+This new program graph is neither the legacy Behavior Graph nor a knowledge graph. Pattern candidates are not program
+edges, static CFG paths are not causal attack chains, and 2D1 does not create CrossLayerInteraction, ReasoningContext,
+Evidence, VerificationRecord, Triggerability or AttackChain. The shared structure is generic, while current semantic
+coverage remains limited by the frozen narrow A-profile v1 decoder; generic AArch64 Semantic IR remains future work.
 
 Step 8B-1E adds Axis B as a supplemental offline diagnostic while leaving Axis A (the exact
 `ModelClaimBinder`) and Axis C (the objective `ChainFeasibilityOracle`) unchanged. Current frozen sessions use
@@ -93,7 +99,7 @@ snapshots and zero structural case candidates, which is a neutral result.
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- final review/freeze of the Step 8B-2B2-C2 generic real-angr CFG materializer
+- final review/freeze of the Step 8B-2D1 typed static projection
 - objective evidence review and explicit PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation

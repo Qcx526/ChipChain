@@ -878,8 +878,8 @@ additional hardware timing obligations。
 
 本步骤（2B2-A）不打开 ELF、不执行 angr、不组装 Case、不判断 CFG/program order、不发明 proximity 数值界限，也不
 创建 runtime observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility 或
-PRIMARY 结论。2B2-B 已在独立边界下实现 AArch64 decoded-event extractor；2B2-C 才可定义 case/path/order
-assembly，仍未实现。确定性计划可完全离线复核：
+PRIMARY 结论。2B2-B 已在独立边界下实现 AArch64 decoded-event extractor；2B2-C1/C2 已分别冻结纯
+case/path/order 合同与 generic real-angr CFG materializer，但不改变本计划合同。确定性计划可完全离线复核：
 
 ```bash
 python scripts/build_cve_2023_34320_a_profile_static_semantic_extraction_plan.py --check
@@ -964,6 +964,37 @@ loader 是 adapter boundary，未来 raw/firmware loader 应继续输出相同 s
 C2 不做 symbolic execution、runtime program-order、effective memory-type 或 proximity 求值，不创建 runtime
 observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility、vulnerability 或
 PRIMARY 结论。static CFG reachability 仍只作 `REACHABILITY_AUDIT_ONLY`，不证明运行路径可行或实际执行。
+
+## Phase 10D Step 8B-2D1 Typed Static Behavior Analysis Projection
+
+Step 8B-2D1 在独立 `chipchain.analysis` 层中，把 frozen C2
+`AProfileStaticCaseAssemblyResult` 纯确定性投影为
+`StaticBehaviorAnalysisProjection`。顶层明确分成两个 sibling：
+
+```text
+AProfileStaticCaseAssemblyResult
+        ↓ detached pure projection
+StaticBehaviorAnalysisProjection
+        ├── program_graph: objective binary facts + structural CFG relations
+        └── pattern_bindings: deterministic predicate/case-order candidates
+```
+
+`program_graph` 只允许 FUNCTION、BASIC_BLOCK、SEMANTIC_INSTRUCTION_FACT 节点，以及
+FUNCTION_CONTAINS_BASIC_BLOCK、BASIC_BLOCK_CONTAINS_SEMANTIC_FACT、CFG_SUCCESSOR 关系。所有关系固定
+`causal=false`、`runtime_execution=false`、`symbolic_feasibility=false`。artifact ID/SHA、exact source result、
+fact、CFG block/edge 与 candidate references 全部进入 deterministic identity；顶层保存 exact C2 snapshot，
+并从 snapshot 重建预期子投影以拒绝 provenance retarget。
+
+pattern candidate 不进入 program graph，也不是 program edge；它只在 sibling projection 中保留 exact
+predicate/case/position/fact-node references、CFG audit witness 和全部 unresolved objective obligations。
+因此 pattern binding 不等于 objective binary fact，candidate 不等于 trigger satisfied，program graph path
+也不等于 causal attack chain。
+
+2D1 没有修改 legacy `BehaviorType`/`NodeKind`/`RelationType` 或旧 Behavior Graph；program graph 也不是
+knowledge graph。它不创建 vulnerability/AttackChain node、CrossLayerInteraction、Evidence、
+VerificationRecord、Triggerability 或 ReasoningContext binding。共享投影结构保持 architecture-neutral，
+但当前 adapter 的语义覆盖仍严格受 frozen narrow A-profile v1 decoder 限制；2D1 不是完整 AArch64
+semantic graph，也没有实现未来 2D2 generic semantic decoder。
 
 ## 文档导航
 

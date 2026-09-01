@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B 与 Step 8B-2B2-C1 已完成并冻结；Step 8B-2B2-C2 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1 与 Step 8B-2B2-C2 已完成并冻结；Step 8B-2D1 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -794,7 +794,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] C1 本身不实现 real-angr CFG snapshot/candidate materialization，不创建 runtime observation、triggerability、
   feasibility、verification、vulnerability 或 PRIMARY 结果
 
-#### Phase 10D Step 8B-2B2-C2：Generic AArch64 Binary CFG Materialization（已完成实现，待 final review）
+#### Phase 10D Step 8B-2B2-C2：Generic AArch64 Binary CFG Materialization（已完成并冻结）
 
 - [x] 新增 `AngrAProfileStaticCaseMaterializer.materialize(artifact, extraction_plan)` binary-first API；内部复用冻结
   2B2-B extractor 的 exact semantic result，并将同一 immutable ELF 的 CFG 输入冻结 C1 pure assembler
@@ -813,6 +813,31 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] ELF 是当前 loader adapter boundary；未来 raw/firmware loader 应复用相同 semantic/CFG IR，不重设计核心合同
 - [x] 不创建 runtime observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility、
   vulnerability 或 PRIMARY 结果，不运行 QEMU/Provider/network/symbolic execution
+
+#### Phase 10D Step 8B-2D1：Typed Static Behavior Analysis Projection（已完成实现，待 final review）
+
+- [x] 新增三个版本化的 architecture-neutral projection 合同：objective static program graph、独立 pattern
+  binding projection 与 standalone top-level analysis projection；当前 adapter 只消费 frozen C2 A-profile result
+- [x] program graph v1 只含 FUNCTION/BASIC_BLOCK/SEMANTIC_INSTRUCTION_FACT 节点及 function containment、
+  fact containment、CFG successor 三类 objective structural relations；所有 relation 固定非 causal、非 runtime、
+  非 symbolic-feasibility
+- [x] pattern predicate/case-order candidates 只进入 sibling binding records，不进入 program graph relation；
+  semantic labels 保持 candidate-only，不表示 matched/satisfied/triggered
+- [x] semantic fact node 保留 operation、instruction address/word/size、function/block、system register、
+  memory-resolution state、static scope 与 exact source fact ID，不声称 execution、effective memory type、
+  privilege legality 或 hardware effect
+- [x] FUNCTION 与 BASIC_BLOCK 各按 exact CFG source identity 唯一投影；CFG successor 只保存 exact normalized
+  function-local edge provenance，path 不解释为 causality
+- [x] predicate/case-order records 精确绑定 semantic-fact graph node，并原样保留全部 runtime/context/memory/
+  proximity/timing obligations；projection 不解除任何 objective obligation
+- [x] top-level 保存 exact C2 source snapshot，并从该 snapshot 重建预期 graph/bindings；artifact/fact/CFG/
+  candidate retarget 即使重算外层 ID 也 fail closed
+- [x] non-predicate fact 若不在 C2 relevant CFG set 中确定性省略并以中性 count 记账；predicate-referenced fact
+  不可解析到 exact function/block graph 时直接拒绝
+- [x] legacy Behavior Graph、`BehaviorType`/`NodeKind`/`RelationType`、knowledge graph、ReasoningContext 与
+  CrossLayerInteraction 均未修改；不创建 Evidence、VerificationRecord、Triggerability、AttackChain 或 verdict
+- [x] 当前 frozen owned fixture 投影为 3 function、3 block、3 semantic-fact nodes，3+3 containment relations、
+  0 CFG successor、6 predicate bindings、0 case-order bindings；覆盖范围仍受 narrow A-profile v1 decoder 限制
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能
