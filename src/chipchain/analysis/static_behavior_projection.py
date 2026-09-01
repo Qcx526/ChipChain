@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
+from pydantic import model_validator
+
 from chipchain.analysis.static_behavior_models import (
     PHASE10D_STATIC_BEHAVIOR_GRAPH_PROJECTION_CONTRACT,
     PHASE10D_STATIC_PATTERN_BINDING_PROJECTION_CONTRACT,
@@ -22,9 +26,16 @@ from chipchain.analysis.static_behavior_models import (
     _cfg_edge_source_id,
     _graph_diagnostics,
     _pattern_diagnostics,
+    _semantic_id,
 )
 from chipchain.hardware_trigger.a_profile_static_case_models import (
     AProfileStaticCaseAssemblyResult,
+)
+from chipchain.models.common import DomainModel, Identifier
+
+
+PHASE10D_A_PROFILE_STATIC_BEHAVIOR_PROJECTION_MATERIALIZATION_CONTRACT = (
+    "phase10d_a_profile_static_behavior_projection_materialization_v1"
 )
 
 
@@ -291,14 +302,127 @@ def _project_source(
     return graph, pattern_bindings
 
 
-def project_static_behavior_analysis(
+def _project_generic_analysis(
     result: AProfileStaticCaseAssemblyResult,
 ) -> StaticBehaviorAnalysisProjection:
-    """Project one detached C2 result without I/O or backend execution."""
-
-    detached = AProfileStaticCaseAssemblyResult.model_validate(
-        result.model_dump(mode="json")
-    )
+    graph, bindings = _project_source(result)
+    extraction = result.source_extraction_result_snapshot
     return StaticBehaviorAnalysisProjection.create(
-        source_case_assembly_result=detached
+        architecture=result.architecture,
+        artifact_id=result.artifact_id,
+        artifact_sha256=result.artifact_sha256,
+        source_analysis_result_id=result.source_extraction_result_id,
+        source_analysis_contract=extraction.contract,
+        program_graph=graph,
+        pattern_bindings=bindings,
+    )
+
+
+def a_profile_static_behavior_projection_materialization_id(
+    payload: object,
+) -> str:
+    """Return the deterministic A-profile adapter-envelope identity."""
+
+    return _semantic_id(
+        "a-profile-static-behavior-projection-materialization", payload
+    )
+
+
+class _AProfileStaticBehaviorProjectionMaterializationBody(DomainModel):
+    contract: Literal[
+        PHASE10D_A_PROFILE_STATIC_BEHAVIOR_PROJECTION_MATERIALIZATION_CONTRACT
+    ]
+    source_case_assembly_result_id: Identifier
+    source_case_assembly_result_snapshot: AProfileStaticCaseAssemblyResult
+    projection: StaticBehaviorAnalysisProjection
+
+    @model_validator(mode="after")
+    def validate_standalone_integrity(
+        self,
+    ) -> "_AProfileStaticBehaviorProjectionMaterializationBody":
+        source = AProfileStaticCaseAssemblyResult.model_validate(
+            self.source_case_assembly_result_snapshot.model_dump(mode="json")
+        )
+        projection = StaticBehaviorAnalysisProjection.model_validate(
+            self.projection.model_dump(mode="json")
+        )
+        if self.source_case_assembly_result_id != source.id:
+            raise ValueError("A-profile materialization source snapshot ID mismatch")
+        expected_binding = (
+            source.architecture,
+            source.artifact_id,
+            source.artifact_sha256,
+            source.source_extraction_result_id,
+            source.source_extraction_result_snapshot.contract,
+        )
+        if (
+            projection.architecture,
+            projection.artifact_id,
+            projection.artifact_sha256,
+            projection.source_analysis_result_id,
+            projection.source_analysis_contract,
+        ) != expected_binding:
+            raise ValueError("A-profile materialization projection binding mismatch")
+        if projection != _project_generic_analysis(source):
+            raise ValueError(
+                "A-profile materialization projection differs from exact source"
+            )
+        return self
+
+
+class AProfileStaticBehaviorProjectionMaterialization(
+    _AProfileStaticBehaviorProjectionMaterializationBody
+):
+    """Exact C2 source snapshot plus its architecture-neutral projection."""
+
+    id: Identifier
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        source_case_assembly_result: AProfileStaticCaseAssemblyResult,
+    ) -> "AProfileStaticBehaviorProjectionMaterialization":
+        source = AProfileStaticCaseAssemblyResult.model_validate(
+            source_case_assembly_result.model_dump(mode="json")
+        )
+        values = {
+            "contract": (
+                PHASE10D_A_PROFILE_STATIC_BEHAVIOR_PROJECTION_MATERIALIZATION_CONTRACT
+            ),
+            "source_case_assembly_result_id": source.id,
+            "source_case_assembly_result_snapshot": source,
+            "projection": _project_generic_analysis(source),
+        }
+        body = (
+            _AProfileStaticBehaviorProjectionMaterializationBody.model_validate(
+                values
+            )
+        )
+        payload = body.model_dump(mode="json")
+        return cls(
+            id=a_profile_static_behavior_projection_materialization_id(payload),
+            **payload,
+        )
+
+    @model_validator(mode="after")
+    def validate_deterministic_id(
+        self,
+    ) -> "AProfileStaticBehaviorProjectionMaterialization":
+        payload = self.model_dump(mode="json", exclude={"id"})
+        expected = a_profile_static_behavior_projection_materialization_id(
+            payload
+        )
+        if self.id != expected:
+            raise ValueError("A-profile materialization ID mismatch")
+        return self
+
+
+def project_static_behavior_analysis(
+    result: AProfileStaticCaseAssemblyResult,
+) -> AProfileStaticBehaviorProjectionMaterialization:
+    """Materialize one detached C2 result without I/O or backend execution."""
+
+    return AProfileStaticBehaviorProjectionMaterialization.create(
+        source_case_assembly_result=result
     )

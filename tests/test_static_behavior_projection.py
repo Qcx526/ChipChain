@@ -10,20 +10,25 @@ import pytest
 from pydantic import ValidationError
 
 from chipchain.analysis import (
+    PHASE10D_A_PROFILE_STATIC_BEHAVIOR_PROJECTION_MATERIALIZATION_CONTRACT,
     PHASE10D_STATIC_BEHAVIOR_ANALYSIS_PROJECTION_CONTRACT,
     PHASE10D_STATIC_BEHAVIOR_GRAPH_PROJECTION_CONTRACT,
     PHASE10D_STATIC_PATTERN_BINDING_PROJECTION_CONTRACT,
+    AProfileStaticBehaviorProjectionMaterialization,
     ProgramArtifact,
     StaticAssertionClass,
     StaticBehaviorAnalysisProjection,
+    StaticBehaviorGraphProjection,
     StaticBehaviorNodeKind,
     StaticBehaviorProjectionScope,
     StaticBehaviorRelationKind,
     StaticPatternBindingKind,
+    StaticPatternBindingProjection,
     StaticPatternBindingSemantics,
     StaticPatternOrderBasis,
     StaticPatternPathWitnessUse,
     StaticObjectiveObligation,
+    a_profile_static_behavior_projection_materialization_id,
     project_static_behavior_analysis,
     static_behavior_analysis_projection_id,
     static_behavior_graph_projection_id,
@@ -203,8 +208,17 @@ def _synthetic_source(
 
 
 @pytest.fixture()
-def projection(plan) -> StaticBehaviorAnalysisProjection:
+def materialization(
+    plan,
+) -> AProfileStaticBehaviorProjectionMaterialization:
     return project_static_behavior_analysis(_synthetic_source(plan))
+
+
+@pytest.fixture()
+def projection(
+    materialization: AProfileStaticBehaviorProjectionMaterialization,
+) -> StaticBehaviorAnalysisProjection:
+    return materialization.projection
 
 
 def _recompute(payload: dict, field: str, id_function) -> None:
@@ -220,6 +234,14 @@ def _recompute_top(payload: dict) -> None:
 def _recompute_graph(payload: dict) -> None:
     _recompute(payload["program_graph"], "id", static_behavior_graph_projection_id)
     _recompute_top(payload)
+
+
+def _recompute_materialization(payload: dict) -> None:
+    _recompute(
+        payload,
+        "id",
+        a_profile_static_behavior_projection_materialization_id,
+    )
 
 
 def _recompute_pattern(payload: dict) -> None:
@@ -247,6 +269,10 @@ def _replace_graph_node_id(
 
 
 def test_exact_contract_versions_and_closed_vocabulary() -> None:
+    assert (
+        PHASE10D_A_PROFILE_STATIC_BEHAVIOR_PROJECTION_MATERIALIZATION_CONTRACT
+        == "phase10d_a_profile_static_behavior_projection_materialization_v1"
+    )
     assert PHASE10D_STATIC_BEHAVIOR_GRAPH_PROJECTION_CONTRACT == (
         "phase10d_static_behavior_graph_projection_v1"
     )
@@ -274,6 +300,91 @@ def test_exact_contract_versions_and_closed_vocabulary() -> None:
     assert list(StaticBehaviorProjectionScope) == [
         StaticBehaviorProjectionScope.BINARY_STATIC_PROGRAM_ANALYSIS
     ]
+
+
+def test_shared_model_source_has_no_architecture_adapter_dependency() -> None:
+    path = ROOT / "src/chipchain/analysis/static_behavior_models.py"
+    text = path.read_text(encoding="utf-8")
+    assert "chipchain.hardware_trigger" not in text
+    tree = ast.parse(text)
+    production_identifiers = {
+        node.id for node in ast.walk(tree) if isinstance(node, ast.Name)
+    } | {
+        node.name
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.ClassDef, ast.FunctionDef))
+    }
+    assert not any(
+        value.startswith(("AProfile", "Arm", "Cortex"))
+        for value in production_identifiers
+    )
+
+
+def test_shared_projection_schema_has_no_a_profile_source_model() -> None:
+    schema = str(StaticBehaviorAnalysisProjection.model_json_schema()).lower()
+    for forbidden in (
+        "aprofilestaticcaseassemblyresult",
+        "aprofilestaticsemantic",
+        "cortex",
+        "cve",
+        "erratum",
+    ):
+        assert forbidden not in schema
+
+
+def test_generic_projection_constructs_without_architecture_source_object() -> None:
+    graph = StaticBehaviorGraphProjection.create(
+        contract=PHASE10D_STATIC_BEHAVIOR_GRAPH_PROJECTION_CONTRACT,
+        architecture=Architecture.RISC_V,
+        artifact_id="artifact:generic-static-input",
+        artifact_sha256="d" * 64,
+        source_static_analysis_result_id="generic-analysis-result",
+        nodes=[],
+        relations=[],
+        projection_scope=(
+            StaticBehaviorProjectionScope.BINARY_STATIC_PROGRAM_ANALYSIS
+        ),
+        unprojected_nonpredicate_fact_count=0,
+        diagnostic_codes=[
+            "basic_block_node_count:0",
+            "cfg_successor_relation_count:0",
+            "function_node_count:0",
+            "semantic_fact_node_count:0",
+            "unprojected_nonpredicate_fact_count:0",
+        ],
+    )
+    bindings = StaticPatternBindingProjection.create(
+        contract=PHASE10D_STATIC_PATTERN_BINDING_PROJECTION_CONTRACT,
+        architecture=Architecture.RISC_V,
+        artifact_id=graph.artifact_id,
+        artifact_sha256=graph.artifact_sha256,
+        source_static_analysis_result_id=(
+            graph.source_static_analysis_result_id
+        ),
+        source_case_assembly_result_id="adapter-materialization:generic",
+        source_pattern_id="generic-pattern",
+        extraction_plan_id="generic-plan",
+        records=[],
+        diagnostic_codes=[
+            "case_order_candidate_binding_count:0",
+            "predicate_candidate_binding_count:0",
+        ],
+    )
+    projection = StaticBehaviorAnalysisProjection.create(
+        architecture=Architecture.RISC_V,
+        artifact_id=graph.artifact_id,
+        artifact_sha256=graph.artifact_sha256,
+        source_analysis_result_id=graph.source_static_analysis_result_id,
+        source_analysis_contract="generic-static-analysis-v1",
+        program_graph=graph,
+        pattern_bindings=bindings,
+    )
+    assert projection.architecture is Architecture.RISC_V
+    assert projection.program_graph == graph
+    assert projection.pattern_bindings == bindings
+    assert "source_case_assembly_result_snapshot" not in (
+        StaticBehaviorAnalysisProjection.model_fields
+    )
 
 
 def test_program_graph_and_pattern_bindings_are_separate(projection) -> None:
@@ -321,9 +432,9 @@ def test_semantic_fact_projection_is_explicit_but_outcome_neutral(projection) ->
 
 
 def test_exact_candidate_references_and_obligations_are_preserved(
-    projection,
+    projection, materialization,
 ) -> None:
-    source = projection.source_case_assembly_result_snapshot
+    source = materialization.source_case_assembly_result_snapshot
     source_predicates = {
         item.id: item
         for item in source.source_extraction_result_snapshot.predicate_candidates
@@ -351,6 +462,38 @@ def test_exact_candidate_references_and_obligations_are_preserved(
             )
 
 
+def test_a_profile_materialization_binds_exact_source_and_projection(
+    plan, materialization,
+) -> None:
+    source = materialization.source_case_assembly_result_snapshot
+    assert materialization.source_case_assembly_result_id == source.id
+    assert materialization.projection.architecture is source.architecture
+    assert materialization.projection.artifact_id == source.artifact_id
+    assert materialization.projection.artifact_sha256 == source.artifact_sha256
+    assert materialization.projection.source_analysis_result_id == (
+        source.source_extraction_result_id
+    )
+    repeated = project_static_behavior_analysis(_synthetic_source(plan))
+    assert repeated.projection == materialization.projection
+
+
+def test_foreign_valid_a_profile_source_with_old_projection_fails(
+    plan, materialization,
+) -> None:
+    foreign_source = _synthetic_source(
+        plan, include_unprojected_fact=True
+    )
+    assert foreign_source.id != materialization.source_case_assembly_result_id
+    payload = materialization.model_dump(mode="json")
+    payload["source_case_assembly_result_id"] = foreign_source.id
+    payload["source_case_assembly_result_snapshot"] = (
+        foreign_source.model_dump(mode="json")
+    )
+    _recompute_materialization(payload)
+    with pytest.raises(ValidationError, match="projection binding mismatch"):
+        AProfileStaticBehaviorProjectionMaterialization.model_validate(payload)
+
+
 def test_projection_is_deterministic_detached_and_ordered(plan) -> None:
     source = _synthetic_source(plan)
     first = project_static_behavior_analysis(source)
@@ -358,8 +501,8 @@ def test_projection_is_deterministic_detached_and_ordered(plan) -> None:
     assert first == second
     assert first.id == second.id
     assert first.model_dump_json() == second.model_dump_json()
-    assert first.program_graph.nodes == sorted(
-        first.program_graph.nodes,
+    assert first.projection.program_graph.nodes == sorted(
+        first.projection.program_graph.nodes,
         key=lambda item: (
             item.kind.value,
             int(item.function_address or "0x0", 16),
@@ -373,9 +516,10 @@ def test_projection_is_deterministic_detached_and_ordered(plan) -> None:
 
 
 def test_nonpredicate_fact_outside_relevant_cfg_is_neutrally_counted(plan) -> None:
-    projection = project_static_behavior_analysis(
+    materialization = project_static_behavior_analysis(
         _synthetic_source(plan, include_unprojected_fact=True)
     )
+    projection = materialization.projection
     assert projection.program_graph.unprojected_nonpredicate_fact_count == 1
     assert "unprojected_nonpredicate_fact_count:1" in (
         projection.program_graph.diagnostic_codes
@@ -397,7 +541,8 @@ def test_frozen_owned_fixture_projection_counts(plan) -> None:
         metadata={"owned": True, "synthetic": True, "fixture": True},
     )
     source = AngrAProfileStaticCaseMaterializer().materialize(artifact, plan)
-    projection = project_static_behavior_analysis(source)
+    materialization = project_static_behavior_analysis(source)
+    projection = materialization.projection
     assert source.id == (
         "a-profile-static-case-assembly-result:"
         "1c978aba6bbd83dfcd7d6cab1b1edf66eafc2f7c439156129e631a6785edf502"
@@ -418,12 +563,14 @@ def test_frozen_owned_fixture_projection_counts(plan) -> None:
     ) == {StaticPatternBindingKind.PREDICATE_CANDIDATE: 6}
 
 
-def test_top_level_source_id_retarget_with_recomputed_id_fails(projection) -> None:
-    payload = projection.model_dump(mode="json")
+def test_top_level_source_id_retarget_with_recomputed_id_fails(
+    materialization,
+) -> None:
+    payload = materialization.model_dump(mode="json")
     payload["source_case_assembly_result_id"] = "retargeted-result"
-    _recompute_top(payload)
+    _recompute_materialization(payload)
     with pytest.raises(ValidationError, match="source snapshot ID mismatch"):
-        StaticBehaviorAnalysisProjection.model_validate(payload)
+        AProfileStaticBehaviorProjectionMaterialization.model_validate(payload)
 
 
 def test_graph_node_artifact_tamper_with_recomputed_ids_fails(projection) -> None:
@@ -509,50 +656,78 @@ def test_predicate_binding_wrong_fact_node_fails(projection) -> None:
     ]
     _recompute(predicates[0], "id", static_pattern_binding_record_id)
     _recompute_pattern(payload)
-    with pytest.raises(ValidationError, match="bindings differ from exact source"):
+    with pytest.raises(ValidationError, match="exact fact node"):
         StaticBehaviorAnalysisProjection.model_validate(payload)
 
 
-def test_case_order_binding_wrong_position_fact_node_fails(projection) -> None:
-    payload = projection.model_dump(mode="json")
+def test_case_order_binding_wrong_position_fact_node_fails(
+    materialization,
+) -> None:
+    payload = materialization.model_dump(mode="json")
+    projection_payload = payload["projection"]
     record = next(
         item
-        for item in payload["pattern_bindings"]["records"]
+        for item in projection_payload["pattern_bindings"]["records"]
         if item["binding_kind"] == "case_order_candidate"
     )
     record["position_1_fact_node_id"] = record["position_2_fact_node_id"]
     _recompute(record, "id", static_pattern_binding_record_id)
-    _recompute_pattern(payload)
-    with pytest.raises(ValidationError, match="bindings differ from exact source"):
-        StaticBehaviorAnalysisProjection.model_validate(payload)
+    _recompute_pattern(projection_payload)
+    _recompute_materialization(payload)
+    with pytest.raises(ValidationError, match="differs from exact source"):
+        AProfileStaticBehaviorProjectionMaterialization.model_validate(payload)
 
 
-def test_dropped_obligation_and_foreign_candidate_fail(projection) -> None:
-    dropped = projection.model_dump(mode="json")
+def test_mutated_generic_projection_with_exact_source_fails(
+    materialization,
+) -> None:
+    payload = materialization.model_dump(mode="json")
+    projection_payload = payload["projection"]
     record = next(
         item
-        for item in dropped["pattern_bindings"]["records"]
+        for item in projection_payload["pattern_bindings"]["records"]
+        if item["binding_kind"] == "predicate_candidate"
+    )
+    record["source_candidate_id"] = "foreign-pattern-candidate"
+    _recompute(record, "id", static_pattern_binding_record_id)
+    _recompute_pattern(projection_payload)
+    _recompute_materialization(payload)
+    with pytest.raises(ValidationError, match="differs from exact source"):
+        AProfileStaticBehaviorProjectionMaterialization.model_validate(payload)
+
+
+def test_dropped_obligation_and_foreign_candidate_fail(
+    materialization,
+) -> None:
+    dropped = materialization.model_dump(mode="json")
+    dropped_projection = dropped["projection"]
+    record = next(
+        item
+        for item in dropped_projection["pattern_bindings"]["records"]
         if item["binding_kind"] == "predicate_candidate"
     )
     record["remaining_objective_obligations"].remove(
         RemainingObjectiveObligation.RUNTIME_EXECUTION_REQUIRED.value
     )
     _recompute(record, "id", static_pattern_binding_record_id)
-    _recompute_pattern(dropped)
-    with pytest.raises(ValidationError, match="bindings differ from exact source"):
-        StaticBehaviorAnalysisProjection.model_validate(dropped)
+    _recompute_pattern(dropped_projection)
+    _recompute_materialization(dropped)
+    with pytest.raises(ValidationError, match="differs from exact source"):
+        AProfileStaticBehaviorProjectionMaterialization.model_validate(dropped)
 
-    foreign = projection.model_dump(mode="json")
+    foreign = materialization.model_dump(mode="json")
+    foreign_projection = foreign["projection"]
     record = next(
         item
-        for item in foreign["pattern_bindings"]["records"]
+        for item in foreign_projection["pattern_bindings"]["records"]
         if item["binding_kind"] == "predicate_candidate"
     )
     record["source_candidate_id"] = "foreign-pattern-candidate"
     _recompute(record, "id", static_pattern_binding_record_id)
-    _recompute_pattern(foreign)
-    with pytest.raises(ValidationError, match="bindings differ from exact source"):
-        StaticBehaviorAnalysisProjection.model_validate(foreign)
+    _recompute_pattern(foreign_projection)
+    _recompute_materialization(foreign)
+    with pytest.raises(ValidationError, match="differs from exact source"):
+        AProfileStaticBehaviorProjectionMaterialization.model_validate(foreign)
 
 
 def test_objective_causal_and_verification_firewalls() -> None:

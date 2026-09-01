@@ -40,12 +40,16 @@ from chipchain.analysis.static_behavior_models import (
     static_pattern_binding_record_id,
 )
 from chipchain.analysis.static_behavior_projection import (
+    PHASE10D_A_PROFILE_STATIC_BEHAVIOR_PROJECTION_MATERIALIZATION_CONTRACT,
+    AProfileStaticBehaviorProjectionMaterialization,
+    a_profile_static_behavior_projection_materialization_id,
     project_static_behavior_analysis,
 )
 
 __all__ = [
     "AnalysisIngestionError",
     "AngrAnalyzer",
+    "AProfileStaticBehaviorProjectionMaterialization",
     "DemoAnalyzer",
     "InvalidAnalysisInputError",
     "MemoryMap",
@@ -56,6 +60,7 @@ __all__ = [
     "ProgramAnalyzer",
     "ProgramArtifact",
     "PHASE10D_STATIC_BEHAVIOR_ANALYSIS_PROJECTION_CONTRACT",
+    "PHASE10D_A_PROFILE_STATIC_BEHAVIOR_PROJECTION_MATERIALIZATION_CONTRACT",
     "PHASE10D_STATIC_BEHAVIOR_GRAPH_PROJECTION_CONTRACT",
     "PHASE10D_STATIC_PATTERN_BINDING_PROJECTION_CONTRACT",
     "StaticAssertionClass",
@@ -76,6 +81,7 @@ __all__ = [
     "StaticSemanticAttributes",
     "UnsupportedArtifactError",
     "ingest_analysis_result",
+    "a_profile_static_behavior_projection_materialization_id",
     "project_static_behavior_analysis",
     "static_behavior_analysis_projection_id",
     "static_behavior_graph_projection_id",

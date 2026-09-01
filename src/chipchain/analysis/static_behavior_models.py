@@ -16,9 +16,6 @@ from typing import Literal
 
 from pydantic import Field, field_validator, model_validator
 
-from chipchain.hardware_trigger.a_profile_static_case_models import (
-    AProfileStaticCaseAssemblyResult,
-)
 from chipchain.models.common import DomainModel, Identifier
 from chipchain.models.enums import Architecture
 
@@ -946,12 +943,14 @@ class _StaticBehaviorAnalysisProjectionBody(DomainModel):
     architecture: Architecture
     artifact_id: Identifier
     artifact_sha256: Identifier
-    source_case_assembly_result_id: Identifier
-    source_case_assembly_result_snapshot: AProfileStaticCaseAssemblyResult
+    source_analysis_result_id: Identifier
+    source_analysis_contract: Identifier
     program_graph: StaticBehaviorGraphProjection
     pattern_bindings: StaticPatternBindingProjection
 
-    @field_validator("artifact_id", "source_case_assembly_result_id")
+    @field_validator(
+        "artifact_id", "source_analysis_result_id", "source_analysis_contract"
+    )
     @classmethod
     def reject_path_identifiers(cls, value: str) -> str:
         return _reject_path_like_identifier(
@@ -967,33 +966,61 @@ class _StaticBehaviorAnalysisProjectionBody(DomainModel):
     def validate_standalone_integrity(
         self,
     ) -> "_StaticBehaviorAnalysisProjectionBody":
-        from chipchain.analysis.static_behavior_projection import _project_source
-
-        source = self.source_case_assembly_result_snapshot
-        if self.source_case_assembly_result_id != source.id:
-            raise ValueError("analysis projection source snapshot ID mismatch")
-        if (
+        graph = StaticBehaviorGraphProjection.model_validate(
+            self.program_graph.model_dump(mode="json")
+        )
+        bindings = StaticPatternBindingProjection.model_validate(
+            self.pattern_bindings.model_dump(mode="json")
+        )
+        expected_binding = (
             self.architecture,
             self.artifact_id,
             self.artifact_sha256,
-        ) != (
-            source.architecture,
-            source.artifact_id,
-            source.artifact_sha256,
-        ):
-            raise ValueError("analysis projection source provenance mismatch")
-        expected_graph, expected_bindings = _project_source(source)
-        if self.program_graph != expected_graph:
-            raise ValueError("program graph differs from exact source projection")
-        if self.pattern_bindings != expected_bindings:
-            raise ValueError("pattern bindings differ from exact source projection")
+            self.source_analysis_result_id,
+        )
+        if (
+            graph.architecture,
+            graph.artifact_id,
+            graph.artifact_sha256,
+            graph.source_static_analysis_result_id,
+        ) != expected_binding:
+            raise ValueError("program graph crosses analysis projection binding")
+        if (
+            bindings.architecture,
+            bindings.artifact_id,
+            bindings.artifact_sha256,
+            bindings.source_static_analysis_result_id,
+        ) != expected_binding:
+            raise ValueError("pattern bindings cross analysis projection binding")
+
+        fact_node_by_id = {
+            item.id: item
+            for item in graph.nodes
+            if item.kind is StaticBehaviorNodeKind.SEMANTIC_INSTRUCTION_FACT
+        }
+        for record in bindings.records:
+            if record.binding_kind is (
+                StaticPatternBindingKind.PREDICATE_CANDIDATE
+            ):
+                node = fact_node_by_id.get(record.semantic_fact_node_id)
+                if node is None or node.source_object_id != record.source_fact_id:
+                    raise ValueError(
+                        "predicate binding does not reference its exact fact node"
+                    )
+            elif (
+                record.position_1_fact_node_id not in fact_node_by_id
+                or record.position_2_fact_node_id not in fact_node_by_id
+            ):
+                raise ValueError(
+                    "case-order binding references an unknown fact node"
+                )
         return self
 
 
 class StaticBehaviorAnalysisProjection(
     _StaticBehaviorAnalysisProjectionBody
 ):
-    """Standalone exact projection of one frozen static case-assembly result."""
+    """Architecture-neutral static program-analysis representation."""
 
     id: Identifier
 
@@ -1001,21 +1028,27 @@ class StaticBehaviorAnalysisProjection(
     def create(
         cls,
         *,
-        source_case_assembly_result: AProfileStaticCaseAssemblyResult,
+        architecture: Architecture,
+        artifact_id: str,
+        artifact_sha256: str,
+        source_analysis_result_id: str,
+        source_analysis_contract: str,
+        program_graph: StaticBehaviorGraphProjection,
+        pattern_bindings: StaticPatternBindingProjection,
     ) -> "StaticBehaviorAnalysisProjection":
-        from chipchain.analysis.static_behavior_projection import _project_source
-
-        source = AProfileStaticCaseAssemblyResult.model_validate(
-            source_case_assembly_result.model_dump(mode="json")
+        graph = StaticBehaviorGraphProjection.model_validate(
+            program_graph.model_dump(mode="json")
         )
-        graph, bindings = _project_source(source)
+        bindings = StaticPatternBindingProjection.model_validate(
+            pattern_bindings.model_dump(mode="json")
+        )
         values = {
             "contract": PHASE10D_STATIC_BEHAVIOR_ANALYSIS_PROJECTION_CONTRACT,
-            "architecture": source.architecture,
-            "artifact_id": source.artifact_id,
-            "artifact_sha256": source.artifact_sha256,
-            "source_case_assembly_result_id": source.id,
-            "source_case_assembly_result_snapshot": source,
+            "architecture": architecture,
+            "artifact_id": artifact_id,
+            "artifact_sha256": artifact_sha256,
+            "source_analysis_result_id": source_analysis_result_id,
+            "source_analysis_contract": source_analysis_contract,
             "program_graph": graph,
             "pattern_bindings": bindings,
         }

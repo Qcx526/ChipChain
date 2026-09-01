@@ -817,7 +817,9 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 #### Phase 10D Step 8B-2D1：Typed Static Behavior Analysis Projection（已完成实现，待 final review）
 
 - [x] 新增三个版本化的 architecture-neutral projection 合同：objective static program graph、独立 pattern
-  binding projection 与 standalone top-level analysis projection；当前 adapter 只消费 frozen C2 A-profile result
+  binding projection 与 generic top-level analysis projection；shared models 不导入 `hardware_trigger`/A-profile
+- [x] 新增 `phase10d_a_profile_static_behavior_projection_materialization_v1` adapter envelope；仅该层保存
+  exact frozen C2 snapshot，并包含同一 architecture-neutral `StaticBehaviorAnalysisProjection`
 - [x] program graph v1 只含 FUNCTION/BASIC_BLOCK/SEMANTIC_INSTRUCTION_FACT 节点及 function containment、
   fact containment、CFG successor 三类 objective structural relations；所有 relation 固定非 causal、非 runtime、
   非 symbolic-feasibility
@@ -830,8 +832,8 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   function-local edge provenance，path 不解释为 causality
 - [x] predicate/case-order records 精确绑定 semantic-fact graph node，并原样保留全部 runtime/context/memory/
   proximity/timing obligations；projection 不解除任何 objective obligation
-- [x] top-level 保存 exact C2 source snapshot，并从该 snapshot 重建预期 graph/bindings；artifact/fact/CFG/
-  candidate retarget 即使重算外层 ID 也 fail closed
+- [x] generic top-level 只校验 architecture/artifact/source-analysis/subprojection 与 fact-node references；A-profile
+  envelope 从 exact C2 snapshot 重建预期 graph/bindings，artifact/fact/CFG/candidate retarget 即使重算 ID 也拒绝
 - [x] non-predicate fact 若不在 C2 relevant CFG set 中确定性省略并以中性 count 记账；predicate-referenced fact
   不可解析到 exact function/block graph 时直接拒绝
 - [x] legacy Behavior Graph、`BehaviorType`/`NodeKind`/`RelationType`、knowledge graph、ReasoningContext 与

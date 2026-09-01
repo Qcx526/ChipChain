@@ -967,23 +967,26 @@ PRIMARY 结论。static CFG reachability 仍只作 `REACHABILITY_AUDIT_ONLY`，�
 
 ## Phase 10D Step 8B-2D1 Typed Static Behavior Analysis Projection
 
-Step 8B-2D1 在独立 `chipchain.analysis` 层中，把 frozen C2
-`AProfileStaticCaseAssemblyResult` 纯确定性投影为
-`StaticBehaviorAnalysisProjection`。顶层明确分成两个 sibling：
+Step 8B-2D1 在独立 `chipchain.analysis` 层中，通过 A-profile adapter 把 frozen C2
+`AProfileStaticCaseAssemblyResult` 纯确定性投影为 architecture-neutral
+`StaticBehaviorAnalysisProjection`。shared representation 明确分成两个 sibling：
 
 ```text
 AProfileStaticCaseAssemblyResult
-        ↓ detached pure projection
-StaticBehaviorAnalysisProjection
-        ├── program_graph: objective binary facts + structural CFG relations
-        └── pattern_bindings: deterministic predicate/case-order candidates
+        ↓ A-profile detached materialization adapter
+AProfileStaticBehaviorProjectionMaterialization
+        ├── exact C2 source snapshot
+        └── StaticBehaviorAnalysisProjection
+                ├── program_graph: objective binary facts + structural CFG relations
+                └── pattern_bindings: deterministic predicate/case-order candidates
 ```
 
 `program_graph` 只允许 FUNCTION、BASIC_BLOCK、SEMANTIC_INSTRUCTION_FACT 节点，以及
 FUNCTION_CONTAINS_BASIC_BLOCK、BASIC_BLOCK_CONTAINS_SEMANTIC_FACT、CFG_SUCCESSOR 关系。所有关系固定
-`causal=false`、`runtime_execution=false`、`symbolic_feasibility=false`。artifact ID/SHA、exact source result、
-fact、CFG block/edge 与 candidate references 全部进入 deterministic identity；顶层保存 exact C2 snapshot，
-并从 snapshot 重建预期子投影以拒绝 provenance retarget。
+`causal=false`、`runtime_execution=false`、`symbolic_feasibility=false`。artifact ID/SHA、source analysis
+ID/contract、fact、CFG block/edge 与 candidate references 全部进入 generic deterministic identity。共享模型
+不导入 `hardware_trigger` 或 A-profile 类型；exact C2 snapshot 只由 adapter materialization envelope 保存，并
+从该 snapshot 重建预期 generic projection 以拒绝 provenance retarget。
 
 pattern candidate 不进入 program graph，也不是 program edge；它只在 sibling projection 中保留 exact
 predicate/case/position/fact-node references、CFG audit witness 和全部 unresolved objective obligations。
@@ -992,7 +995,8 @@ predicate/case/position/fact-node references、CFG audit witness 和全部 unres
 
 2D1 没有修改 legacy `BehaviorType`/`NodeKind`/`RelationType` 或旧 Behavior Graph；program graph 也不是
 knowledge graph。它不创建 vulnerability/AttackChain node、CrossLayerInteraction、Evidence、
-VerificationRecord、Triggerability 或 ReasoningContext binding。共享投影结构保持 architecture-neutral，
+VerificationRecord、Triggerability 或 ReasoningContext binding。共享投影模型和 JSON Schema 均保持
+architecture-neutral；未来 architecture adapter 可产生同一 shared representation，无需修改 graph contracts，
 但当前 adapter 的语义覆盖仍严格受 frozen narrow A-profile v1 decoder 限制；2D1 不是完整 AArch64
 semantic graph，也没有实现未来 2D2 generic semantic decoder。
 

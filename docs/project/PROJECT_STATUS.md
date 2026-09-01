@@ -48,16 +48,17 @@
 
 ## Current Work
 
-Phase 10D Step 8B-2D1 adds an independent typed projection from the frozen C2 assembly result to a lower-level static
-program-analysis representation. Its `program_graph` contains only objective function/block/semantic-instruction facts
-and non-causal containment/CFG-successor relations. Deterministic pattern candidates are held in a separate sibling
-projection, bind exact fact-node IDs, and preserve every unresolved objective obligation. The top-level snapshot and
-reconstruction checks bind exact artifact/result/fact/CFG/candidate provenance even under recomputed outer IDs.
+Phase 10D Step 8B-2D1 adds an independent architecture-neutral static program-analysis representation. Its shared
+models import no `hardware_trigger` or A-profile contracts; `StaticBehaviorAnalysisProjection` binds generic source
+analysis identity/contract, program graph and separate pattern bindings. The A-profile materialization adapter alone
+stores the exact frozen C2 snapshot and reconstructs the expected generic projection, preserving fail-closed
+artifact/result/fact/CFG/candidate provenance even under recomputed outer IDs.
 
 This new program graph is neither the legacy Behavior Graph nor a knowledge graph. Pattern candidates are not program
 edges, static CFG paths are not causal attack chains, and 2D1 does not create CrossLayerInteraction, ReasoningContext,
 Evidence, VerificationRecord, Triggerability or AttackChain. The shared structure is generic, while current semantic
 coverage remains limited by the frozen narrow A-profile v1 decoder; generic AArch64 Semantic IR remains future work.
+Future architecture adapters can emit the same shared projection without changing these contracts.
 
 Step 8B-1E adds Axis B as a supplemental offline diagnostic while leaving Axis A (the exact
 `ModelClaimBinder`) and Axis C (the objective `ChainFeasibilityOracle`) unchanged. Current frozen sessions use

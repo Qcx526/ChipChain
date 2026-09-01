@@ -162,6 +162,7 @@ adapter，不包含 processor/CVE/Case/event-specific 规则；ELF loading 是�
 Step 8B-2D1 不新增或修改任何 data artifact、ELF、plan 或 fixture。它只在内存中 detached-validate frozen C2
 `AProfileStaticCaseAssemblyResult`，并纯确定性生成 objective `program_graph` 与独立的 pattern-binding
 projection。program graph 不包含 vulnerability/AttackChain node，pattern candidate 不成为 graph edge，CFG
-successor/path 不表示 causality。顶层保留 exact source snapshot 与 artifact SHA provenance；不写入
+successor/path 不表示 causality。architecture-neutral shared projection 不含 A-profile source model；exact source
+snapshot 与 artifact SHA provenance 只保存在 A-profile materialization envelope 中；不写入
 `data/evaluation/`，也不创建 CrossLayerInteraction、ReasoningContext、Evidence、VerificationRecord、
 Triggerability 或 PRIMARY 结果。当前 coverage 仍受 frozen narrow A-profile v1 decoder 限制。
