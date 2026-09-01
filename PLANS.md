@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1 与 Step 8B-2B2-A 已完成并冻结；Step 8B-2B2-B 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A 与 Step 8B-2B2-B 已完成并冻结；Step 8B-2B2-C1 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -757,10 +757,10 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   proximity/additional hardware timing 等 objective obligations；candidate 不表示 predicate satisfied
 - [x] result 对 plan/source/artifact/fact/predicate references 做 exact cross-binding 与 deterministic ordering，
   不产生 Case A/B assembly、CFG/program-order outcome、proximity outcome、triggerability、verification 或 feasibility
-- [x] 生成 artifact 只包含 extraction plan，不含 ELF occurrence；2B2-B AArch64 extractor 与 2B2-C case/order
-  assembly 均保留为后续独立评审步骤
+- [x] 生成 artifact 只包含 extraction plan，不含 ELF occurrence；2B2-B extractor 与 2B2-C1 pure order contract
+  已分别独立实现，2B2-C2 real-angr materialization 仍保留为后续评审步骤
 
-#### Phase 10D Step 8B-2B2-B：AArch64 Static Semantic Event Extractor（已完成实现，待 final review）
+#### Phase 10D Step 8B-2B2-B：AArch64 Static Semantic Event Extractor（已完成并冻结）
 
 - [x] 新增 `AngrAProfileStaticSemanticExtractor`，只接受 detached ARM/A-profile/AArch64 plan 与实际加载为
   AArch64/64-bit 的 immutable ELF；分析前后 exact SHA-256 不一致即 fail closed
@@ -778,6 +778,21 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   source、SHA256SUMS、非执行 byte-copy negative control 与非 Ground-Truth expectations
 - [x] 不实现 2B2-C Case/CFG/program-order assembly，不计算 proximity，不解析 effective memory type，不创建
   runtime observation、triggerability、feasibility、verification 或 PRIMARY 结果
+
+#### Phase 10D Step 8B-2B2-C1：Function-Local Static CFG Order Candidate Contract（已完成实现，待 final review）
+
+- [x] 新增 versioned function CFG snapshot、directed edge、static case-order candidate 与 assembly result；所有
+  identity 绑定 exact artifact/result/plan/source/candidate/fact/CFG snapshots，不含 path、time 或 backend object
+- [x] pure evaluator 不导入 angr/Capstone，只按 exact case/position 做 deterministic Cartesian pairing；同块只接受
+  instruction-address forward order，跨块只接受同函数 directed CFG reachability
+- [x] directed witness 使用 successor-address sorted BFS，保存 shortest-edge-count path 仅供
+  `REACHABILITY_AUDIT_ONLY`，不计算或暗示 proximity、symbolic feasibility 或 runtime execution
+- [x] standalone candidate 保留 exact predicate/fact/plan/CFG snapshots，并强制 remaining obligations 为双方精确并集；
+  load memory type、PAR_EL1 runtime context、proximity 与 additional timing 均未解决
+- [x] 零候选是中性有效结果；现有 2B2-B owned fixture 的三个 positive facts 位于隔离函数，因此在 C1 function-local
+  语义下仍为零 case-order candidate
+- [x] 不实现 2B2-C2 real-angr CFG snapshot/candidate materialization，不创建 runtime observation、triggerability、
+  feasibility、verification、vulnerability 或 PRIMARY 结果
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

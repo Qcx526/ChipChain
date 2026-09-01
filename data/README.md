@@ -130,7 +130,8 @@ alternative 保存 canonical predicate reference、case/position、decoded-seman
 由 2B2-B 生成的 `AProfileStaticSemanticInstructionFact` 只表示 immutable artifact 中存在一个 decoded A64 instruction；
 `AProfileStaticPredicateCandidate` 只表示该事实可作为一个 pattern predicate 的候选。静态存在不等于运行时
 执行，decoded load 不等于 Device/Normal-NC 已解析，candidate 不等于 predicate satisfied，也不等于
-triggerability。2B2-C case/program-order assembly 与后续 stateful evaluation 仍未实现。
+triggerability。2B2-C1 只增加纯 function-local static CFG order candidate 合同；2B2-C2 real-angr
+materialization 与后续 stateful evaluation 仍未实现。
 
 Step 8B-2B2-B 的 owned synthetic AArch64 fixture 位于
 `../tests/fixtures/phase10d/a_profile_static_semantic_a64/`。它包含四个互不调用的隔离函数，分别用于
@@ -143,3 +144,8 @@ CFG blocks 与 Capstone decoded instruction ID/operands。它产生 `AProfileSta
 `AProfileStaticPredicateCandidate`，不向 `data/evaluation/` 写入 artifact-specific extraction result。静态
 instruction existence 不等于 runtime execution；load fact 不解析 Device/Normal-NC；PAR_EL1 fact 不证明
 runtime privilege；多个 candidates 不构成 Case/program-order/proximity 结论。
+
+Step 8B-2B2-C1 不新增数据 artifact 或 ELF。其 normalized CFG snapshots 与 positive graph tests 全部由
+in-memory owned/synthetic DomainModels 构造。保存的 deterministic BFS path 仅是 reachability audit provenance，
+不是 runtime path、symbolic-feasibility 证明或 proximity evidence；same function、same block 和 direct edge
+均不能解析 qualitative `CLOSE_PROXIMITY`。现有 2B2-B ELF 和 expectations 保持 byte-for-byte 不变。

@@ -75,6 +75,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   与 unresolved-obligation predicate-candidate contracts（不含真实 extractor）
 - Phase 10D Step 8B-2B2-B real angr AArch64 decoded-event extractor、owned synthetic ELF 与
   closed instruction-ID/structured-operand recognition profile
+- Phase 10D Step 8B-2B2-C1 pure function-local CFG static-order candidate contracts 与
+  deterministic reachability-audit witness（不含 real-angr case assembler）
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -848,8 +850,9 @@ AProfileStaticSemanticExtractionPlan
 AProfileStaticSemanticInstructionFact
         ↓ exact predicate binding
 AProfileStaticPredicateCandidate
-        ↓ future 2B2-C (not implemented)
-Case / program-order candidates
+        ↓ 2B2-C1 pure function-local CFG order semantics
+AProfileStaticCaseOrderCandidate
+        ↓ future 2B2-C2 real-angr materialization
         ↓ future runtime/stateful evidence
 Triggerability
 ```
@@ -899,15 +902,31 @@ owned immutable AArch64 ELF
 AProfileStaticSemanticInstructionFact
         ↓ official candidate.create, plan-driven only
 AProfileStaticPredicateCandidate
-        ↓ future 2B2-C (not implemented)
-Case / CFG / program-order candidate assembly
+        ↓ 2B2-C1 pure typed graph semantics
+AProfileStaticCaseOrderCandidate
+        ↓ future 2B2-C2 (not implemented)
+real-angr CFG snapshot/candidate materialization
 ```
 
 静态 instruction existence 不等于 runtime execution；decoded `MEMORY_LOAD` 不等于 Device/Normal-NC 已建立；
 `MRS PAR_EL1` 的存在不等于 runtime privileged execution；predicate candidate 不等于 predicate satisfied。
 即使结果中存在多个 individual candidates，也不表示 Case A/B、program order 或 `CLOSE_PROXIMITY` 已成立。
 本步骤不创建 runtime observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility
-或 PRIMARY 结论。2B2-C case/CFG/program-order assembly 仍未实现。
+或 PRIMARY 结论。2B2-C1 只冻结纯 function-local static CFG order candidate 合同；real-angr materialization
+属于仍未实现的 2B2-C2。
+
+## Phase 10D Step 8B-2B2-C1 Static Case / Function-Local CFG Order Candidate
+
+Step 8B-2B2-C1 新增 backend-independent 的 normalized function CFG snapshot、strict directed edge、
+standalone `AProfileStaticCaseOrderCandidate` 与 assembly result。纯 evaluator 只在同一 artifact、同一 exact
+extraction result/plan/case、同一非空 function address 内配对 position 1/2 candidates。同 basic block 仅接受
+instruction address 前向顺序；不同 block 仅接受 directed reachability，并保存 sorted-successor BFS 的确定性
+path，固定用途为 `REACHABILITY_AUDIT_ONLY`。
+
+该 path 只证明结构可达：static CFG reachability 不等于 runtime execution，也不等于 symbolic path feasibility。
+same function、same block 或 direct CFG edge 均不等于 `CLOSE_PROXIMITY`。全部 runtime、effective-memory-type、
+privilege/context、qualitative proximity 与 additional timing obligations 原样保留；case-order candidate 不等于
+triggerability。2B2-C1 不导入 angr，2B2-C2 real-angr CFG materialization 仍未实现。
 
 ## 文档导航
 
