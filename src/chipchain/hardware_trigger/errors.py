@@ -1,4 +1,4 @@
-"""Bounded public errors for Phase 9C trigger matching."""
+"""Bounded public errors for hardware-trigger and semantic analysis."""
 
 
 class HardwareTriggerMatchingError(Exception):
@@ -35,3 +35,25 @@ class InvalidTriggerabilityInputError(TriggerabilityAggregationError):
 
 class TriggerabilityBindingError(TriggerabilityAggregationError):
     """Raised when valid Step 1-3A contracts contradict each other."""
+
+
+class AProfileStaticSemanticExtractionError(Exception):
+    """Base error for A-profile decoded static semantic extraction."""
+
+
+class UnsupportedAProfileStaticSemanticArtifactError(
+    AProfileStaticSemanticExtractionError
+):
+    """Raised when an input artifact is outside the ARM64 ELF scope."""
+
+
+class InvalidAProfileStaticSemanticInputError(
+    AProfileStaticSemanticExtractionError
+):
+    """Raised when detached inputs, paths, or backend output are invalid."""
+
+
+class AProfileStaticSemanticBackendError(
+    AProfileStaticSemanticExtractionError
+):
+    """Raised when angr cannot complete bounded static extraction."""

@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0 与 Step 8B-2B1 已完成并冻结；Step 8B-2B2-A 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1 与 Step 8B-2B2-A 已完成并冻结；Step 8B-2B2-B 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -743,7 +743,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 2B1 不实现 2B2 static occurrence extraction 或 2B3 runtime observation，不修改旧 A32 enums、signature、
   matcher、aggregator、fixture identity 或 PRIMARY admission
 
-#### Phase 10D Step 8B-2B2-A：A-profile Static Semantic Extraction Contract（已完成实现，待 final review）
+#### Phase 10D Step 8B-2B2-A：A-profile Static Semantic Extraction Contract（已完成并冻结）
 
 - [x] 新增独立 A64 static namespace 与四个版本化合同：deterministic extraction plan、objective decoded
   instruction fact、fact-to-predicate candidate，以及只包含 facts/candidates/diagnostics 的 extraction result
@@ -759,6 +759,25 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   不产生 Case A/B assembly、CFG/program-order outcome、proximity outcome、triggerability、verification 或 feasibility
 - [x] 生成 artifact 只包含 extraction plan，不含 ELF occurrence；2B2-B AArch64 extractor 与 2B2-C case/order
   assembly 均保留为后续独立评审步骤
+
+#### Phase 10D Step 8B-2B2-B：AArch64 Static Semantic Event Extractor（已完成实现，待 final review）
+
+- [x] 新增 `AngrAProfileStaticSemanticExtractor`，只接受 detached ARM/A-profile/AArch64 plan 与实际加载为
+  AArch64/64-bit 的 immutable ELF；分析前后 exact SHA-256 不一致即 fail closed
+- [x] 使用 `CFGFast(normalize=True)`，仅确定性遍历 main-object、non-SimProcedure、non-PLT function 的
+  executable blocks/instructions，不向 public result 暴露 CFG edge/path
+- [x] partial v1 recognition 只使用 closed Capstone instruction IDs + structured operands：`LDR(REG,MEM)`、
+  六个 STXR/STLXR word/byte/halfword variants `(REG,REG,MEM)`、exact `MRS(REG,PAR_EL1)`
+- [x] 普通 STR、LDXR、MSR PAR_EL1、MRS FAR_EL1 与未支持 LDUR 均不产生 semantic fact；非执行 `.data`
+  中的相同 bytes 也不产生事实
+- [x] recognized fact 只保存 16-digit A64 address、8-digit logical instruction word、function/block provenance
+  与 unresolved memory state；candidate 仅通过 frozen plan 和官方 `create()` 生成
+- [x] 同一 load/PAR/store-exclusive fact 分别绑定两条 exact plan entry，并保留全部 conditional/universal
+  obligations；不复制 instruction fact，也不声称 predicate satisfied
+- [x] owned synthetic ELF 的四个隔离函数互不调用，不构成 CVE trigger/reproducer；fixture 自带 generator、
+  source、SHA256SUMS、非执行 byte-copy negative control 与非 Ground-Truth expectations
+- [x] 不实现 2B2-C Case/CFG/program-order assembly，不计算 proximity，不解析 effective memory type，不创建
+  runtime observation、triggerability、feasibility、verification 或 PRIMARY 结果
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

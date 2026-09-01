@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step8b2b1-stable`
-- Stable commit: `00810a132bdc0285c80c6f13088fac99159b932c`
-- Baseline: Phase 10D Step 8B-2B1 final accepted and frozen
+- Stable tag: `phase-10d-step8b2b2a-stable`
+- Stable commit: `2ad05f72c5a86990974d235f16f90765632f7bb2`
+- Baseline: Phase 10D Step 8B-2B2-A final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -40,14 +40,16 @@
 - Phase 10D Step 8B-1E deterministic retrospective MASKED semantic/content recovery diagnostic
 - Phase 10D Step 8B-2B0 authoritative documented semantics contract for Cortex-A77 erratum 1508412
 - Phase 10D Step 8B-2B1 versioned ARM A-profile semantic trigger-pattern predicates
-- Phase 10D Step 8B-2B2-A A-profile static semantic extraction contracts and deterministic plan (implemented, pending final review)
+- Phase 10D Step 8B-2B2-A A-profile static semantic extraction contracts and deterministic plan
+- Phase 10D Step 8B-2B2-B real angr AArch64 decoded-event extraction over an owned synthetic ELF (implemented, pending final review)
 
 ## Current Work
 
-Phase 10D Step 8B-2B2-A translates the exact frozen Step 8B-2B1 artifact into one deterministic,
-artifact-neutral `AProfileStaticSemanticExtractionPlan`. It also freezes independent contracts for a future
-AArch64 decoder's objective instruction facts, exact fact-to-predicate candidates, and a cross-bound extraction
-result. No ELF occurrence is produced in this step.
+Phase 10D Step 8B-2B2-B implements `AngrAProfileStaticSemanticExtractor` over the frozen 2B2-A contracts. It
+hashes one owned immutable ELF before and after `CFGFast`, requires the loaded object to be AArch64/64-bit, and
+inspects only deterministic main-object executable function/block/instruction provenance. Its closed partial-v1
+profile uses exact Capstone instruction IDs plus structured operands for LDR, selected STXR/STLXR variants, and
+exact MRS PAR_EL1. It emits only static instruction facts and plan-driven predicate candidates.
 
 Step 8B-1E adds Axis B as a supplemental offline diagnostic while leaving Axis A (the exact
 `ModelClaimBinder`) and Axis C (the objective `ChainFeasibilityOracle`) unchanged. Current frozen sessions use
@@ -78,18 +80,17 @@ It preserves exact program order but explicitly records qualitative-only proximi
 possible core deadlock, and additional timing conditions unspecified by the public source. Its objective use is
 `SEMANTIC_PATTERN_REFERENCE_ONLY`; CVE-2023-34320 remains `NEXT_OBJECTIVE_CANDIDATE` and `SECONDARY_ONLY`.
 
-The Step 8B-2B1 pattern is also not an occurrence, runtime observation, `HardwareTriggerSignature`, proof, or
-triggerability result. Step 8B-2B2-A preserves that boundary: static instruction existence is not runtime
-execution, a decoded load does not establish Device/Normal-NC, and a static predicate candidate does not mean
-the predicate is satisfied. Program order remains only source-plan structure; no Case A/B pair, CFG path outcome,
-proximity result, triggerability, verification, or feasibility is represented. The AArch64 extractor (2B2-B),
-case/program-order assembly (2B2-C), and runtime semantic observation (2B3) remain unimplemented.
+Static instruction existence is not runtime execution; a decoded load does not establish Device/Normal-NC;
+an MRS PAR_EL1 fact does not establish runtime privileged execution; and a static predicate candidate does not
+mean the predicate is satisfied. Multiple individual facts/candidates do not establish Case A/B, a feasible CFG
+path, program order, or proximity. Case/program-order assembly (2B2-C) and runtime semantic observation (2B3)
+remain unimplemented.
 
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- final review/freeze of the Step 8B-2B2-A static semantic extraction contracts
-- Step 8B-2B2-B AArch64 decoded-event extraction and Step 8B-2B2-C case/order assembly, each only after separate review
+- final review/freeze of the Step 8B-2B2-B AArch64 decoded-event extractor
+- Step 8B-2B2-C case/order assembly, only after separate review
 - objective evidence review and explicit PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation

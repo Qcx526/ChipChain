@@ -73,6 +73,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10D Step 8B-2B1 versioned ARM A-profile semantic trigger-pattern predicate language
 - Phase 10D Step 8B-2B2-A deterministic A-profile static semantic extraction plan、A64 decoded-instruction fact
   与 unresolved-obligation predicate-candidate contracts（不含真实 extractor）
+- Phase 10D Step 8B-2B2-B real angr AArch64 decoded-event extractor、owned synthetic ELF 与
+  closed instruction-ID/structured-operand recognition profile
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -842,7 +844,7 @@ DocumentedHardwareErratumContract
 AProfileSemanticTriggerPattern
         ↓
 AProfileStaticSemanticExtractionPlan
-        ↓ future 2B2-B (not implemented)
+        ↓ 2B2-B real static decoded-event extraction
 AProfileStaticSemanticInstructionFact
         ↓ exact predicate binding
 AProfileStaticPredicateCandidate
@@ -868,14 +870,44 @@ architectural memory type。静态识别 `SYSTEM_REGISTER_READ(PAR_EL1)` 也不�
 候选继续携带 runtime execution、适用的 runtime context/effective memory type、qualitative proximity 和
 additional hardware timing obligations。
 
-本步骤不打开 ELF、不执行 angr、不组装 Case、不判断 CFG/program order、不发明 proximity 数值界限，也不
+本步骤（2B2-A）不打开 ELF、不执行 angr、不组装 Case、不判断 CFG/program order、不发明 proximity 数值界限，也不
 创建 runtime observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility 或
-PRIMARY 结论。2B2-B 才可在独立评审后实现 AArch64 decoded-event extractor；2B2-C 才可定义 case/path/order
-assembly。确定性计划可完全离线复核：
+PRIMARY 结论。2B2-B 已在独立边界下实现 AArch64 decoded-event extractor；2B2-C 才可定义 case/path/order
+assembly，仍未实现。确定性计划可完全离线复核：
 
 ```bash
 python scripts/build_cve_2023_34320_a_profile_static_semantic_extraction_plan.py --check
 ```
+
+## Phase 10D Step 8B-2B2-B AArch64 Static Semantic Event Extractor
+
+Step 8B-2B2-B 首次使用真实 angr `CFGFast(normalize=True)`，但只分析 owned synthetic AArch64 ELF 的
+main-object executable functions/blocks。`AngrAProfileStaticSemanticExtractor` 在分析前后分别读取并校验
+artifact SHA-256，实际加载的 ELF 必须是 AArch64/64-bit；外部对象、SimProcedure、PLT 与非执行数据不产生
+static semantic fact。
+
+v1 recognition profile 明确标记为 `STATIC_RECOGNITION_PROFILE_PARTIAL`，采用 Capstone exact instruction
+ID 与 structured operand shape 的组合：`LDR(REG,MEM)`；`STXR/STXRB/STXRH/STLXR/STLXRB/STLXRH`
+的 `(REG,REG,MEM)`；以及 `MRS(REG,SYSREG)` 且 system-register identity 必须精确为 `PAR_EL1`。它不使用
+mnemonic prefix、raw ELF scan、source/disassembly text grep。`LDUR` 等未列出的 load family 不产生事实。
+
+```text
+2B2-A frozen extraction plan
+        +
+owned immutable AArch64 ELF
+        ↓ real angr/Capstone static decoding
+AProfileStaticSemanticInstructionFact
+        ↓ official candidate.create, plan-driven only
+AProfileStaticPredicateCandidate
+        ↓ future 2B2-C (not implemented)
+Case / CFG / program-order candidate assembly
+```
+
+静态 instruction existence 不等于 runtime execution；decoded `MEMORY_LOAD` 不等于 Device/Normal-NC 已建立；
+`MRS PAR_EL1` 的存在不等于 runtime privileged execution；predicate candidate 不等于 predicate satisfied。
+即使结果中存在多个 individual candidates，也不表示 Case A/B、program order 或 `CLOSE_PROXIMITY` 已成立。
+本步骤不创建 runtime observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility
+或 PRIMARY 结论。2B2-C case/CFG/program-order assembly 仍未实现。
 
 ## 文档导航
 

@@ -8,7 +8,10 @@ from chipchain.hardware_trigger.enums import (
     TriggerabilityStatus,
 )
 from chipchain.hardware_trigger.errors import (
+    AProfileStaticSemanticBackendError,
+    AProfileStaticSemanticExtractionError,
     HardwareTriggerMatchingError,
+    InvalidAProfileStaticSemanticInputError,
     InvalidRuntimeTriggerInputError,
     InvalidTriggerabilityInputError,
     InvalidTriggerMatchingInputError,
@@ -16,6 +19,7 @@ from chipchain.hardware_trigger.errors import (
     RuntimeTriggerMatchingError,
     TriggerabilityAggregationError,
     TriggerabilityBindingError,
+    UnsupportedAProfileStaticSemanticArtifactError,
     UnsupportedTriggerArtifactError,
 )
 from chipchain.hardware_trigger.aggregation import (
@@ -154,8 +158,18 @@ from chipchain.hardware_trigger.a_profile_static_semantic_models import (
     a_profile_static_semantic_fact_id,
     obligations_for_predicate,
 )
+from chipchain.hardware_trigger.a_profile_static_semantic_angr import (
+    A_PROFILE_STATIC_RECOGNITION_PROFILE_PARTIAL_V1,
+    AngrAProfileStaticSemanticExtractor,
+)
 
 __all__ = [
+    "AProfileStaticSemanticBackendError",
+    "AProfileStaticSemanticExtractionError",
+    "InvalidAProfileStaticSemanticInputError",
+    "UnsupportedAProfileStaticSemanticArtifactError",
+    "A_PROFILE_STATIC_RECOGNITION_PROFILE_PARTIAL_V1",
+    "AngrAProfileStaticSemanticExtractor",
     "ArmExecutionMode",
     "ArmMemoryPrecondition",
     "ArmPrivilegeMode",

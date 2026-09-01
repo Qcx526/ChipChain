@@ -1,0 +1,69 @@
+{
+  "fixture_classification": {
+    "owned": true,
+    "synthetic": true,
+    "real_vulnerability": false,
+    "affected_hardware_reproduction": false,
+    "triggerability_demonstration": false
+  },
+  "architecture": "AARCH64",
+  "format": "ELF64 little-endian AArch64",
+  "entry_point": "0x0000000000400000",
+  "expected_facts": [
+    {
+      "function": "owned_load_example",
+      "function_address": "0x0000000000400000",
+      "instruction_address": "0x0000000000400000",
+      "instruction_word": "0xf9400020",
+      "event_kind": "memory_load",
+      "system_register": null,
+      "memory_type_resolution": "requires_objective_translation_context"
+    },
+    {
+      "function": "owned_store_exclusive_example",
+      "function_address": "0x0000000000400008",
+      "instruction_address": "0x0000000000400008",
+      "instruction_word": "0xc8007c41",
+      "event_kind": "store_exclusive",
+      "system_register": null,
+      "memory_type_resolution": "not_applicable"
+    },
+    {
+      "function": "owned_par_el1_read_example",
+      "function_address": "0x0000000000400010",
+      "instruction_address": "0x0000000000400010",
+      "instruction_word": "0xd5387400",
+      "event_kind": "system_register_read",
+      "system_register": "PAR_EL1",
+      "memory_type_resolution": "not_applicable"
+    }
+  ],
+  "expected_fact_count": 3,
+  "expected_predicate_candidate_count": 6,
+  "near_miss_function": {
+    "name": "owned_near_miss_examples",
+    "address": 4194328,
+    "size": 24,
+    "words": [
+      "0xf9000020",
+      "0xc85f7c41",
+      "0xd5187400",
+      "0xd5386000",
+      "0xf8400020",
+      "0xd65f03c0"
+    ]
+  },
+  "non_executable_copies": {
+    "section": ".data",
+    "address": "0x0000000000401000",
+    "file_offset": "0x0000000000002000",
+    "separated_words": [
+      "0xf9400020",
+      "0x00000000",
+      "0xc8007c41",
+      "0x00000000",
+      "0xd5387400"
+    ]
+  },
+  "artifact_sha256": "eacca62d264164cfb8970fd09d0df9c7bc548fbe04f7ee505001c9b594087c69"
+}

@@ -127,7 +127,19 @@ alternative 保存 canonical predicate reference、case/position、decoded-seman
 未解决的 runtime execution、适用的 privilege/effective-memory-type、qualitative proximity 和 hardware timing
 义务。生成物不含 artifact-specific instruction occurrence、ELF 路径、runtime observation 或结果 verdict。
 
-未来 `AProfileStaticSemanticInstructionFact` 只表示 immutable artifact 中存在一个 decoded A64 instruction；
+由 2B2-B 生成的 `AProfileStaticSemanticInstructionFact` 只表示 immutable artifact 中存在一个 decoded A64 instruction；
 `AProfileStaticPredicateCandidate` 只表示该事实可作为一个 pattern predicate 的候选。静态存在不等于运行时
 执行，decoded load 不等于 Device/Normal-NC 已解析，candidate 不等于 predicate satisfied，也不等于
-triggerability。2B2-B extractor、2B2-C case/program-order assembly 与后续 stateful evaluation 仍未实现。
+triggerability。2B2-C case/program-order assembly 与后续 stateful evaluation 仍未实现。
+
+Step 8B-2B2-B 的 owned synthetic AArch64 fixture 位于
+`../tests/fixtures/phase10d/a_profile_static_semantic_a64/`。它包含四个互不调用的隔离函数，分别用于
+ordinary LDR、STXR、MRS PAR_EL1 和 near-miss regression；非执行 `.data` 保存用零值分隔的 exact byte
+copies，以证明 executable filtering。该 fixture 明确不是 CVE trigger/reproducer、affected hardware
+reproduction、Ground Truth、triggerability demonstration 或 PRIMARY case。
+
+`AngrAProfileStaticSemanticExtractor` 只使用 frozen 2B2-A plan、immutable ELF bytes、main-object executable
+CFG blocks 与 Capstone decoded instruction ID/operands。它产生 `AProfileStaticSemanticInstructionFact` 和
+`AProfileStaticPredicateCandidate`，不向 `data/evaluation/` 写入 artifact-specific extraction result。静态
+instruction existence 不等于 runtime execution；load fact 不解析 Device/Normal-NC；PAR_EL1 fact 不证明
+runtime privilege；多个 candidates 不构成 Case/program-order/proximity 结论。
