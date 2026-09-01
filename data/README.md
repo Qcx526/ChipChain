@@ -130,8 +130,8 @@ alternative 保存 canonical predicate reference、case/position、decoded-seman
 由 2B2-B 生成的 `AProfileStaticSemanticInstructionFact` 只表示 immutable artifact 中存在一个 decoded A64 instruction；
 `AProfileStaticPredicateCandidate` 只表示该事实可作为一个 pattern predicate 的候选。静态存在不等于运行时
 执行，decoded load 不等于 Device/Normal-NC 已解析，candidate 不等于 predicate satisfied，也不等于
-triggerability。2B2-C1 只增加纯 function-local static CFG order candidate 合同；2B2-C2 real-angr
-materialization 与后续 stateful evaluation 仍未实现。
+triggerability。2B2-C1 只增加纯 function-local static CFG order candidate 合同；2B2-C2 已在独立 generic
+real-angr adapter 中材料化 CFG 并复用该合同，后续 stateful evaluation 仍未实现。
 
 Step 8B-2B2-B 的 owned synthetic AArch64 fixture 位于
 `../tests/fixtures/phase10d/a_profile_static_semantic_a64/`。它包含四个互不调用的隔离函数，分别用于
@@ -149,3 +149,12 @@ Step 8B-2B2-C1 不新增数据 artifact 或 ELF。其 normalized CFG snapshots �
 in-memory owned/synthetic DomainModels 构造。保存的 deterministic BFS path 仅是 reachability audit provenance，
 不是 runtime path、symbolic-feasibility 证明或 proximity evidence；same function、same block 和 direct edge
 均不能解析 qualitative `CLOSE_PROXIMITY`。现有 2B2-B ELF 和 expectations 保持 byte-for-byte 不变。
+
+Step 8B-2B2-C2 同样不新增或修改数据 artifact/ELF。`AngrAProfileStaticCaseMaterializer` 直接重用上述 frozen
+owned ELF 与 extraction plan，经冻结 2B2-B extractor 得到 exact semantic snapshot，再从同一 artifact SHA
+材料化 predicate-referenced exact function 的 main-object executable CFG，最后调用冻结 C1 pure assembler。
+当前 real-angr 输出固定为 3 instruction facts、6 predicate candidates、3 function CFG snapshots 与 0 static
+case-order candidates；零候选是中性结构结果。C2 是可复用于兼容 AArch64 ELF/kernel/firmware build 的 binary
+adapter，不包含 processor/CVE/Case/event-specific 规则；ELF loading 是未来 raw/firmware loader 可替换的边界。
+它不产生 runtime、effective-memory-type、proximity、symbolic-feasibility、triggerability、verification 或 PRIMARY
+结论。

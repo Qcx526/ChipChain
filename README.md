@@ -77,6 +77,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   closed instruction-ID/structured-operand recognition profile
 - Phase 10D Step 8B-2B2-C1 pure function-local CFG static-order candidate contracts 与
   deterministic reachability-audit witness（不含 real-angr case assembler）
+- Phase 10D Step 8B-2B2-C2 generic AArch64 binary CFG materialization、exact semantic/CFG artifact binding 与
+  pattern-driven static case assembly
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -850,9 +852,10 @@ AProfileStaticSemanticExtractionPlan
 AProfileStaticSemanticInstructionFact
         ↓ exact predicate binding
 AProfileStaticPredicateCandidate
+        ↓ 2B2-C2 real-angr function CFG materialization
+AProfileStaticFunctionCfgSnapshot[]
         ↓ 2B2-C1 pure function-local CFG order semantics
 AProfileStaticCaseOrderCandidate
-        ↓ future 2B2-C2 real-angr materialization
         ↓ future runtime/stateful evidence
 Triggerability
 ```
@@ -902,18 +905,18 @@ owned immutable AArch64 ELF
 AProfileStaticSemanticInstructionFact
         ↓ official candidate.create, plan-driven only
 AProfileStaticPredicateCandidate
-        ↓ 2B2-C1 pure typed graph semantics
+        ↓ 2B2-C2 generic real-angr CFG materialization
+AProfileStaticFunctionCfgSnapshot[]
+        ↓ frozen 2B2-C1 pure typed graph semantics
 AProfileStaticCaseOrderCandidate
-        ↓ future 2B2-C2 (not implemented)
-real-angr CFG snapshot/candidate materialization
 ```
 
 静态 instruction existence 不等于 runtime execution；decoded `MEMORY_LOAD` 不等于 Device/Normal-NC 已建立；
 `MRS PAR_EL1` 的存在不等于 runtime privileged execution；predicate candidate 不等于 predicate satisfied。
 即使结果中存在多个 individual candidates，也不表示 Case A/B、program order 或 `CLOSE_PROXIMITY` 已成立。
 本步骤不创建 runtime observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility
-或 PRIMARY 结论。2B2-C1 只冻结纯 function-local static CFG order candidate 合同；real-angr materialization
-属于仍未实现的 2B2-C2。
+或 PRIMARY 结论。2B2-C1 冻结纯 function-local static CFG order candidate 合同；2B2-C2 只把同一 immutable
+binary 的 normalized CFG 输入该合同，不改变 2B2-B facts 或 C1 判断语义。
 
 ## Phase 10D Step 8B-2B2-C1 Static Case / Function-Local CFG Order Candidate
 
@@ -926,7 +929,41 @@ path，固定用途为 `REACHABILITY_AUDIT_ONLY`。
 该 path 只证明结构可达：static CFG reachability 不等于 runtime execution，也不等于 symbolic path feasibility。
 same function、same block 或 direct CFG edge 均不等于 `CLOSE_PROXIMITY`。全部 runtime、effective-memory-type、
 privilege/context、qualitative proximity 与 additional timing obligations 原样保留；case-order candidate 不等于
-triggerability。2B2-C1 不导入 angr，2B2-C2 real-angr CFG materialization 仍未实现。
+triggerability。2B2-C1 不导入 angr；2B2-C2 的独立 backend adapter 已实现，但不改变此纯合同。
+
+## Phase 10D Step 8B-2B2-C2 Generic AArch64 Binary CFG Materialization
+
+`AngrAProfileStaticCaseMaterializer.materialize(artifact, extraction_plan)` 提供 binary-first、pattern-driven 的
+通用 AArch64 静态分析入口：它先调用冻结的 `AngrAProfileStaticSemanticExtractor`，再把同一 ELF 的
+main-object、executable、function-local CFG 规范化为 C1 snapshots，最后只调用冻结的
+`assemble_static_case_order_candidates()`。C2 不识别 CVE、处理器/erratum、Case A/B、semantic event kind
+或 system register；漏洞语义只来自外部 plan/pattern。
+
+```text
+ProgramArtifact + AProfileStaticSemanticExtractionPlan
+        ↓ frozen 2B2-B extractor
+exact AProfileStaticSemanticExtractionResult
+        ↓ same artifact SHA + real angr CFGFast(normalize=True)
+relevant AProfileStaticFunctionCfgSnapshot[]
+        ↓ frozen 2B2-C1 pure assembler
+AProfileStaticCaseAssemblyResult
+```
+
+C2 只为 predicate-referenced、non-null exact function address 各生成一个 snapshot；函数必须精确存在于
+main object、非 SimProcedure/PLT，并包含所有相关 fact blocks。节点和边只保留 exact function-local executable
+block set，按数值排序并去重；外部/被调用函数 endpoint 被过滤。artifact 在 C2 CFG pass 前后独立校验 SHA，
+确保 semantic facts 与 normalized CFG 绑定同一 bytes。当前 frozen owned A64 fixture 得到 3 个 facts、6 个
+predicate candidates、3 个 CFG snapshots 和 0 个 case candidates；零候选是中性结构结果，不表示安全。
+
+该 backend 可不改源码地重跑其他兼容 AArch64 ELF、处理器上的 ELF 或不同 Linux kernel/firmware build。
+处理器特定 vulnerability pattern 仍必须由外部知识/plan 提供；这不表示每个处理器共享同一 pattern。当前 ELF
+loader 是 adapter boundary，未来 raw/firmware loader 应继续输出相同 semantic/CFG IR，而无需重设计
+`AProfileStaticSemanticInstructionFact`、`AProfileStaticPredicateCandidate`、
+`AProfileStaticFunctionCfgSnapshot` 或 `AProfileStaticCaseOrderCandidate`。
+
+C2 不做 symbolic execution、runtime program-order、effective memory-type 或 proximity 求值，不创建 runtime
+observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility、vulnerability 或
+PRIMARY 结论。static CFG reachability 仍只作 `REACHABILITY_AUDIT_ONLY`，不证明运行路径可行或实际执行。
 
 ## 文档导航
 

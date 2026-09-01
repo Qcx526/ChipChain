@@ -8,10 +8,13 @@ from chipchain.hardware_trigger.enums import (
     TriggerabilityStatus,
 )
 from chipchain.hardware_trigger.errors import (
+    AProfileStaticCaseBackendError,
+    AProfileStaticCaseMaterializationError,
     AProfileStaticSemanticBackendError,
     AProfileStaticSemanticExtractionError,
     HardwareTriggerMatchingError,
     InvalidAProfileStaticSemanticInputError,
+    InvalidAProfileStaticCaseMaterializationInputError,
     InvalidRuntimeTriggerInputError,
     InvalidTriggerabilityInputError,
     InvalidTriggerMatchingInputError,
@@ -165,6 +168,9 @@ from chipchain.hardware_trigger.a_profile_static_semantic_angr import (
 from chipchain.hardware_trigger.a_profile_static_case import (
     assemble_static_case_order_candidates,
 )
+from chipchain.hardware_trigger.a_profile_static_case_angr import (
+    AngrAProfileStaticCaseMaterializer,
+)
 from chipchain.hardware_trigger.a_profile_static_case_models import (
     PHASE10D_A_PROFILE_STATIC_CASE_ASSEMBLY_RESULT_CONTRACT,
     PHASE10D_A_PROFILE_STATIC_CASE_ORDER_CANDIDATE_CONTRACT,
@@ -187,10 +193,14 @@ from chipchain.hardware_trigger.a_profile_static_case_models import (
 __all__ = [
     "AProfileStaticSemanticBackendError",
     "AProfileStaticSemanticExtractionError",
+    "AProfileStaticCaseBackendError",
+    "AProfileStaticCaseMaterializationError",
+    "InvalidAProfileStaticCaseMaterializationInputError",
     "InvalidAProfileStaticSemanticInputError",
     "UnsupportedAProfileStaticSemanticArtifactError",
     "A_PROFILE_STATIC_RECOGNITION_PROFILE_PARTIAL_V1",
     "AngrAProfileStaticSemanticExtractor",
+    "AngrAProfileStaticCaseMaterializer",
     "PHASE10D_A_PROFILE_STATIC_CASE_ASSEMBLY_RESULT_CONTRACT",
     "PHASE10D_A_PROFILE_STATIC_CASE_ORDER_CANDIDATE_CONTRACT",
     "PHASE10D_A_PROFILE_STATIC_FUNCTION_CFG_CONTRACT",

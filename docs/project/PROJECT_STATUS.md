@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step8b2b2b-stable`
-- Stable commit: `2802a95632b453c338b8a6c1ec495b96360f18e5`
-- Baseline: Phase 10D Step 8B-2B2-B final accepted and frozen
+- Stable tag: `phase-10d-step8b2b2c1-stable`
+- Stable commit: `f2071be3ef17e85f585231db7a90e22bce53e9fd`
+- Baseline: Phase 10D Step 8B-2B2-C1 final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -42,14 +42,16 @@
 - Phase 10D Step 8B-2B1 versioned ARM A-profile semantic trigger-pattern predicates
 - Phase 10D Step 8B-2B2-A A-profile static semantic extraction contracts and deterministic plan
 - Phase 10D Step 8B-2B2-B real angr AArch64 decoded-event extraction over an owned synthetic ELF
-- Phase 10D Step 8B-2B2-C1 pure function-local static CFG order candidate contracts (implemented, pending final review)
+- Phase 10D Step 8B-2B2-C1 frozen pure function-local static CFG order candidate contracts
+- Phase 10D Step 8B-2B2-C2 generic real-angr AArch64 CFG materialization and pattern-driven C1 assembly (implemented, pending final review)
 
 ## Current Work
 
-Phase 10D Step 8B-2B2-C1 defines a backend-independent normalized function CFG and pure deterministic evaluator.
-It pairs exact position-1/position-2 predicate candidates only within the same case, artifact, extraction result and
-non-null function. Same-block order uses instruction-address ordering; cross-block order uses directed reachability
-with a sorted-successor BFS witness marked `REACHABILITY_AUDIT_ONLY`. No real-angr case assembler is implemented.
+Phase 10D Step 8B-2B2-C2 adds a binary-first generic AArch64 backend over the frozen B extractor and C1 evaluator.
+It reuses the exact semantic extraction result, independently binds the CFG pass to the same immutable artifact SHA,
+and materializes only predicate-referenced exact main-object executable function CFGs. Blocks and intrafunction edges
+are deterministic, address-normalized and filtered against the exact function block set before the frozen C1 assembler
+runs. The production backend knows no CVE, processor, erratum, Case A/B, event kind or system register.
 
 Step 8B-1E adds Axis B as a supplemental offline diagnostic while leaving Axis A (the exact
 `ModelClaimBinder`) and Axis C (the objective `ChainFeasibilityOracle`) unchanged. Current frozen sessions use
@@ -84,14 +86,14 @@ Static instruction existence is not runtime execution; a decoded load does not e
 an MRS PAR_EL1 fact does not establish runtime privileged execution; and a static predicate candidate does not
 mean the predicate is satisfied. Multiple individual facts/candidates do not establish Case A/B, a feasible CFG
 path, runtime program order, or proximity. Static CFG reachability is not symbolic path feasibility; same function,
-same block and direct CFG edges are not proximity evidence. Real-angr materialization (2B2-C2) and runtime semantic
-observation (2B3) remain unimplemented.
+same block and direct CFG edges are not proximity evidence. C2 real-angr materialization does not change those limits;
+runtime semantic observation (2B3) remains unimplemented. The current owned fixture yields three relevant CFG
+snapshots and zero structural case candidates, which is a neutral result.
 
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- final review/freeze of the Step 8B-2B2-C1 pure static-order contracts
-- Step 8B-2B2-C2 real-angr CFG/candidate materialization, only after separate review
+- final review/freeze of the Step 8B-2B2-C2 generic real-angr CFG materializer
 - objective evidence review and explicit PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation

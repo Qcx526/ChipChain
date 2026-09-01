@@ -57,3 +57,17 @@ class AProfileStaticSemanticBackendError(
     AProfileStaticSemanticExtractionError
 ):
     """Raised when angr cannot complete bounded static extraction."""
+
+
+class AProfileStaticCaseMaterializationError(Exception):
+    """Base error for A-profile function-CFG materialization."""
+
+
+class InvalidAProfileStaticCaseMaterializationInputError(
+    AProfileStaticCaseMaterializationError
+):
+    """Raised when binary, semantic, or CFG provenance is inconsistent."""
+
+
+class AProfileStaticCaseBackendError(AProfileStaticCaseMaterializationError):
+    """Raised when angr cannot complete bounded CFG materialization."""

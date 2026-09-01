@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A 与 Step 8B-2B2-B 已完成并冻结；Step 8B-2B2-C1 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B 与 Step 8B-2B2-C1 已完成并冻结；Step 8B-2B2-C2 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -757,8 +757,8 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   proximity/additional hardware timing 等 objective obligations；candidate 不表示 predicate satisfied
 - [x] result 对 plan/source/artifact/fact/predicate references 做 exact cross-binding 与 deterministic ordering，
   不产生 Case A/B assembly、CFG/program-order outcome、proximity outcome、triggerability、verification 或 feasibility
-- [x] 生成 artifact 只包含 extraction plan，不含 ELF occurrence；2B2-B extractor 与 2B2-C1 pure order contract
-  已分别独立实现，2B2-C2 real-angr materialization 仍保留为后续评审步骤
+- [x] 生成 artifact 只包含 extraction plan，不含 ELF occurrence；2B2-B extractor、2B2-C1 pure order contract
+  与 2B2-C2 generic real-angr materialization 已分别在独立边界实现
 
 #### Phase 10D Step 8B-2B2-B：AArch64 Static Semantic Event Extractor（已完成并冻结）
 
@@ -779,7 +779,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 不实现 2B2-C Case/CFG/program-order assembly，不计算 proximity，不解析 effective memory type，不创建
   runtime observation、triggerability、feasibility、verification 或 PRIMARY 结果
 
-#### Phase 10D Step 8B-2B2-C1：Function-Local Static CFG Order Candidate Contract（已完成实现，待 final review）
+#### Phase 10D Step 8B-2B2-C1：Function-Local Static CFG Order Candidate Contract（已完成并冻结）
 
 - [x] 新增 versioned function CFG snapshot、directed edge、static case-order candidate 与 assembly result；所有
   identity 绑定 exact artifact/result/plan/source/candidate/fact/CFG snapshots，不含 path、time 或 backend object
@@ -791,8 +791,28 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   load memory type、PAR_EL1 runtime context、proximity 与 additional timing 均未解决
 - [x] 零候选是中性有效结果；现有 2B2-B owned fixture 的三个 positive facts 位于隔离函数，因此在 C1 function-local
   语义下仍为零 case-order candidate
-- [x] 不实现 2B2-C2 real-angr CFG snapshot/candidate materialization，不创建 runtime observation、triggerability、
+- [x] C1 本身不实现 real-angr CFG snapshot/candidate materialization，不创建 runtime observation、triggerability、
   feasibility、verification、vulnerability 或 PRIMARY 结果
+
+#### Phase 10D Step 8B-2B2-C2：Generic AArch64 Binary CFG Materialization（已完成实现，待 final review）
+
+- [x] 新增 `AngrAProfileStaticCaseMaterializer.materialize(artifact, extraction_plan)` binary-first API；内部复用冻结
+  2B2-B extractor 的 exact semantic result，并将同一 immutable ELF 的 CFG 输入冻结 C1 pure assembler
+- [x] C2 CFG pass 前后独立读取并校验 artifact SHA，要求与 semantic result 完全一致；实际 angr project 必须为
+  `AARCH64`/64-bit 且 `auto_load_libs=False`，bytes 漂移、ARM32、malformed/non-ELF 均 typed fail closed
+- [x] relevant function set 仅来自 predicate-referenced facts 的 non-null exact function address；每个 required function
+  必须 exact main-object、non-SimProcedure、non-PLT、executable 且恢复恰好一次，不能 nearest-function 猜测
+- [x] function name 仅采用同函数 facts 一致的 non-null name，否则为 `None` 或冲突失败；所有 referenced fact block
+  必须存在于 normalized snapshot，缺失不能伪装成零候选
+- [x] block 与 edge 只保留 exact function-local main-object executable set，确定性去重/数值排序，过滤 callee、external、
+  PLT、SimProcedure 与 non-executable endpoint；C2 不复制 C1 BFS/pairing/path semantics
+- [x] production backend 不包含 CVE/处理器/erratum/Case A/B hardcoding，也不读取 semantic event kind/system register；
+  同一 backend 可不改源码地分析其他兼容 AArch64 ELF 或 Linux kernel/firmware build
+- [x] 当前 frozen owned fixture 的 real-angr 结果为 3 facts、6 predicate candidates、3 CFG snapshots、0 case candidates；
+  零候选保持中性，不表示安全、runtime execution、symbolic feasibility、proximity 或 triggerability
+- [x] ELF 是当前 loader adapter boundary；未来 raw/firmware loader 应复用相同 semantic/CFG IR，不重设计核心合同
+- [x] 不创建 runtime observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility、
+  vulnerability 或 PRIMARY 结果，不运行 QEMU/Provider/network/symbolic execution
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能
