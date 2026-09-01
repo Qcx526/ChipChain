@@ -34,6 +34,7 @@ from chipchain.hardware_trigger import (
     StaticFactScope,
     StaticPathWitnessUse,
     a_profile_static_case_order_candidate_id,
+    a_profile_static_function_cfg_id,
     assemble_static_case_order_candidates,
 )
 from chipchain.hardware_trigger.a_profile_semantic_models import (
@@ -198,6 +199,22 @@ def _assemble_case_a(plan, *, first_address, second_address, blocks, edges=()):
     return result, snapshot, assemble_static_case_order_candidates(
         result, [snapshot]
     )
+
+
+def _recompute_case_candidate_id(payload):
+    payload["id"] = a_profile_static_case_order_candidate_id(
+        {key: value for key, value in payload.items() if key != "id"}
+    )
+
+
+def _retarget_nested_cfg(payload, extraction_result_id):
+    cfg_payload = payload["function_cfg_snapshot"]
+    cfg_payload["extraction_result_id"] = extraction_result_id
+    cfg_payload["id"] = a_profile_static_function_cfg_id(
+        {key: value for key, value in cfg_payload.items() if key != "id"}
+    )
+    payload["function_cfg_snapshot_id"] = cfg_payload["id"]
+    payload["order_witness"]["function_cfg_snapshot_id"] = cfg_payload["id"]
 
 
 def test_exact_contract_versions_and_closed_semantic_enums() -> None:
@@ -492,6 +509,149 @@ def test_standalone_candidate_binds_exact_snapshots_positions_and_ids(plan) -> N
     )
     with pytest.raises(ValidationError, match="fact snapshot ID mismatch"):
         AProfileStaticCaseOrderCandidate.model_validate(payload)
+
+
+def test_standalone_candidate_rejects_recomputed_fictional_result_retarget(
+    plan,
+) -> None:
+    _, _, assembly = _assemble_case_a(
+        plan,
+        first_address="0x0000000000401110",
+        second_address="0x0000000000401120",
+        blocks=["0x0000000000401100"],
+    )
+    payload = assembly.case_order_candidates[0].model_dump(mode="json")
+    fake_result_id = (
+        "a-profile-static-semantic-extraction-result:" + "f" * 64
+    )
+    payload["source_extraction_result_id"] = fake_result_id
+    _retarget_nested_cfg(payload, fake_result_id)
+    _recompute_case_candidate_id(payload)
+
+    with pytest.raises(ValidationError, match="source extraction-result ID"):
+        AProfileStaticCaseOrderCandidate.model_validate(payload)
+
+
+def test_standalone_candidate_rejects_foreign_extraction_without_members(plan) -> None:
+    result, _, assembly = _assemble_case_a(
+        plan,
+        first_address="0x0000000000401110",
+        second_address="0x0000000000401120",
+        blocks=["0x0000000000401100"],
+    )
+    foreign = AProfileStaticSemanticExtractionResult.create(
+        artifact_id=result.artifact_id,
+        artifact_sha256=result.artifact_sha256,
+        extraction_plan=plan,
+        instruction_facts=[],
+        predicate_candidates=[],
+    )
+    payload = assembly.case_order_candidates[0].model_dump(mode="json")
+    payload["source_extraction_result_id"] = foreign.id
+    payload["source_extraction_result_snapshot"] = foreign.model_dump(mode="json")
+    _retarget_nested_cfg(payload, foreign.id)
+    _recompute_case_candidate_id(payload)
+
+    with pytest.raises(ValidationError, match="candidate is outside source"):
+        AProfileStaticCaseOrderCandidate.model_validate(payload)
+
+
+def test_standalone_candidate_rejects_foreign_candidate_snapshot(plan) -> None:
+    result, _, assembly = _assemble_case_a(
+        plan,
+        first_address="0x0000000000401110",
+        second_address="0x0000000000401120",
+        blocks=["0x0000000000401100"],
+    )
+    foreign_fact = _fact(
+        kind=AProfileSemanticEventKind.STORE_EXCLUSIVE,
+        address="0x0000000000401114",
+        block="0x0000000000401100",
+    )
+    foreign_candidate = _candidate(plan, foreign_fact, "case_a", 1)
+    payload = assembly.case_order_candidates[0].model_dump(mode="json")
+    payload["position_1_candidate_id"] = foreign_candidate.id
+    payload["position_1_candidate_snapshot"] = foreign_candidate.model_dump(
+        mode="json"
+    )
+    _recompute_case_candidate_id(payload)
+
+    assert foreign_candidate.id not in {
+        item.id for item in result.predicate_candidates
+    }
+    with pytest.raises(ValidationError, match="candidate is outside source"):
+        AProfileStaticCaseOrderCandidate.model_validate(payload)
+
+
+def test_standalone_candidate_rejects_foreign_fact_snapshot(plan) -> None:
+    result, _, assembly = _assemble_case_a(
+        plan,
+        first_address="0x0000000000401110",
+        second_address="0x0000000000401120",
+        blocks=["0x0000000000401100"],
+    )
+    foreign_fact = _fact(
+        kind=AProfileSemanticEventKind.STORE_EXCLUSIVE,
+        address="0x0000000000401114",
+        block="0x0000000000401100",
+    )
+    payload = assembly.case_order_candidates[0].model_dump(mode="json")
+    payload["position_1_fact_id"] = foreign_fact.id
+    payload["position_1_fact_snapshot"] = foreign_fact.model_dump(mode="json")
+    payload["order_witness"]["position_1_fact_id"] = foreign_fact.id
+    _recompute_case_candidate_id(payload)
+
+    assert foreign_fact.id not in {item.id for item in result.instruction_facts}
+    with pytest.raises(ValidationError, match="fact is outside source"):
+        AProfileStaticCaseOrderCandidate.model_validate(payload)
+
+
+def test_standalone_candidate_rejects_independently_retargeted_plan(plan) -> None:
+    _, _, assembly = _assemble_case_a(
+        plan,
+        first_address="0x0000000000401110",
+        second_address="0x0000000000401120",
+        blocks=["0x0000000000401100"],
+    )
+    plan_values = plan.model_dump(mode="json", exclude={"id", "contract"})
+    plan_values["processor"] = "owned-different-processor"
+    foreign_plan = AProfileStaticSemanticExtractionPlan.create(**plan_values)
+    payload = assembly.case_order_candidates[0].model_dump(mode="json")
+    payload["extraction_plan_snapshot"] = foreign_plan.model_dump(mode="json")
+    _recompute_case_candidate_id(payload)
+
+    with pytest.raises(ValidationError, match="does not match source extraction"):
+        AProfileStaticCaseOrderCandidate.model_validate(payload)
+
+
+def test_assembly_independently_rejects_candidate_with_foreign_snapshot(plan) -> None:
+    result, snapshot, assembly = _assemble_case_a(
+        plan,
+        first_address="0x0000000000401110",
+        second_address="0x0000000000401120",
+        blocks=["0x0000000000401100"],
+    )
+    foreign = AProfileStaticSemanticExtractionResult.create(
+        artifact_id=result.artifact_id,
+        artifact_sha256=result.artifact_sha256,
+        extraction_plan=plan,
+        instruction_facts=result.instruction_facts,
+        predicate_candidates=result.predicate_candidates,
+        diagnostic_codes=["alternate_neutral_provenance"],
+    )
+    payload = assembly.case_order_candidates[0].model_dump(mode="json")
+    payload["source_extraction_result_id"] = foreign.id
+    payload["source_extraction_result_snapshot"] = foreign.model_dump(mode="json")
+    _retarget_nested_cfg(payload, foreign.id)
+    _recompute_case_candidate_id(payload)
+    foreign_candidate = AProfileStaticCaseOrderCandidate.model_validate(payload)
+
+    with pytest.raises(ValidationError, match="snapshot differs from assembly"):
+        AProfileStaticCaseAssemblyResult.create(
+            extraction_result=result,
+            function_cfg_snapshots=[snapshot],
+            case_order_candidates=[foreign_candidate],
+        )
 
 
 def test_obligations_are_exact_union_and_none_are_discharged(plan) -> None:

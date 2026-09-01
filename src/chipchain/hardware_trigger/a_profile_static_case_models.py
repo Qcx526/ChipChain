@@ -390,6 +390,7 @@ class _AProfileStaticCaseOrderCandidateBody(DomainModel):
     artifact_id: Identifier
     artifact_sha256: Identifier
     source_extraction_result_id: Identifier
+    source_extraction_result_snapshot: AProfileStaticSemanticExtractionResult
     extraction_plan_id: Identifier
     source_pattern_id: Identifier
     case_id: Identifier
@@ -435,6 +436,7 @@ class _AProfileStaticCaseOrderCandidateBody(DomainModel):
     def validate_standalone_integrity(
         self,
     ) -> "_AProfileStaticCaseOrderCandidateBody":
+        extraction = self.source_extraction_result_snapshot
         plan = self.extraction_plan_snapshot
         cfg = self.function_cfg_snapshot
         candidate_1 = self.position_1_candidate_snapshot
@@ -443,6 +445,24 @@ class _AProfileStaticCaseOrderCandidateBody(DomainModel):
         fact_2 = self.position_2_fact_snapshot
         witness = self.order_witness
 
+        if self.source_extraction_result_id != extraction.id:
+            raise ValueError("case-order source extraction-result ID mismatch")
+        if (
+            self.artifact_id,
+            self.artifact_sha256,
+            self.extraction_plan_id,
+            self.source_pattern_id,
+        ) != (
+            extraction.artifact_id,
+            extraction.artifact_sha256,
+            extraction.extraction_plan_id,
+            extraction.source_pattern_id,
+        ):
+            raise ValueError("case-order source extraction provenance mismatch")
+        if plan != extraction.extraction_plan_snapshot:
+            raise ValueError(
+                "case-order extraction plan does not match source extraction result"
+            )
         if self.extraction_plan_id != plan.id:
             raise ValueError("case-order candidate extraction-plan mismatch")
         if self.source_pattern_id != plan.source_pattern_id:
@@ -459,11 +479,27 @@ class _AProfileStaticCaseOrderCandidateBody(DomainModel):
             or self.position_2_candidate_id != candidate_2.id
         ):
             raise ValueError("case-order candidate snapshot ID mismatch")
+        candidate_by_id = {
+            item.id: item for item in extraction.predicate_candidates
+        }
+        if candidate_by_id.get(self.position_1_candidate_id) != candidate_1 or (
+            candidate_by_id.get(self.position_2_candidate_id) != candidate_2
+        ):
+            raise ValueError(
+                "case-order predicate candidate is outside source extraction result"
+            )
         if (
             self.position_1_fact_id != fact_1.id
             or self.position_2_fact_id != fact_2.id
         ):
             raise ValueError("case-order instruction-fact snapshot ID mismatch")
+        fact_by_id = {item.id: item for item in extraction.instruction_facts}
+        if fact_by_id.get(self.position_1_fact_id) != fact_1 or (
+            fact_by_id.get(self.position_2_fact_id) != fact_2
+        ):
+            raise ValueError(
+                "case-order instruction fact is outside source extraction result"
+            )
         if (
             candidate_1.static_instruction_fact_id != fact_1.id
             or candidate_2.static_instruction_fact_id != fact_2.id
@@ -512,6 +548,16 @@ class _AProfileStaticCaseOrderCandidateBody(DomainModel):
         )
         if cfg_binding != expected_binding:
             raise ValueError("case-order function-CFG source binding mismatch")
+        if (
+            cfg.architecture,
+            cfg.architecture_profile,
+            cfg.instruction_set_state,
+        ) != (
+            extraction.architecture,
+            extraction.architecture_profile,
+            extraction.instruction_set_state,
+        ):
+            raise ValueError("case-order function-CFG architecture binding mismatch")
         if self.function_cfg_snapshot_id != cfg.id:
             raise ValueError("case-order function-CFG snapshot ID mismatch")
         for fact in (fact_1, fact_2):
@@ -658,6 +704,7 @@ class AProfileStaticCaseOrderCandidate(
             "artifact_id": result.artifact_id,
             "artifact_sha256": result.artifact_sha256,
             "source_extraction_result_id": result.id,
+            "source_extraction_result_snapshot": result,
             "extraction_plan_id": result.extraction_plan_id,
             "source_pattern_id": result.source_pattern_id,
             "case_id": candidate_1.case_id,
@@ -857,6 +904,10 @@ class _AProfileStaticCaseAssemblyResultBody(DomainModel):
             ):
                 raise ValueError("function CFG snapshot crosses result binding")
         for candidate in self.case_order_candidates:
+            if candidate.source_extraction_result_snapshot != extraction:
+                raise ValueError(
+                    "case-order candidate extraction snapshot differs from assembly"
+                )
             if (
                 candidate.artifact_id,
                 candidate.artifact_sha256,
