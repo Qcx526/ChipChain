@@ -87,6 +87,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   provenance 与 detached deterministic materialization
 - Phase 10D Step 8B-2D2-C2-A plan-independent static program-structure IR contracts、function-local directed CFG
   provenance 与 architecture-neutral normalized inventories
+- Phase 10D Step 8B-2D2-C2-B plan-independent AArch64 CFGFast structure extractor、immutable owned synthetic
+  fixture 与 exact function-local block/edge recovery
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -1096,7 +1098,7 @@ ProgramArtifact
    │      ↓
    │  StaticSemanticInventory
    │
-   └─ future structure extractor
+   └─ AngrAArch64StaticProgramStructureExtractor
           ↓
       StaticProgramStructureInventory
 ```
@@ -1121,6 +1123,46 @@ Structure Inventory != Vulnerability
 
 C2-A 不实现 AArch64 structure analyzer、semantic/CFG fusion、CFG successor graph insertion、path search 或 pattern
 matching。
+
+## Phase 10D Step 8B-2D2-C2-B AArch64 Static Program Structure Extractor
+
+C2-B 在冻结 C2-A 合同上新增单输入、plan-independent objective extractor：
+
+```text
+ProgramArtifact
+   ├── AngrAArch64StaticSemanticDecoder
+   │       ↓
+   │   StaticSemanticInventory
+   │
+   └── AngrAArch64StaticProgramStructureExtractor
+           ↓
+       StaticProgramStructureInventory
+```
+
+提取器对 detached `ProgramArtifact` 使用 `angr.Project(..., auto_load_libs=False)` 与固定
+`CFGFast(normalize=True)` profile。它只接收实际加载为 AArch64/64-bit 的 ARM ELF，只保留 main-object、
+非 SimProcedure、非 PLT 的 recovered functions，并要求每个 block 的完整范围落在同一可执行 main-object
+section；缺少 section 信息时才退回同一可执行 segment。函数名只来自同地址唯一 main-object function
+symbol，符号别名冲突保留为 `None`。边只来自 angr function-local graph 且两端必须属于同一函数的 exact
+eligible block set；重复 endpoint pair 确定性去重，客观 self-loop 保留。
+
+semantic decoder 与 structure extractor 是同一 immutable artifact 上的独立 sibling objective sources；C2-B
+只验证 architecture、artifact ID/SHA 和 instruction set 可精确绑定，不创建二者之间的 relation，也不使用
+semantic fact 补造 CFG。当前 generic fixture 的 ERET symbol fallback 未被 CFGFast 独立恢复，因此 structure
+inventory 中不伪造该 function/block。
+
+```text
+Structure Extraction != Semantic Decoding
+Static CFG Edge != Runtime Execution
+CFG Reachability != Runtime Reachability
+CFG Reachability != Symbolic Feasibility
+CFG Reachability != Causality
+Partial CFG Inventory != Complete CFG
+Structure Inventory != Vulnerability
+```
+
+C2-B 不实现 semantic/CFG fusion、`CFG_SUCCESSOR` projection、pattern matching、candidate/path search、runtime、
+verification、reasoning 或 AttackChain。
 
 ## 文档导航
 

@@ -4,12 +4,18 @@ from chipchain.analysis.analyzer import ProgramAnalyzer
 from chipchain.analysis.angr_analyzer import AngrAnalyzer
 from chipchain.analysis.demo_analyzer import DemoAnalyzer
 from chipchain.analysis.errors import (
+    AArch64StaticProgramStructureBackendError,
+    AArch64StaticProgramStructureExtractorError,
     AArch64StaticSemanticBackendError,
     AArch64StaticSemanticDecoderError,
     AnalysisIngestionError,
     InvalidAnalysisInputError,
     ProgramAnalysisError,
     UnsupportedArtifactError,
+)
+from chipchain.analysis.aarch64_static_program_structure_extractor import (
+    AARCH64_STATIC_PROGRAM_STRUCTURE_EXTRACTOR_PROFILE_CFGFAST_V1,
+    AngrAArch64StaticProgramStructureExtractor,
 )
 from chipchain.analysis.aarch64_static_semantic_decoder import (
     AARCH64_STATIC_SEMANTIC_DECODER_PROFILE_AUDITED_PARTIAL_V1,
@@ -100,11 +106,15 @@ from chipchain.analysis.static_behavior_projection import (
 )
 
 __all__ = [
+    "AARCH64_STATIC_PROGRAM_STRUCTURE_EXTRACTOR_PROFILE_CFGFAST_V1",
     "AARCH64_STATIC_SEMANTIC_DECODER_PROFILE_AUDITED_PARTIAL_V1",
+    "AArch64StaticProgramStructureBackendError",
+    "AArch64StaticProgramStructureExtractorError",
     "AArch64StaticSemanticBackendError",
     "AArch64StaticSemanticDecoderError",
     "AnalysisIngestionError",
     "AngrAnalyzer",
+    "AngrAArch64StaticProgramStructureExtractor",
     "AngrAArch64StaticSemanticDecoder",
     "AProfileStaticBehaviorProjectionMaterialization",
     "DemoAnalyzer",

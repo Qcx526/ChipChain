@@ -23,3 +23,13 @@ class AArch64StaticSemanticDecoderError(ProgramAnalysisError):
 
 class AArch64StaticSemanticBackendError(AArch64StaticSemanticDecoderError):
     """Raised when the optional decoder backend is unavailable or fails."""
+
+
+class AArch64StaticProgramStructureExtractorError(ProgramAnalysisError):
+    """Base class for plan-independent AArch64 structure extraction failures."""
+
+
+class AArch64StaticProgramStructureBackendError(
+    AArch64StaticProgramStructureExtractorError
+):
+    """Raised when the optional structure-extraction backend fails."""

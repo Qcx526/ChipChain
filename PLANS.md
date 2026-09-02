@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B 与 Step 8B-2D2-C1 已完成并冻结；Step 8B-2D2-C2-A 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1 与 Step 8B-2D2-C2-A 已完成并冻结；Step 8B-2D2-C2-B 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -903,7 +903,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 不修改冻结 2D1、2D2-A/2D2-B、A77、legacy Behavior Graph；不实现 generic CFG、matcher、runtime、
   verification、knowledge/reasoning 或 attack-chain assembly
 
-#### Phase 10D Step 8B-2D2-C2-A：Plan-Independent Static Program Structure IR Contracts（已完成实现，待 final review）
+#### Phase 10D Step 8B-2D2-C2-A：Plan-Independent Static Program Structure IR Contracts（已完成并冻结）
 
 - [x] 新增 architecture-neutral、pattern-independent `StaticProgramCfgEdge`、`StaticProgramFunctionCfg` 与
   `StaticProgramStructureInventory`；不接受 binary path、`ProgramArtifact` snapshot 或 backend object
@@ -923,6 +923,30 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   causality，static address order 不表示 runtime order，partial structure inventory 不是 complete CFG/vulnerability
 - [x] 不修改冻结 C1、semantic IR/decoder、2D1、A77 或 Behavior Graph；不实现 CFG successor projection、matcher、
   path search、knowledge/reasoning/runtime/verification integration
+
+#### Phase 10D Step 8B-2D2-C2-B：Plan-Independent AArch64 Static Program Structure Extractor（已完成实现，待 final review）
+
+- [x] 新增 `AngrAArch64StaticProgramStructureExtractor.extract(ProgramArtifact) ->
+  StaticProgramStructureInventory`；唯一逻辑输入为 detached artifact，不接受 plan、semantic inventory、CVE、
+  pattern、predicate 或 candidate
+- [x] 固定 profile `phase10d_aarch64_static_program_structure_extractor_cfgfast_v1`，懒加载可选 angr，并只执行
+  `CFGFast(normalize=True)`；实际 backend architecture 必须精确为 AARCH64/64-bit
+- [x] artifact SHA 来自分析前实际文件 bytes，全部结构完成后再次读取并校验不变；不信任 caller metadata hash，
+  project load、CFG failure、block materialization failure与分析期 byte mutation 均 fail closed
+- [x] 只遍历 main-object、非 SimProcedure、非 PLT recovered function；block 完整范围必须落在同一 executable
+  section（无 section 时为同一 executable segment），过滤外部、非 executable 与跨边界 block
+- [x] function name 只取 main-object 同地址唯一 function symbol；无 symbol 或多个 alias 时为 `None`，不合成
+  backend function name
+- [x] directed edge 只保留 exact eligible function-local endpoint pair，确定性去重排序，排除 external endpoint，
+  保留 backend 客观 self-loop
+- [x] owned/synthetic deterministic fixture 精确覆盖 branching、leaf、self-loop 与 non-executable decoy；generic
+  semantic fixture 与 A77 fixture 均使用相同 generic profile，三个 fixture 各重复 10 次 ID/JSON hash 唯一
+- [x] semantic 与 structure 是同一 artifact 上的 sibling objective sources；generic ERET semantic fallback 未被
+  CFGFast 独立恢复时不补造 function/block，本步骤不创建 cross-source relation
+- [x] `Structure Extraction != Semantic Decoding`；static CFG edge 不表示 runtime execution，CFG reachability 不
+  表示 runtime reachability、symbolic feasibility 或 causality，partial inventory 不是 complete CFG/vulnerability
+- [x] 不修改冻结 C2-A/C1/2D2-A/2D2-B/2D1/A77 合同，不实现 C2-C fusion、CFG graph projection、matcher、
+  runtime、verification、reasoning 或 AttackChain
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

@@ -1,0 +1,65 @@
+{
+  "fixture_classification": {
+    "owned": true,
+    "synthetic": true,
+    "real_vulnerability": false,
+    "runtime_execution_evidence": false
+  },
+  "architecture": "AARCH64",
+  "format": "ELF64 little-endian AArch64",
+  "extractor_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+  "expected_inventory_id": "static-program-structure-inventory:7c97b813bf68d6e7aac8d8512f27e48d097b36752db8209f5954bf20e118942c",
+  "expected_functions": [
+    {
+      "function_name": "owned_branching_structure",
+      "function_address": "0x400000",
+      "basic_block_addresses": [
+        "0x400000",
+        "0x400004",
+        "0x40000c"
+      ],
+      "directed_edges": [
+        [
+          "0x400000",
+          "0x400004"
+        ],
+        [
+          "0x400000",
+          "0x40000c"
+        ]
+      ]
+    },
+    {
+      "function_name": "owned_leaf_structure",
+      "function_address": "0x400014",
+      "basic_block_addresses": [
+        "0x400014"
+      ],
+      "directed_edges": []
+    },
+    {
+      "function_name": "owned_self_loop_structure",
+      "function_address": "0x400018",
+      "basic_block_addresses": [
+        "0x400018"
+      ],
+      "directed_edges": [
+        [
+          "0x400018",
+          "0x400018"
+        ]
+      ]
+    }
+  ],
+  "expected_diagnostic_codes": [
+    "basic_block_count:5",
+    "directed_cfg_edge_count:3",
+    "function_cfg_count:3",
+    "zero_edge_function_count:1"
+  ],
+  "non_executable_decoy": {
+    "address": "0x401000",
+    "section": ".data"
+  },
+  "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec"
+}
