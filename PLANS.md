@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2 与 Step 8B-2D1 已完成并冻结；Step 8B-2D2-A 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1 与 Step 8B-2D2-A 已完成并冻结；Step 8B-2D2-B 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -841,7 +841,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 当前 frozen owned fixture 投影为 3 function、3 block、3 semantic-fact nodes，3+3 containment relations、
   0 CFG successor、6 predicate bindings、0 case-order bindings；覆盖范围仍受 narrow A-profile v1 decoder 限制
 
-#### Phase 10D Step 8B-2D2-A：Plan-Independent Static Semantic IR Contracts（已完成实现，待 final review）
+#### Phase 10D Step 8B-2D2-A：Plan-Independent Static Semantic IR Contracts（已完成并冻结）
 
 - [x] 在 `chipchain.analysis` 定义 architecture-neutral `StaticSemanticInstructionFact` 与
   `StaticSemanticInventory`，inventory 可在不加载 CVE、pattern 或 extraction plan 时独立构造
@@ -858,6 +858,28 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 纯模型测试证明 ARM 与 synthetic RISC-V 使用同一 contracts，并可在不改顶层 schema 时表达
   LDR/STXR/MRS、DSB/TLBI/ERET-style semantics
 - [x] 本步骤不实现 decoder、matcher 或 2D1 adapter；冻结 A77 extractor、C2 与 C2→2D1 路径保持不变
+
+#### Phase 10D Step 8B-2D2-B：Plan-Independent AArch64 Static Semantic Decoder（已完成实现，待 final review）
+
+- [x] 新增 `AngrAArch64StaticSemanticDecoder.decode(ProgramArtifact) -> StaticSemanticInventory`；无 plan、CVE、
+  vulnerability、pattern、predicate、case 或 candidate 输入
+- [x] 固定 audited-partial AArch64 profile；只支持 ARM `elf` 与实际 angr `AARCH64`/64-bit，其他格式/架构
+  fail closed，不假装支持 raw、AArch32、RISC-V 或其他 loader
+- [x] classification 仅依据 exact Capstone instruction ID、typed operand shape 与 typed SYS/BARRIER/TLBI identity；
+  不使用 mnemonic、`op_str`、regex 或 fuzzy text authority
+- [x] 覆盖 shared v1 全部十种 operation：LDR、STR、LDXR/LDAXR family、STXR/STLXR family、generic MRS/MSR
+  system register、DSB/DMB、ISB、TLBI 与 ERET；每条 instruction 只产生一个 conservative primary fact
+- [x] 直接保存 decoder raw bytes 与 canonical variable-width address；memory type 保持
+  `requires_objective_translation_context`，不推断 Device/Normal-NC、privilege、translation 或 hardware effect
+- [x] immutable artifact detached validation、初始/结束 SHA-256 与 main-object executable filtering；CFGFast 主路径外，
+  仅对 exact symbol-backed executable function 做 typed fallback 以保留 ERET，且不伪造 basic-block provenance
+- [x] 新增 immutable owned synthetic multi-family AArch64 ELF、source/generator/hash/expectations；一次 decode 得到
+  11 facts/全部 10 operation，NOP/ADD/RET 与 non-executable copies 被忽略
+- [x] 同一 generic decoder 无 A77 plan 恢复冻结 A77 fixture 的 LDR、STXR 与 MRS PAR_EL1 基础语义
+- [x] `PARTIAL_AUDITED_STATIC_SEMANTIC_INVENTORY` 不表示 complete disassembly/binary understanding、vulnerability、
+  runtime execution、pattern match、triggerability、causality、verification 或 attack chain
+- [x] 不实现 matcher、automatic pattern selection、inventory→2D1 adapter、knowledge/reasoning/runtime integration；
+  frozen A77 extractor、2D2-A contracts 与当前 C2→2D1 路径保持零差异
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

@@ -81,6 +81,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   pattern-driven static case assembly
 - Phase 10D Step 8B-2D1 architecture-neutral objective program graph 与独立 pattern-binding projection
 - Phase 10D Step 8B-2D2-A plan-independent、cross-architecture static semantic instruction/inventory IR contracts
+- Phase 10D Step 8B-2D2-B plan-independent audited-partial AArch64 angr/Capstone semantic decoder 与
+  immutable owned synthetic multi-family fixture
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -1000,7 +1002,7 @@ knowledge graph。它不创建 vulnerability/AttackChain node、CrossLayerIntera
 VerificationRecord、Triggerability 或 ReasoningContext binding。共享投影模型和 JSON Schema 均保持
 architecture-neutral；未来 architecture adapter 可产生同一 shared representation，无需修改 graph contracts，
 但当前 adapter 的语义覆盖仍严格受 frozen narrow A-profile v1 decoder 限制；2D1 不是完整 AArch64
-semantic graph，也没有实现未来 2D2 generic semantic decoder。
+semantic graph。Step 8B-2D2-B 已在 parallel path 实现 generic decoder，但尚未实现 inventory→2D1 adapter。
 
 ## Phase 10D Step 8B-2D2-A Plan-Independent Static Semantic IR
 
@@ -1025,8 +1027,28 @@ pattern-specific unresolved obligations 只应在未来 fact→pattern binding �
 v1 使用可变长度 canonical `instruction_bytes`、不固定宽度的 canonical hex address、closed generic operation
 enum 与 typed flat attributes。同一个顶层 fact schema 可表达当前 LDR、exclusive store、system-register read，
 也可表达未来 DSB/TLBI/ERET 类语义，并可由 ARM、RISC-V 或后续架构 adapter 复用。这是 generic、
-plan-independent architecture，不是完整 AArch64 semantic coverage；本步骤没有实现真实 decoder、pattern matcher
-或 2D1 projection adapter。冻结的 A77 extractor 与当前 C2→2D1 路径均未修改。
+plan-independent architecture，不是完整 AArch64 semantic coverage；2D2-A 本身没有实现真实 decoder、pattern
+matcher 或 2D1 projection adapter。冻结的 A77 extractor 与当前 C2→2D1 路径均未修改。
+
+## Phase 10D Step 8B-2D2-B Plan-Independent AArch64 Static Semantic Decoder
+
+`AngrAArch64StaticSemanticDecoder.decode(artifact)` 将一个 immutable ARM/AArch64 ELF 解码为同一个
+`StaticSemanticInventory`，API 不接受 extraction plan、CVE、pattern、predicate 或 candidate。audited partial
+profile 使用 angr `CFGFast(normalize=True)` 与 Capstone exact instruction ID、typed operand shape/identity；不以
+mnemonic、`op_str`、regex 或 fuzzy text 作为分类 authority。当前 profile 覆盖 shared v1 的全部十种 operation：
+ordinary/exclusive load/store、system-register read/write、memory/instruction barrier、TLB invalidate 和 exception
+return。raw decoder bytes 直接进入 `instruction_bytes`，地址使用 canonical variable-width hex。
+
+新 owned synthetic ELF 在一次 decode 中产生 LDR、STR、LDXR、STXR、MRS/MSR PAR_EL1、DSB/DMB ISH、ISB、
+TLBI VMALLE1IS 与 ERET facts；NOP/ADD/RET 及 non-executable byte copies 不产生 facts。同一 decoder 也可在冻结
+A77 fixture 上恢复基础 LDR/STXR/MRS PAR_EL1 语义，不需要 A77 extraction plan。VEX 无法形成 ERET CFG function
+时，只对 main executable range 内 exact symbol-backed function 使用 Capstone typed fallback，并将 block provenance
+保持为 `None`，不伪造 CFG block。
+
+`PARTIAL_AUDITED_STATIC_SEMANTIC_INVENTORY` 只表示 declared profile 识别出的静态 ISA 语义集合，不是 complete
+AArch64 disassembly semantics、complete binary understanding、vulnerability detection result 或 runtime execution
+Evidence。Decode ≠ Match；本阶段不实现 multi-pattern matcher、inventory→program graph adapter、runtime、
+triggerability、CrossLayerInteraction、ReasoningContext 或 AttackChain。
 
 ## 文档导航
 

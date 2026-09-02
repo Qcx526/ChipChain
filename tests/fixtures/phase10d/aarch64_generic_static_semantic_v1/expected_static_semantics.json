@@ -1,0 +1,181 @@
+{
+  "fixture_classification": {
+    "owned": true,
+    "synthetic": true,
+    "real_vulnerability": false,
+    "affected_hardware_reproduction": false,
+    "runtime_execution_evidence": false,
+    "triggerability_demonstration": false
+  },
+  "architecture": "AARCH64",
+  "format": "ELF64 little-endian AArch64",
+  "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+  "expected_facts": [
+    {
+      "function": "owned_generic_semantic_inventory",
+      "function_address": "0x400000",
+      "basic_block_address": "0x400000",
+      "instruction_address": "0x400000",
+      "instruction_bytes": "0x200040f9",
+      "instruction_size": 4,
+      "operation": "memory_load",
+      "attributes": {
+        "effective_memory_type_resolution": "requires_objective_translation_context"
+      }
+    },
+    {
+      "function": "owned_generic_semantic_inventory",
+      "function_address": "0x400000",
+      "basic_block_address": "0x400000",
+      "instruction_address": "0x400004",
+      "instruction_bytes": "0x200000f9",
+      "instruction_size": 4,
+      "operation": "memory_store",
+      "attributes": {
+        "effective_memory_type_resolution": "requires_objective_translation_context"
+      }
+    },
+    {
+      "function": "owned_generic_semantic_inventory",
+      "function_address": "0x400000",
+      "basic_block_address": "0x400000",
+      "instruction_address": "0x400008",
+      "instruction_bytes": "0x417c5fc8",
+      "instruction_size": 4,
+      "operation": "load_exclusive",
+      "attributes": {
+        "effective_memory_type_resolution": "requires_objective_translation_context",
+        "memory_exclusivity": "exclusive_load"
+      }
+    },
+    {
+      "function": "owned_generic_semantic_inventory",
+      "function_address": "0x400000",
+      "basic_block_address": "0x400000",
+      "instruction_address": "0x40000c",
+      "instruction_bytes": "0x417c00c8",
+      "instruction_size": 4,
+      "operation": "store_exclusive",
+      "attributes": {
+        "effective_memory_type_resolution": "requires_objective_translation_context",
+        "memory_exclusivity": "exclusive_store"
+      }
+    },
+    {
+      "function": "owned_generic_semantic_inventory",
+      "function_address": "0x400000",
+      "basic_block_address": "0x400000",
+      "instruction_address": "0x400010",
+      "instruction_bytes": "0x007438d5",
+      "instruction_size": 4,
+      "operation": "system_register_read",
+      "attributes": {
+        "system_register": "par_el1"
+      }
+    },
+    {
+      "function": "owned_generic_semantic_inventory",
+      "function_address": "0x400000",
+      "basic_block_address": "0x400000",
+      "instruction_address": "0x400014",
+      "instruction_bytes": "0x007418d5",
+      "instruction_size": 4,
+      "operation": "system_register_write",
+      "attributes": {
+        "system_register": "par_el1"
+      }
+    },
+    {
+      "function": "owned_generic_semantic_inventory",
+      "function_address": "0x400000",
+      "basic_block_address": "0x400000",
+      "instruction_address": "0x400018",
+      "instruction_bytes": "0x9f3b03d5",
+      "instruction_size": 4,
+      "operation": "memory_barrier",
+      "attributes": {
+        "barrier_kind": "dsb",
+        "barrier_option": "ish"
+      }
+    },
+    {
+      "function": "owned_generic_semantic_inventory",
+      "function_address": "0x400000",
+      "basic_block_address": "0x400000",
+      "instruction_address": "0x40001c",
+      "instruction_bytes": "0xbf3b03d5",
+      "instruction_size": 4,
+      "operation": "memory_barrier",
+      "attributes": {
+        "barrier_kind": "dmb",
+        "barrier_option": "ish"
+      }
+    },
+    {
+      "function": "owned_generic_semantic_inventory",
+      "function_address": "0x400000",
+      "basic_block_address": "0x400000",
+      "instruction_address": "0x400020",
+      "instruction_bytes": "0xdf3f03d5",
+      "instruction_size": 4,
+      "operation": "instruction_barrier",
+      "attributes": {
+        "barrier_kind": "isb"
+      }
+    },
+    {
+      "function": "owned_generic_semantic_inventory",
+      "function_address": "0x400000",
+      "basic_block_address": "0x400000",
+      "instruction_address": "0x400024",
+      "instruction_bytes": "0x1f8308d5",
+      "instruction_size": 4,
+      "operation": "tlb_invalidate",
+      "attributes": {
+        "tlb_operation": "vmalle1is"
+      }
+    },
+    {
+      "function": "owned_exception_return_semantic",
+      "function_address": "0x400034",
+      "basic_block_address": null,
+      "instruction_address": "0x400034",
+      "instruction_bytes": "0xe0039fd6",
+      "instruction_size": 4,
+      "operation": "exception_return",
+      "attributes": {}
+    }
+  ],
+  "expected_fact_count": 11,
+  "distractor_instruction_count": 3,
+  "non_executable_copies": {
+    "section": ".data",
+    "address": "0x401000",
+    "file_offset": "0x2000",
+    "separated_words": [
+      "0xf9400020",
+      "0x00000000",
+      "0xf9000020",
+      "0x00000000",
+      "0xc85f7c41",
+      "0x00000000",
+      "0xc8007c41",
+      "0x00000000",
+      "0xd5387400",
+      "0x00000000",
+      "0xd5187400",
+      "0x00000000",
+      "0xd5033b9f",
+      "0x00000000",
+      "0xd5033bbf",
+      "0x00000000",
+      "0xd5033fdf",
+      "0x00000000",
+      "0xd508831f",
+      "0x00000000",
+      "0xd69f03e0",
+      "0x00000000"
+    ]
+  },
+  "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b"
+}

@@ -15,3 +15,11 @@ class InvalidAnalysisInputError(ProgramAnalysisError):
 
 class AnalysisIngestionError(ProgramAnalysisError):
     """Raised when an analysis result cannot be atomically ingested."""
+
+
+class AArch64StaticSemanticDecoderError(ProgramAnalysisError):
+    """Base class for plan-independent AArch64 decoder failures."""
+
+
+class AArch64StaticSemanticBackendError(AArch64StaticSemanticDecoderError):
+    """Raised when the optional decoder backend is unavailable or fails."""
