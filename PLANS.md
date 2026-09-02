@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1 与 Step 8B-2D2-A 已完成并冻结；Step 8B-2D2-B 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A 与 Step 8B-2D2-B 已完成并冻结；Step 8B-2D2-C1 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -859,7 +859,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   LDR/STXR/MRS、DSB/TLBI/ERET-style semantics
 - [x] 本步骤不实现 decoder、matcher 或 2D1 adapter；冻结 A77 extractor、C2 与 C2→2D1 路径保持不变
 
-#### Phase 10D Step 8B-2D2-B：Plan-Independent AArch64 Static Semantic Decoder（已完成实现，待 final review）
+#### Phase 10D Step 8B-2D2-B：Plan-Independent AArch64 Static Semantic Decoder（已完成并冻结）
 
 - [x] 新增 `AngrAArch64StaticSemanticDecoder.decode(ProgramArtifact) -> StaticSemanticInventory`；无 plan、CVE、
   vulnerability、pattern、predicate、case 或 candidate 输入
@@ -880,6 +880,28 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   runtime execution、pattern match、triggerability、causality、verification 或 attack chain
 - [x] 不实现 matcher、automatic pattern selection、inventory→2D1 adapter、knowledge/reasoning/runtime integration；
   frozen A77 extractor、2D2-A contracts 与当前 C2→2D1 路径保持零差异
+
+#### Phase 10D Step 8B-2D2-C1：Plan-Independent Static Semantic Inventory Graph Projection（已完成实现，待 final review）
+
+- [x] 新增 architecture-neutral `StaticSemanticGraphNode`、`StaticSemanticGraphRelation`、
+  `StaticSemanticGraphProjection` 与 detached deterministic materialization；唯一 production 输入为
+  `StaticSemanticInventory`
+- [x] closed node vocabulary 仅含 FUNCTION、BASIC_BLOCK、SEMANTIC_INSTRUCTION_FACT；closed relation vocabulary
+  仅含 function→block、block→fact、function→fact containment，不含无 source support 的 CFG successor
+- [x] 每个 source fact 恰好产生一个 semantic fact node；variable-length bytes、operation、typed attributes、scope
+  及 function/block partial provenance 原样保留，不丢弃无 function/block 的事实
+- [x] function 与 `(function_address, basic_block_address)` block 各按 exact source-fact support 集合聚合；同 function
+  address 多个非空名称冲突 fail closed，不合成名称或 basic block
+- [x] relation support 分别绑定 exact block-support 或 exact fact ID；所有 relation 固定非 causal、非 runtime、
+  非 symbolic-feasibility，detached envelope 从 source snapshot 完整重投影以拒绝 retarget/tamper
+- [x] generic AArch64 fixture 投影为 2 function、1 block、11 semantic facts，以及 1 function→block、10 block→fact、
+  1 function→fact；ERET 的 no-block provenance 保持且不伪造 block
+- [x] 冻结 A77 inventory 继续通过同一 generic projection 保留 7 facts；synthetic RISC-V variable-length bytes 使用
+  相同 graph classes/function，仅作为 architecture-neutral contract test
+- [x] `Decode != Graph Projection != Pattern Match`；static containment 不表示 runtime execution/causality，地址顺序
+  不表示 runtime order，inventory graph 不是 complete CFG 或 vulnerability result
+- [x] 不修改冻结 2D1、2D2-A/2D2-B、A77、legacy Behavior Graph；不实现 generic CFG、matcher、runtime、
+  verification、knowledge/reasoning 或 attack-chain assembly
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

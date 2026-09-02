@@ -83,6 +83,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
 - Phase 10D Step 8B-2D2-A plan-independent、cross-architecture static semantic instruction/inventory IR contracts
 - Phase 10D Step 8B-2D2-B plan-independent audited-partial AArch64 angr/Capstone semantic decoder 与
   immutable owned synthetic multi-family fixture
+- Phase 10D Step 8B-2D2-C1 plan-independent static semantic inventory graph projection、exact source-fact
+  provenance 与 detached deterministic materialization
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -1002,7 +1004,7 @@ knowledge graph。它不创建 vulnerability/AttackChain node、CrossLayerIntera
 VerificationRecord、Triggerability 或 ReasoningContext binding。共享投影模型和 JSON Schema 均保持
 architecture-neutral；未来 architecture adapter 可产生同一 shared representation，无需修改 graph contracts，
 但当前 adapter 的语义覆盖仍严格受 frozen narrow A-profile v1 decoder 限制；2D1 不是完整 AArch64
-semantic graph。Step 8B-2D2-B 已在 parallel path 实现 generic decoder，但尚未实现 inventory→2D1 adapter。
+semantic graph。Step 8B-2D2-C1 在 parallel path 上新增独立 inventory graph，未把新 IR retrofit 到冻结 2D1。
 
 ## Phase 10D Step 8B-2D2-A Plan-Independent Static Semantic IR
 
@@ -1012,6 +1014,8 @@ Step 8B-2D2-A 在 `chipchain.analysis` 中定义位于 pattern selection 之前�
 ProgramArtifact
         ↓ future architecture-specific decoder
 StaticSemanticInventory
+        ↓ Step 8B-2D2-C1 pure source-supported graph projection
+StaticSemanticGraphProjection
         ↓ future multi-pattern matcher
 predicate / case / cross-layer candidates
         ↓ future adapter
@@ -1028,7 +1032,8 @@ v1 使用可变长度 canonical `instruction_bytes`、不固定宽度的 canonic
 enum 与 typed flat attributes。同一个顶层 fact schema 可表达当前 LDR、exclusive store、system-register read，
 也可表达未来 DSB/TLBI/ERET 类语义，并可由 ARM、RISC-V 或后续架构 adapter 复用。这是 generic、
 plan-independent architecture，不是完整 AArch64 semantic coverage；2D2-A 本身没有实现真实 decoder、pattern
-matcher 或 2D1 projection adapter。冻结的 A77 extractor 与当前 C2→2D1 路径均未修改。
+matcher 或 2D1 projection adapter。后续 C1 graph 仍是独立 pure projection，不改变冻结 A77 extractor 或
+当前 C2→2D1 路径。
 
 ## Phase 10D Step 8B-2D2-B Plan-Independent AArch64 Static Semantic Decoder
 
@@ -1047,8 +1052,37 @@ A77 fixture 上恢复基础 LDR/STXR/MRS PAR_EL1 语义，不需要 A77 extracti
 
 `PARTIAL_AUDITED_STATIC_SEMANTIC_INVENTORY` 只表示 declared profile 识别出的静态 ISA 语义集合，不是 complete
 AArch64 disassembly semantics、complete binary understanding、vulnerability detection result 或 runtime execution
-Evidence。Decode ≠ Match；本阶段不实现 multi-pattern matcher、inventory→program graph adapter、runtime、
+Evidence。Decode ≠ Match；本阶段不实现 multi-pattern matcher、runtime、
 triggerability、CrossLayerInteraction、ReasoningContext 或 AttackChain。
+
+## Phase 10D Step 8B-2D2-C1 Static Semantic Inventory Graph Projection
+
+`project_static_semantic_inventory(inventory)` 只接受一个 detached `StaticSemanticInventory`，并纯确定性产生
+`StaticSemanticGraphProjectionMaterialization`：envelope 保存 exact source snapshot、source inventory ID 与
+可从 snapshot 完整重建的 graph。projection 不读取 binary/path，不调用 angr/Capstone，也不接受 plan、pattern、
+predicate 或 candidate。
+
+v1 节点词汇仅为 FUNCTION、BASIC_BLOCK、SEMANTIC_INSTRUCTION_FACT；关系仅为 function→block、block→fact
+与无 block 时的 function→fact containment。每个 semantic fact 恰好投影一次，并保留 source inventory/fact、
+artifact、architecture、function/block、variable-length instruction bytes、operation、typed attributes 与 scope。
+function/block support 是 exact sorted source-fact ID set；同一 function address 的冲突名称 fail closed。
+
+C1 不包含 CFG successor：source inventory 没有 objective CFG-edge provenance，因此不能从地址顺序发明 CFG 或
+运行顺序。四种 partial provenance 均被保留：function+block、function-only、block-only、uncontained fact。
+所有关系固定 `causal=false`、`runtime_execution=false`、`symbolic_feasibility=false`。
+
+```text
+Decode != Graph Projection
+Graph Projection != Pattern Match
+Static containment != runtime execution
+Static containment != causality
+Instruction address order != runtime order
+Semantic inventory graph != complete CFG
+Semantic inventory graph != vulnerability
+```
+
+C1 不修改冻结 2D1 graph、legacy Behavior Graph 或任何 matcher/runtime/verification 合同，也不实现 C2 的 generic
+CFG extraction/fusion。
 
 ## 文档导航
 
