@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A 与 Step 8B-2D2-B 已完成并冻结；Step 8B-2D2-C1 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B 与 Step 8B-2D2-C1 已完成并冻结；Step 8B-2D2-C2-A 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -881,7 +881,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 不实现 matcher、automatic pattern selection、inventory→2D1 adapter、knowledge/reasoning/runtime integration；
   frozen A77 extractor、2D2-A contracts 与当前 C2→2D1 路径保持零差异
 
-#### Phase 10D Step 8B-2D2-C1：Plan-Independent Static Semantic Inventory Graph Projection（已完成实现，待 final review）
+#### Phase 10D Step 8B-2D2-C1：Plan-Independent Static Semantic Inventory Graph Projection（已完成并冻结）
 
 - [x] 新增 architecture-neutral `StaticSemanticGraphNode`、`StaticSemanticGraphRelation`、
   `StaticSemanticGraphProjection` 与 detached deterministic materialization；唯一 production 输入为
@@ -902,6 +902,27 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   不表示 runtime order，inventory graph 不是 complete CFG 或 vulnerability result
 - [x] 不修改冻结 2D1、2D2-A/2D2-B、A77、legacy Behavior Graph；不实现 generic CFG、matcher、runtime、
   verification、knowledge/reasoning 或 attack-chain assembly
+
+#### Phase 10D Step 8B-2D2-C2-A：Plan-Independent Static Program Structure IR Contracts（已完成实现，待 final review）
+
+- [x] 新增 architecture-neutral、pattern-independent `StaticProgramCfgEdge`、`StaticProgramFunctionCfg` 与
+  `StaticProgramStructureInventory`；不接受 binary path、`ProgramArtifact` snapshot 或 backend object
+- [x] directed edge identity 绑定 exact architecture、artifact ID/SHA、analyzer profile、instruction set、function
+  与 source/target block；self-loop 可被客观保存，所有 edge 固定非 causal、非 runtime、非 symbolic-feasibility
+- [x] function CFG 至少一个 canonical variable-width hex block；block、edge ID 和 endpoint pair 唯一且确定排序，
+  edge endpoint 必须属于 function block set，全部 provenance tuple 必须精确一致
+- [x] 提供 deterministic `static_program_basic_block_source_id(function_cfg_id, block_address)`，供未来 fusion
+  保存 exact structural support，不使用 backend object identity
+- [x] inventory 允许为空，按 function address 确定排序并拒绝重复；nested function/edge detached revalidation，
+  exact diagnostics 仅包含 function、block、directed edge 与 zero-edge function counts
+- [x] ARM 与 synthetic RISC-V 使用同一 models/ID machinery；generic address canonicalization 不固定 A64 宽度，
+  不声称存在真实 RISC-V CFG extractor
+- [x] semantic decoder/inventory 与 future structure extractor/inventory 保持 sibling source；只有后续 exact
+  artifact/provenance binding 才可 fusion，本步骤不实现 extractor 或 fusion
+- [x] `Decode != Structure Extraction`；CFG reachability 不表示 runtime reachability、symbolic feasibility 或
+  causality，static address order 不表示 runtime order，partial structure inventory 不是 complete CFG/vulnerability
+- [x] 不修改冻结 C1、semantic IR/decoder、2D1、A77 或 Behavior Graph；不实现 CFG successor projection、matcher、
+  path search、knowledge/reasoning/runtime/verification integration
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

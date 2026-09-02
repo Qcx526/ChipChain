@@ -85,6 +85,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   immutable owned synthetic multi-family fixture
 - Phase 10D Step 8B-2D2-C1 plan-independent static semantic inventory graph projection、exact source-fact
   provenance 与 detached deterministic materialization
+- Phase 10D Step 8B-2D2-C2-A plan-independent static program-structure IR contracts、function-local directed CFG
+  provenance 与 architecture-neutral normalized inventories
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -1083,6 +1085,42 @@ Semantic inventory graph != vulnerability
 
 C1 不修改冻结 2D1 graph、legacy Behavior Graph 或任何 matcher/runtime/verification 合同，也不实现 C2 的 generic
 CFG extraction/fusion。
+
+## Phase 10D Step 8B-2D2-C2-A Static Program Structure IR Contracts
+
+C2-A 新增与 semantic inventory 平行的 objective structure source contract，只定义数据模型，不实现 backend：
+
+```text
+ProgramArtifact
+   ├─ semantic decoder
+   │      ↓
+   │  StaticSemanticInventory
+   │
+   └─ future structure extractor
+          ↓
+      StaticProgramStructureInventory
+```
+
+`StaticProgramCfgEdge` 保存 exact architecture/artifact/analyzer/instruction-set/function/block provenance；
+`StaticProgramFunctionCfg` 只规范化 function-local block set 与 directed edge set；
+`StaticProgramStructureInventory` 只聚合相同 provenance tuple 的 function CFG，并以
+`PARTIAL_OBJECTIVE_FUNCTION_LOCAL_CFG_INVENTORY` 明示不完整范围。空 inventory 和客观 self-loop 均为有效结构。
+
+semantic 与 structure 是两个刻意分离的 sibling source。未来 fusion 必须先精确绑定 artifact/provenance；C2-A
+不读取 binary、不接受 `ProgramArtifact` snapshot、不导入 angr/Capstone，也不创建 semantic fact 或 graph edge。
+
+```text
+Decode != Structure Extraction
+Structure Extraction != Runtime Execution
+CFG Reachability != Runtime Reachability
+CFG Reachability != Causality
+Static address order != runtime order
+Partial structure inventory != complete CFG
+Structure Inventory != Vulnerability
+```
+
+C2-A 不实现 AArch64 structure analyzer、semantic/CFG fusion、CFG successor graph insertion、path search 或 pattern
+matching。
 
 ## 文档导航
 
