@@ -12,6 +12,19 @@ from chipchain.analysis.errors import (
 from chipchain.analysis.ingestion import ingest_analysis_result
 from chipchain.analysis.memory_map import MemoryMap, MemoryRegion, MemoryRegionKind
 from chipchain.analysis.models import ProgramAnalysisResult, ProgramArtifact
+from chipchain.analysis.static_semantic_models import (
+    PHASE10D_STATIC_SEMANTIC_INSTRUCTION_FACT_CONTRACT,
+    PHASE10D_STATIC_SEMANTIC_INVENTORY_CONTRACT,
+    StaticSemanticAttribute,
+    StaticSemanticAttributeName,
+    StaticSemanticFactScope,
+    StaticSemanticInstructionFact,
+    StaticSemanticInventory,
+    StaticSemanticInventoryScope,
+    StaticSemanticOperation,
+    static_semantic_instruction_fact_id,
+    static_semantic_inventory_id,
+)
 from chipchain.analysis.static_behavior_models import (
     PHASE10D_STATIC_BEHAVIOR_ANALYSIS_PROJECTION_CONTRACT,
     PHASE10D_STATIC_BEHAVIOR_GRAPH_PROJECTION_CONTRACT,
@@ -59,11 +72,20 @@ __all__ = [
     "ProgramAnalysisResult",
     "ProgramAnalyzer",
     "ProgramArtifact",
+    "PHASE10D_STATIC_SEMANTIC_INSTRUCTION_FACT_CONTRACT",
+    "PHASE10D_STATIC_SEMANTIC_INVENTORY_CONTRACT",
     "PHASE10D_STATIC_BEHAVIOR_ANALYSIS_PROJECTION_CONTRACT",
     "PHASE10D_A_PROFILE_STATIC_BEHAVIOR_PROJECTION_MATERIALIZATION_CONTRACT",
     "PHASE10D_STATIC_BEHAVIOR_GRAPH_PROJECTION_CONTRACT",
     "PHASE10D_STATIC_PATTERN_BINDING_PROJECTION_CONTRACT",
     "StaticAssertionClass",
+    "StaticSemanticAttribute",
+    "StaticSemanticAttributeName",
+    "StaticSemanticFactScope",
+    "StaticSemanticInstructionFact",
+    "StaticSemanticInventory",
+    "StaticSemanticInventoryScope",
+    "StaticSemanticOperation",
     "StaticBehaviorAnalysisProjection",
     "StaticBehaviorGraphProjection",
     "StaticBehaviorNode",
@@ -89,4 +111,6 @@ __all__ = [
     "static_behavior_relation_id",
     "static_pattern_binding_projection_id",
     "static_pattern_binding_record_id",
+    "static_semantic_instruction_fact_id",
+    "static_semantic_inventory_id",
 ]

@@ -166,3 +166,10 @@ successor/path 不表示 causality。architecture-neutral shared projection 不�
 snapshot 与 artifact SHA provenance 只保存在 A-profile materialization envelope 中；不写入
 `data/evaluation/`，也不创建 CrossLayerInteraction、ReasoningContext、Evidence、VerificationRecord、
 Triggerability 或 PRIMARY 结果。当前 coverage 仍受 frozen narrow A-profile v1 decoder 限制。
+
+Step 8B-2D2-A 同样不新增或修改任何 data artifact、ELF、plan、fixture 或 evaluation output。它只定义
+plan-independent `StaticSemanticInstructionFact` / `StaticSemanticInventory` 领域合同和纯 synthetic model tests；
+不读取现有 extraction plan，也不运行 angr、QEMU、Provider 或 pattern matcher。inventory 的 opaque
+`decoder_profile_id` 仅是未来 decoder provenance boundary，当前冻结 A77/C2 数据路径及其 IDs/bytes 均不变。
+该 generic IR 可服务未来 ARM、RISC-V 等 architecture adapter，但不声称完整 AArch64/ISA coverage，也不产生
+predicate/case/candidate、pattern obligations、runtime、Evidence、verification、triggerability 或 benchmark 数据。

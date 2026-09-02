@@ -79,6 +79,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   deterministic reachability-audit witness（不含 real-angr case assembler）
 - Phase 10D Step 8B-2B2-C2 generic AArch64 binary CFG materialization、exact semantic/CFG artifact binding 与
   pattern-driven static case assembly
+- Phase 10D Step 8B-2D1 architecture-neutral objective program graph 与独立 pattern-binding projection
+- Phase 10D Step 8B-2D2-A plan-independent、cross-architecture static semantic instruction/inventory IR contracts
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -999,6 +1001,32 @@ VerificationRecord、Triggerability 或 ReasoningContext binding。共享投影�
 architecture-neutral；未来 architecture adapter 可产生同一 shared representation，无需修改 graph contracts，
 但当前 adapter 的语义覆盖仍严格受 frozen narrow A-profile v1 decoder 限制；2D1 不是完整 AArch64
 semantic graph，也没有实现未来 2D2 generic semantic decoder。
+
+## Phase 10D Step 8B-2D2-A Plan-Independent Static Semantic IR
+
+Step 8B-2D2-A 在 `chipchain.analysis` 中定义位于 pattern selection 之前的共享静态语义 IR：
+
+```text
+ProgramArtifact
+        ↓ future architecture-specific decoder
+StaticSemanticInventory
+        ↓ future multi-pattern matcher
+predicate / case / cross-layer candidates
+        ↓ future adapter
+StaticBehaviorAnalysisProjection
+```
+
+`StaticSemanticInstructionFact` 只描述 immutable artifact 中 decoded instruction 的静态 ISA 语义；
+`StaticSemanticInventory` 表示 declared opaque decoder profile 能识别出的完整集合，但 scope 明确为
+`PARTIAL_AUDITED_STATIC_SEMANTIC_INVENTORY`，不声称覆盖完整 ISA。构造 inventory 不需要 extraction plan、CVE
+或 vulnerability pattern。共享模型不导入 `hardware_trigger` 合同，也不含 predicate/case/candidate 字段；
+pattern-specific unresolved obligations 只应在未来 fact→pattern binding 时生成，不能写入 generic fact。
+
+v1 使用可变长度 canonical `instruction_bytes`、不固定宽度的 canonical hex address、closed generic operation
+enum 与 typed flat attributes。同一个顶层 fact schema 可表达当前 LDR、exclusive store、system-register read，
+也可表达未来 DSB/TLBI/ERET 类语义，并可由 ARM、RISC-V 或后续架构 adapter 复用。这是 generic、
+plan-independent architecture，不是完整 AArch64 semantic coverage；本步骤没有实现真实 decoder、pattern matcher
+或 2D1 projection adapter。冻结的 A77 extractor 与当前 C2→2D1 路径均未修改。
 
 ## 文档导航
 

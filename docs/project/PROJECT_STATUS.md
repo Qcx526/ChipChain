@@ -3,9 +3,9 @@
 ## Stable Baseline
 
 - Branch: `main`
-- Stable tag: `phase-10d-step8b2b2c2-stable`
-- Stable commit: `16f209284fc3e3d7827a96861a0101bd4d099a45`
-- Baseline: Phase 10D Step 8B-2B2-C2 final accepted and frozen
+- Stable tag: `phase-10d-step8b2d1-stable`
+- Stable commit: `67445f2b87cb86da38a113038091f57de608a091`
+- Baseline: Phase 10D Step 8B-2D1 final accepted and frozen
 - Canonical environment: Ubuntu; Windows is secondary portability regression
 
 ## Completed Capabilities
@@ -44,15 +44,24 @@
 - Phase 10D Step 8B-2B2-B real angr AArch64 decoded-event extraction over an owned synthetic ELF
 - Phase 10D Step 8B-2B2-C1 frozen pure function-local static CFG order candidate contracts
 - Phase 10D Step 8B-2B2-C2 generic real-angr AArch64 CFG materialization and pattern-driven C1 assembly
-- Phase 10D Step 8B-2D1 typed static behavior-analysis projection (implemented, pending final review)
+- Phase 10D Step 8B-2D1 typed static behavior-analysis projection
+- Phase 10D Step 8B-2D2-A plan-independent shared static semantic IR contracts (implemented, pending final review)
 
 ## Current Work
 
-Phase 10D Step 8B-2D1 adds an independent architecture-neutral static program-analysis representation. Its shared
-models import no `hardware_trigger` or A-profile contracts; `StaticBehaviorAnalysisProjection` binds generic source
-analysis identity/contract, program graph and separate pattern bindings. The A-profile materialization adapter alone
-stores the exact frozen C2 snapshot and reconstructs the expected generic projection, preserving fail-closed
-artifact/result/fact/CFG/candidate provenance even under recomputed outer IDs.
+Phase 10D Step 8B-2D2-A adds a plan-independent shared static semantic IR before vulnerability-pattern selection.
+`StaticSemanticInventory` can be constructed without a CVE, pattern or extraction plan; its facts contain no
+predicate/case/candidate fields or pattern-specific unresolved obligations. The shared contracts import no
+`hardware_trigger` models and use architecture-neutral instruction bytes, addresses, closed operations and typed
+attributes. ARM and future RISC-V decoders can emit the same top-level contracts, but this generic architecture does
+not claim complete AArch64 or other ISA coverage. No real decoder, matcher or projection adapter is implemented yet.
+
+The frozen 2D1 representation remains an independent architecture-neutral static program-analysis projection.
+`StaticBehaviorAnalysisProjection` binds generic source analysis identity/contract, program graph and separate pattern
+bindings. Its A-profile materialization adapter alone stores the exact frozen C2 snapshot and reconstructs the expected
+generic projection, preserving fail-closed artifact/result/fact/CFG/candidate provenance even under recomputed outer
+IDs. A later explicit adapter may map `StaticSemanticInventory` into this projection; current 2D1 remains sourced from
+frozen C2.
 
 This new program graph is neither the legacy Behavior Graph nor a knowledge graph. Pattern candidates are not program
 edges, static CFG paths are not causal attack chains, and 2D1 does not create CrossLayerInteraction, ReasoningContext,
@@ -100,7 +109,7 @@ snapshots and zero structural case candidates, which is a neutral result.
 ## Remaining Work
 
 - Phase 9C Step 3B precondition-state confirmation, only if required by real samples
-- final review/freeze of the Step 8B-2D1 typed static projection
+- final review/freeze of the Step 8B-2D2-A plan-independent static semantic IR contracts
 - objective evidence review and explicit PRIMARY admission decisions for eligible public CVE records
 - Phase 10D later real-model result review and report
 - Phase 11 API and visualization, only after core evaluation

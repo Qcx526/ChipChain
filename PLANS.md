@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1 与 Step 8B-2B2-C2 已完成并冻结；Step 8B-2D1 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2 与 Step 8B-2D1 已完成并冻结；Step 8B-2D2-A 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -814,7 +814,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 不创建 runtime observation、Evidence、VerificationRecord、`TriggerabilityAggregationResult`、feasibility、
   vulnerability 或 PRIMARY 结果，不运行 QEMU/Provider/network/symbolic execution
 
-#### Phase 10D Step 8B-2D1：Typed Static Behavior Analysis Projection（已完成实现，待 final review）
+#### Phase 10D Step 8B-2D1：Typed Static Behavior Analysis Projection（已完成并冻结）
 
 - [x] 新增三个版本化的 architecture-neutral projection 合同：objective static program graph、独立 pattern
   binding projection 与 generic top-level analysis projection；shared models 不导入 `hardware_trigger`/A-profile
@@ -840,6 +840,24 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   CrossLayerInteraction 均未修改；不创建 Evidence、VerificationRecord、Triggerability、AttackChain 或 verdict
 - [x] 当前 frozen owned fixture 投影为 3 function、3 block、3 semantic-fact nodes，3+3 containment relations、
   0 CFG successor、6 predicate bindings、0 case-order bindings；覆盖范围仍受 narrow A-profile v1 decoder 限制
+
+#### Phase 10D Step 8B-2D2-A：Plan-Independent Static Semantic IR Contracts（已完成实现，待 final review）
+
+- [x] 在 `chipchain.analysis` 定义 architecture-neutral `StaticSemanticInstructionFact` 与
+  `StaticSemanticInventory`，inventory 可在不加载 CVE、pattern 或 extraction plan 时独立构造
+- [x] v1 closed operation vocabulary 覆盖 memory load/store、exclusive load/store、system-register read/write、
+  memory/instruction barrier、TLB invalidate 与 exception return；这是 partial generic vocabulary，不是完整 ISA
+- [x] 使用可变长度 canonical instruction bytes、不固定宽度 canonical address 与 typed bounded flat attributes；
+  attribute name 唯一、排序确定、path-neutral 且 outcome-neutral
+- [x] fact/inventory identity 绑定 exact artifact、opaque decoder profile、instruction/function/block provenance、
+  operation、attributes、scope、sorted facts 与 diagnostics；拒绝 stale ID、重复 fact 和 cross-provenance binding
+- [x] fact scope 仅为 decoded static ISA semantics；不表示 runtime execution、precondition satisfaction、hardware
+  effect、vulnerability、causality、verification 或 triggerability
+- [x] shared schema/source firewall 排除 plan、pattern、predicate/case/candidate、knowledge、reasoning、runtime、
+  verification 与 `hardware_trigger` 依赖；pattern-specific unresolved obligations 不进入 generic facts
+- [x] 纯模型测试证明 ARM 与 synthetic RISC-V 使用同一 contracts，并可在不改顶层 schema 时表达
+  LDR/STXR/MRS、DSB/TLBI/ERET-style semantics
+- [x] 本步骤不实现 decoder、matcher 或 2D1 adapter；冻结 A77 extractor、C2 与 C2→2D1 路径保持不变
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能
