@@ -197,7 +197,7 @@ def _project_snapshot(
 
 class _StaticSemanticGraphProjectionMaterializationBody(DomainModel):
     contract: Literal[
-        PHASE10D_STATIC_SEMANTIC_GRAPH_MATERIALIZATION_CONTRACT
+        "phase10d_static_semantic_graph_materialization_v1"
     ]
     source_inventory_id: Identifier
     source_inventory_snapshot: StaticSemanticInventory

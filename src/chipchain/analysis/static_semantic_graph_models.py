@@ -11,7 +11,6 @@ from typing import Literal
 from pydantic import Field, field_validator, model_validator
 
 from chipchain.analysis.static_semantic_models import (
-    PHASE10D_STATIC_SEMANTIC_INVENTORY_CONTRACT,
     StaticSemanticAttribute,
     StaticSemanticFactScope,
     StaticSemanticInventoryScope,
@@ -417,7 +416,7 @@ class _StaticSemanticGraphProjectionBody(DomainModel):
     artifact_sha256: Identifier
     source_inventory_id: Identifier
     source_inventory_contract: Literal[
-        PHASE10D_STATIC_SEMANTIC_INVENTORY_CONTRACT
+        "phase10d_static_semantic_inventory_v1"
     ]
     decoder_profile_id: Identifier
     instruction_set: Identifier
