@@ -1,0 +1,51 @@
+{
+  "contract": "phase10d_static_semantic_graph_materialization_v1",
+  "id": "static-semantic-graph-materialization:3e0befa6214962f7836640be2f3b97a71d0510f95c561ff8f053cd1e85ff42b7",
+  "projection": {
+    "architecture": "arm",
+    "artifact_id": "owned-synthetic-aarch64-static-program-structure-v1",
+    "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec",
+    "contract": "phase10d_static_semantic_graph_projection_v1",
+    "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+    "diagnostic_codes": [
+      "basic_block_contains_semantic_fact_relation_count:0",
+      "basic_block_node_count:0",
+      "function_contains_basic_block_relation_count:0",
+      "function_contains_semantic_fact_relation_count:0",
+      "function_node_count:0",
+      "semantic_fact_node_count:0",
+      "source_inventory_fact_count:0",
+      "uncontained_semantic_fact_node_count:0"
+    ],
+    "id": "static-semantic-graph-projection:bccacd75e5719652fe20d0c44e1a18621ce186745b90174e074797a88ec0103e",
+    "instruction_set": "aarch64",
+    "nodes": [],
+    "projection_scope": "partial_audited_static_semantic_inventory_graph",
+    "relations": [],
+    "source_inventory_contract": "phase10d_static_semantic_inventory_v1",
+    "source_inventory_id": "static-semantic-inventory:016ae199942a56b91ae0a49d4fb6aaeb8072456a19dcf65e93c10527b8b6b3a3",
+    "source_inventory_scope": "partial_audited_static_semantic_inventory"
+  },
+  "source_inventory_id": "static-semantic-inventory:016ae199942a56b91ae0a49d4fb6aaeb8072456a19dcf65e93c10527b8b6b3a3",
+  "source_inventory_snapshot": {
+    "analysis_scope": "partial_audited_static_semantic_inventory",
+    "architecture": "arm",
+    "artifact_id": "owned-synthetic-aarch64-static-program-structure-v1",
+    "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec",
+    "contract": "phase10d_static_semantic_inventory_v1",
+    "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+    "diagnostic_codes": [
+      "decoded_instruction_count:7",
+      "decoder_profile:phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "deduplicated_semantic_fact_count:0",
+      "recognized_semantic_instruction_count:0",
+      "semantic_fact_count:0",
+      "skipped_non_executable_block_count:0",
+      "skipped_non_executable_symbol_range_count:0",
+      "unrecognized_instruction_count:7"
+    ],
+    "facts": [],
+    "id": "static-semantic-inventory:016ae199942a56b91ae0a49d4fb6aaeb8072456a19dcf65e93c10527b8b6b3a3",
+    "instruction_set": "aarch64"
+  }
+}

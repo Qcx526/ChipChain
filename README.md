@@ -89,6 +89,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   provenance 与 architecture-neutral normalized inventories
 - Phase 10D Step 8B-2D2-C2-B plan-independent AArch64 CFGFast structure extractor、immutable owned synthetic
   fixture 与 exact function-local block/edge recovery
+- Phase 10D Step 8B-2D2-V1 deterministic static-analysis JSON/Markdown/DOT inspection bundles、hash manifest
+  与 optional local Graphviz SVG rendering
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -1163,6 +1165,51 @@ Structure Inventory != Vulnerability
 
 C2-B 不实现 semantic/CFG fusion、`CFG_SUCCESSOR` projection、pattern matching、candidate/path search、runtime、
 verification、reasoning 或 AttackChain。
+
+## Phase 10D Step 8B-2D2-V1 Static Analysis Artifact Inspection
+
+V1 在冻结 source contracts 上增加纯 presentation layer：
+
+```text
+StaticSemanticInventory ───────────────┐
+StaticSemanticGraphMaterialization ───┼─> deterministic inspection artifacts
+StaticProgramStructureInventory ──────┘
+```
+
+`static_analysis_artifact_export` 只读取 detached frozen models，输出 canonical JSON、Markdown、Graphviz DOT
+和 hash-bound `manifest.json`；它不调用 angr/Capstone、decoder、extractor、matcher、runtime、verification 或
+reasoning。`scripts/export_static_analysis_artifacts.py` 是单独的 inspection orchestration runner，负责在 AArch64
+ELF 上调用两条冻结 source path 后交给 renderer。semantic 与 structure 只比较 architecture、artifact ID/SHA
+和 instruction set，不建立 cross-source edge。
+
+固定 bundle：
+
+```text
+output-directory/
+├── semantic_inventory.json
+├── semantic_graph.json
+├── semantic_summary.md
+├── semantic_graph.dot
+├── structure_inventory.json
+├── structure_summary.md
+├── structure_graph.dot
+├── inspection_summary.md
+└── manifest.json
+```
+
+本地存在 Graphviz `dot` 时 runner 可额外生成 `semantic_graph.svg` 与 `structure_graph.svg`；SVG 不进入 golden
+manifest。签入示例位于 `examples/phase10d/static_analysis_artifacts/`，覆盖 generic semantic fixture 的 ERET
+missing-CFG source-coverage observation，以及 owned structure fixture 的 branching/leaf/self-loop CFG。
+
+```text
+Visualization != New Evidence
+DOT Edge != Runtime Execution
+Presentation != Fusion
+Inspection Summary != Vulnerability Verdict
+```
+
+V1 不实现 C2-C fusion，不向 semantic graph 添加 `CFG_SUCCESSOR`，也不创建 candidate、pattern match、Evidence、
+VerificationRecord 或 vulnerability outcome。
 
 ## 文档导航
 

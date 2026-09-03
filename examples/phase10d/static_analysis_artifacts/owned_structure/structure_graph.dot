@@ -1,0 +1,23 @@
+digraph static_program_structure {
+  rankdir=LR;
+  graph [label="Partial Function-Local Static CFG", labelloc="t"];
+  node [shape=ellipse, fontname="sans-serif"];
+  edge [fontname="sans-serif"];
+  subgraph cluster_0 {
+    label="Function\nowned_branching_structure\n0x400000";
+    block_0_0 [label="Basic Block\n0x400000"];
+    block_0_1 [label="Basic Block\n0x400004"];
+    block_0_2 [label="Basic Block\n0x40000c"];
+  }
+  subgraph cluster_1 {
+    label="Function\nowned_leaf_structure\n0x400014";
+    block_1_0 [label="Basic Block\n0x400014"];
+  }
+  subgraph cluster_2 {
+    label="Function\nowned_self_loop_structure\n0x400018";
+    block_2_0 [label="Basic Block\n0x400018"];
+  }
+  block_0_0 -> block_0_1 [label="static CFG", color="navy"];
+  block_0_0 -> block_0_2 [label="static CFG", color="navy"];
+  block_2_0 -> block_2_0 [label="static CFG", color="navy"];
+}

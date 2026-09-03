@@ -1,0 +1,286 @@
+{
+  "analysis_scope": "partial_audited_static_semantic_inventory",
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-generic-aarch64-v1",
+  "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+  "contract": "phase10d_static_semantic_inventory_v1",
+  "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+  "diagnostic_codes": [
+    "decoded_instruction_count:14",
+    "decoder_profile:phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+    "deduplicated_semantic_fact_count:0",
+    "recognized_semantic_instruction_count:11",
+    "semantic_fact_count:11",
+    "skipped_non_executable_block_count:0",
+    "skipped_non_executable_symbol_range_count:0",
+    "unrecognized_instruction_count:3"
+  ],
+  "facts": [
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [
+        {
+          "name": "effective_memory_type_resolution",
+          "value": "requires_objective_translation_context"
+        }
+      ],
+      "basic_block_address": "0x400000",
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-semantic-instruction-fact:6f6ad779f4c6c6aca257c1e359e4b9d5d47b5e1b664940f5a65ba4cfc5b5f57b",
+      "instruction_address": "0x400000",
+      "instruction_bytes": "0x200040f9",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "memory_load"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [
+        {
+          "name": "effective_memory_type_resolution",
+          "value": "requires_objective_translation_context"
+        }
+      ],
+      "basic_block_address": "0x400000",
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-semantic-instruction-fact:af7ea9f969d68b8a76b51f3d0372309ed3110d2257bad309695179b3f4f98107",
+      "instruction_address": "0x400004",
+      "instruction_bytes": "0x200000f9",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "memory_store"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [
+        {
+          "name": "effective_memory_type_resolution",
+          "value": "requires_objective_translation_context"
+        },
+        {
+          "name": "memory_exclusivity",
+          "value": "exclusive_load"
+        }
+      ],
+      "basic_block_address": "0x400000",
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-semantic-instruction-fact:cf36b2b77965d23cc9f0d253d890c41227791b52cdfd951fbf4c6913f8394d72",
+      "instruction_address": "0x400008",
+      "instruction_bytes": "0x417c5fc8",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "load_exclusive"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [
+        {
+          "name": "effective_memory_type_resolution",
+          "value": "requires_objective_translation_context"
+        },
+        {
+          "name": "memory_exclusivity",
+          "value": "exclusive_store"
+        }
+      ],
+      "basic_block_address": "0x400000",
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-semantic-instruction-fact:295934ecf282ef46d483af2058b7e41685275b5c95f1560c6d0b24b547598f50",
+      "instruction_address": "0x40000c",
+      "instruction_bytes": "0x417c00c8",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "store_exclusive"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [
+        {
+          "name": "system_register",
+          "value": "par_el1"
+        }
+      ],
+      "basic_block_address": "0x400000",
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-semantic-instruction-fact:9fc54432d2a9ceadfc28454ada5e75b2f7a9f541434662d87904ed7c8dd9c1d6",
+      "instruction_address": "0x400010",
+      "instruction_bytes": "0x007438d5",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "system_register_read"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [
+        {
+          "name": "system_register",
+          "value": "par_el1"
+        }
+      ],
+      "basic_block_address": "0x400000",
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-semantic-instruction-fact:be541ef41fa1dc77a6682d6206a138bbf9f5f2b50fdf50755e2ab89ae5ec35c6",
+      "instruction_address": "0x400014",
+      "instruction_bytes": "0x007418d5",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "system_register_write"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [
+        {
+          "name": "barrier_kind",
+          "value": "dsb"
+        },
+        {
+          "name": "barrier_option",
+          "value": "ish"
+        }
+      ],
+      "basic_block_address": "0x400000",
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-semantic-instruction-fact:c695e7e16be9fa2ecdb2e9e667f0fa3b2d92e79f2a444f9e1eceb611b4597794",
+      "instruction_address": "0x400018",
+      "instruction_bytes": "0x9f3b03d5",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "memory_barrier"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [
+        {
+          "name": "barrier_kind",
+          "value": "dmb"
+        },
+        {
+          "name": "barrier_option",
+          "value": "ish"
+        }
+      ],
+      "basic_block_address": "0x400000",
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-semantic-instruction-fact:2978263bfcaabe6e0a3813d6901150072116090de0b509a596a9902433af3d30",
+      "instruction_address": "0x40001c",
+      "instruction_bytes": "0xbf3b03d5",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "memory_barrier"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [
+        {
+          "name": "barrier_kind",
+          "value": "isb"
+        }
+      ],
+      "basic_block_address": "0x400000",
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-semantic-instruction-fact:dae0fa5da8219d62f3d7234ed0b0277189bc0a4feedc9010708a1a6e8e72331d",
+      "instruction_address": "0x400020",
+      "instruction_bytes": "0xdf3f03d5",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "instruction_barrier"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [
+        {
+          "name": "tlb_operation",
+          "value": "vmalle1is"
+        }
+      ],
+      "basic_block_address": "0x400000",
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-semantic-instruction-fact:6ac443e28d7df7e095accd9b9e8fa91028f63c0cc0b383be5a830c8029a3cc77",
+      "instruction_address": "0x400024",
+      "instruction_bytes": "0x1f8308d5",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "tlb_invalidate"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "attributes": [],
+      "basic_block_address": null,
+      "contract": "phase10d_static_semantic_instruction_fact_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "fact_scope": "decoded_static_instruction_semantics_only",
+      "function_address": "0x400034",
+      "function_name": "owned_exception_return_semantic",
+      "id": "static-semantic-instruction-fact:eb7494ccbef62dc9adcbeb577a6c4a7e7958ac17e6cf13ab8134feb1aa616339",
+      "instruction_address": "0x400034",
+      "instruction_bytes": "0xe0039fd6",
+      "instruction_set": "aarch64",
+      "instruction_size": 4,
+      "operation": "exception_return"
+    }
+  ],
+  "id": "static-semantic-inventory:234bffafb5a7fee63f1385a3c31cea5965766f5870935ce36fe82d7912a43db3",
+  "instruction_set": "aarch64"
+}

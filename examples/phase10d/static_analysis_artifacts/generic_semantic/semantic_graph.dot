@@ -1,0 +1,32 @@
+digraph static_semantic_graph {
+  rankdir=LR;
+  graph [label="Static Semantic Containment", labelloc="t"];
+  node [fontname="sans-serif"];
+  edge [fontname="sans-serif"];
+  node_0 [shape=box, label="Function\nowned_generic_semantic_inventory\n0x400000"];
+  node_1 [shape=box, label="Function\nowned_exception_return_semantic\n0x400034"];
+  node_2 [shape=ellipse, label="Basic Block\n0x400000"];
+  node_3 [shape=note, label="memory_load\n0x400000\neffective_memory_type_resolution=requires_objective_translation_context"];
+  node_4 [shape=note, label="memory_store\n0x400004\neffective_memory_type_resolution=requires_objective_translation_context"];
+  node_5 [shape=note, label="load_exclusive\n0x400008\neffective_memory_type_resolution=requires_objective_translation_context; memory_exclusivity=exclusive_load"];
+  node_6 [shape=note, label="store_exclusive\n0x40000c\neffective_memory_type_resolution=requires_objective_translation_context; memory_exclusivity=exclusive_store"];
+  node_7 [shape=note, label="system_register_read\n0x400010\nsystem_register=par_el1"];
+  node_8 [shape=note, label="system_register_write\n0x400014\nsystem_register=par_el1"];
+  node_9 [shape=note, label="memory_barrier\n0x400018\nbarrier_kind=dsb; barrier_option=ish"];
+  node_10 [shape=note, label="memory_barrier\n0x40001c\nbarrier_kind=dmb; barrier_option=ish"];
+  node_11 [shape=note, label="instruction_barrier\n0x400020\nbarrier_kind=isb"];
+  node_12 [shape=note, label="tlb_invalidate\n0x400024\ntlb_operation=vmalle1is"];
+  node_13 [shape=note, label="exception_return\n0x400034"];
+  node_2 -> node_7 [label="contains semantic fact"];
+  node_2 -> node_3 [label="contains semantic fact"];
+  node_2 -> node_8 [label="contains semantic fact"];
+  node_2 -> node_5 [label="contains semantic fact"];
+  node_2 -> node_12 [label="contains semantic fact"];
+  node_2 -> node_6 [label="contains semantic fact"];
+  node_2 -> node_10 [label="contains semantic fact"];
+  node_2 -> node_11 [label="contains semantic fact"];
+  node_2 -> node_4 [label="contains semantic fact"];
+  node_2 -> node_9 [label="contains semantic fact"];
+  node_0 -> node_2 [label="contains block"];
+  node_1 -> node_13 [label="contains semantic fact"];
+}

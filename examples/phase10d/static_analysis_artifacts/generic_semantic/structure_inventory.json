@@ -1,0 +1,34 @@
+{
+  "analysis_scope": "partial_objective_function_local_cfg_inventory",
+  "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-generic-aarch64-v1",
+  "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+  "contract": "phase10d_static_program_structure_inventory_v1",
+  "diagnostic_codes": [
+    "basic_block_count:1",
+    "directed_cfg_edge_count:0",
+    "function_cfg_count:1",
+    "zero_edge_function_count:1"
+  ],
+  "functions": [
+    {
+      "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-generic-aarch64-v1",
+      "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+      "basic_block_addresses": [
+        "0x400000"
+      ],
+      "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+      "contract": "phase10d_static_program_function_cfg_v1",
+      "directed_edges": [],
+      "function_address": "0x400000",
+      "function_name": "owned_generic_semantic_inventory",
+      "id": "static-program-function-cfg:b2dcf6cd4b00b96ffee2036f26ec153a34450f905a15c458c761041b4e6729f5",
+      "instruction_set": "aarch64"
+    }
+  ],
+  "id": "static-program-structure-inventory:4f0053f2aa5b9d18c565548d9910fea44047d516211189bb0aa6941b8f5e2cf2",
+  "instruction_set": "aarch64"
+}

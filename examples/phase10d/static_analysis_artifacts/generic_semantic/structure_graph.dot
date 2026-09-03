@@ -1,0 +1,10 @@
+digraph static_program_structure {
+  rankdir=LR;
+  graph [label="Partial Function-Local Static CFG", labelloc="t"];
+  node [shape=ellipse, fontname="sans-serif"];
+  edge [fontname="sans-serif"];
+  subgraph cluster_0 {
+    label="Function\nowned_generic_semantic_inventory\n0x400000";
+    block_0_0 [label="Basic Block\n0x400000"];
+  }
+}

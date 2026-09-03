@@ -1,0 +1,6 @@
+digraph static_semantic_graph {
+  rankdir=LR;
+  graph [label="Static Semantic Containment", labelloc="t"];
+  node [fontname="sans-serif"];
+  edge [fontname="sans-serif"];
+}

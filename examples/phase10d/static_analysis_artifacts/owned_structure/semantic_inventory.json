@@ -1,0 +1,21 @@
+{
+  "analysis_scope": "partial_audited_static_semantic_inventory",
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-aarch64-static-program-structure-v1",
+  "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec",
+  "contract": "phase10d_static_semantic_inventory_v1",
+  "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+  "diagnostic_codes": [
+    "decoded_instruction_count:7",
+    "decoder_profile:phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+    "deduplicated_semantic_fact_count:0",
+    "recognized_semantic_instruction_count:0",
+    "semantic_fact_count:0",
+    "skipped_non_executable_block_count:0",
+    "skipped_non_executable_symbol_range_count:0",
+    "unrecognized_instruction_count:7"
+  ],
+  "facts": [],
+  "id": "static-semantic-inventory:016ae199942a56b91ae0a49d4fb6aaeb8072456a19dcf65e93c10527b8b6b3a3",
+  "instruction_set": "aarch64"
+}

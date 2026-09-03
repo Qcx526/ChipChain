@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1 与 Step 8B-2D2-C2-A 已完成并冻结；Step 8B-2D2-C2-B 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A 与 Step 8B-2D2-C2-B 已完成并冻结；Step 8B-2D2-V1 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -924,7 +924,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 不修改冻结 C1、semantic IR/decoder、2D1、A77 或 Behavior Graph；不实现 CFG successor projection、matcher、
   path search、knowledge/reasoning/runtime/verification integration
 
-#### Phase 10D Step 8B-2D2-C2-B：Plan-Independent AArch64 Static Program Structure Extractor（已完成实现，待 final review）
+#### Phase 10D Step 8B-2D2-C2-B：Plan-Independent AArch64 Static Program Structure Extractor（已完成并冻结）
 
 - [x] 新增 `AngrAArch64StaticProgramStructureExtractor.extract(ProgramArtifact) ->
   StaticProgramStructureInventory`；唯一逻辑输入为 detached artifact，不接受 plan、semantic inventory、CVE、
@@ -947,6 +947,27 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   表示 runtime reachability、symbolic feasibility 或 causality，partial inventory 不是 complete CFG/vulnerability
 - [x] 不修改冻结 C2-A/C1/2D2-A/2D2-B/2D1/A77 合同，不实现 C2-C fusion、CFG graph projection、matcher、
   runtime、verification、reasoning 或 AttackChain
+
+#### Phase 10D Step 8B-2D2-V1：Static Analysis Artifact Inspection and Visualization（已完成实现，待 final review）
+
+- [x] 新增独立 pure presentation module，对 frozen `StaticSemanticInventory`、semantic graph materialization 与
+  `StaticProgramStructureInventory` 输出 canonical JSON、deterministic Markdown 与 Graphviz DOT
+- [x] semantic summary 精确列出 facts、operation counts、graph node/relation counts；structure summary 精确列出
+  functions、blocks 与 frozen directed edge pairs，不从 address order 推断关系
+- [x] semantic DOT 只渲染 frozen C1 nodes/relations，ERET 保持 function-only containment；structure DOT 使用
+  function cluster 表达 membership，只把 frozen C2-B edges 渲染为 static CFG，包括 objective self-loop
+- [x] `inspection_summary.md` 只比较 independent source architecture、artifact ID/SHA 与 instruction set；generic
+  fixture 显式展示 ERET semantic-only static provenance 和 independently absent structure function/block
+- [x] bundle 固定九个 deterministic textual outputs；manifest 对除自身外每个文件绑定 SHA-256 与 byte size，
+  不含 timestamp、UUID、host/user、absolute path 或 machine-specific metadata
+- [x] local Graphviz SVG 为 optional convenience，使用 `shutil.which("dot")`、argument-list subprocess 与
+  `shell=False`；缺失/失败不影响 core export，SVG 不作为 golden 或 manifest 输入
+- [x] inspection runner 独立编排冻结 decoder、semantic projection 和 structure extractor；pure renderer 不依赖
+  angr、Capstone、hardware_trigger、knowledge、reasoning、runtime、verification 或 multi-agent
+- [x] 签入 generic semantic 与 owned structure 两套 golden bundles，regeneration byte-for-byte 比较使 source
+  output changes 直接表现为 human-visible JSON/Markdown/DOT diff
+- [x] `Visualization != New Evidence`、`DOT Edge != Runtime Execution`、`Presentation != Fusion`、
+  `Inspection Summary != Vulnerability Verdict`；不实现 C2-C、CFG_SUCCESSOR、candidate/pattern 或新 evidence
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

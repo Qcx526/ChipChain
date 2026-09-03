@@ -1,0 +1,47 @@
+{
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-generic-aarch64-v1",
+  "artifact_sha256": "854db6b28d22363a7943ea53bea83e18b25bb38d1dc6d25d99140e61a5374c0b",
+  "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+  "files": {
+    "inspection_summary.md": {
+      "byte_size": 1834,
+      "sha256": "b036f1ebeface1ef65cfae7380df734592679e6517b30735f197243ae991cc59"
+    },
+    "semantic_graph.dot": {
+      "byte_size": 2208,
+      "sha256": "3a1a762bff7671ba653a95d79b06a0daa4713d6d522f0d4a5612bfd8a079c59d"
+    },
+    "semantic_graph.json": {
+      "byte_size": 44849,
+      "sha256": "3cd3adbe736bb8eaba253e80e50fad91726b9a552ad4650162d17aa18851a8e9"
+    },
+    "semantic_inventory.json": {
+      "byte_size": 12015,
+      "sha256": "c1bdd0c239bc23ab3773b23d31a654f09025ddae7772bfb234b84521b2c813f6"
+    },
+    "semantic_summary.md": {
+      "byte_size": 3319,
+      "sha256": "2593f39f397a49ebabea099abc60970169ef8b11642d22687b3db126ed4207f3"
+    },
+    "structure_graph.dot": {
+      "byte_size": 337,
+      "sha256": "ceff54b7d7a768399ef323c125cbeb14e4444894180f119a52f8fdc260f934c1"
+    },
+    "structure_inventory.json": {
+      "byte_size": 1468,
+      "sha256": "d6c57122073f18cb919b1f7cf6d40c539b2d286f0c2f9a29ba188abee83f5bff"
+    },
+    "structure_summary.md": {
+      "byte_size": 783,
+      "sha256": "29b22ad4bec5d8add9ce9a1d2759bb9495c04b4d1b0c4ed542f853b301f74bd2"
+    }
+  },
+  "independent_source_provenance_equal": true,
+  "instruction_set": "aarch64",
+  "semantic_graph_materialization_id": "static-semantic-graph-materialization:3670df7365cf13e6c2d18956f3db1c2848ae673d08d7bc705c80cb1ff3b16934",
+  "semantic_graph_projection_id": "static-semantic-graph-projection:84b4725dd7bb5e57f779a6e91a0eb4cbe1977e25476695502f1e7b783f446f26",
+  "semantic_inventory_id": "static-semantic-inventory:234bffafb5a7fee63f1385a3c31cea5965766f5870935ce36fe82d7912a43db3",
+  "structure_analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+  "structure_inventory_id": "static-program-structure-inventory:4f0053f2aa5b9d18c565548d9910fea44047d516211189bb0aa6941b8f5e2cf2"
+}

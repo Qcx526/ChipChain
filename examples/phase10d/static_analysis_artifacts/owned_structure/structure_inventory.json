@@ -1,0 +1,118 @@
+{
+  "analysis_scope": "partial_objective_function_local_cfg_inventory",
+  "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-aarch64-static-program-structure-v1",
+  "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec",
+  "contract": "phase10d_static_program_structure_inventory_v1",
+  "diagnostic_codes": [
+    "basic_block_count:5",
+    "directed_cfg_edge_count:3",
+    "function_cfg_count:3",
+    "zero_edge_function_count:1"
+  ],
+  "functions": [
+    {
+      "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-program-structure-v1",
+      "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec",
+      "basic_block_addresses": [
+        "0x400000",
+        "0x400004",
+        "0x40000c"
+      ],
+      "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+      "contract": "phase10d_static_program_function_cfg_v1",
+      "directed_edges": [
+        {
+          "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-program-structure-v1",
+          "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec",
+          "causal": false,
+          "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+          "contract": "phase10d_static_program_cfg_edge_v1",
+          "function_address": "0x400000",
+          "id": "static-program-cfg-edge:3ba0f243801f105b91db97da02623f86e575041bdc51e5703ca9e6c528d200cc",
+          "instruction_set": "aarch64",
+          "runtime_execution": false,
+          "source_basic_block_address": "0x400000",
+          "symbolic_feasibility": false,
+          "target_basic_block_address": "0x400004"
+        },
+        {
+          "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-program-structure-v1",
+          "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec",
+          "causal": false,
+          "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+          "contract": "phase10d_static_program_cfg_edge_v1",
+          "function_address": "0x400000",
+          "id": "static-program-cfg-edge:f35506188211b1523abf874a01c8420f8ca93e8a7941df64778cad044c07725f",
+          "instruction_set": "aarch64",
+          "runtime_execution": false,
+          "source_basic_block_address": "0x400000",
+          "symbolic_feasibility": false,
+          "target_basic_block_address": "0x40000c"
+        }
+      ],
+      "function_address": "0x400000",
+      "function_name": "owned_branching_structure",
+      "id": "static-program-function-cfg:1d6b1e022731cba233299f21af34c0357b0479848a94bee0ca85d5aef49efec4",
+      "instruction_set": "aarch64"
+    },
+    {
+      "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-program-structure-v1",
+      "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec",
+      "basic_block_addresses": [
+        "0x400014"
+      ],
+      "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+      "contract": "phase10d_static_program_function_cfg_v1",
+      "directed_edges": [],
+      "function_address": "0x400014",
+      "function_name": "owned_leaf_structure",
+      "id": "static-program-function-cfg:de8ed6a16233c47c2d8584538d8081073b08c7d17fdc31e7dd7ef8d59dd40882",
+      "instruction_set": "aarch64"
+    },
+    {
+      "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-program-structure-v1",
+      "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec",
+      "basic_block_addresses": [
+        "0x400018"
+      ],
+      "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+      "contract": "phase10d_static_program_function_cfg_v1",
+      "directed_edges": [
+        {
+          "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-program-structure-v1",
+          "artifact_sha256": "7af2a0422f7d8dcd8e5d506692ea1516284199284d2baa4fa19ac021e5b00cec",
+          "causal": false,
+          "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+          "contract": "phase10d_static_program_cfg_edge_v1",
+          "function_address": "0x400018",
+          "id": "static-program-cfg-edge:f1f03316f4d597e95bc1eeb9e21b4a6b19710e36f1f18077397c881e10b8517c",
+          "instruction_set": "aarch64",
+          "runtime_execution": false,
+          "source_basic_block_address": "0x400018",
+          "symbolic_feasibility": false,
+          "target_basic_block_address": "0x400018"
+        }
+      ],
+      "function_address": "0x400018",
+      "function_name": "owned_self_loop_structure",
+      "id": "static-program-function-cfg:4099fab7e27f04fb9af1a8e6afcb03cdc8dea2db9d99a3140438d145a0c80192",
+      "instruction_set": "aarch64"
+    }
+  ],
+  "id": "static-program-structure-inventory:7c97b813bf68d6e7aac8d8512f27e48d097b36752db8209f5954bf20e118942c",
+  "instruction_set": "aarch64"
+}
