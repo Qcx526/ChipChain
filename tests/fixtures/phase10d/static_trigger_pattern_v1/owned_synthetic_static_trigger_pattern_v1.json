@@ -1,0 +1,175 @@
+{
+  "architecture": "arm",
+  "cases": [
+    {
+      "case_reference_id": "owned-case-a",
+      "contract": "phase10d_static_trigger_case_v1",
+      "id": "static-trigger-case:4b8759c6616bb48c281080c16477937bd25f128d3c5e1925172005cba1148f17",
+      "objective_requirements": [],
+      "position_order": "program_order",
+      "positions": [
+        {
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "id": "static-trigger-predicate:8b92c5e32e3528c267082ae2a43207f9ae5bdf8c0a013ca50858a16044854336",
+              "objective_requirements": [],
+              "operation": "system_register_read",
+              "required_attributes": [
+                {
+                  "name": "system_register",
+                  "value": "par_el1"
+                }
+              ],
+              "required_effective_memory_types": [],
+              "required_execution_contexts": []
+            }
+          ],
+          "contract": "phase10d_static_trigger_position_v1",
+          "id": "static-trigger-position:a9bb9da87cbc1408839242b876f817442015e677de79e73fd227fb94f31ee882",
+          "position_index": 1
+        },
+        {
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "id": "static-trigger-predicate:c2d22cea1035815e4ad7c79f410ebf9a9632667d3247f4a74d86158e8d7c4a1f",
+              "objective_requirements": [],
+              "operation": "memory_barrier",
+              "required_attributes": [
+                {
+                  "name": "barrier_kind",
+                  "value": "dsb"
+                },
+                {
+                  "name": "barrier_option",
+                  "value": "ish"
+                }
+              ],
+              "required_effective_memory_types": [],
+              "required_execution_contexts": []
+            }
+          ],
+          "contract": "phase10d_static_trigger_position_v1",
+          "id": "static-trigger-position:abc0855552cb6e18c0b7e1ef745f996ac71444e3ba71e6684f4c2c941b947517",
+          "position_index": 2
+        },
+        {
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "id": "static-trigger-predicate:5eb2d0f77ed95e5c43e88abd6c81313888a40719ac8361dca03929fbc76ebbe7",
+              "objective_requirements": [],
+              "operation": "instruction_barrier",
+              "required_attributes": [
+                {
+                  "name": "barrier_kind",
+                  "value": "isb"
+                }
+              ],
+              "required_effective_memory_types": [],
+              "required_execution_contexts": []
+            }
+          ],
+          "contract": "phase10d_static_trigger_position_v1",
+          "id": "static-trigger-position:18be07953f54f24b8206fd0efc1debf2b91edd55b2cdd1004c74707577c937a7",
+          "position_index": 3
+        }
+      ],
+      "relation_requirement": null
+    },
+    {
+      "case_reference_id": "owned-case-b",
+      "contract": "phase10d_static_trigger_case_v1",
+      "id": "static-trigger-case:522354bcdc43f1339e82a0b7104e0402ea364c6f8d6df447691c1830ec3bf5c5",
+      "objective_requirements": [],
+      "position_order": "program_order",
+      "positions": [
+        {
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "id": "static-trigger-predicate:8b92c5e32e3528c267082ae2a43207f9ae5bdf8c0a013ca50858a16044854336",
+              "objective_requirements": [],
+              "operation": "system_register_read",
+              "required_attributes": [
+                {
+                  "name": "system_register",
+                  "value": "par_el1"
+                }
+              ],
+              "required_effective_memory_types": [],
+              "required_execution_contexts": []
+            }
+          ],
+          "contract": "phase10d_static_trigger_position_v1",
+          "id": "static-trigger-position:a9bb9da87cbc1408839242b876f817442015e677de79e73fd227fb94f31ee882",
+          "position_index": 1
+        },
+        {
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "id": "static-trigger-predicate:8c622025fdde4d4984f3af3ac4d0450b766aedec8595faccbf434ca334f00779",
+              "objective_requirements": [],
+              "operation": "tlb_invalidate",
+              "required_attributes": [
+                {
+                  "name": "tlb_operation",
+                  "value": "vmalle1is"
+                }
+              ],
+              "required_effective_memory_types": [],
+              "required_execution_contexts": []
+            }
+          ],
+          "contract": "phase10d_static_trigger_position_v1",
+          "id": "static-trigger-position:ed4231f517df410874d6bd63ef152491e6a77d9cb5359b13865d5fc9eb8230d9",
+          "position_index": 2
+        },
+        {
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "id": "static-trigger-predicate:5eb2d0f77ed95e5c43e88abd6c81313888a40719ac8361dca03929fbc76ebbe7",
+              "objective_requirements": [],
+              "operation": "instruction_barrier",
+              "required_attributes": [
+                {
+                  "name": "barrier_kind",
+                  "value": "isb"
+                }
+              ],
+              "required_effective_memory_types": [],
+              "required_execution_contexts": []
+            }
+          ],
+          "contract": "phase10d_static_trigger_position_v1",
+          "id": "static-trigger-position:18be07953f54f24b8206fd0efc1debf2b91edd55b2cdd1004c74707577c937a7",
+          "position_index": 3
+        }
+      ],
+      "relation_requirement": null
+    }
+  ],
+  "contract": "phase10d_static_trigger_pattern_v1",
+  "hardware_reference_ids": [
+    "owned-synthetic-benign-condition-family-v1",
+    "owned-synthetic-hardware-condition-v1"
+  ],
+  "id": "static-trigger-pattern:4eb60094d04fcb7d9674b39227449bd144847b36525fa4203d6c3e5159fcf3f3",
+  "instruction_set": "aarch64",
+  "objective_requirements": [],
+  "pattern_name": "owned_synthetic_diamond_static_pattern",
+  "pattern_use": "objective_static_candidate_matching_only",
+  "source_reference_ids": [
+    "owned-synthetic-static-trigger-pattern-design-v1",
+    "owned-synthetic-static-trigger-pattern-fixture-v1"
+  ]
+}

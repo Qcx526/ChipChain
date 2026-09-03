@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B 与 Step 8B-2D2-V1 已完成并冻结；Step 8B-2D2-C2-C 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B、Step 8B-2D2-V1 与 Step 8B-2D2-C2-C 已完成并冻结；Step 8B-2D3-A 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -969,7 +969,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] `Visualization != New Evidence`、`DOT Edge != Runtime Execution`、`Presentation != Fusion`、
   `Inspection Summary != Vulnerability Verdict`；不实现 C2-C、CFG_SUCCESSOR、candidate/pattern 或新 evidence
 
-#### Phase 10D Step 8B-2D2-C2-C：Strict Provenance-Bound Semantic + Program-Structure Fusion（已完成实现，待 final review）
+#### Phase 10D Step 8B-2D2-C2-C：Strict Provenance-Bound Semantic + Program-Structure Fusion（已完成并冻结）
 
 - [x] 新增 architecture-neutral fused node/relation/projection/materialization v1 合同，不复用冻结 2D1 legacy output
 - [x] fusion 只接受 detached C1 semantic graph materialization 与 C2-A structure inventory；architecture、artifact
@@ -990,6 +990,26 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   Reachability/Symbolic Feasibility/Causality`、`Fusion != Verification/Vulnerability`、`Instruction Address !=
   Basic-Block Provenance`
 - [x] 不实现 2D3 pattern matching、hardware-vulnerability binding、runtime/verification、candidate 或 AttackChain
+
+#### Phase 10D Step 8B-2D3-A：Architecture-Neutral Static Hardware-Trigger Pattern IR（已完成实现，待 final review）
+
+- [x] 新增 predicate/position/relation requirement/case/pattern/catalog 六个 exact v1 contract，以及 OR、PROGRAM_ORDER、
+  qualitative proximity、evaluability、unresolved objective requirement 与 non-outcome pattern-use 闭合词汇
+- [x] predicate 只保存 address-independent `StaticSemanticOperation`、兼容的 exact typed attributes 和声明式 external
+  requirements；effective architectural memory type 不映射成 decoder 的 memory-type resolution-state attribute
+- [x] non-empty effective-memory-type/execution-context requirement 必须分别携带 resolution/runtime-context unresolved
+  obligation；不从 system register、ELF architecture、地址或 instruction presence 推断满足状态
+- [x] case position 按显式连续 index 表示 source PROGRAM_ORDER；position alternatives 是 caller-order-neutral 的 exact OR；
+  qualitative CLOSE_PROXIMITY 禁止数值 bound 并要求 proximity unresolved obligation
+- [x] pattern 强制 source/hardware references、case 与 address-neutral source identity；catalog 允许 mixed architectures，所有
+  retained IDs、nested snapshots 和 unordered inputs 均 deterministic normalization/revalidation
+- [x] 新增 owned/synthetic/benign two-case AArch64 pattern fixture，面向未来 diamond matcher test，但不保存 fused graph、
+  address、CFG edge、candidate witness 或 expected matcher result；RISC-V test 使用同一 generic contract
+- [x] `Pattern != Match/Runtime Execution/Triggerability`、`Program Order Requirement != Runtime Order`、`Qualitative
+  Proximity != Exact Static Distance`、`Unresolved Requirement != Satisfied Requirement`、`Pattern Reference !=
+  Vulnerability Verification`、`Hardware-Side Knowledge != Firmware-Side Evidence`
+- [x] 2D3-A 不导入 fused graph、旧 A-profile/Phase 9C trigger system、analysis backend、runtime、verification、reasoning 或
+  knowledge；不实现 2D3-B matcher、candidate projection、production A77 adapter 或 hardware-vulnerability binding
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

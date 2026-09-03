@@ -93,6 +93,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   与 optional local Graphviz SVG rendering
 - Phase 10D Step 8B-2D2-C2-C strict provenance-bound semantic/structure fused static behavior graph、exact
   `CFG_SUCCESSOR` provenance、detached deterministic materialization 与 human-readable fused artifacts
+- Phase 10D Step 8B-2D3-A architecture-neutral declarative static hardware-trigger pattern IR、closed unresolved
+  requirement vocabulary 与 mixed-architecture deterministic catalog（不含 matcher）
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -1252,6 +1254,43 @@ Instruction Address != Basic-Block Provenance
 
 C2-C 不实现 2D3 pattern matching、hardware-vulnerability binding、runtime verification、candidate、Evidence、
 VerificationRecord、AttackChain 或漏洞判定。
+
+## Phase 10D Step 8B-2D3-A Static Trigger Pattern IR
+
+2D3-A 只定义未来 pure matcher 的右侧声明式知识输入：
+
+```text
+Fused Static Behavior Graph ───────────────┐
+                                           ├─> [2D3-B later]
+Declarative Trigger Pattern Catalog ───────┘
+```
+
+`StaticTriggerPredicate` 是 address-independent 的 exact typed semantic requirement，可保存
+`StaticSemanticOperation`、兼容的 exact `StaticSemanticAttribute`、尚需客观解析的 effective memory type 和
+execution-context requirements。外部要求必须同时携带对应的 closed unresolved objective requirement；它们不是
+已经满足的事实。`StaticTriggerPosition` 只支持 v1 `OR` alternatives；`StaticTriggerCase` 的
+`PROGRAM_ORDER` 只表示 source-declared program order，不是 runtime order、path feasibility、timing 或 causality。
+
+定性 `CLOSE_PROXIMITY` 只能是 `QUALITATIVE_ONLY`、`quantitative_bound=null` 和
+`SOURCE_INSUFFICIENT_FOR_EXACT_STATIC_SATISFACTION`，且必须显式保留 proximity unresolved requirement；不会猜测
+instruction count、block distance 或 path-length threshold。`StaticTriggerPatternCatalog` 可混合架构，但 2D3-A 不选择
+pattern，也不读取 fused graph。新的 owned synthetic two-case pattern fixture 位于
+`tests/fixtures/phase10d/static_trigger_pattern_v1/`，不包含地址、CFG edge、candidate witness 或预期 matcher result。
+
+```text
+Pattern != Match
+Pattern != Runtime Execution
+Pattern != Triggerability
+Pattern Reference != Vulnerability Verification
+Program Order Requirement != Runtime Order
+Qualitative Proximity != Exact Static Distance
+Unresolved Requirement != Satisfied Requirement
+Hardware-Side Knowledge != Firmware-Side Evidence
+```
+
+Phase 9C exact ARM A32 machine-code `HardwareTriggerSignature` / `FirmwareTriggerMatcher` 是独立冻结机制；新的 generic
+semantic pattern IR 不替代或修改该路径。2D3-A 不实现 matcher、candidate projection、A77 production adapter、
+hardware-vulnerability binding、runtime、verification 或 AttackChain。
 
 ## 文档导航
 
