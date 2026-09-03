@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A 与 Step 8B-2D2-C2-B 已完成并冻结；Step 8B-2D2-V1 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B 与 Step 8B-2D2-V1 已完成并冻结；Step 8B-2D2-C2-C 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -948,7 +948,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 不修改冻结 C2-A/C1/2D2-A/2D2-B/2D1/A77 合同，不实现 C2-C fusion、CFG graph projection、matcher、
   runtime、verification、reasoning 或 AttackChain
 
-#### Phase 10D Step 8B-2D2-V1：Static Analysis Artifact Inspection and Visualization（已完成实现，待 final review）
+#### Phase 10D Step 8B-2D2-V1：Static Analysis Artifact Inspection and Visualization（已完成并冻结）
 
 - [x] 新增独立 pure presentation module，对 frozen `StaticSemanticInventory`、semantic graph materialization 与
   `StaticProgramStructureInventory` 输出 canonical JSON、deterministic Markdown 与 Graphviz DOT
@@ -968,6 +968,28 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   output changes 直接表现为 human-visible JSON/Markdown/DOT diff
 - [x] `Visualization != New Evidence`、`DOT Edge != Runtime Execution`、`Presentation != Fusion`、
   `Inspection Summary != Vulnerability Verdict`；不实现 C2-C、CFG_SUCCESSOR、candidate/pattern 或新 evidence
+
+#### Phase 10D Step 8B-2D2-C2-C：Strict Provenance-Bound Semantic + Program-Structure Fusion（已完成实现，待 final review）
+
+- [x] 新增 architecture-neutral fused node/relation/projection/materialization v1 合同，不复用冻结 2D1 legacy output
+- [x] fusion 只接受 detached C1 semantic graph materialization 与 C2-A structure inventory；architecture、artifact
+  ID/SHA 和 instruction set 必须全等，否则在任何 address reconciliation 前 fail closed
+- [x] function universe 为 semantic/structure union；同址 non-None function name 冲突 fail closed，`None` 不覆盖
+  另一侧 objective name
+- [x] block identity 固定为 `(function_address, basic_block_address)`；无 function scope 的 semantic block 不与同裸
+  地址 structure block 合并，`basic_block_address=None` 的 fact 不使用 instruction address 推断 block
+- [x] 每个 C1 semantic fact 及 containment relation 精确保留；structure-only functions/blocks 与全部 exact frozen
+  CFG edges 均保留，`CFG_SUCCESSOR` 只由 `StaticProgramCfgEdge` 产生并绑定 function/block/edge provenance
+- [x] materialization 保存两份 detached source snapshots，validator 重做 exact provenance gate 与 deterministic fusion，
+  并校验 projection/materialization IDs、diagnostics 及全部静态 false flags
+- [x] 新增 benign owned deterministic AArch64 diamond fixture，pinned backend 客观产生 1 function、4 blocks、4 audited
+  semantic facts 与 4 directed CFG edges；fixture design 不保存 fusion Ground Truth
+- [x] 新增独立 fused JSON/Markdown/DOT/hash-manifest exporter、inspection runner 与 `fused_flow`/`generic_eret`
+  byte-for-byte golden bundles；不修改冻结 V1 presentation
+- [x] `Static Fact != Runtime Execution`、`CFG_SUCCESSOR != Runtime Execution`、`CFG Reachability != Runtime
+  Reachability/Symbolic Feasibility/Causality`、`Fusion != Verification/Vulnerability`、`Instruction Address !=
+  Basic-Block Provenance`
+- [x] 不实现 2D3 pattern matching、hardware-vulnerability binding、runtime/verification、candidate 或 AttackChain
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

@@ -1,0 +1,90 @@
+{
+  "fixture_classification": {
+    "owned": true,
+    "synthetic": true,
+    "benign": true,
+    "real_vulnerability": false,
+    "runtime_execution_evidence": false,
+    "triggerability_demonstration": false,
+    "verified_attack_chain": false
+  },
+  "architecture": "AARCH64",
+  "format": "ELF64 little-endian AArch64",
+  "function_name": "owned_fused_static_flow",
+  "function_address": "0x400000",
+  "instructions": [
+    {
+      "address": "0x400000",
+      "word": "0xd5387400",
+      "assembly": "mrs x0, par_el1",
+      "intended_recognized_semantic": "system_register_read"
+    },
+    {
+      "address": "0x400004",
+      "word": "0xb4000061",
+      "assembly": "cbz x1, block_c",
+      "intended_recognized_semantic": null
+    },
+    {
+      "address": "0x400008",
+      "word": "0xd5033b9f",
+      "assembly": "dsb ish",
+      "intended_recognized_semantic": "memory_barrier"
+    },
+    {
+      "address": "0x40000c",
+      "word": "0x14000003",
+      "assembly": "b block_d",
+      "intended_recognized_semantic": null
+    },
+    {
+      "address": "0x400010",
+      "word": "0xd508831f",
+      "assembly": "tlbi vmalle1is",
+      "intended_recognized_semantic": "tlb_invalidate"
+    },
+    {
+      "address": "0x400014",
+      "word": "0x14000001",
+      "assembly": "b block_d",
+      "intended_recognized_semantic": null
+    },
+    {
+      "address": "0x400018",
+      "word": "0xd5033fdf",
+      "assembly": "isb",
+      "intended_recognized_semantic": "instruction_barrier"
+    },
+    {
+      "address": "0x40001c",
+      "word": "0xd65f03c0",
+      "assembly": "ret",
+      "intended_recognized_semantic": null
+    }
+  ],
+  "intended_basic_block_addresses": [
+    "0x400000",
+    "0x400008",
+    "0x400010",
+    "0x400018"
+  ],
+  "intended_cfg_edges": [
+    [
+      "0x400000",
+      "0x400008"
+    ],
+    [
+      "0x400000",
+      "0x400010"
+    ],
+    [
+      "0x400008",
+      "0x400018"
+    ],
+    [
+      "0x400010",
+      "0x400018"
+    ]
+  ],
+  "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262"
+}

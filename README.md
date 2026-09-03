@@ -91,6 +91,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   fixture 与 exact function-local block/edge recovery
 - Phase 10D Step 8B-2D2-V1 deterministic static-analysis JSON/Markdown/DOT inspection bundles、hash manifest
   与 optional local Graphviz SVG rendering
+- Phase 10D Step 8B-2D2-C2-C strict provenance-bound semantic/structure fused static behavior graph、exact
+  `CFG_SUCCESSOR` provenance、detached deterministic materialization 与 human-readable fused artifacts
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -1210,6 +1212,46 @@ Inspection Summary != Vulnerability Verdict
 
 V1 不实现 C2-C fusion，不向 semantic graph 添加 `CFG_SUCCESSOR`，也不创建 candidate、pattern match、Evidence、
 VerificationRecord 或 vulnerability outcome。
+
+## Phase 10D Step 8B-2D2-C2-C Static Fused Behavior Graph
+
+C2-C 在不修改冻结 C1/C2-A/C2-B/V1 合同的前提下，对两个独立 source snapshot 做纯确定性融合：
+
+```text
+StaticSemanticGraphProjectionMaterialization ─┐
+                                              ├─> StaticFusedBehaviorGraphMaterialization
+StaticProgramStructureInventory ──────────────┘
+```
+
+`fuse_static_semantic_and_program_structure()` 只有以上两个逻辑输入。进入任何 node/address reconciliation 前，
+必须 detached revalidate 两侧并精确匹配 architecture、artifact ID、artifact SHA-256 和 instruction set。不同 artifact
+即使具有相同地址也会 fail closed。
+
+Fused graph 的 function universe 是两侧 function union；basic-block identity 是
+`(function_address, basic_block_address)`。Semantic fact 缺少 `basic_block_address` 时保持无 block binding，不使用
+instruction address、range、nearest block 或 address order 推断。Structure-only blocks/edges 保留；每条
+`CFG_SUCCESSOR` 只来自 exact `StaticProgramCfgEdge`，并保存 structure inventory、function CFG、block source 与
+edge ID provenance。Structure source不能创建 semantic fact containment。
+
+新 owned benign synthetic fixture 位于
+`tests/fixtures/phase10d/aarch64_static_fused_behavior_v1/`；人类可读 golden 位于
+`examples/phase10d/static_fused_behavior/`。`scripts/export_static_fused_behavior_graph.py` 仅负责依次调用冻结
+analyzers、pure fusion 和新 presentation exporter；core fusion 不依赖 angr、Capstone、runtime、verification、
+knowledge、reasoning 或 hardware-trigger 模块。
+
+```text
+Static Fact != Runtime Execution
+CFG_SUCCESSOR != Runtime Execution
+CFG Reachability != Runtime Reachability
+CFG Reachability != Symbolic Feasibility
+CFG Reachability != Causality
+Fusion != Verification
+Fusion != Vulnerability
+Instruction Address != Basic-Block Provenance
+```
+
+C2-C 不实现 2D3 pattern matching、hardware-vulnerability binding、runtime verification、candidate、Evidence、
+VerificationRecord、AttackChain 或漏洞判定。
 
 ## 文档导航
 

@@ -1,0 +1,25 @@
+{
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+  "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+  "files": {
+    "fused_graph.dot": {
+      "byte_size": 1810,
+      "sha256": "09cf2333ba0889e0e4c649cad94458f90e3ac9c6f0eb8561da2f5db2c63bd7ab"
+    },
+    "fused_graph.json": {
+      "byte_size": 62498,
+      "sha256": "8737005ced5b17d9719fffbc283585b3f32ad034776422db8ff8d175fc0f7d2f"
+    },
+    "fused_summary.md": {
+      "byte_size": 1948,
+      "sha256": "14c645f1fa3044b4fe7621a298000e1ea75eec2bd8a3b68cbf14d8dc2abc00bd"
+    }
+  },
+  "fused_materialization_id": "static-fused-behavior-graph-materialization:cd0fa460aa4b345864b4a7b92229a9e41768065091eb7a88fffbdd467cba65d3",
+  "fused_projection_id": "static-fused-behavior-graph-projection:355be42e9944877bff55952c4b421cf5043085b03b2c03b0a63fa62d3068b758",
+  "instruction_set": "aarch64",
+  "semantic_graph_materialization_id": "static-semantic-graph-materialization:289734ced6d0c4bb9288fe918b09863eb0524f5d533bf7e28ff941389a0e4baf",
+  "semantic_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+  "structure_inventory_id": "static-program-structure-inventory:d9c6d2415ee381f79fc001d511e1189987938336f2f811d0e93b5553d1274b9c"
+}

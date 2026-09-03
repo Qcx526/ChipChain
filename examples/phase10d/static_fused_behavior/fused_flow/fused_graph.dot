@@ -1,0 +1,27 @@
+digraph static_fused_behavior {
+  rankdir=LR;
+  graph [label="Provenance-Bound Static Fused Behavior", labelloc="t"];
+  node [fontname="sans-serif"];
+  edge [fontname="sans-serif"];
+  node_0 [shape=box, label="Function\nowned_fused_static_flow\n0x400000\n[source: semantic+structure]"];
+  node_1 [shape=ellipse, label="Basic Block\n0x400000\n[function: 0x400000]\n[source: semantic+structure]"];
+  node_2 [shape=ellipse, label="Basic Block\n0x400008\n[function: 0x400000]\n[source: semantic+structure]"];
+  node_3 [shape=ellipse, label="Basic Block\n0x400010\n[function: 0x400000]\n[source: semantic+structure]"];
+  node_4 [shape=ellipse, label="Basic Block\n0x400018\n[function: 0x400000]\n[source: semantic+structure]"];
+  node_5 [shape=note, label="system_register_read\n0x400000\n[source: semantic]\nsystem_register=par_el1"];
+  node_6 [shape=note, label="memory_barrier\n0x400008\n[source: semantic]\nbarrier_kind=dsb; barrier_option=ish"];
+  node_7 [shape=note, label="tlb_invalidate\n0x400010\n[source: semantic]\ntlb_operation=vmalle1is"];
+  node_8 [shape=note, label="instruction_barrier\n0x400018\n[source: semantic]\nbarrier_kind=isb"];
+  node_3 -> node_7 [label="contains semantic fact"];
+  node_1 -> node_5 [label="contains semantic fact"];
+  node_2 -> node_6 [label="contains semantic fact"];
+  node_4 -> node_8 [label="contains semantic fact"];
+  node_3 -> node_4 [label="static CFG", color="navy", penwidth=2];
+  node_1 -> node_3 [label="static CFG", color="navy", penwidth=2];
+  node_1 -> node_2 [label="static CFG", color="navy", penwidth=2];
+  node_2 -> node_4 [label="static CFG", color="navy", penwidth=2];
+  node_0 -> node_3 [label="contains block"];
+  node_0 -> node_1 [label="contains block"];
+  node_0 -> node_2 [label="contains block"];
+  node_0 -> node_4 [label="contains block"];
+}

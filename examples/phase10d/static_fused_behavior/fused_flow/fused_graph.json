@@ -1,0 +1,1196 @@
+{
+  "contract": "phase10d_static_fused_behavior_graph_materialization_v1",
+  "id": "static-fused-behavior-graph-materialization:cd0fa460aa4b345864b4a7b92229a9e41768065091eb7a88fffbdd467cba65d3",
+  "projection": {
+    "architecture": "arm",
+    "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+    "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+    "contract": "phase10d_static_fused_behavior_graph_projection_v1",
+    "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+    "diagnostic_codes": [
+      "basic_block_contains_semantic_fact_relation_count:4",
+      "basic_block_node_count:4",
+      "cfg_successor_relation_count:4",
+      "dual_source_basic_block_node_count:4",
+      "dual_source_function_node_count:1",
+      "function_contains_basic_block_relation_count:4",
+      "function_contains_semantic_fact_relation_count:0",
+      "function_node_count:1",
+      "semantic_fact_node_count:4",
+      "semantic_only_basic_block_node_count:0",
+      "semantic_only_function_node_count:0",
+      "structure_only_basic_block_node_count:0",
+      "structure_only_function_node_count:0"
+    ],
+    "id": "static-fused-behavior-graph-projection:355be42e9944877bff55952c4b421cf5043085b03b2c03b0a63fa62d3068b758",
+    "instruction_set": "aarch64",
+    "nodes": [
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "attributes": [],
+        "basic_block_address": null,
+        "contract": "phase10d_static_fused_behavior_node_v1",
+        "fact_scope": null,
+        "function_address": "0x400000",
+        "function_name": "owned_fused_static_flow",
+        "id": "static-fused-behavior-node:9b8123a0eb24e9213f0e5d64eaa814b75179cb3f4c9a47dcb437e4c61d1aadee",
+        "instruction_address": null,
+        "instruction_bytes": null,
+        "instruction_set": "aarch64",
+        "instruction_size": null,
+        "kind": "function",
+        "operation": null,
+        "semantic_source_fact_ids": [
+          "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296",
+          "static-semantic-instruction-fact:9af57e0cfa1e236f31e29efa90b1c398d907ba778486780ba3a9e84d395c56e9",
+          "static-semantic-instruction-fact:a723ac456659bc86f05145f0d549fc24a55099560f8c75a0bbaf356aec28cad2",
+          "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a"
+        ],
+        "semantic_source_node_ids": [
+          "static-semantic-graph-node:3eaa20df4c2df3baf10b768eab5b509314207851d69c798c2da33cc28d86af25"
+        ],
+        "structure_basic_block_source_ids": [],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ]
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "attributes": [],
+        "basic_block_address": "0x400000",
+        "contract": "phase10d_static_fused_behavior_node_v1",
+        "fact_scope": null,
+        "function_address": "0x400000",
+        "function_name": "owned_fused_static_flow",
+        "id": "static-fused-behavior-node:7a8c2939df575dca4ccb36af49a22d175feed4a6acbe62f0ba972f20c28bf81c",
+        "instruction_address": null,
+        "instruction_bytes": null,
+        "instruction_set": "aarch64",
+        "instruction_size": null,
+        "kind": "basic_block",
+        "operation": null,
+        "semantic_source_fact_ids": [
+          "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a"
+        ],
+        "semantic_source_node_ids": [
+          "static-semantic-graph-node:7fc0e5fc3fff04d7ac7097e3f2054a701b7bd97d9c0e82e8a31c4cd901f3c396"
+        ],
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:aa08f3c02363d5ebc6e15a9fc16c377946ad5117bdeffda60d85d458080bbf87"
+        ],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ]
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "attributes": [],
+        "basic_block_address": "0x400008",
+        "contract": "phase10d_static_fused_behavior_node_v1",
+        "fact_scope": null,
+        "function_address": "0x400000",
+        "function_name": "owned_fused_static_flow",
+        "id": "static-fused-behavior-node:ab12981393e758d410fe0a07a1ff23259c0583a6fca7c8d1deb87b8279048341",
+        "instruction_address": null,
+        "instruction_bytes": null,
+        "instruction_set": "aarch64",
+        "instruction_size": null,
+        "kind": "basic_block",
+        "operation": null,
+        "semantic_source_fact_ids": [
+          "static-semantic-instruction-fact:9af57e0cfa1e236f31e29efa90b1c398d907ba778486780ba3a9e84d395c56e9"
+        ],
+        "semantic_source_node_ids": [
+          "static-semantic-graph-node:d9b0e5f3ab70ea45ebcce42f54d7ec46d3580f7685e7b7bcf5f328332112c8a3"
+        ],
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:65fcfb0ce6adbe54c3925f283051c3a1c515de55011ef0adad82bcfdd2558bcf"
+        ],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ]
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "attributes": [],
+        "basic_block_address": "0x400010",
+        "contract": "phase10d_static_fused_behavior_node_v1",
+        "fact_scope": null,
+        "function_address": "0x400000",
+        "function_name": "owned_fused_static_flow",
+        "id": "static-fused-behavior-node:33e48ae99595bdc7da7398b4ff1b92f7254c81e499a237ca504eb5b8bbe3382f",
+        "instruction_address": null,
+        "instruction_bytes": null,
+        "instruction_set": "aarch64",
+        "instruction_size": null,
+        "kind": "basic_block",
+        "operation": null,
+        "semantic_source_fact_ids": [
+          "static-semantic-instruction-fact:a723ac456659bc86f05145f0d549fc24a55099560f8c75a0bbaf356aec28cad2"
+        ],
+        "semantic_source_node_ids": [
+          "static-semantic-graph-node:266557fb98da40eb3e5311bf64ac7d0b1d8ba61111ccbcb6b0d858ed80e55750"
+        ],
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:8a3d4fbb53023b4ed79b290bef8ce5a964b620f5c8159d5421cf94801fe66611"
+        ],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ]
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "attributes": [],
+        "basic_block_address": "0x400018",
+        "contract": "phase10d_static_fused_behavior_node_v1",
+        "fact_scope": null,
+        "function_address": "0x400000",
+        "function_name": "owned_fused_static_flow",
+        "id": "static-fused-behavior-node:bae7849b5f1769ebf6383434ad2927697b889a72d0e668c26dedc692e31fb106",
+        "instruction_address": null,
+        "instruction_bytes": null,
+        "instruction_set": "aarch64",
+        "instruction_size": null,
+        "kind": "basic_block",
+        "operation": null,
+        "semantic_source_fact_ids": [
+          "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296"
+        ],
+        "semantic_source_node_ids": [
+          "static-semantic-graph-node:33018c4e4127150e7e4690459c4b17f9e818176ef836083f2bcdf156d72f4071"
+        ],
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:a3bdc985199dcd052f290314f582b053591964e56ae2748e819b7b515bd60707"
+        ],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ]
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "attributes": [
+          {
+            "name": "system_register",
+            "value": "par_el1"
+          }
+        ],
+        "basic_block_address": "0x400000",
+        "contract": "phase10d_static_fused_behavior_node_v1",
+        "fact_scope": "decoded_static_instruction_semantics_only",
+        "function_address": "0x400000",
+        "function_name": "owned_fused_static_flow",
+        "id": "static-fused-behavior-node:c8744704a139de78f8b644217a9f0964940922de7ebf5e08646dde73ee9dff1d",
+        "instruction_address": "0x400000",
+        "instruction_bytes": "0x007438d5",
+        "instruction_set": "aarch64",
+        "instruction_size": 4,
+        "kind": "semantic_instruction_fact",
+        "operation": "system_register_read",
+        "semantic_source_fact_ids": [
+          "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a"
+        ],
+        "semantic_source_node_ids": [
+          "static-semantic-graph-node:39569addd1abe5c3f990213007d17795422a8386f8a83be7917521f110e5b135"
+        ],
+        "structure_basic_block_source_ids": [],
+        "structure_function_cfg_ids": []
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "attributes": [
+          {
+            "name": "barrier_kind",
+            "value": "dsb"
+          },
+          {
+            "name": "barrier_option",
+            "value": "ish"
+          }
+        ],
+        "basic_block_address": "0x400008",
+        "contract": "phase10d_static_fused_behavior_node_v1",
+        "fact_scope": "decoded_static_instruction_semantics_only",
+        "function_address": "0x400000",
+        "function_name": "owned_fused_static_flow",
+        "id": "static-fused-behavior-node:43734798e1f309d61b64c543198db12a802ee15f1024a9c6b9479723d672db34",
+        "instruction_address": "0x400008",
+        "instruction_bytes": "0x9f3b03d5",
+        "instruction_set": "aarch64",
+        "instruction_size": 4,
+        "kind": "semantic_instruction_fact",
+        "operation": "memory_barrier",
+        "semantic_source_fact_ids": [
+          "static-semantic-instruction-fact:9af57e0cfa1e236f31e29efa90b1c398d907ba778486780ba3a9e84d395c56e9"
+        ],
+        "semantic_source_node_ids": [
+          "static-semantic-graph-node:61242e01840b297f7aa183f5a516a835897638f36bcf33577e4db3b7557e0718"
+        ],
+        "structure_basic_block_source_ids": [],
+        "structure_function_cfg_ids": []
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "attributes": [
+          {
+            "name": "tlb_operation",
+            "value": "vmalle1is"
+          }
+        ],
+        "basic_block_address": "0x400010",
+        "contract": "phase10d_static_fused_behavior_node_v1",
+        "fact_scope": "decoded_static_instruction_semantics_only",
+        "function_address": "0x400000",
+        "function_name": "owned_fused_static_flow",
+        "id": "static-fused-behavior-node:ad3ee6b3e63f83a413f0155f5629c42dab7ac02d320b0c6ac4927b2df0f5d983",
+        "instruction_address": "0x400010",
+        "instruction_bytes": "0x1f8308d5",
+        "instruction_set": "aarch64",
+        "instruction_size": 4,
+        "kind": "semantic_instruction_fact",
+        "operation": "tlb_invalidate",
+        "semantic_source_fact_ids": [
+          "static-semantic-instruction-fact:a723ac456659bc86f05145f0d549fc24a55099560f8c75a0bbaf356aec28cad2"
+        ],
+        "semantic_source_node_ids": [
+          "static-semantic-graph-node:34010cfbf081c5987faeb926eace27ac762cf5d27b4da5c0c8ee0bfb8d801fe3"
+        ],
+        "structure_basic_block_source_ids": [],
+        "structure_function_cfg_ids": []
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "attributes": [
+          {
+            "name": "barrier_kind",
+            "value": "isb"
+          }
+        ],
+        "basic_block_address": "0x400018",
+        "contract": "phase10d_static_fused_behavior_node_v1",
+        "fact_scope": "decoded_static_instruction_semantics_only",
+        "function_address": "0x400000",
+        "function_name": "owned_fused_static_flow",
+        "id": "static-fused-behavior-node:ce27536ad8128a310898ec6d85ef1bc9cdb9bc36a668883f370a388bca9cc510",
+        "instruction_address": "0x400018",
+        "instruction_bytes": "0xdf3f03d5",
+        "instruction_set": "aarch64",
+        "instruction_size": 4,
+        "kind": "semantic_instruction_fact",
+        "operation": "instruction_barrier",
+        "semantic_source_fact_ids": [
+          "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296"
+        ],
+        "semantic_source_node_ids": [
+          "static-semantic-graph-node:d37002f9f77a310792d4b0dec521914e2a53dcd0ef5fe545f9a9887eb18ac357"
+        ],
+        "structure_basic_block_source_ids": [],
+        "structure_function_cfg_ids": []
+      }
+    ],
+    "projection_scope": "partial_provenance_bound_semantic_structure_static_behavior_graph",
+    "relations": [
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": null,
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:b193c69454e8959e9962a99f030625adb00418e8b3368a2cd4b402587fc4bc42",
+        "instruction_set": "aarch64",
+        "relation_kind": "basic_block_contains_semantic_fact",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [
+          "static-semantic-graph-relation:504f81b729e2aa5424843b126ff4ca7df34d299dfed0f5fbc414508b6e3b1bff"
+        ],
+        "source_node_id": "static-fused-behavior-node:33e48ae99595bdc7da7398b4ff1b92f7254c81e499a237ca504eb5b8bbe3382f",
+        "structure_basic_block_source_ids": [],
+        "structure_cfg_edge_ids": [],
+        "structure_function_cfg_ids": [],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:ad3ee6b3e63f83a413f0155f5629c42dab7ac02d320b0c6ac4927b2df0f5d983"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": null,
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:7df073561e733e5b699c0dec079c93ef5424d38ef8858a3cad3fed97471e1ccf",
+        "instruction_set": "aarch64",
+        "relation_kind": "basic_block_contains_semantic_fact",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [
+          "static-semantic-graph-relation:bec70891a040577ad625ddcda3fa0e7f9cef73e5d5c3438dca1f7d5bdb4513a2"
+        ],
+        "source_node_id": "static-fused-behavior-node:7a8c2939df575dca4ccb36af49a22d175feed4a6acbe62f0ba972f20c28bf81c",
+        "structure_basic_block_source_ids": [],
+        "structure_cfg_edge_ids": [],
+        "structure_function_cfg_ids": [],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:c8744704a139de78f8b644217a9f0964940922de7ebf5e08646dde73ee9dff1d"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": null,
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:19c740e588a749b78968759bc85e2cb373ef48e07cfb10bd3427e6ad6c4d3eb4",
+        "instruction_set": "aarch64",
+        "relation_kind": "basic_block_contains_semantic_fact",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [
+          "static-semantic-graph-relation:a612ddf6615b67f3f9ff682817460e8074f041ecd433254651276edb068f15cf"
+        ],
+        "source_node_id": "static-fused-behavior-node:ab12981393e758d410fe0a07a1ff23259c0583a6fca7c8d1deb87b8279048341",
+        "structure_basic_block_source_ids": [],
+        "structure_cfg_edge_ids": [],
+        "structure_function_cfg_ids": [],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:43734798e1f309d61b64c543198db12a802ee15f1024a9c6b9479723d672db34"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": null,
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:658b42e60d5e893e4f7dc6fb1476bd834182c3df6809c27384f1be1b1f04f0f4",
+        "instruction_set": "aarch64",
+        "relation_kind": "basic_block_contains_semantic_fact",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [
+          "static-semantic-graph-relation:be33ff463045721c4f9ce35915b4a75cd0eac796bd1d597256d3fc2d8f96416a"
+        ],
+        "source_node_id": "static-fused-behavior-node:bae7849b5f1769ebf6383434ad2927697b889a72d0e668c26dedc692e31fb106",
+        "structure_basic_block_source_ids": [],
+        "structure_cfg_edge_ids": [],
+        "structure_function_cfg_ids": [],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:ce27536ad8128a310898ec6d85ef1bc9cdb9bc36a668883f370a388bca9cc510"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:f897eaad4911f6e6ba2a45aa3f72307a7c4136091ae06bd0e43988a6adaaf3b9",
+        "instruction_set": "aarch64",
+        "relation_kind": "cfg_successor",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [],
+        "source_node_id": "static-fused-behavior-node:33e48ae99595bdc7da7398b4ff1b92f7254c81e499a237ca504eb5b8bbe3382f",
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:8a3d4fbb53023b4ed79b290bef8ce5a964b620f5c8159d5421cf94801fe66611",
+          "static-program-basic-block-source:a3bdc985199dcd052f290314f582b053591964e56ae2748e819b7b515bd60707"
+        ],
+        "structure_cfg_edge_ids": [
+          "static-program-cfg-edge:d4d2d60ffa54800a2ef7a5b033402888efbc503e1af9cc35ab311aeeb8901fea"
+        ],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:bae7849b5f1769ebf6383434ad2927697b889a72d0e668c26dedc692e31fb106"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:c4172c7a356afd3db8fbca2a283cbd9adc172c2273ae4298a719dba26dbf2960",
+        "instruction_set": "aarch64",
+        "relation_kind": "cfg_successor",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [],
+        "source_node_id": "static-fused-behavior-node:7a8c2939df575dca4ccb36af49a22d175feed4a6acbe62f0ba972f20c28bf81c",
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:8a3d4fbb53023b4ed79b290bef8ce5a964b620f5c8159d5421cf94801fe66611",
+          "static-program-basic-block-source:aa08f3c02363d5ebc6e15a9fc16c377946ad5117bdeffda60d85d458080bbf87"
+        ],
+        "structure_cfg_edge_ids": [
+          "static-program-cfg-edge:8a423a56e13e23a3b46425b88552dc7ad6011f2d1508e79143c291d1aa89e5a9"
+        ],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:33e48ae99595bdc7da7398b4ff1b92f7254c81e499a237ca504eb5b8bbe3382f"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:ccaf93eb8bf4e79aefea822171ab08f78cc21b5a27d31dec542798cce845a03b",
+        "instruction_set": "aarch64",
+        "relation_kind": "cfg_successor",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [],
+        "source_node_id": "static-fused-behavior-node:7a8c2939df575dca4ccb36af49a22d175feed4a6acbe62f0ba972f20c28bf81c",
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:65fcfb0ce6adbe54c3925f283051c3a1c515de55011ef0adad82bcfdd2558bcf",
+          "static-program-basic-block-source:aa08f3c02363d5ebc6e15a9fc16c377946ad5117bdeffda60d85d458080bbf87"
+        ],
+        "structure_cfg_edge_ids": [
+          "static-program-cfg-edge:8a907881f9fbce05a1509e9bdc2d9bd3b39bf3dcc9456ab565e58227745bd4de"
+        ],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:ab12981393e758d410fe0a07a1ff23259c0583a6fca7c8d1deb87b8279048341"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:ae8c5d3a1c66d8dd59489fb49a8e05960ab37ddb4d22e7a7a187366d060e1897",
+        "instruction_set": "aarch64",
+        "relation_kind": "cfg_successor",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [],
+        "source_node_id": "static-fused-behavior-node:ab12981393e758d410fe0a07a1ff23259c0583a6fca7c8d1deb87b8279048341",
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:65fcfb0ce6adbe54c3925f283051c3a1c515de55011ef0adad82bcfdd2558bcf",
+          "static-program-basic-block-source:a3bdc985199dcd052f290314f582b053591964e56ae2748e819b7b515bd60707"
+        ],
+        "structure_cfg_edge_ids": [
+          "static-program-cfg-edge:d9fa2615dc2eaa502358311ab7138251e36ff6e9f8acc71ca4043fc046fe9bb3"
+        ],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:bae7849b5f1769ebf6383434ad2927697b889a72d0e668c26dedc692e31fb106"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": null,
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:1ca74626f4fe6fe0cf0d490236a31fdfbc815f8dbb730040d28517522fd90ac2",
+        "instruction_set": "aarch64",
+        "relation_kind": "function_contains_basic_block",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [
+          "static-semantic-graph-relation:4b0c3991bd4666695b4f6510ba2e1364209df25910f2de77d605ae4050121abb"
+        ],
+        "source_node_id": "static-fused-behavior-node:9b8123a0eb24e9213f0e5d64eaa814b75179cb3f4c9a47dcb437e4c61d1aadee",
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:8a3d4fbb53023b4ed79b290bef8ce5a964b620f5c8159d5421cf94801fe66611"
+        ],
+        "structure_cfg_edge_ids": [],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:33e48ae99595bdc7da7398b4ff1b92f7254c81e499a237ca504eb5b8bbe3382f"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": null,
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:580cb67f32202a2496283f79faa982419a4f0c6d4f113105844c6ce8585d8df6",
+        "instruction_set": "aarch64",
+        "relation_kind": "function_contains_basic_block",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [
+          "static-semantic-graph-relation:8e1450e138e8cbe8d114225c04966bf3538bac15743a6ac9ab0566890a023164"
+        ],
+        "source_node_id": "static-fused-behavior-node:9b8123a0eb24e9213f0e5d64eaa814b75179cb3f4c9a47dcb437e4c61d1aadee",
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:aa08f3c02363d5ebc6e15a9fc16c377946ad5117bdeffda60d85d458080bbf87"
+        ],
+        "structure_cfg_edge_ids": [],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:7a8c2939df575dca4ccb36af49a22d175feed4a6acbe62f0ba972f20c28bf81c"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": null,
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:a0962a01c9c4f6e0f861a0502573b569c33c9c6380fe4871f6c76f98154035d9",
+        "instruction_set": "aarch64",
+        "relation_kind": "function_contains_basic_block",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [
+          "static-semantic-graph-relation:173e168e2add8efd030d9ff92d9b280acc13cf4ce1533af99dadc3ce44665675"
+        ],
+        "source_node_id": "static-fused-behavior-node:9b8123a0eb24e9213f0e5d64eaa814b75179cb3f4c9a47dcb437e4c61d1aadee",
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:65fcfb0ce6adbe54c3925f283051c3a1c515de55011ef0adad82bcfdd2558bcf"
+        ],
+        "structure_cfg_edge_ids": [],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:ab12981393e758d410fe0a07a1ff23259c0583a6fca7c8d1deb87b8279048341"
+      },
+      {
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "causal": false,
+        "cfg_semantics": null,
+        "contract": "phase10d_static_fused_behavior_relation_v1",
+        "id": "static-fused-behavior-relation:aa1ae93213f7f56fc9b019d70e52cd1d8cb3b0d1622f4aa7c87d5594ecfd0df2",
+        "instruction_set": "aarch64",
+        "relation_kind": "function_contains_basic_block",
+        "runtime_execution": false,
+        "semantic_source_relation_ids": [
+          "static-semantic-graph-relation:419c562e39d6c2ec3bf3cf8b657666f59b59f9ac9d4724ec532448aadde43863"
+        ],
+        "source_node_id": "static-fused-behavior-node:9b8123a0eb24e9213f0e5d64eaa814b75179cb3f4c9a47dcb437e4c61d1aadee",
+        "structure_basic_block_source_ids": [
+          "static-program-basic-block-source:a3bdc985199dcd052f290314f582b053591964e56ae2748e819b7b515bd60707"
+        ],
+        "structure_cfg_edge_ids": [],
+        "structure_function_cfg_ids": [
+          "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092"
+        ],
+        "symbolic_feasibility": false,
+        "target_node_id": "static-fused-behavior-node:bae7849b5f1769ebf6383434ad2927697b889a72d0e668c26dedc692e31fb106"
+      }
+    ],
+    "semantic_graph_materialization_id": "static-semantic-graph-materialization:289734ced6d0c4bb9288fe918b09863eb0524f5d533bf7e28ff941389a0e4baf",
+    "semantic_graph_projection_id": "static-semantic-graph-projection:e6e7f6bfca5b1ff486de51a14285108dd3ad9d55b07cd208e88e97fdfdc0e653",
+    "semantic_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+    "semantic_source_scope": "partial_audited_static_semantic_inventory",
+    "structure_analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+    "structure_inventory_id": "static-program-structure-inventory:d9c6d2415ee381f79fc001d511e1189987938336f2f811d0e93b5553d1274b9c",
+    "structure_source_scope": "partial_objective_function_local_cfg_inventory"
+  },
+  "source_semantic_graph_materialization": {
+    "contract": "phase10d_static_semantic_graph_materialization_v1",
+    "id": "static-semantic-graph-materialization:289734ced6d0c4bb9288fe918b09863eb0524f5d533bf7e28ff941389a0e4baf",
+    "projection": {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_static_semantic_graph_projection_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "diagnostic_codes": [
+        "basic_block_contains_semantic_fact_relation_count:4",
+        "basic_block_node_count:4",
+        "function_contains_basic_block_relation_count:4",
+        "function_contains_semantic_fact_relation_count:0",
+        "function_node_count:1",
+        "semantic_fact_node_count:4",
+        "source_inventory_fact_count:4",
+        "uncontained_semantic_fact_node_count:0"
+      ],
+      "id": "static-semantic-graph-projection:e6e7f6bfca5b1ff486de51a14285108dd3ad9d55b07cd208e88e97fdfdc0e653",
+      "instruction_set": "aarch64",
+      "nodes": [
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [],
+          "basic_block_address": null,
+          "fact_scope": null,
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-graph-node:3eaa20df4c2df3baf10b768eab5b509314207851d69c798c2da33cc28d86af25",
+          "instruction_address": null,
+          "instruction_bytes": null,
+          "instruction_size": null,
+          "kind": "function",
+          "operation": null,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296",
+            "static-semantic-instruction-fact:9af57e0cfa1e236f31e29efa90b1c398d907ba778486780ba3a9e84d395c56e9",
+            "static-semantic-instruction-fact:a723ac456659bc86f05145f0d549fc24a55099560f8c75a0bbaf356aec28cad2",
+            "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [],
+          "basic_block_address": "0x400000",
+          "fact_scope": null,
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-graph-node:7fc0e5fc3fff04d7ac7097e3f2054a701b7bd97d9c0e82e8a31c4cd901f3c396",
+          "instruction_address": null,
+          "instruction_bytes": null,
+          "instruction_size": null,
+          "kind": "basic_block",
+          "operation": null,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [],
+          "basic_block_address": "0x400008",
+          "fact_scope": null,
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-graph-node:d9b0e5f3ab70ea45ebcce42f54d7ec46d3580f7685e7b7bcf5f328332112c8a3",
+          "instruction_address": null,
+          "instruction_bytes": null,
+          "instruction_size": null,
+          "kind": "basic_block",
+          "operation": null,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:9af57e0cfa1e236f31e29efa90b1c398d907ba778486780ba3a9e84d395c56e9"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [],
+          "basic_block_address": "0x400010",
+          "fact_scope": null,
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-graph-node:266557fb98da40eb3e5311bf64ac7d0b1d8ba61111ccbcb6b0d858ed80e55750",
+          "instruction_address": null,
+          "instruction_bytes": null,
+          "instruction_size": null,
+          "kind": "basic_block",
+          "operation": null,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:a723ac456659bc86f05145f0d549fc24a55099560f8c75a0bbaf356aec28cad2"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [],
+          "basic_block_address": "0x400018",
+          "fact_scope": null,
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-graph-node:33018c4e4127150e7e4690459c4b17f9e818176ef836083f2bcdf156d72f4071",
+          "instruction_address": null,
+          "instruction_bytes": null,
+          "instruction_size": null,
+          "kind": "basic_block",
+          "operation": null,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [
+            {
+              "name": "system_register",
+              "value": "par_el1"
+            }
+          ],
+          "basic_block_address": "0x400000",
+          "fact_scope": "decoded_static_instruction_semantics_only",
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-graph-node:39569addd1abe5c3f990213007d17795422a8386f8a83be7917521f110e5b135",
+          "instruction_address": "0x400000",
+          "instruction_bytes": "0x007438d5",
+          "instruction_size": 4,
+          "kind": "semantic_instruction_fact",
+          "operation": "system_register_read",
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [
+            {
+              "name": "barrier_kind",
+              "value": "dsb"
+            },
+            {
+              "name": "barrier_option",
+              "value": "ish"
+            }
+          ],
+          "basic_block_address": "0x400008",
+          "fact_scope": "decoded_static_instruction_semantics_only",
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-graph-node:61242e01840b297f7aa183f5a516a835897638f36bcf33577e4db3b7557e0718",
+          "instruction_address": "0x400008",
+          "instruction_bytes": "0x9f3b03d5",
+          "instruction_size": 4,
+          "kind": "semantic_instruction_fact",
+          "operation": "memory_barrier",
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:9af57e0cfa1e236f31e29efa90b1c398d907ba778486780ba3a9e84d395c56e9"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [
+            {
+              "name": "tlb_operation",
+              "value": "vmalle1is"
+            }
+          ],
+          "basic_block_address": "0x400010",
+          "fact_scope": "decoded_static_instruction_semantics_only",
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-graph-node:34010cfbf081c5987faeb926eace27ac762cf5d27b4da5c0c8ee0bfb8d801fe3",
+          "instruction_address": "0x400010",
+          "instruction_bytes": "0x1f8308d5",
+          "instruction_size": 4,
+          "kind": "semantic_instruction_fact",
+          "operation": "tlb_invalidate",
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:a723ac456659bc86f05145f0d549fc24a55099560f8c75a0bbaf356aec28cad2"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [
+            {
+              "name": "barrier_kind",
+              "value": "isb"
+            }
+          ],
+          "basic_block_address": "0x400018",
+          "fact_scope": "decoded_static_instruction_semantics_only",
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-graph-node:d37002f9f77a310792d4b0dec521914e2a53dcd0ef5fe545f9a9887eb18ac357",
+          "instruction_address": "0x400018",
+          "instruction_bytes": "0xdf3f03d5",
+          "instruction_size": 4,
+          "kind": "semantic_instruction_fact",
+          "operation": "instruction_barrier",
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f"
+        }
+      ],
+      "projection_scope": "partial_audited_static_semantic_inventory_graph",
+      "relations": [
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "causal": false,
+          "id": "static-semantic-graph-relation:504f81b729e2aa5424843b126ff4ca7df34d299dfed0f5fbc414508b6e3b1bff",
+          "relation_kind": "basic_block_contains_semantic_fact",
+          "runtime_execution": false,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:a723ac456659bc86f05145f0d549fc24a55099560f8c75a0bbaf356aec28cad2"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+          "source_node_id": "static-semantic-graph-node:266557fb98da40eb3e5311bf64ac7d0b1d8ba61111ccbcb6b0d858ed80e55750",
+          "symbolic_feasibility": false,
+          "target_node_id": "static-semantic-graph-node:34010cfbf081c5987faeb926eace27ac762cf5d27b4da5c0c8ee0bfb8d801fe3"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "causal": false,
+          "id": "static-semantic-graph-relation:be33ff463045721c4f9ce35915b4a75cd0eac796bd1d597256d3fc2d8f96416a",
+          "relation_kind": "basic_block_contains_semantic_fact",
+          "runtime_execution": false,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+          "source_node_id": "static-semantic-graph-node:33018c4e4127150e7e4690459c4b17f9e818176ef836083f2bcdf156d72f4071",
+          "symbolic_feasibility": false,
+          "target_node_id": "static-semantic-graph-node:d37002f9f77a310792d4b0dec521914e2a53dcd0ef5fe545f9a9887eb18ac357"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "causal": false,
+          "id": "static-semantic-graph-relation:bec70891a040577ad625ddcda3fa0e7f9cef73e5d5c3438dca1f7d5bdb4513a2",
+          "relation_kind": "basic_block_contains_semantic_fact",
+          "runtime_execution": false,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+          "source_node_id": "static-semantic-graph-node:7fc0e5fc3fff04d7ac7097e3f2054a701b7bd97d9c0e82e8a31c4cd901f3c396",
+          "symbolic_feasibility": false,
+          "target_node_id": "static-semantic-graph-node:39569addd1abe5c3f990213007d17795422a8386f8a83be7917521f110e5b135"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "causal": false,
+          "id": "static-semantic-graph-relation:a612ddf6615b67f3f9ff682817460e8074f041ecd433254651276edb068f15cf",
+          "relation_kind": "basic_block_contains_semantic_fact",
+          "runtime_execution": false,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:9af57e0cfa1e236f31e29efa90b1c398d907ba778486780ba3a9e84d395c56e9"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+          "source_node_id": "static-semantic-graph-node:d9b0e5f3ab70ea45ebcce42f54d7ec46d3580f7685e7b7bcf5f328332112c8a3",
+          "symbolic_feasibility": false,
+          "target_node_id": "static-semantic-graph-node:61242e01840b297f7aa183f5a516a835897638f36bcf33577e4db3b7557e0718"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "causal": false,
+          "id": "static-semantic-graph-relation:4b0c3991bd4666695b4f6510ba2e1364209df25910f2de77d605ae4050121abb",
+          "relation_kind": "function_contains_basic_block",
+          "runtime_execution": false,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:a723ac456659bc86f05145f0d549fc24a55099560f8c75a0bbaf356aec28cad2"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+          "source_node_id": "static-semantic-graph-node:3eaa20df4c2df3baf10b768eab5b509314207851d69c798c2da33cc28d86af25",
+          "symbolic_feasibility": false,
+          "target_node_id": "static-semantic-graph-node:266557fb98da40eb3e5311bf64ac7d0b1d8ba61111ccbcb6b0d858ed80e55750"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "causal": false,
+          "id": "static-semantic-graph-relation:419c562e39d6c2ec3bf3cf8b657666f59b59f9ac9d4724ec532448aadde43863",
+          "relation_kind": "function_contains_basic_block",
+          "runtime_execution": false,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+          "source_node_id": "static-semantic-graph-node:3eaa20df4c2df3baf10b768eab5b509314207851d69c798c2da33cc28d86af25",
+          "symbolic_feasibility": false,
+          "target_node_id": "static-semantic-graph-node:33018c4e4127150e7e4690459c4b17f9e818176ef836083f2bcdf156d72f4071"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "causal": false,
+          "id": "static-semantic-graph-relation:8e1450e138e8cbe8d114225c04966bf3538bac15743a6ac9ab0566890a023164",
+          "relation_kind": "function_contains_basic_block",
+          "runtime_execution": false,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+          "source_node_id": "static-semantic-graph-node:3eaa20df4c2df3baf10b768eab5b509314207851d69c798c2da33cc28d86af25",
+          "symbolic_feasibility": false,
+          "target_node_id": "static-semantic-graph-node:7fc0e5fc3fff04d7ac7097e3f2054a701b7bd97d9c0e82e8a31c4cd901f3c396"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "causal": false,
+          "id": "static-semantic-graph-relation:173e168e2add8efd030d9ff92d9b280acc13cf4ce1533af99dadc3ce44665675",
+          "relation_kind": "function_contains_basic_block",
+          "runtime_execution": false,
+          "source_fact_ids": [
+            "static-semantic-instruction-fact:9af57e0cfa1e236f31e29efa90b1c398d907ba778486780ba3a9e84d395c56e9"
+          ],
+          "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+          "source_node_id": "static-semantic-graph-node:3eaa20df4c2df3baf10b768eab5b509314207851d69c798c2da33cc28d86af25",
+          "symbolic_feasibility": false,
+          "target_node_id": "static-semantic-graph-node:d9b0e5f3ab70ea45ebcce42f54d7ec46d3580f7685e7b7bcf5f328332112c8a3"
+        }
+      ],
+      "source_inventory_contract": "phase10d_static_semantic_inventory_v1",
+      "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+      "source_inventory_scope": "partial_audited_static_semantic_inventory"
+    },
+    "source_inventory_id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+    "source_inventory_snapshot": {
+      "analysis_scope": "partial_audited_static_semantic_inventory",
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_static_semantic_inventory_v1",
+      "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+      "diagnostic_codes": [
+        "decoded_instruction_count:8",
+        "decoder_profile:phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+        "deduplicated_semantic_fact_count:0",
+        "recognized_semantic_instruction_count:4",
+        "semantic_fact_count:4",
+        "skipped_non_executable_block_count:0",
+        "skipped_non_executable_symbol_range_count:0",
+        "unrecognized_instruction_count:4"
+      ],
+      "facts": [
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [
+            {
+              "name": "system_register",
+              "value": "par_el1"
+            }
+          ],
+          "basic_block_address": "0x400000",
+          "contract": "phase10d_static_semantic_instruction_fact_v1",
+          "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+          "fact_scope": "decoded_static_instruction_semantics_only",
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a",
+          "instruction_address": "0x400000",
+          "instruction_bytes": "0x007438d5",
+          "instruction_set": "aarch64",
+          "instruction_size": 4,
+          "operation": "system_register_read"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [
+            {
+              "name": "barrier_kind",
+              "value": "dsb"
+            },
+            {
+              "name": "barrier_option",
+              "value": "ish"
+            }
+          ],
+          "basic_block_address": "0x400008",
+          "contract": "phase10d_static_semantic_instruction_fact_v1",
+          "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+          "fact_scope": "decoded_static_instruction_semantics_only",
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-instruction-fact:9af57e0cfa1e236f31e29efa90b1c398d907ba778486780ba3a9e84d395c56e9",
+          "instruction_address": "0x400008",
+          "instruction_bytes": "0x9f3b03d5",
+          "instruction_set": "aarch64",
+          "instruction_size": 4,
+          "operation": "memory_barrier"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [
+            {
+              "name": "tlb_operation",
+              "value": "vmalle1is"
+            }
+          ],
+          "basic_block_address": "0x400010",
+          "contract": "phase10d_static_semantic_instruction_fact_v1",
+          "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+          "fact_scope": "decoded_static_instruction_semantics_only",
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-instruction-fact:a723ac456659bc86f05145f0d549fc24a55099560f8c75a0bbaf356aec28cad2",
+          "instruction_address": "0x400010",
+          "instruction_bytes": "0x1f8308d5",
+          "instruction_set": "aarch64",
+          "instruction_size": 4,
+          "operation": "tlb_invalidate"
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "attributes": [
+            {
+              "name": "barrier_kind",
+              "value": "isb"
+            }
+          ],
+          "basic_block_address": "0x400018",
+          "contract": "phase10d_static_semantic_instruction_fact_v1",
+          "decoder_profile_id": "phase10d_aarch64_static_semantic_decoder_audited_partial_v1",
+          "fact_scope": "decoded_static_instruction_semantics_only",
+          "function_address": "0x400000",
+          "function_name": "owned_fused_static_flow",
+          "id": "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296",
+          "instruction_address": "0x400018",
+          "instruction_bytes": "0xdf3f03d5",
+          "instruction_set": "aarch64",
+          "instruction_size": 4,
+          "operation": "instruction_barrier"
+        }
+      ],
+      "id": "static-semantic-inventory:2c377f5ebd2d290faa93158a38e234c1035f486b18fcc68a34a6267aaa41c46f",
+      "instruction_set": "aarch64"
+    }
+  },
+  "source_semantic_graph_materialization_id": "static-semantic-graph-materialization:289734ced6d0c4bb9288fe918b09863eb0524f5d533bf7e28ff941389a0e4baf",
+  "source_structure_inventory_id": "static-program-structure-inventory:d9c6d2415ee381f79fc001d511e1189987938336f2f811d0e93b5553d1274b9c",
+  "source_structure_inventory_snapshot": {
+    "analysis_scope": "partial_objective_function_local_cfg_inventory",
+    "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+    "architecture": "arm",
+    "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+    "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+    "contract": "phase10d_static_program_structure_inventory_v1",
+    "diagnostic_codes": [
+      "basic_block_count:4",
+      "directed_cfg_edge_count:4",
+      "function_cfg_count:1",
+      "zero_edge_function_count:0"
+    ],
+    "functions": [
+      {
+        "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+        "architecture": "arm",
+        "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+        "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+        "basic_block_addresses": [
+          "0x400000",
+          "0x400008",
+          "0x400010",
+          "0x400018"
+        ],
+        "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+        "contract": "phase10d_static_program_function_cfg_v1",
+        "directed_edges": [
+          {
+            "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+            "architecture": "arm",
+            "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+            "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+            "causal": false,
+            "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+            "contract": "phase10d_static_program_cfg_edge_v1",
+            "function_address": "0x400000",
+            "id": "static-program-cfg-edge:8a907881f9fbce05a1509e9bdc2d9bd3b39bf3dcc9456ab565e58227745bd4de",
+            "instruction_set": "aarch64",
+            "runtime_execution": false,
+            "source_basic_block_address": "0x400000",
+            "symbolic_feasibility": false,
+            "target_basic_block_address": "0x400008"
+          },
+          {
+            "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+            "architecture": "arm",
+            "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+            "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+            "causal": false,
+            "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+            "contract": "phase10d_static_program_cfg_edge_v1",
+            "function_address": "0x400000",
+            "id": "static-program-cfg-edge:8a423a56e13e23a3b46425b88552dc7ad6011f2d1508e79143c291d1aa89e5a9",
+            "instruction_set": "aarch64",
+            "runtime_execution": false,
+            "source_basic_block_address": "0x400000",
+            "symbolic_feasibility": false,
+            "target_basic_block_address": "0x400010"
+          },
+          {
+            "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+            "architecture": "arm",
+            "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+            "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+            "causal": false,
+            "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+            "contract": "phase10d_static_program_cfg_edge_v1",
+            "function_address": "0x400000",
+            "id": "static-program-cfg-edge:d9fa2615dc2eaa502358311ab7138251e36ff6e9f8acc71ca4043fc046fe9bb3",
+            "instruction_set": "aarch64",
+            "runtime_execution": false,
+            "source_basic_block_address": "0x400008",
+            "symbolic_feasibility": false,
+            "target_basic_block_address": "0x400018"
+          },
+          {
+            "analyzer_profile_id": "phase10d_aarch64_static_program_structure_extractor_cfgfast_v1",
+            "architecture": "arm",
+            "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+            "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+            "causal": false,
+            "cfg_semantics": "function_local_directed_basic_block_reachability_v1",
+            "contract": "phase10d_static_program_cfg_edge_v1",
+            "function_address": "0x400000",
+            "id": "static-program-cfg-edge:d4d2d60ffa54800a2ef7a5b033402888efbc503e1af9cc35ab311aeeb8901fea",
+            "instruction_set": "aarch64",
+            "runtime_execution": false,
+            "source_basic_block_address": "0x400010",
+            "symbolic_feasibility": false,
+            "target_basic_block_address": "0x400018"
+          }
+        ],
+        "function_address": "0x400000",
+        "function_name": "owned_fused_static_flow",
+        "id": "static-program-function-cfg:a76f775a44fd18b2f991298d4a751f983b79a668e306bbb303624f2eacf42092",
+        "instruction_set": "aarch64"
+      }
+    ],
+    "id": "static-program-structure-inventory:d9c6d2415ee381f79fc001d511e1189987938336f2f811d0e93b5553d1274b9c",
+    "instruction_set": "aarch64"
+  }
+}
