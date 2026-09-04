@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B、Step 8B-2D2-V1 与 Step 8B-2D2-C2-C 已完成并冻结；Step 8B-2D3-A 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B、Step 8B-2D2-V1、Step 8B-2D2-C2-C 与 Step 8B-2D3-A 已完成并冻结；Step 8B-2D3-B 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -1010,6 +1010,29 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   Vulnerability Verification`、`Hardware-Side Knowledge != Firmware-Side Evidence`
 - [x] 2D3-A 不导入 fused graph、旧 A-profile/Phase 9C trigger system、analysis backend、runtime、verification、reasoning 或
   knowledge；不实现 2D3-B matcher、candidate projection、production A77 adapter 或 hardware-vulnerability binding
+
+#### Phase 10D Step 8B-2D3-B：Pure Deterministic Static Trigger Candidate Matching（已完成实现，待 final review）
+
+- [x] 新增 position candidate/order witness/case candidate/projection/authoritative materialization 五个 exact v1 contracts；
+  candidate 仅表示 fused static facts 与 source pattern 在 2D3-B exact rules 下兼容
+- [x] pure matcher 只有 fused materialization 与 pattern catalog 两个逻辑输入，不读取 binary/path/backend/CVE/knowledge/LLM/
+  runtime/QEMU/verification，也不重跑 static analysis
+- [x] compatible pattern 只按 architecture + instruction-set exact equality 选择；predicate 只按 operation 与 required typed
+  attribute subset exact equality匹配，OR alternatives 与多个 facts 均完整枚举
+- [x] 同块 PROGRAM_ORDER 只接受同一 exact fused block 中严格递增 instruction address；跨块只接受同函数 exact directed
+  `CFG_SUCCESSOR` path，并保存按 block numeric address + node ID排序的 deterministic shortest BFS audit witness
+- [x] 禁止 same-fact reuse、reverse same-block/self-loop runtime inference、cross-function candidate、缺 block provenance 的多位置
+  fallback 与 address-order CFG inference；single-position fact 可保持 block=None
+- [x] 每个 candidate 均保留 runtime execution obligation；CFG witness 增加 symbolic-feasibility unresolved，且原样传播 source
+  memory-type/context/proximity/additional-timing unresolved requirements，不猜测或标记满足
+- [x] authoritative materialization detached-revalidate 两个 source snapshots、重跑 exact matcher 并要求 stored projection 等于
+  reprojection；standalone projection 的内部 hash consistency 不替代 source referential integrity
+- [x] 新增 deterministic JSON/Markdown/DOT/hash-manifest exporter、inspection runner 与 owned diamond byte-for-byte golden bundle；
+  checked-in output 明确为 owned/synthetic/benign static candidate
+- [x] `Candidate != Runtime Execution`、`Static CFG Witness != Runtime Path`、`CFG Reachability != Symbolic Feasibility`、
+  `Pattern Candidate != Triggerability`、`Pattern Hardware Reference != Candidate Hardware Binding`、`Program Order Candidate !=
+  Runtime Order`、`Unresolved Requirement != Satisfied Requirement`、`Candidate != AttackChain`
+- [x] 不实现 2D3-C hardware-reference/CVE/erratum binding、runtime verification、AttackChain、A77 production adapter 或漏洞判定
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

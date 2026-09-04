@@ -1,0 +1,278 @@
+{
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+  "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+  "case_candidates": [
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "candidate_semantics": "static_structural_pattern_candidate_only",
+      "case_reference_id": "owned-case-a",
+      "contract": "phase10d_static_trigger_case_candidate_v1",
+      "function_address": "0x400000",
+      "id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "instruction_set": "aarch64",
+      "order_witnesses": [
+        {
+          "contract": "phase10d_static_trigger_order_witness_v1",
+          "from_position_index": 1,
+          "function_address": "0x400000",
+          "id": "static-trigger-order-witness:39b8338b7d66e8e4d841c9b2e5f3b01b75585a03a7bd5ad5ac7d4f1b61a481a4",
+          "order_basis": "directed_function_cfg_path",
+          "path_witness_use": "reachability_audit_only",
+          "source_position_candidate_id": "static-trigger-position-candidate:2b6935239005114fe4022ce20638fe0e90e0a1bb9a60c80fea71d76db1fef0e6",
+          "target_position_candidate_id": "static-trigger-position-candidate:cdb6bda9916630707a4229273857b6580f27959ce836146fffd87176b4b4628e",
+          "to_position_index": 2,
+          "witness_basic_block_node_ids": [
+            "static-fused-behavior-node:7a8c2939df575dca4ccb36af49a22d175feed4a6acbe62f0ba972f20c28bf81c",
+            "static-fused-behavior-node:ab12981393e758d410fe0a07a1ff23259c0583a6fca7c8d1deb87b8279048341"
+          ],
+          "witness_cfg_relation_ids": [
+            "static-fused-behavior-relation:ccaf93eb8bf4e79aefea822171ab08f78cc21b5a27d31dec542798cce845a03b"
+          ]
+        },
+        {
+          "contract": "phase10d_static_trigger_order_witness_v1",
+          "from_position_index": 2,
+          "function_address": "0x400000",
+          "id": "static-trigger-order-witness:06c7e0ef4c4a0648b217a9321e5a5889faf7819ffff8cee4ed5e4f80f3cae1a9",
+          "order_basis": "directed_function_cfg_path",
+          "path_witness_use": "reachability_audit_only",
+          "source_position_candidate_id": "static-trigger-position-candidate:cdb6bda9916630707a4229273857b6580f27959ce836146fffd87176b4b4628e",
+          "target_position_candidate_id": "static-trigger-position-candidate:6930dcd084098f52f6883ce6bb0e9879bd72dc1ae0093f8ff4614f5e3cd5307c",
+          "to_position_index": 3,
+          "witness_basic_block_node_ids": [
+            "static-fused-behavior-node:ab12981393e758d410fe0a07a1ff23259c0583a6fca7c8d1deb87b8279048341",
+            "static-fused-behavior-node:bae7849b5f1769ebf6383434ad2927697b889a72d0e668c26dedc692e31fb106"
+          ],
+          "witness_cfg_relation_ids": [
+            "static-fused-behavior-relation:ae8c5d3a1c66d8dd59489fb49a8e05960ab37ddb4d22e7a7a187366d060e1897"
+          ]
+        }
+      ],
+      "position_candidates": [
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "basic_block_address": "0x400000",
+          "candidate_semantics": "static_structural_pattern_candidate_only",
+          "contract": "phase10d_static_trigger_position_candidate_v1",
+          "function_address": "0x400000",
+          "id": "static-trigger-position-candidate:2b6935239005114fe4022ce20638fe0e90e0a1bb9a60c80fea71d76db1fef0e6",
+          "instruction_address": "0x400000",
+          "instruction_set": "aarch64",
+          "operation": "system_register_read",
+          "position_index": 1,
+          "source_case_id": "static-trigger-case:4b8759c6616bb48c281080c16477937bd25f128d3c5e1925172005cba1148f17",
+          "source_fused_fact_node_id": "static-fused-behavior-node:c8744704a139de78f8b644217a9f0964940922de7ebf5e08646dde73ee9dff1d",
+          "source_pattern_id": "static-trigger-pattern:4eb60094d04fcb7d9674b39227449bd144847b36525fa4203d6c3e5159fcf3f3",
+          "source_position_id": "static-trigger-position:a9bb9da87cbc1408839242b876f817442015e677de79e73fd227fb94f31ee882",
+          "source_predicate_id": "static-trigger-predicate:8b92c5e32e3528c267082ae2a43207f9ae5bdf8c0a013ca50858a16044854336",
+          "source_semantic_fact_ids": [
+            "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a"
+          ]
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "basic_block_address": "0x400008",
+          "candidate_semantics": "static_structural_pattern_candidate_only",
+          "contract": "phase10d_static_trigger_position_candidate_v1",
+          "function_address": "0x400000",
+          "id": "static-trigger-position-candidate:cdb6bda9916630707a4229273857b6580f27959ce836146fffd87176b4b4628e",
+          "instruction_address": "0x400008",
+          "instruction_set": "aarch64",
+          "operation": "memory_barrier",
+          "position_index": 2,
+          "source_case_id": "static-trigger-case:4b8759c6616bb48c281080c16477937bd25f128d3c5e1925172005cba1148f17",
+          "source_fused_fact_node_id": "static-fused-behavior-node:43734798e1f309d61b64c543198db12a802ee15f1024a9c6b9479723d672db34",
+          "source_pattern_id": "static-trigger-pattern:4eb60094d04fcb7d9674b39227449bd144847b36525fa4203d6c3e5159fcf3f3",
+          "source_position_id": "static-trigger-position:abc0855552cb6e18c0b7e1ef745f996ac71444e3ba71e6684f4c2c941b947517",
+          "source_predicate_id": "static-trigger-predicate:c2d22cea1035815e4ad7c79f410ebf9a9632667d3247f4a74d86158e8d7c4a1f",
+          "source_semantic_fact_ids": [
+            "static-semantic-instruction-fact:9af57e0cfa1e236f31e29efa90b1c398d907ba778486780ba3a9e84d395c56e9"
+          ]
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "basic_block_address": "0x400018",
+          "candidate_semantics": "static_structural_pattern_candidate_only",
+          "contract": "phase10d_static_trigger_position_candidate_v1",
+          "function_address": "0x400000",
+          "id": "static-trigger-position-candidate:6930dcd084098f52f6883ce6bb0e9879bd72dc1ae0093f8ff4614f5e3cd5307c",
+          "instruction_address": "0x400018",
+          "instruction_set": "aarch64",
+          "operation": "instruction_barrier",
+          "position_index": 3,
+          "source_case_id": "static-trigger-case:4b8759c6616bb48c281080c16477937bd25f128d3c5e1925172005cba1148f17",
+          "source_fused_fact_node_id": "static-fused-behavior-node:ce27536ad8128a310898ec6d85ef1bc9cdb9bc36a668883f370a388bca9cc510",
+          "source_pattern_id": "static-trigger-pattern:4eb60094d04fcb7d9674b39227449bd144847b36525fa4203d6c3e5159fcf3f3",
+          "source_position_id": "static-trigger-position:18be07953f54f24b8206fd0efc1debf2b91edd55b2cdd1004c74707577c937a7",
+          "source_predicate_id": "static-trigger-predicate:5eb2d0f77ed95e5c43e88abd6c81313888a40719ac8361dca03929fbc76ebbe7",
+          "source_semantic_fact_ids": [
+            "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296"
+          ]
+        }
+      ],
+      "remaining_objective_obligations": [
+        "runtime_execution_required",
+        "symbolic_path_feasibility_remains_unresolved"
+      ],
+      "source_case_id": "static-trigger-case:4b8759c6616bb48c281080c16477937bd25f128d3c5e1925172005cba1148f17",
+      "source_pattern_id": "static-trigger-pattern:4eb60094d04fcb7d9674b39227449bd144847b36525fa4203d6c3e5159fcf3f3"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "candidate_semantics": "static_structural_pattern_candidate_only",
+      "case_reference_id": "owned-case-b",
+      "contract": "phase10d_static_trigger_case_candidate_v1",
+      "function_address": "0x400000",
+      "id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "instruction_set": "aarch64",
+      "order_witnesses": [
+        {
+          "contract": "phase10d_static_trigger_order_witness_v1",
+          "from_position_index": 1,
+          "function_address": "0x400000",
+          "id": "static-trigger-order-witness:118e63b303fb14dded26223bbba585f43437f9d8d4855dac68fc3a2d66cad0eb",
+          "order_basis": "directed_function_cfg_path",
+          "path_witness_use": "reachability_audit_only",
+          "source_position_candidate_id": "static-trigger-position-candidate:4df335eed22fcccaa2f46061b15c061a5ac88d088b3e48c99380da7a39ccb323",
+          "target_position_candidate_id": "static-trigger-position-candidate:f658701d7835b4c142fd7cb1b284e462dc64b5eaf29352ef85f178ee70c39abf",
+          "to_position_index": 2,
+          "witness_basic_block_node_ids": [
+            "static-fused-behavior-node:7a8c2939df575dca4ccb36af49a22d175feed4a6acbe62f0ba972f20c28bf81c",
+            "static-fused-behavior-node:33e48ae99595bdc7da7398b4ff1b92f7254c81e499a237ca504eb5b8bbe3382f"
+          ],
+          "witness_cfg_relation_ids": [
+            "static-fused-behavior-relation:c4172c7a356afd3db8fbca2a283cbd9adc172c2273ae4298a719dba26dbf2960"
+          ]
+        },
+        {
+          "contract": "phase10d_static_trigger_order_witness_v1",
+          "from_position_index": 2,
+          "function_address": "0x400000",
+          "id": "static-trigger-order-witness:8e424341923149e4d0acfb3d1b47ea5d7f221e9ddf1a2317ab25dddd53e88a0a",
+          "order_basis": "directed_function_cfg_path",
+          "path_witness_use": "reachability_audit_only",
+          "source_position_candidate_id": "static-trigger-position-candidate:f658701d7835b4c142fd7cb1b284e462dc64b5eaf29352ef85f178ee70c39abf",
+          "target_position_candidate_id": "static-trigger-position-candidate:b1310d3a436d5a37940c89362156818939550456e9c8f596ff89576cdb69ce0d",
+          "to_position_index": 3,
+          "witness_basic_block_node_ids": [
+            "static-fused-behavior-node:33e48ae99595bdc7da7398b4ff1b92f7254c81e499a237ca504eb5b8bbe3382f",
+            "static-fused-behavior-node:bae7849b5f1769ebf6383434ad2927697b889a72d0e668c26dedc692e31fb106"
+          ],
+          "witness_cfg_relation_ids": [
+            "static-fused-behavior-relation:f897eaad4911f6e6ba2a45aa3f72307a7c4136091ae06bd0e43988a6adaaf3b9"
+          ]
+        }
+      ],
+      "position_candidates": [
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "basic_block_address": "0x400000",
+          "candidate_semantics": "static_structural_pattern_candidate_only",
+          "contract": "phase10d_static_trigger_position_candidate_v1",
+          "function_address": "0x400000",
+          "id": "static-trigger-position-candidate:4df335eed22fcccaa2f46061b15c061a5ac88d088b3e48c99380da7a39ccb323",
+          "instruction_address": "0x400000",
+          "instruction_set": "aarch64",
+          "operation": "system_register_read",
+          "position_index": 1,
+          "source_case_id": "static-trigger-case:522354bcdc43f1339e82a0b7104e0402ea364c6f8d6df447691c1830ec3bf5c5",
+          "source_fused_fact_node_id": "static-fused-behavior-node:c8744704a139de78f8b644217a9f0964940922de7ebf5e08646dde73ee9dff1d",
+          "source_pattern_id": "static-trigger-pattern:4eb60094d04fcb7d9674b39227449bd144847b36525fa4203d6c3e5159fcf3f3",
+          "source_position_id": "static-trigger-position:a9bb9da87cbc1408839242b876f817442015e677de79e73fd227fb94f31ee882",
+          "source_predicate_id": "static-trigger-predicate:8b92c5e32e3528c267082ae2a43207f9ae5bdf8c0a013ca50858a16044854336",
+          "source_semantic_fact_ids": [
+            "static-semantic-instruction-fact:f86b256ecbb3115a04f4fa3aeb1ece82153579dfc1bc2a088809c176a376557a"
+          ]
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "basic_block_address": "0x400010",
+          "candidate_semantics": "static_structural_pattern_candidate_only",
+          "contract": "phase10d_static_trigger_position_candidate_v1",
+          "function_address": "0x400000",
+          "id": "static-trigger-position-candidate:f658701d7835b4c142fd7cb1b284e462dc64b5eaf29352ef85f178ee70c39abf",
+          "instruction_address": "0x400010",
+          "instruction_set": "aarch64",
+          "operation": "tlb_invalidate",
+          "position_index": 2,
+          "source_case_id": "static-trigger-case:522354bcdc43f1339e82a0b7104e0402ea364c6f8d6df447691c1830ec3bf5c5",
+          "source_fused_fact_node_id": "static-fused-behavior-node:ad3ee6b3e63f83a413f0155f5629c42dab7ac02d320b0c6ac4927b2df0f5d983",
+          "source_pattern_id": "static-trigger-pattern:4eb60094d04fcb7d9674b39227449bd144847b36525fa4203d6c3e5159fcf3f3",
+          "source_position_id": "static-trigger-position:ed4231f517df410874d6bd63ef152491e6a77d9cb5359b13865d5fc9eb8230d9",
+          "source_predicate_id": "static-trigger-predicate:8c622025fdde4d4984f3af3ac4d0450b766aedec8595faccbf434ca334f00779",
+          "source_semantic_fact_ids": [
+            "static-semantic-instruction-fact:a723ac456659bc86f05145f0d549fc24a55099560f8c75a0bbaf356aec28cad2"
+          ]
+        },
+        {
+          "architecture": "arm",
+          "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+          "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+          "basic_block_address": "0x400018",
+          "candidate_semantics": "static_structural_pattern_candidate_only",
+          "contract": "phase10d_static_trigger_position_candidate_v1",
+          "function_address": "0x400000",
+          "id": "static-trigger-position-candidate:b1310d3a436d5a37940c89362156818939550456e9c8f596ff89576cdb69ce0d",
+          "instruction_address": "0x400018",
+          "instruction_set": "aarch64",
+          "operation": "instruction_barrier",
+          "position_index": 3,
+          "source_case_id": "static-trigger-case:522354bcdc43f1339e82a0b7104e0402ea364c6f8d6df447691c1830ec3bf5c5",
+          "source_fused_fact_node_id": "static-fused-behavior-node:ce27536ad8128a310898ec6d85ef1bc9cdb9bc36a668883f370a388bca9cc510",
+          "source_pattern_id": "static-trigger-pattern:4eb60094d04fcb7d9674b39227449bd144847b36525fa4203d6c3e5159fcf3f3",
+          "source_position_id": "static-trigger-position:18be07953f54f24b8206fd0efc1debf2b91edd55b2cdd1004c74707577c937a7",
+          "source_predicate_id": "static-trigger-predicate:5eb2d0f77ed95e5c43e88abd6c81313888a40719ac8361dca03929fbc76ebbe7",
+          "source_semantic_fact_ids": [
+            "static-semantic-instruction-fact:5b6d937a0bf2a980176e89db24263e3eabb808b239a174853a2051ac7045f296"
+          ]
+        }
+      ],
+      "remaining_objective_obligations": [
+        "runtime_execution_required",
+        "symbolic_path_feasibility_remains_unresolved"
+      ],
+      "source_case_id": "static-trigger-case:522354bcdc43f1339e82a0b7104e0402ea364c6f8d6df447691c1830ec3bf5c5",
+      "source_pattern_id": "static-trigger-pattern:4eb60094d04fcb7d9674b39227449bd144847b36525fa4203d6c3e5159fcf3f3"
+    }
+  ],
+  "compatible_pattern_ids": [
+    "static-trigger-pattern:4eb60094d04fcb7d9674b39227449bd144847b36525fa4203d6c3e5159fcf3f3"
+  ],
+  "contract": "phase10d_static_trigger_candidate_projection_v1",
+  "diagnostic_codes": [
+    "candidate_with_additional_timing_unresolved_count:0",
+    "candidate_with_effective_memory_type_obligation_count:0",
+    "candidate_with_execution_context_obligation_count:0",
+    "candidate_with_proximity_unresolved_count:0",
+    "candidate_with_symbolic_feasibility_unresolved_count:2",
+    "case_candidate_count:2",
+    "catalog_pattern_count:1",
+    "cfg_path_order_witness_count:4",
+    "compatible_pattern_count:1",
+    "incompatible_pattern_count:0",
+    "order_witness_count:4",
+    "position_candidate_count:6",
+    "same_block_order_witness_count:0"
+  ],
+  "id": "static-trigger-candidate-projection:ea67ef6b0e55f72bf7ece2e655d31efa76c25de46eefb5fc283c81cdd5adf8b6",
+  "incompatible_pattern_ids": [],
+  "instruction_set": "aarch64",
+  "source_fused_graph_materialization_id": "static-fused-behavior-graph-materialization:cd0fa460aa4b345864b4a7b92229a9e41768065091eb7a88fffbdd467cba65d3",
+  "source_fused_graph_projection_id": "static-fused-behavior-graph-projection:355be42e9944877bff55952c4b421cf5043085b03b2c03b0a63fa62d3068b758",
+  "source_pattern_catalog_id": "static-trigger-pattern-catalog:aa51b3b9a059d445e577e092785aff472a7ca83e9357b468f9c4bf0f74335ee5"
+}

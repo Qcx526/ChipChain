@@ -1,0 +1,23 @@
+digraph static_trigger_candidates {
+  rankdir=LR;
+  graph [label="Static Trigger Candidates", labelloc="t"];
+  node [shape=box, fontname="sans-serif"];
+  edge [fontname="sans-serif"];
+  boundary [shape=note, label="Static candidate only; runtime execution and feasibility remain unresolved."];
+  subgraph cluster_1 {
+    label="owned-case-a";
+    case_1_position_1 [label="Position 1\\nsystem_register_read\\n0x400000"];
+    case_1_position_2 [label="Position 2\\nmemory_barrier\\n0x400008"];
+    case_1_position_3 [label="Position 3\\ninstruction_barrier\\n0x400018"];
+    case_1_position_1 -> case_1_position_2 [label="static CFG witness"];
+    case_1_position_2 -> case_1_position_3 [label="static CFG witness"];
+  }
+  subgraph cluster_2 {
+    label="owned-case-b";
+    case_2_position_1 [label="Position 1\\nsystem_register_read\\n0x400000"];
+    case_2_position_2 [label="Position 2\\ntlb_invalidate\\n0x400010"];
+    case_2_position_3 [label="Position 3\\ninstruction_barrier\\n0x400018"];
+    case_2_position_1 -> case_2_position_2 [label="static CFG witness"];
+    case_2_position_2 -> case_2_position_3 [label="static CFG witness"];
+  }
+}

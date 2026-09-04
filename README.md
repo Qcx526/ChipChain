@@ -95,11 +95,13 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   `CFG_SUCCESSOR` provenance、detached deterministic materialization 与 human-readable fused artifacts
 - Phase 10D Step 8B-2D3-A architecture-neutral declarative static hardware-trigger pattern IR、closed unresolved
   requirement vocabulary 与 mixed-architecture deterministic catalog（不含 matcher）
+- Phase 10D Step 8B-2D3-B pure deterministic static trigger candidate matching、exact semantic/CFG witness
+  provenance、authoritative source reprojection 与 deterministic inspection bundle
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
 
-当前尚未实现通用跨块/跨函数地址分析、Candidate 到 AttackChain 的语义投影、
+当前已具备 2D3-B 同函数 exact CFG 跨块静态候选审计，但仍未实现跨函数候选拼接、Candidate 到 AttackChain 的语义投影、
 Type III hardware→software propagation verification 或 API。Phase 9B1 已在 Ubuntu 22.04、
 QEMU 11.0.3、ARM32 `virt` / `cortex-a15` / 单 vCPU 环境通过 real acceptance，并由
 `phase-9b1-stable` 封存。Ubuntu 是 canonical development/runtime validation 环境；Windows
@@ -1291,6 +1293,49 @@ Hardware-Side Knowledge != Firmware-Side Evidence
 Phase 9C exact ARM A32 machine-code `HardwareTriggerSignature` / `FirmwareTriggerMatcher` 是独立冻结机制；新的 generic
 semantic pattern IR 不替代或修改该路径。2D3-A 不实现 matcher、candidate projection、A77 production adapter、
 hardware-vulnerability binding、runtime、verification 或 AttackChain。
+
+## Phase 10D Step 8B-2D3-B Static Trigger Candidate Matching
+
+2D3-B 首次以 pure、backend-independent matcher 连接两份冻结输入：
+
+```text
+StaticFusedBehaviorGraphMaterialization
+                 +
+      StaticTriggerPatternCatalog
+                 |
+                 v
+     StaticTriggerCandidateMaterialization
+                 |
+                 v
+        [2D3-C later]
+hardware-reference / CVE / erratum binding
+```
+
+Matcher 只对 `SEMANTIC_INSTRUCTION_FACT` 执行 exact operation 与 required-attribute subset 比较。每个 OR alternative
+和每个兼容 fact 分别形成 source-backed position candidate；不会执行 mnemonic、bytes、地址、模糊或 LLM 比较。跨块
+PROGRAM_ORDER 必须由同一函数内 exact directed `CFG_SUCCESSOR` path 支持，并保存 deterministic shortest BFS audit
+witness；同块只接受严格递增的 static instruction address。Candidate materialization 保存 detached fused/catalog snapshots，
+并在反序列化时重跑 matcher，因此完整重哈希但来源伪造的 standalone projection 仍会在 authoritative layer 被拒绝。
+
+所有 case candidate 始终保留 `runtime_execution_required`；使用 CFG path 时额外保留
+`symbolic_path_feasibility_remains_unresolved`。Effective memory type、execution context、qualitative proximity 与 additional
+hardware timing requirements 只传播为 unresolved obligations，不会被当前静态图判为满足。Owned synthetic golden bundle 位于
+`examples/phase10d/static_trigger_candidates/owned_diamond/`；runner
+`scripts/export_static_trigger_candidates.py` 只负责组织冻结 analyzer、fusion、新 pure matcher 与 presentation exporter。
+
+```text
+Candidate != Runtime Execution
+Static CFG Witness != Runtime Path
+CFG Reachability != Symbolic Feasibility
+Pattern Candidate != Triggerability
+Pattern Hardware Reference != Candidate Hardware Binding
+Program Order Candidate != Runtime Order
+Unresolved Requirement != Satisfied Requirement
+Candidate != AttackChain
+```
+
+2D3-B 不实现 2D3-C hardware-reference/CVE/erratum binding，不执行 runtime verification、QEMU、symbolic execution、
+vulnerability judgement 或 AttackChain construction。
 
 ## 文档导航
 

@@ -1,0 +1,24 @@
+{
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+  "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+  "candidate_materialization_id": "static-trigger-candidate-materialization:b4ae8a0deb96bb2096e940487eec75b1ed246b19b5577587f998c802718d5931",
+  "candidate_projection_id": "static-trigger-candidate-projection:ea67ef6b0e55f72bf7ece2e655d31efa76c25de46eefb5fc283c81cdd5adf8b6",
+  "files": {
+    "candidate_projection.json": {
+      "byte_size": 17389,
+      "sha256": "8ffd510f4006a1767d7903aed1c9518bb507c8503f0bf0c90713d8cdd177e09c"
+    },
+    "candidate_summary.md": {
+      "byte_size": 6926,
+      "sha256": "81047f43a66ce01af1e9c34febd4c769a57278b5c9f076c39df2e928e5ea9ab9"
+    },
+    "candidate_witness.dot": {
+      "byte_size": 1148,
+      "sha256": "2f81896256a5ae694c947110e8e7490827d1b7171d7a56dd2815d0147a798440"
+    }
+  },
+  "instruction_set": "aarch64",
+  "source_fused_graph_materialization_id": "static-fused-behavior-graph-materialization:cd0fa460aa4b345864b4a7b92229a9e41768065091eb7a88fffbdd467cba65d3",
+  "source_pattern_catalog_id": "static-trigger-pattern-catalog:aa51b3b9a059d445e577e092785aff472a7ca83e9357b468f9c4bf0f74335ee5"
+}
