@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B、Step 8B-2D2-V1、Step 8B-2D2-C2-C 与 Step 8B-2D3-A 已完成并冻结；Step 8B-2D3-B 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B、Step 8B-2D2-V1、Step 8B-2D2-C2-C、Step 8B-2D3-A 与 Step 8B-2D3-B 已完成并冻结；Step 8B-2D3-C 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -991,7 +991,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   Basic-Block Provenance`
 - [x] 不实现 2D3 pattern matching、hardware-vulnerability binding、runtime/verification、candidate 或 AttackChain
 
-#### Phase 10D Step 8B-2D3-A：Architecture-Neutral Static Hardware-Trigger Pattern IR（已完成实现，待 final review）
+#### Phase 10D Step 8B-2D3-A：Architecture-Neutral Static Hardware-Trigger Pattern IR（已完成并冻结）
 
 - [x] 新增 predicate/position/relation requirement/case/pattern/catalog 六个 exact v1 contract，以及 OR、PROGRAM_ORDER、
   qualitative proximity、evaluability、unresolved objective requirement 与 non-outcome pattern-use 闭合词汇
@@ -1011,7 +1011,7 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] 2D3-A 不导入 fused graph、旧 A-profile/Phase 9C trigger system、analysis backend、runtime、verification、reasoning 或
   knowledge；不实现 2D3-B matcher、candidate projection、production A77 adapter 或 hardware-vulnerability binding
 
-#### Phase 10D Step 8B-2D3-B：Pure Deterministic Static Trigger Candidate Matching（已完成实现，待 final review）
+#### Phase 10D Step 8B-2D3-B：Pure Deterministic Static Trigger Candidate Matching（已完成并冻结）
 
 - [x] 新增 position candidate/order witness/case candidate/projection/authoritative materialization 五个 exact v1 contracts；
   candidate 仅表示 fused static facts 与 source pattern 在 2D3-B exact rules 下兼容
@@ -1033,6 +1033,28 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   `Pattern Candidate != Triggerability`、`Pattern Hardware Reference != Candidate Hardware Binding`、`Program Order Candidate !=
   Runtime Order`、`Unresolved Requirement != Satisfied Requirement`、`Candidate != AttackChain`
 - [x] 不实现 2D3-C hardware-reference/CVE/erratum binding、runtime verification、AttackChain、A77 production adapter 或漏洞判定
+
+#### Phase 10D Step 8B-2D3-C：Source-Backed Static Cross-Layer Hardware Reference Binding（已完成实现，待 final review）
+
+- [x] 新增 architecture-neutral owned/documented hardware-reference 与 catalog 合同；documented reference
+  嵌入并 detached-revalidate 冻结 `DocumentedHardwareErratumContract`，不创建竞争的 CVE/erratum truth
+- [x] 新增 pure documented-erratum→generic AArch64 static-trigger-pattern adapter；event/register/memory-type/
+  context/case/proximity/timing 均按冻结 source 词汇显式转换，不作 default/fuzzy 映射
+- [x] binding 仅以 candidate 的 exact `source_pattern_id` 与该 pattern 声明的 exact
+  `hardware_reference_ids` 为权威；不允许 CVE ID、erratum number、alias、retrieval score 或 matched term 替代
+- [x] 缺失引用和 architecture mismatch 生成 deterministic unresolved reference；partial/empty catalog
+  不丢弃 candidate，不伪造 binding
+- [x] cross-layer binding 原样保留 candidate unresolved obligations，并新增 hardware-effect observation、
+  physical-target applicability 与 target identity 三项 unresolved obligations；不修改 candidate 或标记满足
+- [x] authoritative materialization 嵌入 candidate materialization、reference catalog 与 projection 快照，并从两份
+  source 重做 exact reprojection；rehashed foreign/undeclared reference 无法通过来源闭包
+- [x] 签入 public CVE-2023-34320 / Cortex-A77 erratum 1508412 的 deterministic generic pattern
+  artifact；冻结 A77 object 上的实际 production pipeline 客观产生零 candidate/零 binding，不强制公开命中
+- [x] 新增 pure JSON/Markdown/DOT/hash-manifest exporter、owned/public runner 与 owned synthetic
+  byte-for-byte golden bundle；所有文本明确为 static candidate/reference 而非 verification
+- [x] `Cross-Layer Reference Candidate != Vulnerability Verification`、`Candidate -> Erratum Reference !=
+  Candidate Triggers Erratum`、`Documented Affected Revision != Observed Target Revision`、`Documented Possible
+  Effect != Runtime Observed Effect`；不实现 runtime/QEMU/physical applicability/vulnerability/AttackChain verdict
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

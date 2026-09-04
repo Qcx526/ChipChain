@@ -1,0 +1,186 @@
+{
+  "contract": "phase10d_static_trigger_pattern_v1",
+  "architecture": "arm",
+  "instruction_set": "aarch64",
+  "pattern_name": "documented_erratum_1508412_generic_aarch64_static_pattern",
+  "source_reference_ids": [
+    "arm-document:SDEN-1152370:11.0:erratum-1508412",
+    "documented-hardware-erratum:8ad52bee747242179997fd58989c92f419ff051f618682e07e158d00a787096c",
+    "public-cve-corpus:778765c51a0d9b939eb37b390367a3d0cd02720942c8746c19eb0a1c38930e49"
+  ],
+  "hardware_reference_ids": [
+    "documented-hardware-erratum:8ad52bee747242179997fd58989c92f419ff051f618682e07e158d00a787096c"
+  ],
+  "cases": [
+    {
+      "contract": "phase10d_static_trigger_case_v1",
+      "case_reference_id": "documented-erratum-1508412-case-b",
+      "position_order": "program_order",
+      "positions": [
+        {
+          "contract": "phase10d_static_trigger_position_v1",
+          "position_index": 1,
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "operation": "memory_load",
+              "required_attributes": [],
+              "required_effective_memory_types": [
+                "device"
+              ],
+              "required_execution_contexts": [
+                "arm_a_profile"
+              ],
+              "objective_requirements": [
+                "effective_memory_type_resolution_required",
+                "runtime_execution_context_required"
+              ],
+              "id": "static-trigger-predicate:5527f9ac47f3bc4fc43aadf6b0fb791d54b494ea18c66408a6efa805783c4ebc"
+            }
+          ],
+          "id": "static-trigger-position:8c8e4478b07b4bde6a4507697c6b615bdb7153038755c8078db66d17886af9a8"
+        },
+        {
+          "contract": "phase10d_static_trigger_position_v1",
+          "position_index": 2,
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "operation": "store_exclusive",
+              "required_attributes": [],
+              "required_effective_memory_types": [],
+              "required_execution_contexts": [
+                "arm_a_profile"
+              ],
+              "objective_requirements": [
+                "runtime_execution_context_required"
+              ],
+              "id": "static-trigger-predicate:0568423f513eb2a2845921b502a2a8b47afce01f22819c4b5c2398e191136b92"
+            },
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "operation": "system_register_read",
+              "required_attributes": [
+                {
+                  "name": "system_register",
+                  "value": "par_el1"
+                }
+              ],
+              "required_effective_memory_types": [],
+              "required_execution_contexts": [
+                "privileged_aarch64"
+              ],
+              "objective_requirements": [
+                "runtime_execution_context_required"
+              ],
+              "id": "static-trigger-predicate:37260788df57b003dd3d0cd1cf9bab3c976fad467fa33f0d87504b7dfe4632c9"
+            }
+          ],
+          "id": "static-trigger-position:38b52d4ac644f3708518f9689fe84a4f4d0f332e1f6e58e1928a6707eac0fde9"
+        }
+      ],
+      "relation_requirement": {
+        "contract": "phase10d_static_trigger_relation_requirement_v1",
+        "relation_kind": "close_proximity",
+        "precision": "qualitative_only",
+        "quantitative_bound": null,
+        "evaluability": "source_insufficient_for_exact_static_satisfaction",
+        "id": "static-trigger-relation-requirement:70b05dbe330c3319d777d0507a9342ce444f171d39ede305aa9c3dbb53974d98"
+      },
+      "objective_requirements": [
+        "relation_proximity_remains_unresolved"
+      ],
+      "id": "static-trigger-case:53180b36e7cc875959c96f3a7f94a644dd071214afcceb20cdebe0f9ff5ff2f7"
+    },
+    {
+      "contract": "phase10d_static_trigger_case_v1",
+      "case_reference_id": "documented-erratum-1508412-case-a",
+      "position_order": "program_order",
+      "positions": [
+        {
+          "contract": "phase10d_static_trigger_position_v1",
+          "position_index": 1,
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "operation": "store_exclusive",
+              "required_attributes": [],
+              "required_effective_memory_types": [],
+              "required_execution_contexts": [
+                "arm_a_profile"
+              ],
+              "objective_requirements": [
+                "runtime_execution_context_required"
+              ],
+              "id": "static-trigger-predicate:0568423f513eb2a2845921b502a2a8b47afce01f22819c4b5c2398e191136b92"
+            },
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "operation": "system_register_read",
+              "required_attributes": [
+                {
+                  "name": "system_register",
+                  "value": "par_el1"
+                }
+              ],
+              "required_effective_memory_types": [],
+              "required_execution_contexts": [
+                "privileged_aarch64"
+              ],
+              "objective_requirements": [
+                "runtime_execution_context_required"
+              ],
+              "id": "static-trigger-predicate:37260788df57b003dd3d0cd1cf9bab3c976fad467fa33f0d87504b7dfe4632c9"
+            }
+          ],
+          "id": "static-trigger-position:60ed730a864bde496d4705f981f6fa52462867a49f9489861350315e0a9b933a"
+        },
+        {
+          "contract": "phase10d_static_trigger_position_v1",
+          "position_index": 2,
+          "alternative_semantics": "or",
+          "alternatives": [
+            {
+              "contract": "phase10d_static_trigger_predicate_v1",
+              "operation": "memory_load",
+              "required_attributes": [],
+              "required_effective_memory_types": [
+                "device",
+                "normal_non_cacheable"
+              ],
+              "required_execution_contexts": [
+                "arm_a_profile"
+              ],
+              "objective_requirements": [
+                "effective_memory_type_resolution_required",
+                "runtime_execution_context_required"
+              ],
+              "id": "static-trigger-predicate:e76d09647700255dd1e0400a3da96f37151e7efa568aee60f25ef92968cb783e"
+            }
+          ],
+          "id": "static-trigger-position:55404cdaa82e513db08698fa4b7dfb5e76d229ed70fe2dd92eba2a6db2ee92bf"
+        }
+      ],
+      "relation_requirement": {
+        "contract": "phase10d_static_trigger_relation_requirement_v1",
+        "relation_kind": "close_proximity",
+        "precision": "qualitative_only",
+        "quantitative_bound": null,
+        "evaluability": "source_insufficient_for_exact_static_satisfaction",
+        "id": "static-trigger-relation-requirement:70b05dbe330c3319d777d0507a9342ce444f171d39ede305aa9c3dbb53974d98"
+      },
+      "objective_requirements": [
+        "relation_proximity_remains_unresolved"
+      ],
+      "id": "static-trigger-case:a651c9cde8d358820e9c97358454f083b26053f07a044694e06e9a8832dadb68"
+    }
+  ],
+  "objective_requirements": [
+    "additional_hardware_timing_remains_unresolved"
+  ],
+  "pattern_use": "objective_static_candidate_matching_only",
+  "id": "static-trigger-pattern:518e589e6b720be47947b7a24c7676085c8982069117975276c1d0dc28977aed"
+}

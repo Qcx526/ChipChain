@@ -1,0 +1,15 @@
+digraph static_cross_layer_candidates {
+  rankdir=LR;
+  graph [label="Static Cross-Layer Reference Candidates", labelloc="t"];
+  node [shape=box, fontname="sans-serif"];
+  edge [fontname="sans-serif"];
+  boundary [shape=note, label="Static cross-layer reference candidate only;\nruntime execution, target applicability, and hardware effect remain unresolved."];
+  candidate_1 [label="Firmware Static Candidate\nstatic-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2"];
+  reference_1 [label="Owned Synthetic Hardware Reference\nowned synthetic benign condition family v1"];
+  candidate_1 -> reference_1 [label="pattern-declared reference"];
+  reference_2 [label="Owned Synthetic Hardware Reference\nowned synthetic hardware condition v1"];
+  candidate_1 -> reference_2 [label="pattern-declared reference"];
+  candidate_2 [label="Firmware Static Candidate\nstatic-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050"];
+  candidate_2 -> reference_1 [label="pattern-declared reference"];
+  candidate_2 -> reference_2 [label="pattern-declared reference"];
+}

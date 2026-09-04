@@ -97,11 +97,13 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   requirement vocabulary 与 mixed-architecture deterministic catalog（不含 matcher）
 - Phase 10D Step 8B-2D3-B pure deterministic static trigger candidate matching、exact semantic/CFG witness
   provenance、authoritative source reprojection 与 deterministic inspection bundle
+- Phase 10D Step 8B-2D3-C source-backed static cross-layer hardware-reference/CVE/erratum binding、
+  exact source-pattern authority、detached authoritative reprojection 与 deterministic inspection bundle
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
 
-当前已具备 2D3-B 同函数 exact CFG 跨块静态候选审计，但仍未实现跨函数候选拼接、Candidate 到 AttackChain 的语义投影、
+当前已具备 2D3-C exact source-pattern hardware-reference 静态跨层候选审计，但仍未实现跨函数候选拼接、Candidate 到 AttackChain 的语义投影、
 Type III hardware→software propagation verification 或 API。Phase 9B1 已在 Ubuntu 22.04、
 QEMU 11.0.3、ARM32 `virt` / `cortex-a15` / 单 vCPU 环境通过 real acceptance，并由
 `phase-9b1-stable` 封存。Ubuntu 是 canonical development/runtime validation 环境；Windows
@@ -1336,6 +1338,54 @@ Candidate != AttackChain
 
 2D3-B 不实现 2D3-C hardware-reference/CVE/erratum binding，不执行 runtime verification、QEMU、symbolic execution、
 vulnerability judgement 或 AttackChain construction。
+
+## Phase 10D Step 8B-2D3-C Static Cross-Layer Hardware Reference Binding
+
+2D3-C 只将冻结 `StaticTriggerCandidateMaterialization` 经 candidate 的 exact `source_pattern_id`
+连回 source pattern，再严格遍历该 pattern 显式声明的 `hardware_reference_ids`：
+
+```text
+StaticTriggerCandidateMaterialization
+                 +
+    StaticHardwareReferenceCatalog
+                 |
+                 v
+exact source-pattern hardware-reference binding
+                 |
+                 v
+StaticCrossLayerCandidateMaterialization
+```
+
+`StaticDocumentedErratumHardwareReference` 嵌入并 detached-revalidate 已冻结的
+`DocumentedHardwareErratumContract`，因此不复制 CVE/erratum truth。Generic AArch64 adapter 将该 source 中的
+event kind、`PAR_EL1`、effective memory type、execution context、source cases、qualitative proximity 和
+additional timing 显式投影为 2D3-A pattern；未定义映射会 fail closed。CVE 字符、erratum number、
+knowledge retrieval score 或 matched term 都不是 binding authority。
+
+Binding 原样保留 candidate 中的 unresolved obligations，并增加 hardware-effect observation、
+physical-target applicability 和 target identity 三项尚待客观验证的跨层 obligation。缺失 reference
+或 architecture mismatch 只产生 typed unresolved record，不伪造 binding。Authoritative materialization 保存
+detached candidate/reference snapshots 并重做 exact reprojection，阻断完整重哈希的 foreign 或 undeclared reference。
+
+签入的 public CVE-2023-34320 / Cortex-A77 erratum 1508412 generic pattern 是 source-derived
+declarative pattern，不是触发或漏洞判定。在当前冻结 A77 object 上，production semantic/structure/
+fusion/matching 流程客观产生零 static candidate，因而也是零 cross-layer binding；实现不强制公开命中。
+Owned synthetic human-readable golden bundle 位于
+`examples/phase10d/static_cross_layer_candidates/owned_diamond/`，runner
+`scripts/export_static_cross_layer_candidates.py` 只编排已有静态 analyzer、fusion、matcher、exact binding 和 pure exporter。
+
+```text
+Cross-Layer Reference Candidate != Vulnerability Verification
+Pattern Hardware Reference != Hardware Trigger Observation
+Documented Affected Revision != Observed Target Revision
+Documented Possible Effect != Runtime Observed Effect
+Candidate -> Erratum Reference != Candidate Triggers Erratum
+CVE Association != Firmware Vulnerability Verdict
+Static Candidate != Runtime Execution
+Static CFG Witness != Runtime Path
+Unresolved Requirement != Satisfied Requirement
+Cross-Layer Candidate != Verified AttackChain
+```
 
 ## 文档导航
 

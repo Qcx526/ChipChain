@@ -1,0 +1,24 @@
+{
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+  "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+  "cross_layer_materialization_id": "static-cross-layer-candidate-materialization:c1d21c9daa63a2f78e0c38623e21fd05bdc874cbc18286b55c85e890f3fb23d6",
+  "cross_layer_projection_id": "static-cross-layer-candidate-projection:27d8f702fc24425de7e2fef0d94c967359cf5e07dc6a490498c0ed5b8fddff9a",
+  "files": {
+    "cross_layer_graph.dot": {
+      "byte_size": 1129,
+      "sha256": "c93f633dd0eb98ae83628fb679dda31ea5aa9233ab64931478ae5a65cd824aa7"
+    },
+    "cross_layer_projection.json": {
+      "byte_size": 8106,
+      "sha256": "e53ffe6f24b1613f91658a36822817b850347c5945a58370d0d05fa816afb08b"
+    },
+    "cross_layer_summary.md": {
+      "byte_size": 5581,
+      "sha256": "92ccf508ab7e6ee14458958f59a9ac10cd7e4daad6ff09ac307e913d1dbac577"
+    }
+  },
+  "instruction_set": "aarch64",
+  "source_candidate_materialization_id": "static-trigger-candidate-materialization:b4ae8a0deb96bb2096e940487eec75b1ed246b19b5577587f998c802718d5931",
+  "source_hardware_reference_catalog_id": "static-hardware-reference-catalog:d124ab435860b72f76d6b0faf844eecf068c7acf3cbab7eddbf184fcf4af8051"
+}
