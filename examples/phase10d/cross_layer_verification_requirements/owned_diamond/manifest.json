@@ -1,0 +1,23 @@
+{
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+  "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+  "files": {
+    "verification_requirements.dot": {
+      "byte_size": 5213,
+      "sha256": "aeaf23c2b4ac8c4465e1d25bfcc3adb8adc6b07ceb99fee311908ad7afe9efaa"
+    },
+    "verification_requirements.json": {
+      "byte_size": 31143,
+      "sha256": "87d6977d2216e037efc58f12b56af56f3e50b16b58bc57f13275a603e9b80bbd"
+    },
+    "verification_requirements_summary.md": {
+      "byte_size": 12200,
+      "sha256": "7fcfd93301bc49188d420eb8aacaacff5d6763ae90bf534675bcf5515fd3d8bb"
+    }
+  },
+  "instruction_set": "aarch64",
+  "requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+  "requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+  "source_cross_layer_materialization_id": "static-cross-layer-candidate-materialization:c1d21c9daa63a2f78e0c38623e21fd05bdc874cbc18286b55c85e890f3fb23d6"
+}

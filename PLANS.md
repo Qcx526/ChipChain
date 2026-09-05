@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B、Step 8B-2D2-V1、Step 8B-2D2-C2-C、Step 8B-2D3-A 与 Step 8B-2D3-B 已完成并冻结；Step 8B-2D3-C 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B、Step 8B-2D2-V1、Step 8B-2D2-C2-C、Step 8B-2D3-A、Step 8B-2D3-B 与 Step 8B-2D3-C 已完成并冻结；Step 8B-2D4-A 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -1055,6 +1055,26 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] `Cross-Layer Reference Candidate != Vulnerability Verification`、`Candidate -> Erratum Reference !=
   Candidate Triggers Erratum`、`Documented Affected Revision != Observed Target Revision`、`Documented Possible
   Effect != Runtime Observed Effect`；不实现 runtime/QEMU/physical applicability/vulnerability/AttackChain verdict
+
+#### Phase 10D Step 8B-2D4-A：Deterministic Cross-Layer Verification Requirement Projection（已完成实现，待 final review）
+
+- [x] 以 `StaticCrossLayerCandidateMaterialization` 为唯一逻辑输入，将冻结的六类 candidate obligations 与
+  三类 exact binding obligations 显式映射为九类 closed-v1 objective evidence requirements
+- [x] candidate requirements 直接枚举 frozen candidate snapshot，按 exact case candidate + obligation 去重，
+  identity 只绑定 candidate materialization/projection 而不依赖 hardware-reference catalog resolution；binding
+  requirements 继续保持 exact cross-layer binding scope，unresolved hardware references 不伪造 binding-side requirements
+- [x] runtime/CFG/memory-type/context/proximity/timing subject scope 来自 exact selected candidate、witness、pattern
+  case 与 selected predicate provenance，不包含 unselected OR alternative；memory/context source obligation 还必须
+  分别具有非空 required memory type / execution context declaration，否则 2D4-A fail closed
+- [x] authoritative materialization detached-revalidate 2D3-C source snapshot 并完整重投影；缺失、额外、错误义务
+  与重哈希 foreign candidate/binding requirement 均 fail closed
+- [x] owned frozen source 产生 4 candidate + 12 binding = 16 requirements；public A77 零 resolution record
+  继续产生零 requirements；提供 deterministic JSON/Markdown/DOT/hash-manifest bundle
+- [x] Requirement != Evidence/Observation/VerificationRecord/VERIFIED/REJECTED/Vulnerability Verdict/AttackChain；
+  本步骤不读取 RuntimeObservation、不运行 QEMU、不收集证据
+- [ ] 2D4-B：runtime execution/path/context/memory-type evidence binding（planned, not implemented）
+- [ ] 2D4-C：target identity/revision applicability/hardware-effect evidence binding（planned, not implemented）
+- [ ] 2D4-D：objective aggregation 与可能的 verified cross-layer-chain projection（planned, not implemented）
 
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能

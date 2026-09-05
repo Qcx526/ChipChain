@@ -99,6 +99,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   provenance、authoritative source reprojection 与 deterministic inspection bundle
 - Phase 10D Step 8B-2D3-C source-backed static cross-layer hardware-reference/CVE/erratum binding、
   exact source-pattern authority、detached authoritative reprojection 与 deterministic inspection bundle
+- Phase 10D Step 8B-2D4-A deterministic cross-layer verification requirement projection：将冻结候选/binding
+  未决义务转换为 source-bound objective evidence requirements，不收集证据或生成验证状态
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -1386,6 +1388,40 @@ Static CFG Witness != Runtime Path
 Unresolved Requirement != Satisfied Requirement
 Cross-Layer Candidate != Verified AttackChain
 ```
+
+## Phase 10D Step 8B-2D4-A Cross-Layer Verification Requirements
+
+2D4-A 以一份冻结 `StaticCrossLayerCandidateMaterialization` 为唯一逻辑输入，将其中已经存在的
+candidate-side 与 exact binding-side unresolved obligations，按封闭映射转换为确定性的
+`StaticCrossLayerVerificationRequirementMaterialization`：
+
+```text
+StaticCrossLayerCandidateMaterialization
+                 |
+                 v
+StaticCrossLayerVerificationRequirementMaterialization
+                 |
+                 v
+       [2D4-B / 2D4-C later]
+       objective evidence binding
+                 |
+                 v
+            [2D4-D later]
+       verification aggregation
+```
+
+候选侧 requirement 直接从 embedded frozen candidate snapshot 枚举，按
+`(source_case_candidate_id, source_obligation)` 去重；其 identity 绑定 candidate materialization/projection，
+不依赖 hardware-reference catalog 的 empty/partial/full resolution。hardware-side requirement 则继续绑定 exact
+cross-layer materialization/projection 与 binding scope。Memory-type/context requirement 只有在 exact selected
+predicate 同时声明对应 objective obligation 和非空 required memory type/execution context 时才能生成；这是
+2D4-A evidence planning 的更严格前置条件，不改变 frozen 2D3-A pattern contract。Materialization 嵌入 detached
+2D3-C source snapshot 并完整重投影，因此 standalone projection 的哈希完整性不会被误作 source referential integrity。
+
+2D4-A 不检查 `RuntimeObservation`，不创建 `VerificationRecord`，不使用 QEMU，不收集 runtime/path/context/
+memory-type/physical-target/hardware-effect evidence，也不产生 VERIFIED、REJECTED、vulnerability 或 AttackChain
+结论。2D4-B 计划绑定 runtime/path/context/memory-type evidence；2D4-C 计划绑定 target identity/revision
+applicability/hardware-effect evidence；只有未来 2D4-D 才计划做 objective aggregation。
 
 ## 文档导航
 
