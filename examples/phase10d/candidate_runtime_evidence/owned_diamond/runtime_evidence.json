@@ -1,0 +1,736 @@
+{
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+  "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+  "compatible_runtime_trace_ids": [
+    "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba"
+  ],
+  "contract": "phase10d_candidate_runtime_evidence_projection_v1",
+  "diagnostic_codes": [
+    "instruction_observation_evidence_count:6",
+    "out_of_scope_hardware_requirement_count:12",
+    "path_requirement_count:2",
+    "path_requirements_with_runtime_order_evidence_count:2",
+    "path_requirements_without_runtime_order_evidence_count:0",
+    "requirement_evidence_binding_count:26",
+    "requirements_with_any_runtime_evidence_count:4",
+    "requirements_without_any_runtime_evidence_count:0",
+    "runtime_execution_requirement_count:2",
+    "runtime_order_evidence_count:6",
+    "runtime_requirements_with_instruction_evidence_count:2",
+    "runtime_requirements_without_instruction_evidence_count:0",
+    "runtime_trace_count:1",
+    "unsupported_candidate_requirement_count:0"
+  ],
+  "evidence_gaps": [],
+  "id": "candidate-runtime-evidence-projection:30d5b88251151877560946f83a046e0ecec4a95f5b144f6155c23295cb738e5b",
+  "incompatible_runtime_sources": [],
+  "instruction_evidence": [
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_instruction_evidence_v1",
+      "evidence_kind": "instruction_execution_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_instruction_address": {
+        "value": "0x400000"
+      },
+      "id": "candidate-runtime-instruction-evidence:2d76abe2a05b942a07ed4c2e6ba94c311984a990fb3c1ff4c2a7693151b552d1",
+      "instruction_set": "aarch64",
+      "observation_sequence_index": 0,
+      "observation_vcpu_index": 0,
+      "observed_pc": {
+        "value": "0x400000"
+      },
+      "source_fused_fact_node_ids": [
+        "static-fused-behavior-node:c8744704a139de78f8b644217a9f0964940922de7ebf5e08646dde73ee9dff1d"
+      ],
+      "source_position_candidate_ids": [
+        "static-trigger-position-candidate:2b6935239005114fe4022ce20638fe0e90e0a1bb9a60c80fea71d76db1fef0e6",
+        "static-trigger-position-candidate:4df335eed22fcccaa2f46061b15c061a5ac88d088b3e48c99380da7a39ccb323"
+      ],
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:2d0c1046e68fcb44310982cb6b1cdcc5a2bf1a9937124cfdae2746dceb93f44c",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_instruction_evidence_v1",
+      "evidence_kind": "instruction_execution_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_instruction_address": {
+        "value": "0x400008"
+      },
+      "id": "candidate-runtime-instruction-evidence:762daf3e6fd71ae9bf11bb450f2d1fa12cc1da866f097f988d9847743b9635b1",
+      "instruction_set": "aarch64",
+      "observation_sequence_index": 1,
+      "observation_vcpu_index": 0,
+      "observed_pc": {
+        "value": "0x400008"
+      },
+      "source_fused_fact_node_ids": [
+        "static-fused-behavior-node:43734798e1f309d61b64c543198db12a802ee15f1024a9c6b9479723d672db34"
+      ],
+      "source_position_candidate_ids": [
+        "static-trigger-position-candidate:cdb6bda9916630707a4229273857b6580f27959ce836146fffd87176b4b4628e"
+      ],
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:5148f807081c57efcad3bd23118c1641659ce65f326f9cab07b64e3417438e27",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_instruction_evidence_v1",
+      "evidence_kind": "instruction_execution_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_instruction_address": {
+        "value": "0x400018"
+      },
+      "id": "candidate-runtime-instruction-evidence:11406d9f4d9351e4f665657db7680950d957ef3157ded3469930e71d85cfb02b",
+      "instruction_set": "aarch64",
+      "observation_sequence_index": 2,
+      "observation_vcpu_index": 0,
+      "observed_pc": {
+        "value": "0x400018"
+      },
+      "source_fused_fact_node_ids": [
+        "static-fused-behavior-node:ce27536ad8128a310898ec6d85ef1bc9cdb9bc36a668883f370a388bca9cc510"
+      ],
+      "source_position_candidate_ids": [
+        "static-trigger-position-candidate:6930dcd084098f52f6883ce6bb0e9879bd72dc1ae0093f8ff4614f5e3cd5307c",
+        "static-trigger-position-candidate:b1310d3a436d5a37940c89362156818939550456e9c8f596ff89576cdb69ce0d"
+      ],
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:ff6fe0cc5f326df9c934069a4cdd93cf19e0967d31ceac3ca2350d7841892744",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_instruction_evidence_v1",
+      "evidence_kind": "instruction_execution_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_instruction_address": {
+        "value": "0x400000"
+      },
+      "id": "candidate-runtime-instruction-evidence:dc3b3513c12d232d55acb031feb658916089e2718696e11f27874b8b73305f6a",
+      "instruction_set": "aarch64",
+      "observation_sequence_index": 3,
+      "observation_vcpu_index": 0,
+      "observed_pc": {
+        "value": "0x400000"
+      },
+      "source_fused_fact_node_ids": [
+        "static-fused-behavior-node:c8744704a139de78f8b644217a9f0964940922de7ebf5e08646dde73ee9dff1d"
+      ],
+      "source_position_candidate_ids": [
+        "static-trigger-position-candidate:2b6935239005114fe4022ce20638fe0e90e0a1bb9a60c80fea71d76db1fef0e6",
+        "static-trigger-position-candidate:4df335eed22fcccaa2f46061b15c061a5ac88d088b3e48c99380da7a39ccb323"
+      ],
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:cba41c8fba53c085aa1ac396ae9627681b69bbff51c392f0cae4743f861b89b1",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_instruction_evidence_v1",
+      "evidence_kind": "instruction_execution_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_instruction_address": {
+        "value": "0x400010"
+      },
+      "id": "candidate-runtime-instruction-evidence:f91d83e48c2145bf23711baeb4e252e2fd39b10e130357d6b762e5c4c5e8670f",
+      "instruction_set": "aarch64",
+      "observation_sequence_index": 4,
+      "observation_vcpu_index": 0,
+      "observed_pc": {
+        "value": "0x400010"
+      },
+      "source_fused_fact_node_ids": [
+        "static-fused-behavior-node:ad3ee6b3e63f83a413f0155f5629c42dab7ac02d320b0c6ac4927b2df0f5d983"
+      ],
+      "source_position_candidate_ids": [
+        "static-trigger-position-candidate:f658701d7835b4c142fd7cb1b284e462dc64b5eaf29352ef85f178ee70c39abf"
+      ],
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:c44677c11870ec6b28109f272846d97ebcf3917f4fa5f934d0c085a73b974f44",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba"
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_instruction_evidence_v1",
+      "evidence_kind": "instruction_execution_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_instruction_address": {
+        "value": "0x400018"
+      },
+      "id": "candidate-runtime-instruction-evidence:6c7bf73dfb81ebcd5f7a5fa0d943345e25324f488be5f2d29f86d127acd1a313",
+      "instruction_set": "aarch64",
+      "observation_sequence_index": 5,
+      "observation_vcpu_index": 0,
+      "observed_pc": {
+        "value": "0x400018"
+      },
+      "source_fused_fact_node_ids": [
+        "static-fused-behavior-node:ce27536ad8128a310898ec6d85ef1bc9cdb9bc36a668883f370a388bca9cc510"
+      ],
+      "source_position_candidate_ids": [
+        "static-trigger-position-candidate:6930dcd084098f52f6883ce6bb0e9879bd72dc1ae0093f8ff4614f5e3cd5307c",
+        "static-trigger-position-candidate:b1310d3a436d5a37940c89362156818939550456e9c8f596ff89576cdb69ce0d"
+      ],
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:e0ff697689eee8553376d1207743d4660bbc52fdef4c4842a8898954e885e68c",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba"
+    }
+  ],
+  "instruction_set": "aarch64",
+  "order_evidence": [
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_order_evidence_v1",
+      "evidence_kind": "static_witness_endpoint_runtime_order_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_source_instruction_address": {
+        "value": "0x400008"
+      },
+      "expected_target_instruction_address": {
+        "value": "0x400018"
+      },
+      "id": "candidate-runtime-order-evidence:0fedacf2aa922ff9c2e7cd498c2a86857ffe564774de5e0fa8248d4242a43a8d",
+      "instruction_set": "aarch64",
+      "source_fused_fact_node_id": "static-fused-behavior-node:43734798e1f309d61b64c543198db12a802ee15f1024a9c6b9479723d672db34",
+      "source_position_candidate_id": "static-trigger-position-candidate:cdb6bda9916630707a4229273857b6580f27959ce836146fffd87176b4b4628e",
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:5148f807081c57efcad3bd23118c1641659ce65f326f9cab07b64e3417438e27",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_sequence_index": 1,
+      "source_static_order_witness_id": "static-trigger-order-witness:06c7e0ef4c4a0648b217a9321e5a5889faf7819ffff8cee4ed5e4f80f3cae1a9",
+      "target_fused_fact_node_id": "static-fused-behavior-node:ce27536ad8128a310898ec6d85ef1bc9cdb9bc36a668883f370a388bca9cc510",
+      "target_position_candidate_id": "static-trigger-position-candidate:6930dcd084098f52f6883ce6bb0e9879bd72dc1ae0093f8ff4614f5e3cd5307c",
+      "target_runtime_observation_id": "runtime-observation:ff6fe0cc5f326df9c934069a4cdd93cf19e0967d31ceac3ca2350d7841892744",
+      "target_sequence_index": 2,
+      "vcpu_index": 0
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_order_evidence_v1",
+      "evidence_kind": "static_witness_endpoint_runtime_order_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_source_instruction_address": {
+        "value": "0x400008"
+      },
+      "expected_target_instruction_address": {
+        "value": "0x400018"
+      },
+      "id": "candidate-runtime-order-evidence:fbc19a5a7174933be018b451eb55156aa34b310f78dec4dc4fbd781a83891d78",
+      "instruction_set": "aarch64",
+      "source_fused_fact_node_id": "static-fused-behavior-node:43734798e1f309d61b64c543198db12a802ee15f1024a9c6b9479723d672db34",
+      "source_position_candidate_id": "static-trigger-position-candidate:cdb6bda9916630707a4229273857b6580f27959ce836146fffd87176b4b4628e",
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:5148f807081c57efcad3bd23118c1641659ce65f326f9cab07b64e3417438e27",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_sequence_index": 1,
+      "source_static_order_witness_id": "static-trigger-order-witness:06c7e0ef4c4a0648b217a9321e5a5889faf7819ffff8cee4ed5e4f80f3cae1a9",
+      "target_fused_fact_node_id": "static-fused-behavior-node:ce27536ad8128a310898ec6d85ef1bc9cdb9bc36a668883f370a388bca9cc510",
+      "target_position_candidate_id": "static-trigger-position-candidate:6930dcd084098f52f6883ce6bb0e9879bd72dc1ae0093f8ff4614f5e3cd5307c",
+      "target_runtime_observation_id": "runtime-observation:e0ff697689eee8553376d1207743d4660bbc52fdef4c4842a8898954e885e68c",
+      "target_sequence_index": 5,
+      "vcpu_index": 0
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_order_evidence_v1",
+      "evidence_kind": "static_witness_endpoint_runtime_order_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_source_instruction_address": {
+        "value": "0x400000"
+      },
+      "expected_target_instruction_address": {
+        "value": "0x400010"
+      },
+      "id": "candidate-runtime-order-evidence:95e1492040edb69b23a8059f3637880baa4483e759ae12d98199de19e7c943d6",
+      "instruction_set": "aarch64",
+      "source_fused_fact_node_id": "static-fused-behavior-node:c8744704a139de78f8b644217a9f0964940922de7ebf5e08646dde73ee9dff1d",
+      "source_position_candidate_id": "static-trigger-position-candidate:4df335eed22fcccaa2f46061b15c061a5ac88d088b3e48c99380da7a39ccb323",
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:2d0c1046e68fcb44310982cb6b1cdcc5a2bf1a9937124cfdae2746dceb93f44c",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_sequence_index": 0,
+      "source_static_order_witness_id": "static-trigger-order-witness:118e63b303fb14dded26223bbba585f43437f9d8d4855dac68fc3a2d66cad0eb",
+      "target_fused_fact_node_id": "static-fused-behavior-node:ad3ee6b3e63f83a413f0155f5629c42dab7ac02d320b0c6ac4927b2df0f5d983",
+      "target_position_candidate_id": "static-trigger-position-candidate:f658701d7835b4c142fd7cb1b284e462dc64b5eaf29352ef85f178ee70c39abf",
+      "target_runtime_observation_id": "runtime-observation:c44677c11870ec6b28109f272846d97ebcf3917f4fa5f934d0c085a73b974f44",
+      "target_sequence_index": 4,
+      "vcpu_index": 0
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_order_evidence_v1",
+      "evidence_kind": "static_witness_endpoint_runtime_order_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_source_instruction_address": {
+        "value": "0x400000"
+      },
+      "expected_target_instruction_address": {
+        "value": "0x400010"
+      },
+      "id": "candidate-runtime-order-evidence:0e7dacdcd43beaea5db118f315715f19efbf2bf620bbb3bb03ab728f019872ea",
+      "instruction_set": "aarch64",
+      "source_fused_fact_node_id": "static-fused-behavior-node:c8744704a139de78f8b644217a9f0964940922de7ebf5e08646dde73ee9dff1d",
+      "source_position_candidate_id": "static-trigger-position-candidate:4df335eed22fcccaa2f46061b15c061a5ac88d088b3e48c99380da7a39ccb323",
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:cba41c8fba53c085aa1ac396ae9627681b69bbff51c392f0cae4743f861b89b1",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_sequence_index": 3,
+      "source_static_order_witness_id": "static-trigger-order-witness:118e63b303fb14dded26223bbba585f43437f9d8d4855dac68fc3a2d66cad0eb",
+      "target_fused_fact_node_id": "static-fused-behavior-node:ad3ee6b3e63f83a413f0155f5629c42dab7ac02d320b0c6ac4927b2df0f5d983",
+      "target_position_candidate_id": "static-trigger-position-candidate:f658701d7835b4c142fd7cb1b284e462dc64b5eaf29352ef85f178ee70c39abf",
+      "target_runtime_observation_id": "runtime-observation:c44677c11870ec6b28109f272846d97ebcf3917f4fa5f934d0c085a73b974f44",
+      "target_sequence_index": 4,
+      "vcpu_index": 0
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_order_evidence_v1",
+      "evidence_kind": "static_witness_endpoint_runtime_order_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_source_instruction_address": {
+        "value": "0x400000"
+      },
+      "expected_target_instruction_address": {
+        "value": "0x400008"
+      },
+      "id": "candidate-runtime-order-evidence:8c33297fc6cc6599720a6ba895257d68b34881dc3c218044c5dab397b7001ac3",
+      "instruction_set": "aarch64",
+      "source_fused_fact_node_id": "static-fused-behavior-node:c8744704a139de78f8b644217a9f0964940922de7ebf5e08646dde73ee9dff1d",
+      "source_position_candidate_id": "static-trigger-position-candidate:2b6935239005114fe4022ce20638fe0e90e0a1bb9a60c80fea71d76db1fef0e6",
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:2d0c1046e68fcb44310982cb6b1cdcc5a2bf1a9937124cfdae2746dceb93f44c",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_sequence_index": 0,
+      "source_static_order_witness_id": "static-trigger-order-witness:39b8338b7d66e8e4d841c9b2e5f3b01b75585a03a7bd5ad5ac7d4f1b61a481a4",
+      "target_fused_fact_node_id": "static-fused-behavior-node:43734798e1f309d61b64c543198db12a802ee15f1024a9c6b9479723d672db34",
+      "target_position_candidate_id": "static-trigger-position-candidate:cdb6bda9916630707a4229273857b6580f27959ce836146fffd87176b4b4628e",
+      "target_runtime_observation_id": "runtime-observation:5148f807081c57efcad3bd23118c1641659ce65f326f9cab07b64e3417438e27",
+      "target_sequence_index": 1,
+      "vcpu_index": 0
+    },
+    {
+      "architecture": "arm",
+      "artifact_id": "owned-synthetic-aarch64-static-fused-behavior-v1",
+      "artifact_sha256": "3d92da1b6f160605df23514a43c04631e0c64f275cd707720988765f727e3262",
+      "contract": "phase10d_candidate_runtime_order_evidence_v1",
+      "evidence_kind": "static_witness_endpoint_runtime_order_observation",
+      "evidence_semantics": "objective_runtime_observation_only",
+      "expected_source_instruction_address": {
+        "value": "0x400010"
+      },
+      "expected_target_instruction_address": {
+        "value": "0x400018"
+      },
+      "id": "candidate-runtime-order-evidence:bdf0a2c78f62ba2b13ca56eaf3fe6c02b23f93db5a38dcca56e5b728c29ee762",
+      "instruction_set": "aarch64",
+      "source_fused_fact_node_id": "static-fused-behavior-node:ad3ee6b3e63f83a413f0155f5629c42dab7ac02d320b0c6ac4927b2df0f5d983",
+      "source_position_candidate_id": "static-trigger-position-candidate:f658701d7835b4c142fd7cb1b284e462dc64b5eaf29352ef85f178ee70c39abf",
+      "source_runtime_backend_kind": "owned_fixture",
+      "source_runtime_backend_manifest_id": "runtime-backend:1ea44082cb64e374d617ca788e9b99ec7d017f6edafc72db135a7e3166a2a31f",
+      "source_runtime_manifest_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_runtime_observation_id": "runtime-observation:c44677c11870ec6b28109f272846d97ebcf3917f4fa5f934d0c085a73b974f44",
+      "source_runtime_run_mode": "baseline",
+      "source_runtime_trace_id": "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba",
+      "source_sequence_index": 4,
+      "source_static_order_witness_id": "static-trigger-order-witness:8e424341923149e4d0acfb3d1b47ea5d7f221e9ddf1a2317ab25dddd53e88a0a",
+      "target_fused_fact_node_id": "static-fused-behavior-node:ce27536ad8128a310898ec6d85ef1bc9cdb9bc36a668883f370a388bca9cc510",
+      "target_position_candidate_id": "static-trigger-position-candidate:b1310d3a436d5a37940c89362156818939550456e9c8f596ff89576cdb69ce0d",
+      "target_runtime_observation_id": "runtime-observation:e0ff697689eee8553376d1207743d4660bbc52fdef4c4842a8898954e885e68c",
+      "target_sequence_index": 5,
+      "vcpu_index": 0
+    }
+  ],
+  "out_of_scope_requirement_ids": [
+    "static-cross-layer-binding-verification-requirement:2a2fd44efc483116c4c7f78b13152ca1b6a62b84880a89bc5d4bc65917103d58",
+    "static-cross-layer-binding-verification-requirement:3235b2f946a1c77bb82827e06f5ae0e9a9cb1329e8047f41ba6fe4460183c89e",
+    "static-cross-layer-binding-verification-requirement:484db8d8b285290da10b1e5fcf55183f6d032b95c6f437b478f562dab2cb4d49",
+    "static-cross-layer-binding-verification-requirement:4f2577965f346118cf00787122b0fa179a851d029b54c1949dad534accba611e",
+    "static-cross-layer-binding-verification-requirement:5455dcec43134a7115bdc8efeca7283287fd0dfe6457555a2e571d2cf9d716f3",
+    "static-cross-layer-binding-verification-requirement:5673d3547e9e584891d4d7508538fe57551aef9541af374d9be280a80b3fe6c3",
+    "static-cross-layer-binding-verification-requirement:7063ae70eac8063faf85274fcbbd7a8734d801f1d4a01e4087e32f6818e49a9c",
+    "static-cross-layer-binding-verification-requirement:b43d6392cf17c0a3621f91841152322319311d22f8a654db0cb4514b4d3e0ffa",
+    "static-cross-layer-binding-verification-requirement:bb1d8ef74b8f00b477341e69733c77604af7d5b2a9a44397dea5b0246a32a27b",
+    "static-cross-layer-binding-verification-requirement:c75a29b0e3c4d8d6945a7c82234d263f7bf572cce06777cbe3e7889d0aebd670",
+    "static-cross-layer-binding-verification-requirement:cd9861c18d40d0a4b59c8e624b246537d06966c8e542e2d980023840f91a2c24",
+    "static-cross-layer-binding-verification-requirement:cebddbb5bc9dee4f18cce7d6ac0a1b3cc3cd932caa581add03f856384b90c091"
+  ],
+  "requirement_evidence_bindings": [
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:aab55615690b30dc70c817464bdd986a861530e6c185770efac8aca7ca612ed2",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:66d5ee90890136960c14c20932d9f9e8799e64f3b6e2b137d37efad4f2e214ea",
+      "source_requirement_kind": "runtime_execution_trace_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:11406d9f4d9351e4f665657db7680950d957ef3157ded3469930e71d85cfb02b"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:fd96b9e7b2b41cb8f0d56004599159f29ea5bc55085aef368219e0872cd77b1a",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:66d5ee90890136960c14c20932d9f9e8799e64f3b6e2b137d37efad4f2e214ea",
+      "source_requirement_kind": "runtime_execution_trace_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:2d76abe2a05b942a07ed4c2e6ba94c311984a990fb3c1ff4c2a7693151b552d1"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:0f3d8c9ee980bbf8cd5dbc17889b0eafa212b8478ad5dd7ba594b627aa2fb809",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:66d5ee90890136960c14c20932d9f9e8799e64f3b6e2b137d37efad4f2e214ea",
+      "source_requirement_kind": "runtime_execution_trace_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:6c7bf73dfb81ebcd5f7a5fa0d943345e25324f488be5f2d29f86d127acd1a313"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:e2401af90c579e92d3521d03044552d66fb3e282704b99fab9347ab384b59cc4",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:66d5ee90890136960c14c20932d9f9e8799e64f3b6e2b137d37efad4f2e214ea",
+      "source_requirement_kind": "runtime_execution_trace_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:dc3b3513c12d232d55acb031feb658916089e2718696e11f27874b8b73305f6a"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:da5a589ef5f108410b629f9b3a909a42efc7e9bd6c0ae6eedcf1a50bf31386bf",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:66d5ee90890136960c14c20932d9f9e8799e64f3b6e2b137d37efad4f2e214ea",
+      "source_requirement_kind": "runtime_execution_trace_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:f91d83e48c2145bf23711baeb4e252e2fd39b10e130357d6b762e5c4c5e8670f"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:7eee38b91152c98c4f081034b8e07692020a0952e581db451c0533d8063ee043",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:9593291abff6a0d441479cdce5a8744a2a974034e9a194c078ab6afba0900483",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:11406d9f4d9351e4f665657db7680950d957ef3157ded3469930e71d85cfb02b"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:996c2d190536001131295204c5218e404314a4906f43178ef6a76ce331ca3668",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:9593291abff6a0d441479cdce5a8744a2a974034e9a194c078ab6afba0900483",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:2d76abe2a05b942a07ed4c2e6ba94c311984a990fb3c1ff4c2a7693151b552d1"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:5bd068fce6f24d8350368ac530bec34f3f9675c39278e76764fb0de2c388785d",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:9593291abff6a0d441479cdce5a8744a2a974034e9a194c078ab6afba0900483",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:6c7bf73dfb81ebcd5f7a5fa0d943345e25324f488be5f2d29f86d127acd1a313"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:fb24311c89f47e42eab503195b1690eaab05a6bae75fee67cc48522794cb1f6a",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:9593291abff6a0d441479cdce5a8744a2a974034e9a194c078ab6afba0900483",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:762daf3e6fd71ae9bf11bb450f2d1fa12cc1da866f097f988d9847743b9635b1"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:702ae67dc7a91afd64c92d53f5f500858345160370a5c703cc6afbc6bb991782",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:9593291abff6a0d441479cdce5a8744a2a974034e9a194c078ab6afba0900483",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:dc3b3513c12d232d55acb031feb658916089e2718696e11f27874b8b73305f6a"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:e42b06d67957201acf9014544f58307cb1bfeb9c5ba80678a6b8fd6f0b4b5965",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:9593291abff6a0d441479cdce5a8744a2a974034e9a194c078ab6afba0900483",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-order-evidence:0fedacf2aa922ff9c2e7cd498c2a86857ffe564774de5e0fa8248d4242a43a8d"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:e6d5729798cc922817dcdd708638568eba6ff96f9433297f4acfce11d801780f",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:9593291abff6a0d441479cdce5a8744a2a974034e9a194c078ab6afba0900483",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-order-evidence:8c33297fc6cc6599720a6ba895257d68b34881dc3c218044c5dab397b7001ac3"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:f0225093ec04142d62cf431ea06f387c6ddc542515d91d5b17db631e03d6b2e8",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:9593291abff6a0d441479cdce5a8744a2a974034e9a194c078ab6afba0900483",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-order-evidence:fbc19a5a7174933be018b451eb55156aa34b310f78dec4dc4fbd781a83891d78"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:764fd22b358e06262bee90025a30b14ffc5b5785b3d53034e9ae2ae6fe7fd8f0",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:af1c1ce8b44ef047249888b09b0c8b4baaf455371ce9643acb1546d219489c5e",
+      "source_requirement_kind": "runtime_execution_trace_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:11406d9f4d9351e4f665657db7680950d957ef3157ded3469930e71d85cfb02b"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:6aae2910c13496dbd43467ce1ce070fc2ce3f18a9c08d265f673a37e91b8daad",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:af1c1ce8b44ef047249888b09b0c8b4baaf455371ce9643acb1546d219489c5e",
+      "source_requirement_kind": "runtime_execution_trace_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:2d76abe2a05b942a07ed4c2e6ba94c311984a990fb3c1ff4c2a7693151b552d1"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:4db21ab85f0487b10aaaff672700b71cfb2d03894c8162a08764aced2e8faf29",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:af1c1ce8b44ef047249888b09b0c8b4baaf455371ce9643acb1546d219489c5e",
+      "source_requirement_kind": "runtime_execution_trace_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:6c7bf73dfb81ebcd5f7a5fa0d943345e25324f488be5f2d29f86d127acd1a313"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:3919beb0063ddefc609552320c36b4ca2d7e3d1c33d9e823ad82024fe944ecb2",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:af1c1ce8b44ef047249888b09b0c8b4baaf455371ce9643acb1546d219489c5e",
+      "source_requirement_kind": "runtime_execution_trace_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:762daf3e6fd71ae9bf11bb450f2d1fa12cc1da866f097f988d9847743b9635b1"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:8061d6c3749e2039c9d56705f4a67385ff81bcca17b9bf42cf1b7887e9473706",
+      "source_case_candidate_id": "static-trigger-case-candidate:bf14c1c4bf7b42e5e7d59bda063a1956bcdf47da0b06d15f9c007ba99e8a54e2",
+      "source_requirement_id": "static-candidate-verification-requirement:af1c1ce8b44ef047249888b09b0c8b4baaf455371ce9643acb1546d219489c5e",
+      "source_requirement_kind": "runtime_execution_trace_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:dc3b3513c12d232d55acb031feb658916089e2718696e11f27874b8b73305f6a"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:28cc0852b5ce4b5b1375f748f58c973c7cf94e9655d52d63d31ed0772a292153",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:d38109991565030f998551be9fc3747b4b913e363f6f3e558c117cfec3676847",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:11406d9f4d9351e4f665657db7680950d957ef3157ded3469930e71d85cfb02b"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:50f14fbc32341e556b6c2e5dde164b5530e6c0e995ebab1e826e9ef49cc21007",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:d38109991565030f998551be9fc3747b4b913e363f6f3e558c117cfec3676847",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:2d76abe2a05b942a07ed4c2e6ba94c311984a990fb3c1ff4c2a7693151b552d1"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:77c516bdfeba057dbea06411e866bb613cd429435187c784c89d01e5539d3376",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:d38109991565030f998551be9fc3747b4b913e363f6f3e558c117cfec3676847",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:6c7bf73dfb81ebcd5f7a5fa0d943345e25324f488be5f2d29f86d127acd1a313"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:f91166cd2c738b4d378c321ffb613cca14f1ff92706c248f2772c42221a24f27",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:d38109991565030f998551be9fc3747b4b913e363f6f3e558c117cfec3676847",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:dc3b3513c12d232d55acb031feb658916089e2718696e11f27874b8b73305f6a"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:8dbf9720d687ea22e036c8c7f1f07bd4acadda02b8351cc6a8c8dfacf1fb89ea",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:d38109991565030f998551be9fc3747b4b913e363f6f3e558c117cfec3676847",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-instruction-evidence:f91d83e48c2145bf23711baeb4e252e2fd39b10e130357d6b762e5c4c5e8670f"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:453670efe593981dc3ead2afde1919aa7ecf42f8e34dca9e25fa84ef7d581cb3",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:d38109991565030f998551be9fc3747b4b913e363f6f3e558c117cfec3676847",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-order-evidence:0e7dacdcd43beaea5db118f315715f19efbf2bf620bbb3bb03ab728f019872ea"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:f336989c6ed0fc44de316176bb51e3ac269e77d1b540edbda66f9de2790fe51a",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:d38109991565030f998551be9fc3747b4b913e363f6f3e558c117cfec3676847",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-order-evidence:95e1492040edb69b23a8059f3637880baa4483e759ae12d98199de19e7c943d6"
+    },
+    {
+      "binding_role": "relevant_runtime_observation",
+      "binding_semantics": "exact_source_subject_binding_only",
+      "contract": "phase10d_candidate_runtime_requirement_evidence_binding_v1",
+      "id": "candidate-runtime-requirement-evidence-binding:9ce0fc33817f83150f1b5364007c62cc1ac007b51c4ac6fcc533f79fbb37807a",
+      "source_case_candidate_id": "static-trigger-case-candidate:ff25b43401a79ef60c8bc2882d6a2d6aa53ae07192e64965f2dd9d3830a76050",
+      "source_requirement_id": "static-candidate-verification-requirement:d38109991565030f998551be9fc3747b4b913e363f6f3e558c117cfec3676847",
+      "source_requirement_kind": "path_feasibility_evidence_required",
+      "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+      "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+      "source_runtime_evidence_id": "candidate-runtime-order-evidence:bdf0a2c78f62ba2b13ca56eaf3fe6c02b23f93db5a38dcca56e5b728c29ee762"
+    }
+  ],
+  "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:29433eecd327f8df9ccec0be97217bd32c2a214b5352613fe6e316f0e431808d",
+  "source_requirement_projection_id": "static-cross-layer-verification-requirement-projection:f03337b0b7aeff26ebc17ae18f9804f7e6a63966b6567fe5a94122376baad7e0",
+  "source_runtime_trace_ids": [
+    "runtime-trace:e2357a1a01061ade459496b372b01020c5320a2b1e3160a13a3559b38bc63eba"
+  ]
+}

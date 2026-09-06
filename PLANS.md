@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B、Step 8B-2D2-V1、Step 8B-2D2-C2-C、Step 8B-2D3-A、Step 8B-2D3-B 与 Step 8B-2D3-C 已完成并冻结；Step 8B-2D4-A 已完成实现、等待 final review；
+Phase 0～Phase 9B2C、Phase 9C Step 1～3A 与 Step 4、Phase 10A Step 1～3、Phase 10B、Phase 10C、Phase 10D Step 1～7、Step 8A、Step 8B-0、Step 8B-1A～1E、Step 8B-2B0、Step 8B-2B1、Step 8B-2B2-A、Step 8B-2B2-B、Step 8B-2B2-C1、Step 8B-2B2-C2、Step 8B-2D1、Step 8B-2D2-A、Step 8B-2D2-B、Step 8B-2D2-C1、Step 8B-2D2-C2-A、Step 8B-2D2-C2-B、Step 8B-2D2-V1、Step 8B-2D2-C2-C、Step 8B-2D3-A、Step 8B-2D3-B、Step 8B-2D3-C 与 Step 8B-2D4-A 已完成并冻结；Step 8B-2D4-B1 已完成实现、等待 final review；
 Step 3B 仍未实现。Phase 9A-R
 在不改变 Phase 4B～8 API 的前提下，将旧版
 非 LLM verification primitives 迁移到三类 interaction，并引入显式 binding、类型化
@@ -1072,7 +1072,22 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   继续产生零 requirements；提供 deterministic JSON/Markdown/DOT/hash-manifest bundle
 - [x] Requirement != Evidence/Observation/VerificationRecord/VERIFIED/REJECTED/Vulnerability Verdict/AttackChain；
   本步骤不读取 RuntimeObservation、不运行 QEMU、不收集证据
-- [ ] 2D4-B：runtime execution/path/context/memory-type evidence binding（planned, not implemented）
+- [x] 2D4-B1：从 frozen 2D4-A materialization 与 detached contract-valid RuntimeTrace 提取 source-bound
+  `INSTRUCTION_EXEC` observation artifacts、same-trace/same-vCPU endpoint-order artifacts 与独立 requirement relevance bindings
+- [x] 2D4-B1 对 architecture/artifact ID/artifact SHA exact mismatch 生成 typed incompatibility；无观察与当前 runtime
+  contract 不可观察的 candidate requirement 均生成 requirement-specific neutral acquisition gap，hardware-side requirement
+  仅列为 out-of-scope IDs
+- [x] 2D4-B1 authoritative materialization 嵌入 requirement/trace detached snapshots 并完整重投影；fully rehashed foreign
+  observation/PC/sequence、cross-vCPU/cross-trace order、wrong requirement/subject 均 fail closed
+- [x] B1 R1：B1-owned gap/incompatibility reasons 锁定显式 v1 Literal；上游 Architecture/backend/run-mode vocabulary
+  继续继承。每 trace 一个完整 incompatibility record；order catalog 按 exact witness/observation identity 复用，binding
+  仍独立。Gap 按 unsupported kind → no compatible trace → requirement-kind primary evidence 缺失判定；path endpoint
+  instruction binding 可与 no_matching_runtime_order_observation 共存。Any-evidence 与 primary-evidence diagnostics
+  分离；端点观察不建立 runtime order，runtime order 不建立 CFG path feasibility，gap 不是 satisfaction verdict。
+- [x] `Runtime Observation != Requirement Satisfaction`、`Observed Endpoint Order != Exact CFG Path Observation`、
+  `Evidence Binding != Evidence Evaluation`；不创建 VerificationRecord/status，不推断 path feasibility、causality、
+  triggerability、physical applicability、hardware effect、vulnerability 或 AttackChain
+- [ ] 2D4-B 后续：execution-context/effective-memory-type 等需新 typed objective source 的 evidence acquisition（planned）
 - [ ] 2D4-C：target identity/revision applicability/hardware-effect evidence binding（planned, not implemented）
 - [ ] 2D4-D：objective aggregation 与可能的 verified cross-layer-chain projection（planned, not implemented）
 

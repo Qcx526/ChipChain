@@ -101,6 +101,8 @@ ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞�
   exact source-pattern authority、detached authoritative reprojection 与 deterministic inspection bundle
 - Phase 10D Step 8B-2D4-A deterministic cross-layer verification requirement projection：将冻结候选/binding
   未决义务转换为 source-bound objective evidence requirements，不收集证据或生成验证状态
+- Phase 10D Step 8B-2D4-B1 source-bound candidate runtime evidence acquisition：从冻结 requirement
+  materialization 与 contract-valid RuntimeTrace 提取 exact instruction/order observation artifacts 与 relevance bindings
 - 类型化 evidence support score 与 role-aware cross-layer trigger-point 定位
 - owned synthetic ARM Type II Verification Demo（部分验证，不生成已验证攻击链）
 - 不依赖外部服务的领域模型、分析、搜索与 Mock reasoning 测试
@@ -1422,6 +1424,50 @@ predicate 同时声明对应 objective obligation 和非空 required memory type
 memory-type/physical-target/hardware-effect evidence，也不产生 VERIFIED、REJECTED、vulnerability 或 AttackChain
 结论。2D4-B 计划绑定 runtime/path/context/memory-type evidence；2D4-C 计划绑定 target identity/revision
 applicability/hardware-effect evidence；只有未来 2D4-D 才计划做 objective aggregation。
+
+## Phase 10D Step 8B-2D4-B1 Candidate Runtime Evidence
+
+2D4-B1 仅消费两份逻辑输入：冻结的 `StaticCrossLayerVerificationRequirementMaterialization` 与一组
+contract-valid `RuntimeTrace`。每份 trace 都先 detached revalidate，并且只有 architecture、artifact ID 与
+artifact SHA-256 全部精确匹配 requirement projection 的 trace 才参与提取；有效但不兼容的 trace 会保留为
+typed source-incompatibility record，不会静默提供观察。
+
+```text
+StaticCrossLayerVerificationRequirementMaterialization
+                         +
+                  RuntimeTrace(s)
+                         |
+                         v
+       CandidateRuntimeEvidenceMaterialization
+          | exact observation artifact catalog
+          | exact requirement-relevance bindings
+          | requirement-specific acquisition gaps
+          ` hardware-side out-of-scope requirement IDs
+```
+
+`INSTRUCTION_EXEC` 观察只按 authoritative 2D4-A source chain 解析出的 exact instruction address 匹配；不作
+range、mnemonic、function-name 或 nearest-block 推断。Static witness endpoint order artifact 仅在同一 trace、同一
+vCPU、两个 exact endpoint observation 且 source sequence index 小于 target 时生成，并保留所有合法有序对。
+它不是 exact CFG path observation。一个 observation artifact 在中立 catalog 中只出现一次，但可通过独立 binding
+引用到多个相关 requirement。
+
+B1 R1 按 exact witness + same-trace/same-vCPU ordered observation pair 复用 order artifact；不同 witness
+仍是不同 artifact，共享 artifact 不合并 requirement binding。路径端点 instruction binding 可以与
+`no_matching_runtime_order_observation` gap 共存：端点观察不建立 runtime witness order，runtime order
+不建立 CFG path feasibility。Path acquisition gap 只记录 B1 runtime-order evidence 缺失，不是 feasibility verdict。
+runtime requirement 的 primary evidence 是 instruction artifact；path requirement 的 primary evidence 是 order
+artifact。Gap 优先级固定为 unsupported kind → no compatible trace → 对应 primary evidence 缺失。
+diagnostics 分开统计 any evidence、runtime instruction evidence 与 path runtime-order evidence，不表示 satisfaction。
+B1-owned gap reason 与 trace-incompatibility reason 采用显式 v1 Literal 闭集；每个 trace 最多一个 incompatibility
+record，包含全部 mismatch reasons。Architecture、RuntimeBackendKind、RuntimeRunMode 则有意继承冻结的上游
+runtime vocabulary；backend/run mode 只作 provenance，host timestamp 不参与顺序或 gap 判定。
+
+2D4-B1 不评估 requirement satisfaction，不创建 `VerificationRecord`，不生成 VERIFIED/REJECTED/UNKNOWN，
+不推断 path feasibility、causality、triggerability、physical hardware applicability、hardware effect、vulnerability
+或 `AttackChain`。缺少观察只是 typed acquisition gap；effective-memory-type、execution-context、qualitative-proximity
+与 hardware-timing requirement 不会从任意 metadata、host timestamp、instruction kind 或 QEMU CPU name 中伪造。
+历史 `RuntimeEvidenceNormalizer` 的 `Evidence.verified=True` 仍只表示其原有 runtime observation/provenance contract
+已经校验，不表示 2D4-A requirement 已满足。
 
 ## 文档导航
 
