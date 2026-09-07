@@ -1087,7 +1087,20 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 - [x] `Runtime Observation != Requirement Satisfaction`、`Observed Endpoint Order != Exact CFG Path Observation`、
   `Evidence Binding != Evidence Evaluation`；不创建 VerificationRecord/status，不推断 path feasibility、causality、
   triggerability、physical applicability、hardware effect、vulnerability 或 AttackChain
-- [ ] 2D4-B 后续：execution-context/effective-memory-type 等需新 typed objective source 的 evidence acquisition（planned）
+- [x] 2D4-B2-A：独立 typed candidate state source IR，保存 explicit effective-memory-type 与 execution-context
+  observations；source kind/semantics/address kind/resolution basis 为 v1 Literal 闭集，不依赖 2D4-A/B1。
+  Authoritative normalized materialization（方案 A）detached-revalidate 全部 source records，严格校验 manifest
+  linkage、artifact provenance、family-scoped locator 唯一与 deterministic IDs；declared raw SHA 不等于独立 raw-byte 验证。
+  Context IDs 采用非空唯一排序集合，memory 必须携带 typed access address/namespace；instruction address 仅作
+  source association，不推断 runtime execution。新增 owned synthetic fixture 和十次重建一致的 source-only bundle。
+- [ ] 2D4-B2-B：state source observations 到 exact requirements 的 binding（planned, not implemented）；B2-A 不评估
+  satisfaction，不产生 status，不实现 proximity/timing，不修改冻结 RuntimeTrace 或 B1 acquisition。
+- [x] B2-A R1：source/profile semantic IDs 使用本地 path/whitespace firewall，允许 caller-declared fixed UUID/date
+  shape 但不生成 random UUID/current time；locator 锁定小写 `record:<stable-token>`。Logical uniqueness 改为
+  family-scoped，同一 producer record 可同时派生 memory/context typed facts，同 family 矛盾仍 fail closed。
+  Memory proposition 固定为 program-location + addressed-location state association，不表示 instruction execution/access；
+  `audited_translation_resolution` 仅为 producer-profile-declared deterministic basis，不是 ChipChain translation verification。
+  Access address 与 ProgramAddress 一致接受 `0x`/`0X` 并输出 canonical lowercase hex；补齐 context Option-A value-change 回归。
 - [ ] 2D4-C：target identity/revision applicability/hardware-effect evidence binding（planned, not implemented）
 - [ ] 2D4-D：objective aggregation 与可能的 verified cross-layer-chain projection（planned, not implemented）
 

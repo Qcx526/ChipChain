@@ -1,0 +1,12 @@
+digraph candidate_state_observations {
+  rankdir=LR;
+  graph [label="Typed state observations only; no verification requirement has been evaluated.", labelloc="t"];
+  boundary [shape=note, label="Program-location association does not establish runtime execution or a memory access by that instruction."];
+  source [shape=box, label="Source Manifest\ncandidate-state-source-manifest:1e7499745e3b0b4583da14c7784c6796619b4c599ad5cb64405806c7ad5d8f3e"];
+  observation_0 [shape=box, label="Typed Observation\ncandidate-effective-memory-type-observation:0176f6855726ea9886164d394513cfaf1f85adcab464faac46b7a2360a2d6a08\nrecord:000001\nsource instruction: 0x400008"];
+  source -> observation_0 [label="source record provenance"];
+  observation_1 [shape=box, label="Typed Observation\ncandidate-effective-memory-type-observation:fade4ba018d594819d1247ee8a7844a45c6946ae5c761f80920b3103b2045982\nrecord:000002\nsource instruction: 0x400010"];
+  source -> observation_1 [label="source record provenance"];
+  observation_2 [shape=box, label="Typed Observation\ncandidate-execution-context-observation:64239221e5e7675e92ea8df59b25f8d8c337da69165ed417ae426aba0f37e274\nrecord:000003\nsource instruction: 0x400000"];
+  source -> observation_2 [label="source record provenance"];
+}

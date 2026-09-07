@@ -1469,6 +1469,51 @@ runtime vocabulary；backend/run mode 只作 provenance，host timestamp 不参�
 历史 `RuntimeEvidenceNormalizer` 的 `Evidence.verified=True` 仍只表示其原有 runtime observation/provenance contract
 已经校验，不表示 2D4-A requirement 已满足。
 
+## Phase 10D Step 8B-2D4-B2-A Typed Candidate State Sources
+
+B2-A 是独立的 source IR，不是 B2-B requirement binder。它只保存两类显式、规范化状态来源：
+`CandidateEffectiveMemoryTypeObservation` 与 `CandidateExecutionContextObservation`。
+两者通过 `CandidateStateObservationSourceManifest` 绑定 architecture、artifact ID/SHA、instruction set、
+producer profile/version、normalization profile 与声明的 source artifact ID/SHA；不引用 candidate/requirement。
+上述四个 producer/source semantic ID 使用 B2-A-local、path/whitespace-free grammar；拒绝 POSIX/Windows/
+relative/file-URI host paths 与 control whitespace。固定 UUID/date-shaped caller value 可作为声明的稳定语义 ID；
+B2-A 不按外形拒绝它们，也绝不从随机 UUID 或当前时间自动生成 identity。
+
+`CandidateStateObservationMaterialization` 是权威 normalized source（方案 A），detached-revalidate manifest
+和每份 observation，并验证 provenance 一致及 deterministic IDs。Locator 固定为已规范化的小写
+`record:<stable-token>`。同 family 的 locator 必须唯一；memory/context 可共享 locator，表示同一 producer
+source record 派生两个 typed fact families，且不增加冗余 observation-kind 字段。Context IDs 是非空、唯一且排序的集合。
+新 source-kind、source/observation semantics、access-address-kind 与 resolution-basis 使用显式 v1 Literal 闭集。
+Architecture 继承上游 vocabulary；memory/context IDs 由显式 normalization profile 定义，不硬编码 ARM 状态词汇。
+
+Memory record 必须携带 typed access address 与显式 virtual/physical namespace，不推断 VA↔PA，也不从
+mnemonic、MMIO range 或 metadata 猜测 effective type。Instruction address 使用 `ProgramAddress`，仅表示
+source-record association，不表示指令执行。Context ID 不从 PAR_EL1、CPU、run mode 或架构推导。
+Memory proposition 固定为：producer 将 addressed-location memory state 与 source record/program location 关联；
+`instruction_address + access_address` 不表示该 instruction 执行了该 memory access。
+
+`audited_translation_resolution` 只表示 producer 声明其 normalization profile 从 lower-level translation/memory
+attributes 确定性解析出 typed state；“audited”指 producer profile/basis contract，不表示 ChipChain 独立重建
+page tables、验证 address translation、验证 silicon memory type 或满足 requirement。
+
+Declared Source Artifact Hash != Independent Raw-File Verification。核心只校验 hash 格式与 identity binding，
+不验证未提供的 raw bytes。改变 normalized value 并重算所有 IDs 是另一份有效来源声明，不能冒充已被外部证据
+否定的篡改。Producer profile != Evidence Strength Verdict；Owned Fixture != Real Runtime Measurement。
+
+新的 owned fixture 为 2 memory + 1 context source records，显式携带 owned/synthetic/fixture/
+not_real_vulnerability/not_benchmark=true。冻结 diamond 没有 load/store；其 barrier/TLB 地址上的 synthetic
+memory state association 不表示实际访问发生。Fixture loader 对同一 bytes snapshot 做 SHA 与 JSON parsing；
+这项 fixture 检查不扩大 core source contract 的 raw-file 保证。没有生成 public A77 positive state fixture。
+该 fixture 仅作 B2-A source-contract demonstration，不是未来 B2-B positive memory-access binding fixture。
+
+```bash
+.venv/bin/python scripts/export_candidate_state_observations.py --output-dir examples/phase10d/candidate_state_observations/owned_diamond
+```
+
+导出四份确定性 JSON/Markdown/DOT/hash-manifest 文件。DOT 仅有 Source Manifest → Typed Observation，
+不连接 requirement、candidate、CVE 或 vulnerability。Typed state observations only; no verification requirement
+has been evaluated. 不实现 binding、status、qualitative proximity、hardware timing、effect 或 AttackChain。
+
 ## 文档导航
 
 - [项目范围](docs/PROJECT_SCOPE.md)
