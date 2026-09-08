@@ -16,6 +16,9 @@ from chipchain.verification.cross_layer_requirements import *
 from chipchain.verification.cross_layer_requirement_artifact_export import *
 from chipchain.verification.candidate_state_observation_models import *
 from chipchain.verification.candidate_state_observation_artifact_export import *
+from chipchain.verification.candidate_state_requirement_binding_models import *
+from chipchain.verification.candidate_state_requirement_binding import *
+from chipchain.verification.candidate_state_requirement_binding_artifact_export import *
 _CANDIDATE_RUNTIME_EXPORT_MODULES = {
     "CandidateRuntimeEvidenceBindingRole": (
         "chipchain.verification.candidate_runtime_evidence_models"

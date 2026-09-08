@@ -1093,8 +1093,13 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
   linkage、artifact provenance、family-scoped locator 唯一与 deterministic IDs；declared raw SHA 不等于独立 raw-byte 验证。
   Context IDs 采用非空唯一排序集合，memory 必须携带 typed access address/namespace；instruction address 仅作
   source association，不推断 runtime execution。新增 owned synthetic fixture 和十次重建一致的 source-only bundle。
-- [ ] 2D4-B2-B：state source observations 到 exact requirements 的 binding（planned, not implemented）；B2-A 不评估
-  satisfaction，不产生 status，不实现 proximity/timing，不修改冻结 RuntimeTrace 或 B1 acquisition。
+- [x] 2D4-B2-B：将冻结 2D4-A requirements 与冻结 B2-A normalized state sources 以 exact program provenance +
+  authoritative subject instruction address 建立 relevance-only binding。仅支持 effective-memory-type/context 两类，
+  family 不可交叉；值相等性与 access address 不参与绑定，多个同地址 subjects 保留完整并集，多 requirements/producers
+  分别保留。Compatible-source absence 与 exact family/location absence 使用 neutral typed gaps，其他 requirement 全部
+  out of scope。Authoritative materialization detached 保存两侧 snapshots 并完整重投影；重复 materialization、同 manifest
+  competing Option-A sources、foreign requirement/observation/subject/source provenance 均 fail closed。未读取 RuntimeTrace/B1，
+  未评估 satisfaction，未产生 VerificationRecord/status/score/vulnerability/AttackChain。
 - [x] B2-A R1：source/profile semantic IDs 使用本地 path/whitespace firewall，允许 caller-declared fixed UUID/date
   shape 但不生成 random UUID/current time；locator 锁定小写 `record:<stable-token>`。Logical uniqueness 改为
   family-scoped，同一 producer record 可同时派生 memory/context typed facts，同 family 矛盾仍 fail closed。
@@ -1107,6 +1112,13 @@ hit 还要求同一 case 的 exact Ground Truth match。Phase 10A 自身不实�
 后续工作：对 `NEXT_OBJECTIVE_CANDIDATE`
 仍须另行完成证据审查与 objective input 设计后，才能提出 PRIMARY admission 变更。`TRIGGERABLE` 仍不能
 脱离 Type II exact candidate binding 被通用映射为 `CONFIRMED_FEASIBLE`。
+
+### Phase 10 冻结后的客户端方向（仅规划，尚未实现）
+
+下一主实验架构为 RISC-V；`RISC-V-first` 不等于 `RISC-V-only`。ProcessorFuzz 的 RISC-V hardware fuzzing
+产生 SI hardware testcase，再材料化为 Hardware Trigger。GDBFuzz 对原始、不可变的客户端固件执行
+external-input fuzzing，并产生 firmware execution artifact。ChipChain 通过 Processor Behavior、Reachability
+与 Trigger Matching 连接这两条独立来源链。本阶段不创建 V2 模块、adapter、IR 或 matcher。
 
 ### Phase 11：API / Visualization
 

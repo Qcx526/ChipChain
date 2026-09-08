@@ -1,0 +1,15 @@
+digraph candidate_state_requirement_bindings {
+  rankdir=LR;
+  graph [label="Candidate State Requirement Bindings", labelloc="t"];
+  node [shape=box, fontname="sans-serif"];
+  edge [fontname="sans-serif"];
+  boundary [shape=note, label="Source relevance only; requirement satisfaction has not been evaluated."];
+  location_boundary [shape=note, label="Program-location state association does not establish runtime execution or a memory access by that instruction."];
+  value_boundary [shape=note, label="Value equality is not evaluated by this binding layer."];
+  observation_1 [label="Typed State Observation\nexecution_context\ncandidate-execution-context-observation:362a8bc892056ec9ade4394dee375224ecdbe21a0b522e7644399b2f6676760f"];
+  requirement_1 [label="Verification Requirement\nexecution_context_evidence_required\nstatic-candidate-verification-requirement:0ed4d2ba94d542cf9167b10c9a512e9ba59d477b11f5951fced5ee560cc5a0da"];
+  observation_1 -> requirement_1 [label="exact program-location source relevance"];
+  observation_2 [label="Typed State Observation\neffective_memory_type\ncandidate-effective-memory-type-observation:9d9ad4cd1cd299c5dd773107e7ba644b9439587b79fabfc9ff67fbf799924874"];
+  requirement_2 [label="Verification Requirement\neffective_memory_type_evidence_required\nstatic-candidate-verification-requirement:60ba0055d49946b2f66d462e29fd00b2f97bf4b15ac8b8fdaf0027f4b2ae9322"];
+  observation_2 -> requirement_2 [label="exact program-location source relevance"];
+}

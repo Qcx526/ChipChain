@@ -2,6 +2,13 @@
 
 ChipChain 是一个面向防御性科研的、证据驱动的芯片跨层漏洞攻击链检测项目。当前只建设同一 ARM 架构内的 MVP。
 
+Phase 10 最终冻结后的下一主实验架构是 RISC-V；`RISC-V-first` 不等于
+`RISC-V-only`。未来客户端工作流保持两条来源链分离：ProcessorFuzz 在 RISC-V
+硬件模糊测试中产生 SI hardware testcase，再材料化为 Hardware Trigger；GDBFuzz
+继续对原始、不可变的客户端固件执行 external-input fuzzing，并产生 firmware
+execution artifact。ChipChain 只通过 Processor Behavior、Reachability 与 Trigger
+Matching 连接两条来源链。当前 Phase 10 冻结任务不实现上述 V2 能力。
+
 ## 当前能力
 
 - 可安装的 Python 包骨架
@@ -1513,6 +1520,49 @@ memory state association 不表示实际访问发生。Fixture loader 对同一 
 导出四份确定性 JSON/Markdown/DOT/hash-manifest 文件。DOT 仅有 Source Manifest → Typed Observation，
 不连接 requirement、candidate、CVE 或 vulnerability。Typed state observations only; no verification requirement
 has been evaluated. 不实现 binding、status、qualitative proximity、hardware timing、effect 或 AttackChain。
+
+## Phase 10D Step 8B-2D4-B2-B Typed State Requirement Relevance Binding
+
+B2-B 只连接冻结 2D4-A requirement materialization 与一个或多个冻结 B2-A normalized state-source
+materialization。它只支持 `effective_memory_type_evidence_required` 与
+`execution_context_evidence_required`；其他 candidate/hardware-side requirements 全部进入明确的
+`out_of_scope_requirement_ids`，不会被误记为 acquisition gap。
+
+每个输入先 detached revalidate。State source 只有在 architecture、artifact ID、artifact SHA-256 与
+instruction set 四项 program provenance 全部精确一致时才可参与绑定；source artifact、producer profile
+只作为 state-source provenance 保留，不用作 firmware compatibility。每个 supported requirement 的
+subject address 必须沿 requirement → candidate → exact position → fused fact → semantic fact 的冻结来源链解析，
+不接受 caller-supplied address，也不进行 function、basic block、mnemonic、range、nearest-address 或文本匹配。
+
+Memory observation 只能绑定 memory requirement，context observation 只能绑定 context requirement。绑定角色固定为
+`exact_program_location_state_source_relevance`，语义固定为 `source_relevance_only`：它只表示 observation 的
+producer-associated program location 与 requirement 的一个或多个 authoritative subject locations 精确相同。
+Memory 的 access address/address kind 仅保留为 source provenance，不是 v1 binding key。Memory/context 值相等或
+不等均不影响 relevance binding，也不产生 satisfaction、conflict、rejection 或 verification status。
+
+一个 observation 与同一 requirement 的多个同地址 subject facts 形成一条 binding，并保留完整 position/fused-fact
+并集；一个 observation 可分别绑定多个 requirements。多个不同 source manifests 的 compatible observations 全部保留，
+不排名、不投票、不合并或计算 confidence。同一个 source manifest 在一次 binder call 中提供多个不同 Option-A
+materializations 会因语义歧义 fail closed。
+
+Supported requirement 没有 compatible source 时记录 `no_compatible_state_source`；有 compatible source 但精确 subject
+位置没有对应 family observation 时，分别记录 `no_effective_memory_type_observation_at_subject` 或
+`no_execution_context_observation_at_subject`。Gap 只表示没有取得相关 source observation，不表示 requirement failure。
+
+新的 owned synthetic B2-B fixture 故意让 memory/context observation 值与 source-declared requirement 值不同，仍各产生
+一条精确位置 relevance binding；unrelated observation 不产生 binding。普通 owned diamond 没有 memory/context
+requirements，因此得到 0 supported bindings/gaps、全部 16 requirements out of scope；public A77 仍为 0 requirements、
+0 bindings。导出 bundle 只包含 JSON、Markdown、DOT 与 hash manifest：
+
+```bash
+.venv/bin/python scripts/export_candidate_state_requirement_bindings.py \
+  --mode owned \
+  --output-dir examples/phase10d/candidate_state_requirement_bindings/owned
+```
+
+Typed Observation != Requirement Binding。Requirement Binding != Requirement Satisfaction。Value Equality !=
+Requirement Satisfaction。Program-Location Match != Runtime Execution/Memory Access。B2-B 不读取 RuntimeTrace/B1，
+不创建 Evidence、VerificationRecord、status、score、vulnerability verdict 或 AttackChain。
 
 ## 文档导航
 

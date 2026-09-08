@@ -1,0 +1,45 @@
+{
+  "manifest": {
+    "architecture": "arm",
+    "artifact_id": "owned-synthetic-requirement-planning-contract",
+    "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "instruction_set": "aarch64",
+    "source_kind": "owned_fixture",
+    "producer_profile_id": "owned-synthetic-b2b-state-author",
+    "producer_profile_version": "1",
+    "normalization_profile_id": "owned-synthetic-b2b-explicit-state-v1",
+    "source_artifact_id": "owned-synthetic-b2b-state-records-v1",
+    "owned_fixture_provenance": {
+      "owned": true,
+      "synthetic": true,
+      "fixture": true,
+      "not_real_vulnerability": true,
+      "not_benchmark": true
+    }
+  },
+  "effective_memory_type_observations": [
+    {
+      "source_record_locator": "record:memory-value-different",
+      "instruction_address": "0x500000",
+      "access_address": {"value": "0x80000000"},
+      "access_address_kind": "virtual_address",
+      "observed_effective_memory_type_id": "owned-synthetic-device-memory",
+      "resolution_basis": "direct_typed_source"
+    },
+    {
+      "source_record_locator": "record:unrelated-memory",
+      "instruction_address": "0x500100",
+      "access_address": {"value": "0x90000000"},
+      "access_address_kind": "physical_address",
+      "observed_effective_memory_type_id": "owned-synthetic-normal-memory",
+      "resolution_basis": "direct_typed_source"
+    }
+  ],
+  "execution_context_observations": [
+    {
+      "source_record_locator": "record:context-value-different",
+      "instruction_address": "0x500004",
+      "observed_execution_context_ids": ["owned-synthetic-el2"]
+    }
+  ]
+}

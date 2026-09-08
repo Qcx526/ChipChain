@@ -1,0 +1,26 @@
+{
+  "architecture": "arm",
+  "artifact_id": "owned-synthetic-requirement-planning-contract",
+  "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "binding_materialization_id": "candidate-state-requirement-binding-materialization:18b2423b44dfb65e33c218206c75fb1531179b6bd34d3439004fd80547d00c72",
+  "binding_projection_id": "candidate-state-requirement-binding-projection:15ec8e953d667481b48c12663dd257ff5c4f4daea48749903bfc219912bce011",
+  "files": {
+    "state_requirement_bindings.dot": {
+      "byte_size": 1490,
+      "sha256": "7626603950014167c705b59451305d48d364b38b74dd9570283846721af7e4e8"
+    },
+    "state_requirement_bindings.json": {
+      "byte_size": 6284,
+      "sha256": "5cdb78ba5973c743a948d2db2dbef53a0d33fd445f5070bd351bf0277897aa0d"
+    },
+    "state_requirement_bindings_summary.md": {
+      "byte_size": 4282,
+      "sha256": "b5aff9242e2356391b4031ef28d12a389641c2d8915b899b5680bba07824c92f"
+    }
+  },
+  "instruction_set": "aarch64",
+  "source_requirement_materialization_id": "static-cross-layer-verification-requirement-materialization:1590b0db6cc1a6d4c41e02efcad84f4bda36f67ae2cc24b9c4cbad572415b3ac",
+  "source_state_materialization_ids": [
+    "candidate-state-observation-materialization:f8eadb73a3b4d79fefb82921879249f227222d1ade65e3a5beed3862f4259603"
+  ]
+}
