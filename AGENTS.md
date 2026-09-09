@@ -2,13 +2,13 @@
 
 ## 当前方向
 
-- 当前主线为 `v2-mainline`；V2-R0 已冻结，V2-1 仅扩展 source/target/input/debug core 合同，CLI 仍是 shell。
+- 当前主线为 `v2-mainline`；V2-R0/V2-1 已冻结，V2-2 仅新增 behavior.processor 数据合同，CLI 仍是 shell。
 - RISC-V 是主实验架构，RISC-V-first != RISC-V-only。ARM 等后续能力通过独立 profiles/adapters/backends 实现。
 - 架构词汇不代表 backend 已完成；不得跨架构拼接事实或攻击链。
 - 未来硬件侧来源：ProcessorFuzz → RISC-V SI → Hardware Trigger。
 - 未来固件侧来源：GDBFuzz → 原始不可变 firmware 的 external-input fuzzing → firmware behavior artifact。
 - ChipChain 的未来核心是 Processor Behavior + Trigger Extraction + Trigger Matching + Reachability。
-- R0/V2-1 不实现 Processor Behavior IR、SI/GDBFuzz adapter、Trigger IR、decoder、matcher、reachability 或 verification。
+- V2-2 只有 Processor Behavior IR 合同，不实现 SI/GDBFuzz adapter、Trigger IR、decoder、matcher、reachability 或 verification。
   下一步依照 [PLANS.md](PLANS.md) 独立授权。
 
 ## 目标与科研边界
@@ -25,6 +25,12 @@
 - 确定性、可复核事实优先于 LLM 创作。LLM 只做未来 coordinator/reasoner，knowledge 只提供上下文。
 - 不虚构 vulnerability、verification 或 attack-chain verdict；静态存在、匹配候选、来源 SHA 都不证明漏洞。
 - Type II 不发明 initiating software vulnerability；Type III 不反转软件→硬件路径冒充因果证据。
+- Processor Behavior 必须显式区分 SOURCE_DECLARED、STATIC_DECODED、STATIC_INFERRED、RUNTIME_OBSERVED、
+  SYNTHETIC_FIXTURE。SOURCE_SEQUENCE、STATIC_CFG_SUCCESSOR、依赖关系和 RUNTIME_PRECEDES 不互相升级。
+  Register access 不是 value observation；未知不是零；Behavior IR 不是 Trigger IR 或 vulnerability。
+- Source context 绑定 provenance/target，不统一规定 fact nature；同一固件 context 可含 STATIC_DECODED
+  指令与 STATIC_INFERRED 关系，但不能混入不同来源/目标。InstructionBehavior 不是 runtime occurrence；
+  RUNTIME_PRECEDES 只连接显式 ProcessorEvent occurrences，运行顺序不代表因果。
 - 遵循 [科学边界](docs/SCIENTIFIC_BOUNDARIES.md)，保留所有未知项与来源范围。
 
 ## 工程与检查
@@ -34,6 +40,7 @@
 - V2 身份仅由显式 namespace 与 canonical JSON/SHA-256 生成，不生成 wall-clock/random identity。
 - 冻结模型使用不可变字段类型；嵌套输入需重新验证，不能仅依赖浅层 frozen 标志。
 - core、root、CLI 不依赖业务子系统或分析/运行/模型后端，不留下未来模块空壳。
+- behavior 只能依赖 stdlib/Pydantic/core/behavior；core 不反向依赖 behavior，IR 不依赖未来 adapters/backends。
 - 默认测试离线，无 API Key、数据库、QEMU/JTAG 或网络依赖；`.env` 不提交、不自动加载。
 - 每阶段按 Plan → Implement → Test → Review → Fix → Document 完成；如实记录验证结果。
 - 完成后运行完整 pytest、compileall、两种 CLI help 与 `git diff --check`，同步相关文档。

@@ -13,7 +13,7 @@ FirmwareExecutionPath |= HardwareTriggerSpecification ?
 未来工作流（尚未实现）：
 
 ```text
-ProcessorFuzz SI → SI Adapter → Trigger Extraction / Reduction → Hardware Trigger IR
+ProcessorFuzz SI → SI Adapter → Processor Behavior IR → Trigger Extraction / Reduction → Hardware Trigger IR
 External Input → Original Immutable Firmware → Firmware Execution → Processor Behavior IR
 
 ChipChain: Processor Behavior + Trigger Extraction + Trigger Matching + Reachability
@@ -24,17 +24,24 @@ ChipChain: Processor Behavior + Trigger Extraction + Trigger Matching + Reachabi
 开发时可先定义 Trigger IR 合同再实现 Extractor，开发依赖顺序不等于运行数据流。
 所有跨层关联必须发生在同一架构内，不能拼接 ARM 固件与 RISC-V 硬件来源。
 
-## 当前范围：V2-1 合同基础
+## 当前范围：V2-2 Processor Behavior IR v1
 
-V2-R0 已冻结；V2-1 在其基础上新增硬件目标、精确固件、ProcessorFuzz/GDBFuzz 来源、
+V2-R0/V2-1 已冻结，保留硬件目标、精确固件、ProcessorFuzz/GDBFuzz 来源、
 外部输入端点/投递/输入 artifact，以及调试扰动声明。它们仅是可验证字段一致性的 core 合同，
 不读取文件、不解析来源、不交付输入、不访问硬件。CLI 仍为 R0 `--help`/`--version` shell。
 没有跨层 positive example。
 RISC-V 是主实验目标，不是已完成的 backend。
 
+V2-2 新增 `chipchain.behavior.processor` 数据合同：显式来源性质、指令、寄存器/内存访问、
+精确或未知状态、控制转移/异常语义，以及分开的 source/static/dependency/runtime relations。
+fragment 强制同来源/架构与引用完整性；不推导关系，不解析 SI/firmware，不实现运行观察。
+同一固件 context 可组合 decoded 指令与 inferred 关系；runtime 顺序只连接独立事件 occurrence，
+不把静态指令身份当执行次数，也不把顺序当因果。
+RISC-V 与 ARM 示例均为 benign synthetic 合同测试，不是解码结果、ProcessorFuzz finding 或客户证据。
+
 | 能力 | 当前状态 |
 | --- | --- |
-| Processor Behavior IR | NOT IMPLEMENTED |
+| Processor Behavior IR v1 | 本地已实现数据合同；无 parser/decoder/analysis |
 | ProcessorFuzz integration / RISC-V SI parser | NOT IMPLEMENTED |
 | GDBFuzz integration / parsing | NOT IMPLEMENTED |
 | RISC-V firmware decoder | NOT IMPLEMENTED |

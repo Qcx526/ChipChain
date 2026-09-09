@@ -1,4 +1,4 @@
-# V2-R0 / V2-1 数据合同
+# V2-R0 / V2-1 / V2-2 数据合同
 
 ## 模型与架构
 
@@ -94,3 +94,79 @@ Debug firmware 指向原始参考镜像，不能把软件断点的 patch observa
 
 GDBFuzz 示例握手仅是特定 host/firmware 协议；core 端点不命名为 SUTConnection，不增加 firmware API。
 全部合同无 Evidence、verdict、confidence、score 或 host path 字段，不做文件/硬件/网络 I/O。
+
+## V2-2 Processor Behavior IR v1
+
+API 位于 `chipchain.behavior.processor`，不进入 core 或 root exports。仅为数据合同，不解析 SI/固件，
+不解码、不分析、不创建 Trigger IR 或 verification。未复制历史 Phase-10 模型或 identity。
+
+`BehaviorSourceContext` 保存 artifact provenance、完整 hardware target、producer profile、source kind，
+并按来源绑定 V2-1 firmware 或 ProcessorFuzz descriptor；不保存 fragment-wide nature。
+每个 record 显式声明自己的 derivation nature；以下是来源兼容范围，不是自动赋值或语义升级：
+
+| source_kind | 允许的 record nature | 额外绑定 |
+| --- | --- | --- |
+| declared_artifact | SOURCE_DECLARED | 显式 artifact/target |
+| processorfuzz_si | SOURCE_DECLARED | 必须 exact ProcessorFuzz provenance/target，不能同时绑定 client firmware |
+| firmware_artifact | STATIC_DECODED / STATIC_INFERRED | 必须 exact firmware provenance/target |
+| static_analysis_artifact | STATIC_DECODED / STATIC_INFERRED | 必须 firmware snapshot；artifact 可为独立分析产物 |
+| runtime_observation_artifact | RUNTIME_OBSERVED | 显式观察 artifact；若绑定 firmware，不得用 firmware artifact 本身冒充 trace |
+| synthetic_fixture | SYNTHETIC_FIXTURE | owned test declaration，不是 client evidence |
+
+artifact architecture 必须显式匹配 target；可选 firmware 的完整 target 必须一致。同 artifact ID 的冲突
+provenance 拒绝。runtime 分类只是未来 adapter 的 provenance 合同，模型不核验实际观察或认证 producer。
+Firmware binding 可从 context.firmware 恢复并用冻结 `require_same_target(expected)` 复核。
+
+每个元素/关系保存 `source_context_id`、architecture、nature；前两者必须与 context 精确一致，
+nature 必须与来源兼容且满足关系专属规则。同一固件 context 可保留 decoded 指令 + inferred CFG/data/control
+关系，不 relabel、不用 synthetic 绕过。Mixed Nature Allowed != Mixed Source Allowed。
+不支持靠同架构将另一个 ProcessorFuzz/client target 的元素注入当前 fragment。
+
+| 元素 | v1 合同 |
+| --- | --- |
+| InstructionBehavior | 唯一非负 source_ordinal、mnemonic、有序 typed operands；address/encoding/size 可未知；不是 runtime occurrence |
+| RegisterAccessBehavior | instruction_id、effect_index、register_ref、READ/WRITE/READ_WRITE；没有 value |
+| MemoryAccessBehavior | effect_index、access；可选 instruction_id/width_bytes/MemoryAddress，不推断 atomicity/MMIO |
+| ControlTransferBehavior | instruction_id、effect_index、branch/jump/call/return/indirect/exception-return；target 可未知 |
+| ProcessorEvent | effect_index、event/cause 语义；可选 instruction_id；运行事件必须有 occurrence_ordinal |
+| RegisterStateFact | fact_index、register_ref、必需 value（ExactScalar 或显式 None）；也支持 SYSTEM/CSR namespace |
+| PrivilegeStateFact | fact_index、architecture-scoped profile/mode label；None 未知，没有模式排序 |
+| MemoryStateFact | fact_index、MemoryAddress、必需 value（ExactScalar 或 None） |
+
+RegisterReference 区分 architecture、class、namespace 与 name；class 为 GPR/SYSTEM/FLOATING_POINT/VECTOR/SPECIAL。
+`csr` 只是相关架构下的 namespace 示例，不枚举 ISA 寄存器，也不执行命名等价转换。
+Operands 分 register/scalar/declared-text；文本是显式来源表示，不解析表达式或证明语义等价。
+Encoding 是**按来源字节顺序**的小写 hex，无 `0x` 前缀；拒绝奇数长度/非法字符。有 encoding 时必须给出
+一致的正整数 size_bytes；允许 2/4/6 等宽度仅说明通用字节合同，不证明该编码对某 ISA 合法。
+没有 encoding 时 size 可未知；不根据 ordinal 制造地址，不按整数 endianness 重排 bytes。
+ExactScalar 为显式 width_bits + unsigned hex bit pattern，规范为 `0x…` 并检查溢出；不把未知、symbolic、
+未观察值变成零。None 与 zero 的 ID 不同。MemoryAddress 不接受 ProgramAddress 对象，也不分类地址空间。
+
+| 关系 | 非 synthetic fragment 的性质限制 |
+| --- | --- |
+| SOURCE_SEQUENCE | SOURCE_DECLARED / STATIC_DECODED / STATIC_INFERRED；指令 ordinal 严格递增，不要求相邻 |
+| STATIC_CFG_SUCCESSOR | STATIC_INFERRED；端点必须为指令，允许静态 self-loop |
+| DATA_DEPENDENCY / CONTROL_DEPENDENCY | STATIC_INFERRED；仅声明，不运行 dataflow/CFG 引擎 |
+| RUNTIME_PRECEDES | RUNTIME_OBSERVED；仅连接有 occurrence_ordinal 的 ProcessorEvent；拒绝 self-loop/cycle，不表示 causality |
+
+SYNTHETIC_FIXTURE 可测试全部关系词汇，但所有元素和关系也必须标记 synthetic。运行顺序回归只使用
+这种 fragment，没有真实目标运行例子。静态 adapter 不能凭地址排序构造 RUNTIME_PRECEDES。
+
+`ProcessorEvent.occurrence_ordinal` 是 source-local 唯一非负整数：RUNTIME_OBSERVED 必需，
+SYNTHETIC_FIXTURE 可显式提供，其他 nature 禁止提供；None 表示非 occurrence 的事件语义。
+它不是 ProgramAddress、InstructionBehavior.source_ordinal 或 wall-clock，也不自动生成顺序关系。
+`effect_index` 仍是 effect slot，不充当执行计数。同一静态指令可被 A@1/A@3 分别引用；
+synthetic A@1 → B@2 → A@3 → B@4 是四个事件上的顺序，不是静态 A/B 节点的环或 runtime evidence。
+
+Fragment 的 elements/relations 是无序 tuple 集合，拒绝重复 ID 后按派生 ID 排序；不会默默去重。
+指令 source ordinal 在 fragment 内唯一；effect_index 在同 kind/instruction 内唯一，ProcessorEvent 还按
+occurrence_ordinal 区分 effect slot；occurrence ordinal 本身在 source-local fragment 内唯一。
+fact_index 在同 state kind 内唯一。
+所有关系端点必须存在；instruction_id 必须指向本 fragment 的 InstructionBehavior，不能指向任意元素。
+顺序环检查仅拒绝结构矛盾，不求 firmware 可达性。空 fragment 允许，表示未提供事实，不是否定结论。
+
+所有派生 ID 复用 R0 deterministic_id 与 `v2-processor-…-v1` namespace，为只读属性而非 caller-supplied ID。
+context 改变会改变绑定元素/fragment identity，引用需显式重建；关系类型、ordinals、operands、state width/value
+等均参与 identity。JSON roundtrip 重算 ID。fragment contract 字符串固定为 `v2_processor_behavior_fragment_v1`。
+冻结/tuple/nested revalidation 防止调用方普通输入突变影响 retained fragment；不能用 unchecked
+`model_construct`/`model_copy(update=…)` 绕过验证后把结果当 authoritative input，必须重新 model_validate。
