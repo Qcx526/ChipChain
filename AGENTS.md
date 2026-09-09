@@ -2,7 +2,7 @@
 
 ## 当前方向
 
-- 当前主线为 `v2-mainline`；V2-R0/V2-1 已冻结，V2-2 仅新增 behavior.processor 数据合同，CLI 仍是 shell。
+- 当前主线为 `v2-mainline`；V2-R0/V2-1/V2-2 已冻结，V2-2 仅有 behavior.processor 数据合同，CLI 仍是 shell。
 - RISC-V 是主实验架构，RISC-V-first != RISC-V-only。ARM 等后续能力通过独立 profiles/adapters/backends 实现。
 - 架构词汇不代表 backend 已完成；不得跨架构拼接事实或攻击链。
 - 未来硬件侧来源：ProcessorFuzz → RISC-V SI → Hardware Trigger。
@@ -47,6 +47,10 @@
 
 ## Git 与归档
 
+- 仓库根目录 `/hardware_buginfo/`、`/hardware_caseinfo/` 保留为 `LOCAL_ONLY_REAL_ARTIFACT`；
+  后者是完整 Hardware Case Bundle 的首选名称，但不得自动移动、改写或重命名真实材料。
+  默认不提交 SI、trace、signature 或 build artifacts，不使用 `git add -f` 绕过隔离。
+  Hardware-team-confirmed valid SI testcase 只是外部来源确认，不等于 ChipChain verification。
 - `archive/phase10-foundation` 是只读历史基础，`phase-10-foundation-final` 固定同一完整历史提交。
 - 历史源码可通过 `git show archive/phase10-foundation:<path>` 审阅；按后续合同选择迁移，不恢复全套旧依赖。
 - 不移动 main、archive 或现有 tags；保持连续 Git 历史，禁止 orphan/history rewrite。

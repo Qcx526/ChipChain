@@ -32,7 +32,8 @@ V2-R0/V2-1 已冻结，保留硬件目标、精确固件、ProcessorFuzz/GDBFuzz
 没有跨层 positive example。
 RISC-V 是主实验目标，不是已完成的 backend。
 
-V2-2 新增 `chipchain.behavior.processor` 数据合同：显式来源性质、指令、寄存器/内存访问、
+V2-2 已由 `chipchain-v2-2-stable` 冻结于 `48f8925792a1afa829d20bc25841010e1a12faa2`。
+`chipchain.behavior.processor` 数据合同包含显式来源性质、指令、寄存器/内存访问、
 精确或未知状态、控制转移/异常语义，以及分开的 source/static/dependency/runtime relations。
 fragment 强制同来源/架构与引用完整性；不推导关系，不解析 SI/firmware，不实现运行观察。
 同一固件 context 可组合 decoded 指令与 inferred 关系；runtime 顺序只连接独立事件 occurrence，
@@ -41,7 +42,7 @@ RISC-V 与 ARM 示例均为 benign synthetic 合同测试，不是解码结果�
 
 | 能力 | 当前状态 |
 | --- | --- |
-| Processor Behavior IR v1 | 本地已实现数据合同；无 parser/decoder/analysis |
+| Processor Behavior IR v1 | V2-2 已冻结；无 parser/decoder/analysis |
 | ProcessorFuzz integration / RISC-V SI parser | NOT IMPLEMENTED |
 | GDBFuzz integration / parsing | NOT IMPLEMENTED |
 | RISC-V firmware decoder | NOT IMPLEMENTED |
@@ -52,6 +53,19 @@ RISC-V 与 ARM 示例均为 benign synthetic 合同测试，不是解码结果�
 
 LLM 的未来角色是 coordinator/reasoner，不是 processor ground truth。
 Knowledge 提供上下文关联，不等于确定性 trigger reachability。
+
+## 当前硬件侧参考输入
+
+V2-3 的真实格式基准已更正为完整 **Hardware Case Bundle** 内的
+**hardware-team-confirmed valid SI testcase**。外部团队确认不等于 ChipChain verification。
+Bundle 可包含 SI、assembly/ELF/HEX/symbols/disassembly、ISA/RTL trace/log、signatures 与 build/context
+材料；这些仅是结构角色，尚无 production bundle model 或相关 parser。
+
+仓库根目录 `/hardware_buginfo/` 和 `/hardware_caseinfo/` 均为 `LOCAL_ONLY_REAL_ARTIFACT`，默认不提交。
+完整 case 的首选目录名是 `hardware_caseinfo/`，但本轮不移动现有数据。
+下一步 V2-3B 仅计划将 confirmed SI 的指令/文本顺序投影为 SOURCE_DECLARED Processor Behavior IR；
+详细 case 输出语义须在 V2-5 提取/缩减前审计。见 [路线图](PLANS.md) 与
+[本地 case 记录](docs/DATA_CONTRACTS.md#本地-hardware-case-bundle文档级概念)。
 
 ## GDBFuzz 与不可变客户端
 

@@ -97,6 +97,8 @@ GDBFuzz 示例握手仅是特定 host/firmware 协议；core 端点不命名为 
 
 ## V2-2 Processor Behavior IR v1
 
+已由 `chipchain-v2-2-stable` 冻结于 `48f8925792a1afa829d20bc25841010e1a12faa2`。
+
 API 位于 `chipchain.behavior.processor`，不进入 core 或 root exports。仅为数据合同，不解析 SI/固件，
 不解码、不分析、不创建 Trigger IR 或 verification。未复制历史 Phase-10 模型或 identity。
 
@@ -170,3 +172,35 @@ context 改变会改变绑定元素/fragment identity，引用需显式重建；
 等均参与 identity。JSON roundtrip 重算 ID。fragment contract 字符串固定为 `v2_processor_behavior_fragment_v1`。
 冻结/tuple/nested revalidation 防止调用方普通输入突变影响 retained fragment；不能用 unchecked
 `model_construct`/`model_copy(update=…)` 绕过验证后把结果当 authoritative input，必须重新 model_validate。
+
+## 本地 Hardware Case Bundle（文档级概念）
+
+当前来源为硬件团队报告有效 SI 的完整 case：**hardware-team-confirmed valid SI testcase**。
+该确认是外部 provenance/context，不是 ChipChain verified hardware vulnerability、silicon verification
+或 root-cause proof。Hardware Case Bundle 不是新增 production model，也不改变冻结 V2-1/V2-2 合同。
+
+V2-3A.1 本地清点：`hardware_buginfo/testis/` 含 101 个文件、17 个目录（含 `testis/`）；
+已存在解压材料，仓库内未发现 RAR 原包，不能声称核验了给定 archive SHA 或解压内容与原包的逐项一致性。
+两个 SI 位置分别为 `testis/tests/.input_918_gen.si` 和 `testis/out/tests/.input_1.si`，
+均为 26671 bytes，SHA-256 均为
+`cb6dbcbd7d67a78bc5f070342ff03178562ded53edf3f2467db26d999059e1f6`。
+这是同一 exact SI bytes 的两个 workflow locations，不是两个独立 findings。
+未来 parser 必须绑定实际消费 bytes 的 SHA 与显式 ProcessorFuzzArtifact，不能把 filename/CRC 当身份。
+
+以下均为观察布局的结构角色，未确认精确生成语义：
+
+| 角色 | 本地 case 路径（相对 `testis/`） |
+| --- | --- |
+| Source testcase | `tests/.input_918_gen.si`、`out/tests/.input_1.si` |
+| Derived build representation | `out/tests/` 下的 `.input_1.S`、`.input_1.elf`、`.input_1.hex`、`.input_1.symbols`、`disassembly.asm` |
+| Execution/simulation artifacts | `out/trace/` 下的 `isa_1.csv`、`isa_1.log`、`rtl_1.log` |
+| Comparison/signature artifacts | `out/.isa_sig_0.txt`、`out/.rtl_sig_0.txt` |
+| Other state/context | `out/transition.db`、`note.log`、`build/` 的 Verilator/RocketTile 等文件 |
+
+不从命名推断实际执行、硬件 target、差异原因或 vulnerability；本阶段不解析日志、signature、数据库或二进制。
+V2-3B 的最初 projection 仅允许 SOURCE_DECLARED 指令、确定性支持的 RegisterOperand/DeclaredOperand、
+SOURCE_SEQUENCE；没有额外语义证据时不生成 RegisterAccessBehavior、MemoryAccessBehavior、
+ControlTransferBehavior、ProcessorEvent、PrivilegeStateFact、RegisterStateFact 或 MemoryStateFact。
+
+根目录 `/hardware_buginfo/`、`/hardware_caseinfo/` 均为 `LOCAL_ONLY_REAL_ARTIFACT`，后者是首选语义名称；
+不自动移动/重命名/改写材料，不默认提交真实 SI、ISA/RTL trace 或其他 case 内容。

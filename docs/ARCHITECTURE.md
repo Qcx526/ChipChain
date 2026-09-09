@@ -2,6 +2,8 @@
 
 ## 已实现：R0/V2-1 core + V2-2 processor contracts
 
+V2-2 冻结于 `chipchain-v2-2-stable` / `48f8925792a1afa829d20bc25841010e1a12faa2`。
+
 ```text
 chipchain root       仅包版本
 __main__ → cli       help/version shell
@@ -33,6 +35,11 @@ RUNTIME_PRECEDES 只连接 runtime/显式 synthetic occurrences，不连接静�
 
 ## 后续设计方向
 
+Hardware Case Bundle 仅是文档级来源分类，不是 Python production contract。
+当前硬件团队报告有效的 SI 是 V2-3B 的 real-format anchor；配套 compiled artifacts、ISA/RTL
+trace/log、signatures 和 context/build outputs 不会自动成为 ChipChain Evidence 或漏洞结论。
+完整材料保持 local-only，现有文件位置不被自动重组。
+
 ```text
 ProcessorFuzz SI → SI Adapter → Processor Behavior IR → Trigger Extraction / Reduction → Hardware Trigger IR
 External Input → Original Immutable Firmware → Firmware Execution → Processor Behavior IR
@@ -43,6 +50,9 @@ Hardware Trigger IR + Processor Behavior IR → Trigger Matching + Anchored Reac
 上图仅 Processor Behavior IR 数据合同已实现；所有 adapter、执行、提取、匹配、可达性与验证均未实现。
 核心问题是 `FirmwareExecutionPath |= HardwareTriggerSpecification ?`，当前合同不回答该问题。
 Trigger IR 合同可先于 Extractor 开发，但运行时提取结果进入 IR；两种顺序不能混淆。
+V2-3B 的首个 adapter 只做 confirmed SI 结构解析与 SOURCE_DECLARED 指令/操作数/顺序投影。
+V2-4 定义 Trigger IR 后，V2-5 前或其中先专项审计 case 输出的实际语义与 provenance，
+再讨论 feature extraction、reduction、root-cause localization 和跨层验证规划；当前不实现这些能力。
 行为归一化与来源适配分离，架构专用 backend/profile 不改变核心的架构中立边界。
 每次连接必须绑定同架构、同原始 firmware identity 与声明的分析范围。
 RISC-V-first != RISC-V-only；架构标签不能作为实现声明。

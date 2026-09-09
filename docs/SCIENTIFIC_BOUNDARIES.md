@@ -31,6 +31,18 @@
 - Declared Firmware SHA != Verified File Bytes
 - ProcessorFuzz Artifact != Hardware Trigger IR
 - ProcessorFuzz Artifact != Client Hardware Applicability
+- Hardware-Team Valid SI != ChipChain Verified Hardware Vulnerability
+- External Team Confirmation != ChipChain Verification
+- SI Testcase != Hardware Trigger Specification
+- Whole SI != Minimal Trigger
+- ISA Trace != Physical Silicon Trace
+- RTL Simulation != Physical Silicon
+- ISA/RTL Difference != Automatically Vulnerability
+- ISA/RTL Signature Difference != Automatically Root Cause
+- Disassembly != Runtime Execution
+- ELF/HEX != Original SI Semantics Automatically
+- ProcessorFuzz Hardware Target != Client Hardware Target
+- Same RISC-V != Same Hardware Target
 - SI Presence != Firmware Reachability
 - GDBFuzz Artifact != Firmware Vulnerability
 - Coverage != Runtime Path Proof
@@ -104,6 +116,11 @@
 Type II 不伪造 software vulnerability；Type III 不反转已有路径冒充 hardware→software 客观因果。
 R0/V2-1/V2-2 不实现这些检测或验证能力，也不包含 claimed cross-layer positive fixture。
 V2-2 仅新增 processor facts 的数据合同；synthetic RISC-V/ARM 示例不是实际解码、SI finding 或客户证据。
+
+当前真实硬件参考输入为 hardware-team-confirmed valid SI 所在的完整 Hardware Case Bundle。
+“有效”是硬件团队提供的来源确认，不由 ChipChain 本轮独立验证；bundle 丰富程度不构成证明强度升级。
+SI、ISA/RTL artifacts 与 signatures 将来可能支持提取、缩减和根因定位，但须先审计其实际语义；
+当前没有相关 parser、Hardware Trigger、跨层确认或真实 silicon 结论，材料保持 local-only。
 
 Bundled GDBFuzz Serial Example != Proof That Arbitrary Firmware Requires No Adaptation。
 SUTConnection 是主机端 input delivery；示例 ready-marker/长度/testcase 握手与示例固件相互匹配。

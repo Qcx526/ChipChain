@@ -24,3 +24,7 @@ Thumbs.db
 # Local outputs
 reports/
 artifacts/
+
+# Local real hardware-team research artifacts
+/hardware_buginfo/
+/hardware_caseinfo/
