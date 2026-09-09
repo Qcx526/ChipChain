@@ -115,6 +115,21 @@
 - Processor Behavior Fact != Hardware Trigger Requirement
 - Behavior IR != Trigger IR
 - Behavior IR != Matcher Result
+- Hardware Trigger Requirement != Requirement Satisfaction
+- Trigger Specification != Runtime Trigger
+- Trigger Specification != Verified Vulnerability
+- Fact Nature != Requirement Nature
+- Requirement Slot != Source Ordinal
+- Requirement Slot != Runtime Occurrence
+- Requirement Collection Order != Required Execution Order
+- SOURCE_SEQUENCE != REQUIRED_PRECEDES
+- REQUIRED_PRECEDES != STATIC_CFG_SUCCESSOR
+- REQUIRED_PRECEDES != RUNTIME_PRECEDES Observation
+- Required Immediate Precedence != Observed Adjacency
+- Required Exception Event != Observed Exception Event
+- Register State Requirement != Register Access Requirement
+- Lexical Operand Constraint != ISA Semantic Equivalence
+- ProcessorFuzz Source Association != Trigger Correctness Or Minimality
 
 真实客户端分析绑定固定 hardware + immutable original firmware，可使用 byte-identical 离线副本。
 不得用 patch/recompile/instruction insertion、JTAG code injection 或修改程序字节的 software breakpoint
@@ -128,8 +143,11 @@ V2-2 仅新增 processor facts 的数据合同；synthetic RISC-V/ARM 示例不�
 当前真实硬件参考输入为 hardware-team-confirmed valid SI 所在的完整 Hardware Case Bundle。
 “有效”是硬件团队提供的来源确认，不由 ChipChain 本轮独立验证；bundle 丰富程度不构成证明强度升级。
 SI、ISA/RTL artifacts 与 signatures 将来可能支持提取、缩减和根因定位，但须先审计其实际语义；
-当前只有 SI structural parser 与 SOURCE_DECLARED mapper，没有 case-output parser、Hardware Trigger、
-跨层确认或真实 silicon 结论，材料保持 local-only。
+SI structural parser 与 SOURCE_DECLARED mapper 已由 V2-3B 冻结；V2-4 仅新增 Hardware Trigger
+requirements 的内部合法性合同，没有 case-output parser、真实提取的 trigger、满足性判断、跨层确认
+或真实 silicon 结论，材料保持 local-only。真实 confirmed SI 尚未缩减或构造为真实 trigger spec。
+synthetic requirement examples 不是 ProcessorFuzz finding 或客户证据；V2-5A 先独立审计输出语义，
+V2-5B 才讨论提取/缩减，不能用本轮模型创建替代这些工作。
 Rocket/ProcessorFuzz 是项目负责人提供的 family 声明；unspecified local IDs 不补全版本、配置或 ISA。
 
 Bundled GDBFuzz Serial Example != Proof That Arbitrary Firmware Requires No Adaptation。

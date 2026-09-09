@@ -8,8 +8,8 @@
 - 未来硬件侧来源：ProcessorFuzz → RISC-V SI → Hardware Trigger。
 - 未来固件侧来源：GDBFuzz → 原始不可变 firmware 的 external-input fuzzing → firmware behavior artifact。
 - ChipChain 的未来核心是 Processor Behavior + Trigger Extraction + Trigger Matching + Reachability。
-- V2-2 冻结层只有 Processor Behavior IR 合同；V2-3B 本地新增独立 SI structural parser/mapper，
-  不实现 GDBFuzz adapter、Trigger IR、decoder、matcher、reachability 或 verification。
+- V2-2 冻结层只有 Processor Behavior IR 合同；独立 SI structural parser/mapper 不承担 trigger 提取。
+  trigger 层仅定义规范性要求，不实现 GDBFuzz adapter、decoder、matcher、reachability 或 verification。
   下一步依照 [PLANS.md](PLANS.md) 独立授权。
 
 ## 目标与科研边界
@@ -45,6 +45,12 @@
 - adapters 只能依赖 stdlib/Pydantic/core/behavior/adapters；core/behavior/root/CLI 不反向导入 adapters。
   SI parser 消费 exact bytes，mapper 必须 detached revalidate 并匹配 ProcessorFuzzArtifact SHA；
   只生成 SOURCE_DECLARED 指令与 SOURCE_SEQUENCE，不能推断状态、访问效果或运行事件。
+- trigger 只能依赖 stdlib/Pydantic、公开 core/behavior 合同及自身模块；不导入 behavior 私有 helper
+  或 adapters/backends，core/behavior/adapters/root/CLI 不反向导入 trigger。
+- Trigger requirement != Processor Behavior fact != requirement satisfaction；不复用 BehaviorFactNature。
+  requirement_slot 只是局部节点身份，不是 source/runtime ordinal；集合次序不隐含执行顺序。
+  SOURCE_SEQUENCE 不自动升级为 REQUIRED_PRECEDES；规范性邻接不是观察结果。
+  来源绑定不证明要求正确、最小、已触发或适用于 client；提取/缩减与满足性判断需独立授权。
 - 项目负责人声明的 Rocket/ProcessorFuzz family 不证明具体配置或版本；显式 unspecified local ID
   不是上游 profile，也不是 authenticated provenance，未知 revision/ISA profile 必须保持未知。
 - 默认测试离线，无 API Key、数据库、QEMU/JTAG 或网络依赖；`.env` 不提交、不自动加载。

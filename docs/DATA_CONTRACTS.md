@@ -1,4 +1,4 @@
-# V2-R0 / V2-1 / V2-2 / V2-3B 数据合同
+# V2-R0 / V2-1 / V2-2 / V2-3B / V2-4 数据合同
 
 ## 模型与架构
 
@@ -205,7 +205,9 @@ ControlTransferBehavior、ProcessorEvent、PrivilegeStateFact、RegisterStateFac
 根目录 `/hardware_buginfo/`、`/hardware_caseinfo/` 均为 `LOCAL_ONLY_REAL_ARTIFACT`，后者是首选语义名称；
 不自动移动/重命名/改写材料，不默认提交真实 SI、ISA/RTL trace 或其他 case 内容。
 
-## V2-3B confirmed SI parser / mapper（本地实现，待冻结）
+## V2-3B confirmed SI parser / mapper（已冻结）
+
+`chipchain-v2-3b-stable` 固定于 `7d42e325beb0385a0e8df16b204c7f8ea296eb5a`。
 
 公开 API 位于 `chipchain.adapters.processorfuzz`：
 `parse_processorfuzz_si(data: bytes, *, parser_profile_id=...) -> RawProcessorFuzzSI`；
@@ -260,3 +262,66 @@ target 等价。缺少必要声明时仍只 structural parse，禁止给真实 S
 本地验收：两份 SI 的 raw payload/ID 相同，header 为 p-m、368 条指令、208 个标签、341 个 trailer、
 384 条 data；使用以上部分声明分别映射得到相同 fragment ID、368 个指令和 367 个 SOURCE_SEQUENCE。
 这仅为 parser/mapper 合同验收，不是硬件执行或漏洞验证；原 case 文件未改写，也未加入默认 fixtures。
+
+## V2-4 Hardware Trigger IR v1（仅 requirement contracts）
+
+公开 API 为 `chipchain.trigger`，不修改冻结 core/behavior/adapter。以下全部是规范性要求，
+不是 Processor Behavior facts、requirement satisfaction、runtime trigger 或 verified vulnerability。
+没有 nature/status/score/verdict、固件引用或匹配结果字段，也没有提取/缩减/求值/匹配 API。
+
+`TriggerSourceContext` 保存 artifact、完整 hardware_target、producer_profile_id，source_kind 的 v1
+词汇为 `processorfuzz_artifact` / `synthetic_fixture`。artifact 的 architecture/producer 必须显式匹配
+context；PF 类型必须且仅能包含 ProcessorFuzzArtifact，其完整 provenance/target 必须分别精确相等。
+同 model 不同 target_id/revision/ISA profile 拒绝混用，未知 revision/profile 保持 None，不认证来源。
+SOURCE association != trigger correctness/minimality/client applicability。没有 PF descriptor → spec 转换函数。
+
+每个 requirement 带 source_context_id、architecture、严格非负整数 requirement_slot。
+slot 在整个 spec（跨 preconditions/steps）唯一；相同内容可通过不同 slot 表达 A(0)/B(1)/A(2)。
+slot 不自动重编号，不是 source ordinal/address/runtime occurrence；相同声明节点可被显式复用，
+但 order 端点必须存在于当前 spec，不能引用另一个 spec 独有的节点。
+
+| Requirement | v1 内容与边界 |
+| --- | --- |
+| InstructionTriggerRequirement | mnemonic + positional operands；None 不约束操作数，空 tuple 明确要求零操作数 |
+| RegisterAccessTriggerRequirement | RegisterReference + AccessKind；无 value，不证明访问发生 |
+| RegisterStateTriggerRequirement | RegisterReference + ScalarConstraint；无未知值自动补零 |
+| MemoryAccessTriggerRequirement | AccessKind；width_bytes/MemoryAddress 可选，None 不约束该维度，宽度严格正整数 |
+| MemoryStateTriggerRequirement | 必需的 explicit MemoryAddress + ScalarConstraint，不把 symbolic/unknown 变成地址零 |
+| PrivilegeStateTriggerRequirement | 显式 profile_id/mode_id，按 requirement architecture 定域，不推断模式支持或排序 |
+| ControlTransferTriggerRequirement | ControlTransferKind + 可选 ProgramAddress target；不构造 CFG 或 branch-taken fact |
+| EventTriggerRequirement | ProcessorEventKind + 可选 cause_id；无 cause 时不约束原因，不是 runtime occurrence |
+
+RegisterReference 及 instruction 内 register operand 必须匹配 requirement/source architecture；
+MemoryAddress/ProgramAddress 沿用各自公开数值合同，不混用、不附加 ISA 或 MMIO 分类。
+production 不硬编码 ISA mnemonic/register/model，RISC-V/ARM 测试仅使用显式 synthetic 描述。
+
+`OperandRequirement` 是 any/register/scalar/text 判别联合。AnyOperandRequirement 只放宽该位置；
+RegisterOperandRequirement 要求 exact reference；ScalarOperandRequirement 持有 scalar constraint；
+TextOperandRequirement 只表达 exact lexical text，不解析 alias/symbol/expression 或判断 ISA 等价。
+operand tuple 保留位置，重排改变 ID。
+
+`ExactScalarConstraint(value: ExactScalar)` 表达 actual == value；
+`MaskedScalarConstraint(value, mask)` 表达 (actual & mask) == value。
+这里只检查声明合法性，**不接收或评估 actual**。value/mask 宽度必须相同、严格正整数，位模式不能溢出，
+value 不能含 mask 以外的置位；零 mask 因未约束任何位而拒绝。零 value 在合法 mask 下允许。
+
+`HardwareTriggerSpec.contract` 固定为 `v2_hardware_trigger_spec_v1`。
+preconditions 只允许 register/privilege/memory state；steps 只允许 instruction/register-access/
+memory-access/control-transfer/event。三组集合（含 order_requirements）使用 tuple，拒绝重复 ID 后按 ID
+排序，调用方列表顺序不参与集合身份；不隐式生成任何 order。空集合仅表示未声明要求，不是 vacuous VERIFIED。
+
+`TriggerOrderRequirement` 带来源/架构、before_id/after_id 和精确 v1 kind：
+`required_precedes` / `required_immediately_precedes`。端点只能是当前 spec steps，拒绝 state、悬空、
+外部节点、自环、重复 edge，两种 order 合并后检查 DAG。该检查只是引用/结构一致性，**不是**完整约束求解。
+Immediate 表达要求邻接，不表示 source lines 相邻或 runtime trace 已证实邻接，也不按 slot 自动推导。
+SOURCE_SEQUENCE != REQUIRED_PRECEDES != RUNTIME_PRECEDES observation。
+
+所有新 concrete trigger 模型（含 operands/constraints/source/requirements/orders/spec）使用各自
+`v2-…-v1` namespace 与冻结 deterministic_id；完整规范化字段参与 ID，无时间、随机数或路径字段。
+ID 为只读派生 property，不接受 caller-provided ID；JSON roundtrip 稳定，来源/slot/约束/显式顺序改变会
+改变身份。冻结、tuple、嵌套 revalidation 保证 retained snapshot 不随 caller 输入修改；unchecked
+model_copy/model_construct 不作为权威输入，重新 model_validate 时仍检查所有嵌套合同。
+
+`tests/trigger/` 仅为 benign SYNTHETIC_FIXTURE，不是 ProcessorFuzz finding、真实硬件 trigger 或漏洞。
+PF 绑定负例也只使用 synthetic provenance descriptors；未从真实 confirmed SI 或其 368 behavior records
+构造 HardwareTriggerSpec。V2-5A 输出语义审计、V2-5B 提取/缩减、matcher 和 reachability 均未实施。

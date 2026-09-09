@@ -5,7 +5,10 @@ V2-1 已由 `chipchain-v2-1-stable` 冻结于 `c7a0d7832e6da13c9fb0a68f3fd4fe3fb
 V2-2 Processor Behavior IR v1 已由 `chipchain-v2-2-stable` 冻结于
 `48f8925792a1afa829d20bc25841010e1a12faa2`，包括 R1 的来源/性质分离与 occurrence 端点限制。
 V2-3A.1 已由 `chipchain-v2-3a1-stable` 冻结于 `2b6b61b8cd8abcb5c68760c9a0f39a99dd59c6d0`。
-V2-3B 已本地实现 confirmed-profile raw parser 与保守 mapper，待审查，尚未冻结；V2-4 及以后仍未实现。
+V2-3B confirmed-profile raw parser 与保守 mapper 已由 `chipchain-v2-3b-stable` 冻结于
+`7d42e325beb0385a0e8df16b204c7f8ea296eb5a`。
+V2-4 为 CURRENT：Hardware Trigger IR v1 本地已实现，仅 requirement contracts，待审查冻结。
+V2-5A 及以后仍未实现。
 RISC-V 为主实验架构；RISC-V-first != RISC-V-only。公共合同保持架构中立，
 backend/profile/adapter 分别承担具体架构能力，架构标签不代表已有实现。
 
@@ -16,9 +19,10 @@ backend/profile/adapter 分别承担具体架构能力，架构标签不代表�
 | V2-R0 | Clean Mainline Reset | 最小 core、CLI、离线回归、依赖隔离和精简文档通过审查；归档引用不变 |
 | V2-1 | Target / Source / External Input / Debug Contracts | 已冻结；精确固件绑定、来源分离、调试扰动词汇及离线负例；不定义业务结果 |
 | V2-2 | Processor Behavior IR v1 | 已冻结；指令/访问/状态/事件、来源性质、分型关系、引用完整性与 synthetic 回归；无分析 |
-| V2-3B | Confirmed ProcessorFuzz SI Structural Parser | 本地已实现；exact bytes/raw roundtrip、SOURCE_DECLARED-only mapper、synthetic 回归和本地 confirmed SI 验收；不解码 |
-| V2-4 | Hardware Trigger IR | 显式表达行为、前置条件与硬件来源，不冒充 firmware 可达性 |
-| V2-5 | Trigger Extraction / Reduction | 先完成 case 输出及生产者语义专项审计，再实现来源可重放的提取/缩减，保留未知条件与适用范围 |
+| V2-3B | Confirmed ProcessorFuzz SI Structural Adapter | FROZEN；exact bytes/raw roundtrip、SOURCE_DECLARED-only mapper；不解码 |
+| V2-4 | Hardware Trigger IR v1 | CURRENT；仅要求合同，来源/target、slot、位宽、引用与无环顺序检查；无提取或满足性判断 |
+| V2-5A | Confirmed Case Output Semantics Audit | 另行授权审计 case 输出及生产者语义，不把 ISA/RTL mismatch 当 trigger proof |
+| V2-5B | Trigger Extraction / Reduction | 在语义审计后独立实现来源可重放的提取/缩减，保留未知条件与适用范围 |
 | V2-6 | GDBFuzz Artifact / External Input Adapter | 绑定原始不可变 firmware、既有端点与 execution artifacts |
 | V2-7 | RISC-V Firmware / angr → Processor Behavior IR | 审计实际 decoder/profile 输出，分离静态语义与运行观察 |
 | V2-8 | Deterministic Trigger Matcher | 明确匹配规则、负例与未知项，不把候选称为漏洞 |
@@ -50,8 +54,12 @@ Header/标签分组/尾列/data 布局仍未知，保留 raw，不投影为 stat
 具体 revision/configuration、RV32/RV64、ISA extensions、工具 version/configuration 均不推断。
 缺少来源声明的其他 real SI 仍只能先 structural parse，不得套用 synthetic provenance。
 
-V2-4 先定义 Hardware Trigger IR；V2-5 之前或其初始阶段专项审计 ISA/RTL trace/log、signatures、
-transition database、compiled artifacts 的实际内容和生产者语义，再进入 Trigger Extraction / Reduction。
+V2-4 只定义 Hardware Trigger requirements：状态 preconditions 与行为/event steps 分开；
+slot 支持 A/B/A 重复节点但不隐含顺序，显式 order 只引用本 spec steps 并检查无环。
+requirements 不是 facts，更不是 satisfied requirements 或漏洞结论；SOURCE_SEQUENCE 不自动转换成 required order。
+真实 confirmed SI（包括其 368 条 behavior records）尚未提取/缩减为真实 trigger spec。
+V2-5A 将专项审计 ISA/RTL trace/log、signatures、transition database、compiled artifacts 的
+实际内容和生产者语义，再由 V2-5B 进入 Trigger Extraction / Reduction。本轮不启动这些工作。
 Confirmed SI + ISA-side artifact + RTL-side artifact + signature/comparison material 将来可能支持
 trigger feature extraction、reduction、root-cause localization 与跨层验证规划；这些能力当前均未实现。
 

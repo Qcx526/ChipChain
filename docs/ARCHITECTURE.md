@@ -1,6 +1,6 @@
 # V2 架构
 
-## 已实现：冻结 core/behavior + 本地 V2-3B adapter
+## 已实现：冻结 core/behavior/adapter + 本地 V2-4 requirement IR
 
 V2-2 冻结于 `chipchain-v2-2-stable` / `48f8925792a1afa829d20bc25841010e1a12faa2`。
 
@@ -11,6 +11,7 @@ core                models / architecture / identity / provenance / address
                     target / artifacts / input / debug（仅声明与一致性校验）
 behavior.processor  指令/访问/状态/事件/关系及单来源 fragment（数据合同）
 adapters.processorfuzz  exact bytes → raw SI；raw + PF descriptor → SOURCE_DECLARED fragment
+trigger             来源/目标 + 状态 preconditions + 行为/event steps + 显式 required order
 ```
 
 core 只依赖 Python 标准库与 Pydantic；它不加载 decoder、分析器、运行后端、模型服务或业务子系统。
@@ -19,6 +20,15 @@ core 只依赖 Python 标准库与 Pydantic；它不加载 decoder、分析器�
 SI adapter 仅依赖 stdlib/Pydantic/core/behavior；core/behavior/root/CLI 不反向导入 adapter。
 Parser 不需要 hardware metadata，也不读文件；mapper 才 detached revalidate raw/source、核对 RISC-V 与 SHA。
 Raw 保留每条原始指令行，重建 bytes 复核 SHA/length，避免反序列化修改字段后沿用旧 provenance。
+V2-3B 已冻结于 `chipchain-v2-3b-stable` / `7d42e325beb0385a0e8df16b204c7f8ea296eb5a`。
+
+V2-4 的 `trigger → 公开 behavior/core` 是单向依赖，不导入 adapter 或 behavior 私有工具；
+trigger 自有 identity/binding helpers。core/behavior/adapters/root/CLI 均不反向导入 trigger。
+IR 只做要求的内部合法性检查，未连接 parser/mapper，不做提取、求值、匹配、运行或 verification。
+规范性 requirement 没有 BehaviorFactNature，不能冒充已发生事实。
+单一 source context 保留完整 hardware target 与声明的 artifact/producer；ProcessorFuzz 来源还需 exact descriptor。
+preconditions/steps 为无序语义集合，slot 只标识节点，顺序只由 required order 声明。
+SOURCE_SEQUENCE != REQUIRED_PRECEDES；required adjacency != observed adjacency。
 
 `HardwareTargetIdentity` 区分 client 与 ProcessorFuzz hardware；同架构不是同目标。
 `ImmutableFirmwareArtifact` 组合来源 SHA、架构、硬件目标与可选 ISA profile。
@@ -51,11 +61,12 @@ Hardware Trigger IR + Processor Behavior IR → Trigger Matching + Anchored Reac
                                            → 后续 evidence-backed Verification
 ```
 
-上图已实现 Processor Behavior IR 与 confirmed SI structural adapter；执行、提取、匹配、可达性与验证均未实现。
+上图已实现 Processor Behavior IR、confirmed SI structural adapter 与 Hardware Trigger requirement IR；
+执行、提取、匹配、可达性与验证均未实现。真实 confirmed SI 尚未缩减或构造为真实 trigger spec。
 核心问题是 `FirmwareExecutionPath |= HardwareTriggerSpecification ?`，当前合同不回答该问题。
 Trigger IR 合同可先于 Extractor 开发，但运行时提取结果进入 IR；两种顺序不能混淆。
 V2-3B 的首个 adapter 只做 confirmed SI 结构解析与 SOURCE_DECLARED 指令/操作数/顺序投影。
-V2-4 定义 Trigger IR 后，V2-5 前或其中先专项审计 case 输出的实际语义与 provenance，
+V2-4 定义 Trigger IR 后，V2-5A 先专项审计 case 输出的实际语义与 provenance，V2-5B 再提取/缩减，
 再讨论 feature extraction、reduction、root-cause localization 和跨层验证规划；当前不实现这些能力。
 行为归一化与来源适配分离，架构专用 backend/profile 不改变核心的架构中立边界。
 每次连接必须绑定同架构、同原始 firmware identity 与声明的分析范围。

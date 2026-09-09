@@ -24,7 +24,7 @@ ChipChain: Processor Behavior + Trigger Extraction + Trigger Matching + Reachabi
 开发时可先定义 Trigger IR 合同再实现 Extractor，开发依赖顺序不等于运行数据流。
 所有跨层关联必须发生在同一架构内，不能拼接 ARM 固件与 RISC-V 硬件来源。
 
-## 当前范围：冻结 V2-2 IR + 本地 V2-3B SI adapter
+## 当前范围：冻结 V2-3B + V2-4 Hardware Trigger requirements
 
 V2-R0/V2-1 已冻结，保留硬件目标、精确固件、ProcessorFuzz/GDBFuzz 来源、
 外部输入端点/投递/输入 artifact，以及调试扰动声明。它们仅是可验证字段一致性的 core 合同，
@@ -43,13 +43,22 @@ RISC-V 与 ARM 示例均为 benign synthetic 合同测试，不是解码结果�
 | 能力 | 当前状态 |
 | --- | --- |
 | Processor Behavior IR v1 | V2-2 已冻结；无 parser/decoder/analysis |
-| ProcessorFuzz SI structural parser / mapper | V2-3B 本地已实现 confirmed profile；不集成或运行 ProcessorFuzz |
+| ProcessorFuzz SI structural parser / mapper | V2-3B 已冻结 confirmed profile；不集成或运行 ProcessorFuzz |
 | GDBFuzz integration / parsing | NOT IMPLEMENTED |
 | RISC-V firmware decoder | NOT IMPLEMENTED |
-| Hardware Trigger IR / Trigger Extraction | NOT IMPLEMENTED |
+| Hardware Trigger IR v1 | V2-4 本地实现；仅规范性 requirements，待审查冻结 |
+| Trigger Extraction / Reduction | NOT IMPLEMENTED |
 | Trigger Matcher | NOT IMPLEMENTED |
 | Anchored Reachability | NOT IMPLEMENTED |
 | End-to-end cross-layer detection / evidence-backed Verification | NOT IMPLEMENTED |
+
+V2-3B 冻结标签 `chipchain-v2-3b-stable` 指向 `7d42e325beb0385a0e8df16b204c7f8ea296eb5a`。
+`chipchain.trigger` 将状态 preconditions、行为/event steps 与显式 required order 分开，
+保持单一来源/硬件目标、严格 slot、位宽和引用完整性。RISC-V/ARM 例子均为 benign synthetic 合同测试。
+Trigger requirement != Processor Behavior fact；Trigger requirement != satisfied requirement；
+Trigger spec != verified vulnerability；SOURCE_SEQUENCE != REQUIRED_PRECEDES。
+真实 confirmed SI 尚未提取/缩减为真实 trigger spec。下一步 V2-5A 先审计 case 输出语义，
+再由独立授权的 V2-5B 进行提取/缩减；本轮不实现任何满足性判断。
 
 LLM 的未来角色是 coordinator/reasoner，不是 processor ground truth。
 Knowledge 提供上下文关联，不等于确定性 trigger reachability。

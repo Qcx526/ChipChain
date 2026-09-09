@@ -13,11 +13,11 @@ PRODUCTION = ROOT / "src/chipchain"
 OLD_PACKAGES = (
     "agents", "analysis", "candidate", "corpus", "evaluation", "graph",
     "hardware_trigger", "knowledge", "models", "multi_agent", "reasoning",
-    "runtime", "verification", "trigger",
+    "runtime", "verification",
 )
 
 
-def test_production_imports_respect_core_behavior_adapter_direction() -> None:
+def test_production_imports_respect_core_behavior_adapter_trigger_direction() -> None:
     allowed = {
         "argparse", "collections.abc", "enum", "hashlib", "json", "math", "re", "typing",
         "pydantic", "chipchain", "chipchain.cli", "chipchain.core.address",
@@ -39,6 +39,11 @@ def test_production_imports_respect_core_behavior_adapter_direction() -> None:
         "chipchain.adapters.processorfuzz.models", "chipchain.adapters.processorfuzz.parser",
         "chipchain.adapters.processorfuzz.mapper",
     }
+    trigger_allowed = {
+        "chipchain.core", "chipchain.behavior.processor", "chipchain.trigger.base",
+        "chipchain.trigger.enums", "chipchain.trigger.values", "chipchain.trigger.requirements",
+        "chipchain.trigger.relations", "chipchain.trigger.models",
+    }
     for path in sorted(PRODUCTION.rglob("*.py")):
         source = path.read_text(encoding="utf-8")
         file_allowed = (
@@ -49,6 +54,10 @@ def test_production_imports_respect_core_behavior_adapter_direction() -> None:
             file_allowed = {name for name in allowed if not name.startswith("chipchain")} | adapter_allowed
         else:
             assert "chipchain.adapters" not in source, path
+        if "trigger" in path.relative_to(PRODUCTION).parts:
+            file_allowed = {name for name in allowed if not name.startswith("chipchain")} | trigger_allowed
+        else:
+            assert "chipchain.trigger" not in source, path
         for package in OLD_PACKAGES:
             assert f"chipchain.{package}" not in source, path
         for node in ast.walk(ast.parse(source)):
@@ -65,7 +74,7 @@ def test_production_imports_respect_core_behavior_adapter_direction() -> None:
         assert not (PRODUCTION / package).exists()
 
 
-@pytest.mark.parametrize("mode", ["root", "core", "behavior", "adapter", "console", "module"])
+@pytest.mark.parametrize("mode", ["root", "core", "behavior", "adapter", "trigger", "console", "module"])
 def test_fresh_process_import_firewall(mode: str) -> None:
     # A fresh process avoids false assurance from previously imported backends.
     script = r'''
@@ -77,9 +86,11 @@ import sys
 mode = sys.argv[1]
 old = ("agents", "analysis", "candidate", "corpus", "evaluation", "graph",
        "hardware_trigger", "knowledge", "models", "multi_agent", "reasoning",
-       "runtime", "verification", "trigger")
+       "runtime", "verification")
 if mode != "adapter":
     old += ("adapters",)
+if mode != "trigger":
+    old += ("trigger",)
 forbidden = tuple("chipchain." + item for item in old) + (
     "angr", "capstone", "networkx", "openai", "dotenv", "qemu", "provider",
     "jtag", "processorfuzz", "gdbfuzz", "requests", "httpx",
@@ -108,6 +119,11 @@ elif mode == "adapter":
     from chipchain.adapters.processorfuzz import parse_processorfuzz_si, map_processorfuzz_si
     raw = parse_processorfuzz_si(b"p-m\n\n_p0:    addi x1, zero, 0\n_l0:    addi x2, x1, 1\n_s0:    fence\ndata:\n0000000000000000\n")
     assert len(raw.instructions) == 3
+elif mode == "trigger":
+    from chipchain.trigger import HardwareTriggerSpec, ExactScalarConstraint
+    assert HardwareTriggerSpec.model_fields["contract"].default == "v2_hardware_trigger_spec_v1"
+    constraint = ExactScalarConstraint(value={"width_bits": 8, "value": "0x1"})
+    assert constraint.id.startswith("v2-trigger-exact-scalar-constraint-v1:")
 else:
     sys.argv = ["chipchain", "--help"]
     try:
