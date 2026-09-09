@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "chipchain"
 version = "0.1.0"
-description = "Evidence-guided cross-layer chip vulnerability chain detection"
+description = "ChipChain V2: RISC-V-first cross-layer trigger reachability foundation"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -20,18 +20,10 @@ classifiers = [
   "Topic :: Security",
 ]
 dependencies = [
-  "networkx>=3.4,<4",
   "pydantic>=2.11,<3",
 ]
 
 [project.optional-dependencies]
-angr = [
-  "angr==9.3.2",
-]
-llm = [
-  "openai>=1.0,<3",
-  "python-dotenv>=1.0,<2",
-]
 dev = [
   "pytest>=8.0,<10",
 ]
@@ -48,7 +40,3 @@ where = ["src"]
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
-markers = [
-  "angr: requires the optional angr backend and auditable ARM binary fixture",
-  "qemu: requires explicit real QEMU system ARM and passive plugin opt-in",
-]
