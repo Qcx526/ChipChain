@@ -10,7 +10,7 @@ RISC-V-first 跨层硬件触发与可达性研究，使用架构中立的核心�
 FirmwareExecutionPath |= HardwareTriggerSpecification ?
 ```
 
-未来工作流（尚未实现）：
+目标完整工作流（尚未闭环）：
 
 ```text
 ProcessorFuzz SI → SI Adapter → Processor Behavior IR → Trigger Extraction / Reduction → Hardware Trigger IR
@@ -24,7 +24,7 @@ ChipChain: Processor Behavior + Trigger Extraction + Trigger Matching + Reachabi
 开发时可先定义 Trigger IR 合同再实现 Extractor，开发依赖顺序不等于运行数据流。
 所有跨层关联必须发生在同一架构内，不能拼接 ARM 固件与 RISC-V 硬件来源。
 
-## 当前范围：V2-2 Processor Behavior IR v1
+## 当前范围：冻结 V2-2 IR + 本地 V2-3B SI adapter
 
 V2-R0/V2-1 已冻结，保留硬件目标、精确固件、ProcessorFuzz/GDBFuzz 来源、
 外部输入端点/投递/输入 artifact，以及调试扰动声明。它们仅是可验证字段一致性的 core 合同，
@@ -43,7 +43,7 @@ RISC-V 与 ARM 示例均为 benign synthetic 合同测试，不是解码结果�
 | 能力 | 当前状态 |
 | --- | --- |
 | Processor Behavior IR v1 | V2-2 已冻结；无 parser/decoder/analysis |
-| ProcessorFuzz integration / RISC-V SI parser | NOT IMPLEMENTED |
+| ProcessorFuzz SI structural parser / mapper | V2-3B 本地已实现 confirmed profile；不集成或运行 ProcessorFuzz |
 | GDBFuzz integration / parsing | NOT IMPLEMENTED |
 | RISC-V firmware decoder | NOT IMPLEMENTED |
 | Hardware Trigger IR / Trigger Extraction | NOT IMPLEMENTED |
@@ -59,11 +59,14 @@ Knowledge 提供上下文关联，不等于确定性 trigger reachability。
 V2-3 的真实格式基准已更正为完整 **Hardware Case Bundle** 内的
 **hardware-team-confirmed valid SI testcase**。外部团队确认不等于 ChipChain verification。
 Bundle 可包含 SI、assembly/ELF/HEX/symbols/disassembly、ISA/RTL trace/log、signatures 与 build/context
-材料；这些仅是结构角色，尚无 production bundle model 或相关 parser。
+材料；这些仅是结构角色，尚无 production bundle model 或 case-output parser；当前仅解析 SI。
 
 仓库根目录 `/hardware_buginfo/` 和 `/hardware_caseinfo/` 均为 `LOCAL_ONLY_REAL_ARTIFACT`，默认不提交。
 完整 case 的首选目录名是 `hardware_caseinfo/`，但本轮不移动现有数据。
-下一步 V2-3B 仅计划将 confirmed SI 的指令/文本顺序投影为 SOURCE_DECLARED Processor Behavior IR；
+V2-3B 用 exact bytes 生成 `RawProcessorFuzzSI`，独立 mapper 核对 ProcessorFuzzArtifact 后，
+仅将指令/文本顺序投影为 SOURCE_DECLARED Processor Behavior IR；raw header/标签/尾列/data 不投影。
+项目负责人已声明 Rocket + ProcessorFuzz；版本、配置、ISA profile 未知，不以 local unspecified ID
+冒充上游 profile 或认证。允许保留未知项的本地映射，不表示漏洞或 client-target applicability。
 详细 case 输出语义须在 V2-5 提取/缩减前审计。见 [路线图](PLANS.md) 与
 [本地 case 记录](docs/DATA_CONTRACTS.md#本地-hardware-case-bundle文档级概念)。
 

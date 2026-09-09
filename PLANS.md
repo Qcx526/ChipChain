@@ -4,7 +4,8 @@ V2-R0 已由 `chipchain-v2-r0-stable` 冻结于 `7e5a9c28e18f6b262a1e9dfca120079
 V2-1 已由 `chipchain-v2-1-stable` 冻结于 `c7a0d7832e6da13c9fb0a68f3fd4fe3fbfef8c91`。
 V2-2 Processor Behavior IR v1 已由 `chipchain-v2-2-stable` 冻结于
 `48f8925792a1afa829d20bc25841010e1a12faa2`，包括 R1 的来源/性质分离与 occurrence 端点限制。
-V2-3A.1 仅更新 confirmed-case 输入基线和文档；V2-3B 及以后能力均为 planned / NOT IMPLEMENTED。
+V2-3A.1 已由 `chipchain-v2-3a1-stable` 冻结于 `2b6b61b8cd8abcb5c68760c9a0f39a99dd59c6d0`。
+V2-3B 已本地实现 confirmed-profile raw parser 与保守 mapper，待审查，尚未冻结；V2-4 及以后仍未实现。
 RISC-V 为主实验架构；RISC-V-first != RISC-V-only。公共合同保持架构中立，
 backend/profile/adapter 分别承担具体架构能力，架构标签不代表已有实现。
 
@@ -15,7 +16,7 @@ backend/profile/adapter 分别承担具体架构能力，架构标签不代表�
 | V2-R0 | Clean Mainline Reset | 最小 core、CLI、离线回归、依赖隔离和精简文档通过审查；归档引用不变 |
 | V2-1 | Target / Source / External Input / Debug Contracts | 已冻结；精确固件绑定、来源分离、调试扰动词汇及离线负例；不定义业务结果 |
 | V2-2 | Processor Behavior IR v1 | 已冻结；指令/访问/状态/事件、来源性质、分型关系、引用完整性与 synthetic 回归；无分析 |
-| V2-3B | Confirmed ProcessorFuzz SI Structural Parser | 以当前 confirmed case 的 exact SI 为首要真实验收输入；保留 raw bytes/SHA 与 tool profile，仅投影 SOURCE_DECLARED |
+| V2-3B | Confirmed ProcessorFuzz SI Structural Parser | 本地已实现；exact bytes/raw roundtrip、SOURCE_DECLARED-only mapper、synthetic 回归和本地 confirmed SI 验收；不解码 |
 | V2-4 | Hardware Trigger IR | 显式表达行为、前置条件与硬件来源，不冒充 firmware 可达性 |
 | V2-5 | Trigger Extraction / Reduction | 先完成 case 输出及生产者语义专项审计，再实现来源可重放的提取/缩减，保留未知条件与适用范围 |
 | V2-6 | GDBFuzz Artifact / External Input Adapter | 绑定原始不可变 firmware、既有端点与 execution artifacts |
@@ -37,11 +38,17 @@ multi-agent reasoning、大规模 benchmark。每项经过 Plan → Implement �
 V2-3A 的旧 19-SI candidate-corpus 审计已被此次输入更正取代；旧候选集合不作为必需回归集、
 benchmark、confirmed bug dataset 或权威 parser acceptance set。
 
-V2-3B 首先回答能否结构化解析该 exact confirmed SI：指令映射到
+V2-3B 已结构化解析该 exact confirmed SI：指令映射到
 `InstructionBehavior(SOURCE_DECLARED)`，操作数只在确定性支持时映射到
 `RegisterOperand` / `DeclaredOperand`，文本顺序映射到 `SOURCE_SEQUENCE`。
 没有额外语义依据时不生成 access、control-transfer、event、privilege/register/memory state facts。
 真实材料保持 local-only；默认测试使用 synthetic/授权 owned fixture，不依赖本地 case。
+Parser profile `processorfuzz_si_confirmed_v1` 只覆盖当前 confirmed-case 语法，不是通用格式承诺。
+Header/标签分组/尾列/data 布局仍未知，保留 raw，不投影为 state/CFG/runtime。
+项目负责人补充声明 architecture=RISC-V、hardware model=Rocket、producer family=ProcessorFuzz 后，
+允许以 `rocket-unspecified-config` / `processorfuzz-unspecified-profile` 进行当前 real SI 映射验收；
+具体 revision/configuration、RV32/RV64、ISA extensions、工具 version/configuration 均不推断。
+缺少来源声明的其他 real SI 仍只能先 structural parse，不得套用 synthetic provenance。
 
 V2-4 先定义 Hardware Trigger IR；V2-5 之前或其初始阶段专项审计 ISA/RTL trace/log、signatures、
 transition database、compiled artifacts 的实际内容和生产者语义，再进入 Trigger Extraction / Reduction。

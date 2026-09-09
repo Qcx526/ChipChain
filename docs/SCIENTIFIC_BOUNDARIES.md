@@ -43,6 +43,14 @@
 - ELF/HEX != Original SI Semantics Automatically
 - ProcessorFuzz Hardware Target != Client Hardware Target
 - Same RISC-V != Same Hardware Target
+- Rocket Model Known != Exact Rocket Configuration Known
+- ProcessorFuzz Tool Known != ProcessorFuzz Version/Profile Known
+- Partial Declared Provenance != Authenticated Provenance
+- Source Text Instruction != Decoded Machine Instruction
+- Register Operand != Register Access
+- Data Token != Addressed Memory State
+- Data Ordering != Memory Address
+- Partial Projection != Parser Failure
 - SI Presence != Firmware Reachability
 - GDBFuzz Artifact != Firmware Vulnerability
 - Coverage != Runtime Path Proof
@@ -120,7 +128,9 @@ V2-2 仅新增 processor facts 的数据合同；synthetic RISC-V/ARM 示例不�
 当前真实硬件参考输入为 hardware-team-confirmed valid SI 所在的完整 Hardware Case Bundle。
 “有效”是硬件团队提供的来源确认，不由 ChipChain 本轮独立验证；bundle 丰富程度不构成证明强度升级。
 SI、ISA/RTL artifacts 与 signatures 将来可能支持提取、缩减和根因定位，但须先审计其实际语义；
-当前没有相关 parser、Hardware Trigger、跨层确认或真实 silicon 结论，材料保持 local-only。
+当前只有 SI structural parser 与 SOURCE_DECLARED mapper，没有 case-output parser、Hardware Trigger、
+跨层确认或真实 silicon 结论，材料保持 local-only。
+Rocket/ProcessorFuzz 是项目负责人提供的 family 声明；unspecified local IDs 不补全版本、配置或 ISA。
 
 Bundled GDBFuzz Serial Example != Proof That Arbitrary Firmware Requires No Adaptation。
 SUTConnection 是主机端 input delivery；示例 ready-marker/长度/testcase 握手与示例固件相互匹配。

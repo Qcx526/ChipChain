@@ -1,4 +1,4 @@
-# V2-R0 / V2-1 / V2-2 数据合同
+# V2-R0 / V2-1 / V2-2 / V2-3B 数据合同
 
 ## 模型与架构
 
@@ -185,7 +185,7 @@ V2-3A.1 本地清点：`hardware_buginfo/testis/` 含 101 个文件、17 个目�
 均为 26671 bytes，SHA-256 均为
 `cb6dbcbd7d67a78bc5f070342ff03178562ded53edf3f2467db26d999059e1f6`。
 这是同一 exact SI bytes 的两个 workflow locations，不是两个独立 findings。
-未来 parser 必须绑定实际消费 bytes 的 SHA 与显式 ProcessorFuzzArtifact，不能把 filename/CRC 当身份。
+Parser 绑定实际消费 bytes 的 SHA，mapper 再核对显式 ProcessorFuzzArtifact，不能把 filename/CRC 当身份。
 
 以下均为观察布局的结构角色，未确认精确生成语义：
 
@@ -204,3 +204,59 @@ ControlTransferBehavior、ProcessorEvent、PrivilegeStateFact、RegisterStateFac
 
 根目录 `/hardware_buginfo/`、`/hardware_caseinfo/` 均为 `LOCAL_ONLY_REAL_ARTIFACT`，后者是首选语义名称；
 不自动移动/重命名/改写材料，不默认提交真实 SI、ISA/RTL trace 或其他 case 内容。
+
+## V2-3B confirmed SI parser / mapper（本地实现，待冻结）
+
+公开 API 位于 `chipchain.adapters.processorfuzz`：
+`parse_processorfuzz_si(data: bytes, *, parser_profile_id=...) -> RawProcessorFuzzSI`；
+`map_processorfuzz_si(raw_si, source: ProcessorFuzzArtifact) -> ProcessorBehaviorFragment`。
+Parser 无路径或 target 参数，对同一 immutable bytes 计算 SHA 并 strict decode。
+Raw SI、instruction、data IDs 使用冻结 deterministic_id 与 `v2-processorfuzz-…-v1` namespaces；
+路径、时间和随机值不参与身份。相同 bytes 的两处 workflow copy 得到相同 raw ID。
+
+`processorfuzz_si_confirmed_v1` 是本地 confirmed-case 语法 profile，不是上游 ProcessorFuzz profile。
+它只接受 ASCII/LF、末尾 LF、首行 `p-m`、空第二行、按 `_p/_l/_s` 顺序出现的标签族、
+labeled instruction / 8-space indented continuation、一次 `data:` 与非空小写 16-hex-digit 数据行。
+不固定真实样本的指令/data 数量；不支持 BOM、CRLF、tab、注释或猜测的空行位置。
+标签不重复；instruction/data ordinal 来自物理记录顺序，不来自标签数字。
+
+Raw instruction 保存行号、ordinal、可选 label、mnemonic、有序 operand_tokens、可选 trailing_token
+及 exact raw_line（包含空格）；data 保存行号、ordinal、hex_token。两种 record 提供不含 LF 的
+`raw_line_sha256` 派生属性。Raw 文件通过 `exact_bytes()` 重建固定分隔符与原行，重新校验字段/位置/
+byte_length/snapshot_sha256；嵌套 tuple/revalidation 防止调用方修改已保留的对象。
+
+Confirmed 文件的 `0000` 尾列全部始于第 51 列，前有至少两个空格。只有完整指令后的该列 token
+才视为 trailer；逗号等待 operand 时优先保留 `0000` operand。无依据的歧义或非该列的额外 token 拒绝。
+原行不改写。裸 mnemonic 只支持本例观察到的 fence/fence.i/mret/sret/uret；带操作数的 mnemonic
+只做词法校验，不承诺指令存在或 operand arity/ISA 合法。未观察的 ecall/ebreak 裸形式当前拒绝。
+
+GPR/FPR 识别 x0–x31/f0–f31；本例出现的 zero 保留字面 spelling，不改成 x0。t0 未在当前 confirmed SI
+出现，不从旧候选集合扩展支持。CSR 只识别当前 16 个符号：fcsr/mcause/mepc/mip/mstatus/mtval/
+pmpaddr1/pmpaddr2/pmpaddr6/pmpaddr7/pmpcfg0/scause/sepc/sip/sstatus/uepc，映射到 SYSTEM/csr。
+其余已支持的 decimal/negative/hex、标签、d_/pt 符号、offset(register)/(register)、rounding token
+保持 DeclaredOperand，包括 `-0`；不创建 ExactScalar、不推断 width、读写或 CSR 实现支持。
+未定义符号不解析为地址。Header、标签分组、trailer 含义及 data 地址/布局/endianness 均未解决。
+
+Mapper 对 raw/source 的 serialized snapshots 重新验证，要求 RISC-V 和 exact SHA 一致，原样保留
+artifact ID/SHA、完整 target 和 producer profile，构造 PROCESSORFUZZ_SI source context。
+每条 raw instruction 恰好一个 SOURCE_DECLARED InstructionBehavior，address/encoding/size 均为 None；
+仅在连续指令间建立 SOURCE_DECLARED SOURCE_SEQUENCE。其余 raw 内容故意不投影，不生成任何 access、
+state、event、CFG、dependency、runtime order、Trigger 或 verdict。Partial Projection != Parser Failure。
+异常基类为 ProcessorFuzzSIError，子类为 ProcessorFuzzSIParseError、ProcessorFuzzSIIntegrityError、
+UnsupportedSIProfileError；
+parser/mapper 异常只含安全类别/原因与必要行号，不输出真实 source line 或 Pydantic input dump。
+
+### 当前真实来源声明与未知项
+
+项目负责人声明 architecture=RISC-V、hardware model=Rocket、producer family=ProcessorFuzz。
+本地验收使用 caller-declared `artifact_id="local-confirmed-processorfuzz-si"`，source_kind 为
+`project-owner-declared-processorfuzz-si`，exact SHA 为上节已记录值；不是从路径或 bytes 推断 artifact ID。
+`target_id="rocket-unspecified-config"`、`hardware_model="Rocket"`，hardware_revision 与
+instruction_set_profile_id 均为 None。RV32/RV64、具体 Rocket 配置与 ISA extensions 不推断。
+`producer_profile_id="processorfuzz-unspecified-profile"` 明确表示已知工具 family、未知版本/commit/config，
+不是实际 upstream profile 名称，也不与 parser_profile_id 混用。
+这些声明允许当前真实 SI 的本地保守映射，但不认证 producer、不证明 hardware applicability 或 client
+target 等价。缺少必要声明时仍只 structural parse，禁止给真实 SI 附 synthetic provenance。
+本地验收：两份 SI 的 raw payload/ID 相同，header 为 p-m、368 条指令、208 个标签、341 个 trailer、
+384 条 data；使用以上部分声明分别映射得到相同 fragment ID、368 个指令和 367 个 SOURCE_SEQUENCE。
+这仅为 parser/mapper 合同验收，不是硬件执行或漏洞验证；原 case 文件未改写，也未加入默认 fixtures。

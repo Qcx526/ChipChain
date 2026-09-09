@@ -8,7 +8,8 @@
 - 未来硬件侧来源：ProcessorFuzz → RISC-V SI → Hardware Trigger。
 - 未来固件侧来源：GDBFuzz → 原始不可变 firmware 的 external-input fuzzing → firmware behavior artifact。
 - ChipChain 的未来核心是 Processor Behavior + Trigger Extraction + Trigger Matching + Reachability。
-- V2-2 只有 Processor Behavior IR 合同，不实现 SI/GDBFuzz adapter、Trigger IR、decoder、matcher、reachability 或 verification。
+- V2-2 冻结层只有 Processor Behavior IR 合同；V2-3B 本地新增独立 SI structural parser/mapper，
+  不实现 GDBFuzz adapter、Trigger IR、decoder、matcher、reachability 或 verification。
   下一步依照 [PLANS.md](PLANS.md) 独立授权。
 
 ## 目标与科研边界
@@ -41,6 +42,11 @@
 - 冻结模型使用不可变字段类型；嵌套输入需重新验证，不能仅依赖浅层 frozen 标志。
 - core、root、CLI 不依赖业务子系统或分析/运行/模型后端，不留下未来模块空壳。
 - behavior 只能依赖 stdlib/Pydantic/core/behavior；core 不反向依赖 behavior，IR 不依赖未来 adapters/backends。
+- adapters 只能依赖 stdlib/Pydantic/core/behavior/adapters；core/behavior/root/CLI 不反向导入 adapters。
+  SI parser 消费 exact bytes，mapper 必须 detached revalidate 并匹配 ProcessorFuzzArtifact SHA；
+  只生成 SOURCE_DECLARED 指令与 SOURCE_SEQUENCE，不能推断状态、访问效果或运行事件。
+- 项目负责人声明的 Rocket/ProcessorFuzz family 不证明具体配置或版本；显式 unspecified local ID
+  不是上游 profile，也不是 authenticated provenance，未知 revision/ISA profile 必须保持未知。
 - 默认测试离线，无 API Key、数据库、QEMU/JTAG 或网络依赖；`.env` 不提交、不自动加载。
 - 每阶段按 Plan → Implement → Test → Review → Fix → Document 完成；如实记录验证结果。
 - 完成后运行完整 pytest、compileall、两种 CLI help 与 `git diff --check`，同步相关文档。

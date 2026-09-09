@@ -1,6 +1,6 @@
 # V2 架构
 
-## 已实现：R0/V2-1 core + V2-2 processor contracts
+## 已实现：冻结 core/behavior + 本地 V2-3B adapter
 
 V2-2 冻结于 `chipchain-v2-2-stable` / `48f8925792a1afa829d20bc25841010e1a12faa2`。
 
@@ -10,11 +10,15 @@ __main__ → cli       help/version shell
 core                models / architecture / identity / provenance / address
                     target / artifacts / input / debug（仅声明与一致性校验）
 behavior.processor  指令/访问/状态/事件/关系及单来源 fragment（数据合同）
+adapters.processorfuzz  exact bytes → raw SI；raw + PF descriptor → SOURCE_DECLARED fragment
 ```
 
 core 只依赖 Python 标准库与 Pydantic；它不加载 decoder、分析器、运行后端、模型服务或业务子系统。
 `Architecture` 是共享词汇，`ProgramAddress` 是数值地址，`ArtifactProvenance` 是不可变来源声明。
-当前没有 graph、analysis、adapter 或 verification package，也没有研究操作命令。
+当前没有 graph、analysis 或 verification package，也没有研究操作命令。
+SI adapter 仅依赖 stdlib/Pydantic/core/behavior；core/behavior/root/CLI 不反向导入 adapter。
+Parser 不需要 hardware metadata，也不读文件；mapper 才 detached revalidate raw/source、核对 RISC-V 与 SHA。
+Raw 保留每条原始指令行，重建 bytes 复核 SHA/length，避免反序列化修改字段后沿用旧 provenance。
 
 `HardwareTargetIdentity` 区分 client 与 ProcessorFuzz hardware；同架构不是同目标。
 `ImmutableFirmwareArtifact` 组合来源 SHA、架构、硬件目标与可选 ISA profile。
@@ -47,7 +51,7 @@ Hardware Trigger IR + Processor Behavior IR → Trigger Matching + Anchored Reac
                                            → 后续 evidence-backed Verification
 ```
 
-上图仅 Processor Behavior IR 数据合同已实现；所有 adapter、执行、提取、匹配、可达性与验证均未实现。
+上图已实现 Processor Behavior IR 与 confirmed SI structural adapter；执行、提取、匹配、可达性与验证均未实现。
 核心问题是 `FirmwareExecutionPath |= HardwareTriggerSpecification ?`，当前合同不回答该问题。
 Trigger IR 合同可先于 Extractor 开发，但运行时提取结果进入 IR；两种顺序不能混淆。
 V2-3B 的首个 adapter 只做 confirmed SI 结构解析与 SOURCE_DECLARED 指令/操作数/顺序投影。
