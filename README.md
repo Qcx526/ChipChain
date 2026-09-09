@@ -13,20 +13,23 @@ FirmwareExecutionPath |= HardwareTriggerSpecification ?
 未来工作流（尚未实现）：
 
 ```text
-ProcessorFuzz RISC-V hardware fuzzing → SI hardware testcase → Hardware Trigger
-GDBFuzz → original immutable firmware external-input fuzzing → firmware behavior artifact
+ProcessorFuzz SI → SI Adapter → Trigger Extraction / Reduction → Hardware Trigger IR
+External Input → Original Immutable Firmware → Firmware Execution → Processor Behavior IR
 
 ChipChain: Processor Behavior + Trigger Extraction + Trigger Matching + Reachability
 ```
 
-未来以 Processor Behavior IR 连接两侧行为，以 Hardware Trigger IR 保存硬件触发规格，
-再进行 Trigger Extraction、Trigger Matching 和 Anchored Reachability；客观证据验证在其后。
+未来以 Processor Behavior IR 连接两侧行为，提取/缩减结果用 Hardware Trigger IR 表达，
+再进行 Trigger Matching 和 Anchored Reachability；客观证据验证在其后。
+开发时可先定义 Trigger IR 合同再实现 Extractor，开发依赖顺序不等于运行数据流。
 所有跨层关联必须发生在同一架构内，不能拼接 ARM 固件与 RISC-V 硬件来源。
 
-## 当前范围：V2-R0
+## 当前范围：V2-1 合同基础
 
-当前只有可执行的干净基础：严格 Pydantic 模型、架构词汇、确定性身份、artifact provenance、
-规范化地址，以及 `--help`/`--version` CLI shell。没有跨层 positive example。
+V2-R0 已冻结；V2-1 在其基础上新增硬件目标、精确固件、ProcessorFuzz/GDBFuzz 来源、
+外部输入端点/投递/输入 artifact，以及调试扰动声明。它们仅是可验证字段一致性的 core 合同，
+不读取文件、不解析来源、不交付输入、不访问硬件。CLI 仍为 R0 `--help`/`--version` shell。
+没有跨层 positive example。
 RISC-V 是主实验目标，不是已完成的 backend。
 
 | 能力 | 当前状态 |
@@ -42,6 +45,15 @@ RISC-V 是主实验目标，不是已完成的 backend。
 
 LLM 的未来角色是 coordinator/reasoner，不是 processor ground truth。
 Knowledge 提供上下文关联，不等于确定性 trigger reachability。
+
+## GDBFuzz 与不可变客户端
+
+GDBFuzz `SUTConnection` 是 **HOST-SIDE input delivery**，不是 firmware API。
+其 bundled `SerialConnection` 示例使用“目标 ready marker → host 长度 → testcase bytes”，
+示例固件也有对应逻辑；这不能证明任意客户固件无需适配。
+真实工作流要求 **既有客户端点 + 匹配既有协议的主机适配器**，不得修改固件加入 fuzz harness。
+`Adapt Host Input Delivery != Modify Firmware`；`Custom Host Adapter != Firmware Instrumentation`。
+这些是本阶段采用的来源边界，不表示已经运行或集成 GDBFuzz。
 
 ## 固件与科学边界
 

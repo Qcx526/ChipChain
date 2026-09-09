@@ -23,6 +23,8 @@ def test_production_imports_and_references_are_core_only() -> None:
         "pydantic", "chipchain", "chipchain.cli", "chipchain.core.address",
         "chipchain.core.architecture", "chipchain.core.identity", "chipchain.core.models",
         "chipchain.core.provenance",
+        "chipchain.core.target", "chipchain.core.artifacts",
+        "chipchain.core.input", "chipchain.core.debug",
     }
     for path in sorted(PRODUCTION.rglob("*.py")):
         source = path.read_text(encoding="utf-8")

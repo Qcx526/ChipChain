@@ -2,13 +2,13 @@
 
 ## 当前方向
 
-- 当前主线为 `v2-mainline`；当前阶段 V2-R0 只包含最小 core 与 CLI shell。
+- 当前主线为 `v2-mainline`；V2-R0 已冻结，V2-1 仅扩展 source/target/input/debug core 合同，CLI 仍是 shell。
 - RISC-V 是主实验架构，RISC-V-first != RISC-V-only。ARM 等后续能力通过独立 profiles/adapters/backends 实现。
 - 架构词汇不代表 backend 已完成；不得跨架构拼接事实或攻击链。
 - 未来硬件侧来源：ProcessorFuzz → RISC-V SI → Hardware Trigger。
 - 未来固件侧来源：GDBFuzz → 原始不可变 firmware 的 external-input fuzzing → firmware behavior artifact。
 - ChipChain 的未来核心是 Processor Behavior + Trigger Extraction + Trigger Matching + Reachability。
-- R0 不实现 Processor Behavior IR、SI/GDBFuzz adapter、Trigger IR、decoder、matcher、reachability 或 verification。
+- R0/V2-1 不实现 Processor Behavior IR、SI/GDBFuzz adapter、Trigger IR、decoder、matcher、reachability 或 verification。
   下一步依照 [PLANS.md](PLANS.md) 独立授权。
 
 ## 目标与科研边界
@@ -18,6 +18,10 @@
 - 不得以 patch、recompile、instruction insertion、JTAG code injection 或修改程序字节的 software breakpoint
   制造原始目标证据。Modified Firmware != Evidence For Original Firmware；Different Firmware SHA != Same Target。
 - Injected State != Naturally Reached State；JTAG Observation != Firmware Modification。
+- GDBFuzz SUTConnection 是 host-side delivery，不是 firmware API；host adapter 必须匹配客户既有协议，
+  不得以 bundled serial example 为理由修改原始固件加 harness。Transport 不等于 application protocol。
+- 相同架构/model 不证明硬件目标相等；ProcessorFuzz target 不自动适用于 client。来源只能绑定显式固件
+  ID/SHA/架构/目标快照；镜像不可变不证明 halt/step/reset 等调试操作没有扰动自然运行。
 - 确定性、可复核事实优先于 LLM 创作。LLM 只做未来 coordinator/reasoner，knowledge 只提供上下文。
 - 不虚构 vulnerability、verification 或 attack-chain verdict；静态存在、匹配候选、来源 SHA 都不证明漏洞。
 - Type II 不发明 initiating software vulnerability；Type III 不反转软件→硬件路径冒充因果证据。
