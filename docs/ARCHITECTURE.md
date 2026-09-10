@@ -1,6 +1,6 @@
 # V2 架构
 
-## 已实现：冻结至 V2-5A.2 + V2-5B.1 candidate contracts（待审查）
+## 已实现：冻结至 V2-5B.1 + V2-5B.2 reasoning boundary（待审查）
 
 V2-2 冻结于 `chipchain-v2-2-stable` / `48f8925792a1afa829d20bc25841010e1a12faa2`。
 
@@ -16,6 +16,7 @@ evidence            byte-bound artifact / typed observation / scoped non-causal 
 adapters.hardware_case  bytes → confirmed ISA CSV/log / RTL log / opaque signature records
 anchors             SI labeled record ↔ hardware-test ELF symbol ↔ exact ELF bytes / trace PC+word
 candidates          bounded source-backed context → explicit hypothesis proposal / reference consistency
+reasoning.trigger_candidate  request → provider protocol → strict JSON proposal → frozen candidate validation
 ```
 
 core 只依赖 Python 标准库与 Pydantic；它不加载 decoder、分析器、运行后端、模型服务或业务子系统。
@@ -102,8 +103,8 @@ Trigger IR 合同可先于 Extractor 开发，但运行时提取结果进入 IR�
 V2-3B 的首个 adapter 只做 confirmed SI 结构解析与 SOURCE_DECLARED 指令/操作数/顺序投影。
 V2-5A 只读审计已完成：bundle 并非 provenance-complete，stale disassembly 隔离，note unbound，
 transition.db 混合且未解决。V2-5A.1 ingestion 支持受限 293-key common alignment；LLM 仍在下游。
-V2-5A.2 hardware-side anchor binding 为 FROZEN；V2-5B.1 合同与有界上下文为 CURRENT / under review，
-V2-5B.2 real/model reasoning 与 LLM-assisted extraction/reduction 未实现；
+V2-5A.2 hardware-side anchors 与 V2-5B.1 合同/有界上下文均已 FROZEN，
+V2-5B.2 proposal boundary 为 CURRENT / under review；V2-5B.2R 真实模型调用与缩减未实现；
 当前不实现提取、缩减、root-cause localization、firmware reachability 或跨层候选。
 行为归一化与来源适配分离，架构专用 backend/profile 不改变核心的架构中立边界。
 未来固件侧连接必须绑定同架构、同原始 firmware identity 与声明的分析范围；
@@ -120,7 +121,7 @@ Hardware breakpoint halt、single-step、reset 与软件断点可能扰动运行
 
 合同细节见 [DATA_CONTRACTS.md](DATA_CONTRACTS.md)，阶段安排见 [PLANS.md](../PLANS.md)。
 
-## V2-5B.1：证据引用与候选假设分层
+## V2-5B.1：证据引用与候选假设分层（FROZEN）
 
 `candidates.facts` 是 compact source projection/typed reference/未解决项合同；`models` 是独立候选、
 proposal support 与 rationale；`validation` 只检查同一 context/source/architecture 和引用闭包。
@@ -143,3 +144,33 @@ pair/divergence 的 owner 是 alignment result，anchor 的 owner 是 exact hard
 容器，不导出“已满足 trigger”。要求与 required order 始终 HYPOTHESIZED/UNSUPPORTED，候选固定 HYPOTHESIS。
 rationale 与候选一起参与候选 ID，但不能更改 context/fact/requirement 身份或成为引用目标。
 Evidence != Hypothesis；Candidate != Trigger Verification；Candidate != Vulnerability。
+
+## V2-5B.2：模型提议入口（CURRENT / under review）
+
+```text
+已有 HardwareTriggerCandidateContext
+  → fixed request/schema + untrusted-data prompt envelope
+  → TriggerCandidateReasoningProvider.generate(request)（本轮仅 tests fake）
+  → strict JSON / closed proposal DTO
+  → typed reference resolution + normative requirement materialization
+  → frozen validate_trigger_candidate
+  → HYPOTHESIS result / explicit ABSTAIN + declared response provenance
+```
+
+contracts 定义 request/DTO/provenance；prompt 构建固定规则和 JSON envelope；parser 负责严格 JSON
+以及规范性映射；provider 只有 Protocol；proposer 只做一次调用，不重试、不修复、不重新获取证据。
+reasoning 只直接导入公开 core/candidates/trigger，不导入 adapters/anchors/evidence/behavior 私有或公共实现，
+也不调用 context builder。冻结 candidates 初始化的既有传递依赖保持不变，不代表 reasoning 获得源解析授权。
+AST + fresh-process firewall 保持所有冻结下层、root/CLI 不反向加载 reasoning。
+
+请求使用原 frozen compact view，并附公开派生的 typed fact refs 与 unresolved IDs，以便模型准确引用。
+data、schema、system instructions 是 JSON envelope 中分开的成员；来源字符串只能保留为转义数据。
+request ID 绑定 context、payload SHA、完整规则/schema 和声明的 provider/model，无环境/时间/随机身份。
+Prompt 结构隔离不证明模型一定遵守规则，parser/materializer 的 fail-closed 边界始终独立执行。
+
+模型不能提供 objective facts、source/architecture、requirement IDs、epistemic verdict 或 scores。
+候选复用 V2-4 要求；模型只提供受限字段和 local proposal IDs，顺序只由显式 order 表达。
+所有有支持提议仍仅 HYPOTHESIZED。成功意味着语法、schema、引用与候选合同合法，不意味着假设正确。
+LLM = Coordinator / Reasoner；Deterministic Analysis = Fact Producer；LLM Claim != Objective Evidence；
+LLM Reasoning != Verification Result；Candidate != Verified Trigger。
+V2-5B.2R 真实 provider 与 firmware-side integration 未实现，hardware-test ELF 不是 client firmware。

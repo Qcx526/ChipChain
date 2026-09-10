@@ -417,8 +417,8 @@ CSV/log 293-key correspondence 仅保留本地 acceptance correlation，不称 C
 `tests/evidence/` 仅使用 benign synthetic format-only fixtures，无真实指令序列或差异值。
 真实 case 仅在默认 tests 通过后本地只读验收，不成为默认测试依赖或已认证漏洞 fixture。
 V2-5A.1 冻结于 `chipchain-v2-5a1-stable` / `677f3228488f0f567cdf223850955530b8c546d4`；
-V2-5A.2 hardware-test anchor binding 为 FROZEN；V2-5B.1 candidate/context 合同为 CURRENT / under review，
-V2-5B.2 real/model reasoning 与 LLM-assisted extraction/reduction 未实现；
+V2-5A.2 hardware-test anchors 与 V2-5B.1 candidate/context 合同为 FROZEN；
+V2-5B.2 proposal boundary 为 CURRENT / under review，V2-5B.2R 真实模型调用与 extraction/reduction 未实现；
 当前没有 runtime ProcessorBehaviorFragment projection、真实 HardwareTriggerSpec、LLM、firmware 分析或 simulator 执行。
 
 ## V2-5A.2 Hardware-Test SI / ELF / Trace Anchors（FROZEN）
@@ -490,7 +490,9 @@ exact symbol address == trace PC 的 composed anchors 每侧仅 10 个，不扩�
 首个 scoped divergence 的两侧观察可独立绑定同一 ELF bytes，但该 PC 无 SI label anchor，不能反推 SI 指令。
 未出现在采样 trace 同地址集合的标签不等于对应指令未执行；不据此解释 branch/path/causality。
 
-## V2-5B.1 Evidence-Bound Trigger Candidate（CURRENT / under review）
+## V2-5B.1 Evidence-Bound Trigger Candidate（FROZEN）
+
+冻结于 `chipchain-v2-5b1-stable` / `7fa3360f75799c3acc9cefa2a00e7aaac6f894a8`。
 
 ### Source-backed compact context
 
@@ -582,3 +584,82 @@ producer_profile_id=`processorfuzz-unspecified-profile`。这些是明确不完�
 其中 18 个是逐 observation 的 NO_DIRECT_SI_LABEL_ANCHOR。compact view 为 40112 bytes。
 重复构建 ID 为 `v2-hardware-trigger-candidate-context-v1:4d63dd288817c52f71ba2f004cd98837570cfa8bf8c896aefbdce4ba589a44f4`；
 SI/ELF/ISA CSV/RTL log 四份消费文件前后 SHA/长度不变。未产生真实候选或任何 trigger requirements。
+
+## V2-5B.2 LLM-Assisted Proposal Boundary（CURRENT / under review）
+
+### Request 与 prompt
+
+`build_reasoning_request(context, provider_profile)` 消费已构建的 frozen candidate context，不读取/重新解析
+硬件 artifacts。`TriggerCandidateReasoningRequest` 绑定 exact context_id、canonical context payload/SHA、
+固定 reasoning contract / prompt profile / proposal schema version、完整 task instructions/schema，以及
+`ReasoningProviderProfile(provider_profile_id, model_id=None)`。profile 是 caller declaration，不是认证。
+
+payload 保存 unchanged `candidate_context_view`，旁列由公开方法派生的 `objective_fact_refs` 与
+`unresolved_condition_refs`（含 condition_id）；请求模型重新验证这些索引与 context 完全一致。
+payload 上限 1 MiB，JSON 最大嵌套深度 32；不能偷偷添加事实索引或删掉未解决项。
+request identity 使用完整 normalized payload 的版本化 canonical JSON/SHA，无 wall clock/random/environment。
+
+`build_reasoning_prompt(request)` 输出 canonical JSON envelope：request_id、system_instructions、
+output_schema、untrusted_context_data。固定规则明确所有 context 字符串只是 DATA，不是系统指令。
+不插入真实案例启发式，不提示前一条指令是 trigger。结构隔离不是对所有模型注入攻击的免疫保证。
+provider 接收 immutable request，可用同一 public builder 渲染；无特定服务 SDK/HTTP body。
+
+### 严格 proposal DTO 与 V2-4 子集
+
+`ModelTriggerCandidateProposal` 要求全部字段：schema_version、disposition、proposed_preconditions、
+proposed_steps、proposed_order、supports、rationale_atoms、unresolved_condition_ids。
+schema_version 固定 `v2_model_trigger_candidate_proposal_v1`，disposition 为 PROPOSE / ABSTAIN。
+DTO 不是任意 Pydantic 对象 dump；没有 source、architecture、最终 requirement ID、confidence 或 verdict 字段。
+
+| DTO 部分 | v1 支持及映射 |
+| --- | --- |
+| proposed_preconditions | 最多 16 个 register_state；显式 gpr/system register_ref、width_bits 1..4096、lowercase hex value；映射 exact scalar constraint |
+| proposed_steps | 最多 32 个 instruction（仅 mnemonic，operands=None）或 register_access（read/write/read_write） |
+| proposed_order | 最多 32 个 required_precedes / required_immediately_precedes；before_id/after_id 只引用局部 step IDs |
+| supports | 每个 requirement/order 唯一 proposal_id，非空 typed evidence_refs；映射 HYPOTHESIZED，不能指定 epistemic authority |
+| rationale_atoms | 最多 8 个；statement_id、text、supporting_evidence_refs，经过冻结 CandidateRationaleAtom 约束 |
+| unresolved_condition_ids | 必须与 context 全部条件 ID 集合相同，无缺失、虚构或重复 |
+
+register_ref 只含 register_class、namespace、name；架构始终来自 context。无 register aliases、ISA 推断、
+masked state、instruction operands 或其他 requirement kinds 的隐式支持，未知/超出子集的内容直接拒绝。
+所有 local_id 跨 precondition/step/order 唯一；仅排序 precondition/step local IDs 来分配 slot，
+不把数组排列或 slot 当执行顺序。显式 order 最终复用冻结 V2-4 endpoints/self-loop/cycle 检查。
+
+`parse_model_proposal(raw_response)` 只接受一个 UTF-8 JSON object；上限 65536 bytes（不是字符数），
+拒绝 Markdown、额外 prose、多文档、重复 keys、浮点数/NaN/Infinity、过深嵌套、未知字段/类型/枚举。
+JSON array 到 immutable tuple 属于表示转换；数值字符串、bool/float 到 int 等 coercion 不允许。
+不修复、不提取代码块、不重试解析或调用另一模型。错误信息不回显 raw provider 文本。
+
+### Materialization / abstention / provenance
+
+`materialize_trigger_candidate(proposal, context)` detached revalidate，先解析所有 typed fact refs 和完整
+unresolved IDs，再创建 proposed V2-4 objects、唯一 support 和 frozen rationale，最后必须调用
+`validate_trigger_candidate(candidate, context)`。只返回 HYPOTHESIS，不生产 objective evidence 或 truth score。
+没有 ref 的模型提议应 ABSTAIN；本 wire profile 不使用 UNSUPPORTED requirements 替代 abstention。
+ABSTAIN 要求 requirements/orders/supports 全空，允许有引用的 bounded rationale；保留全部未知，
+不是“已验证没有触发”。PROPOSE 则至少包含一个 requirement。
+
+`propose_trigger_candidate(context, provider)` 验证 request/prompt 后只调用一次 `generate(request) -> str`，
+profile drift / provider exception / response rejection 都 fail closed，无 repair/retry/fallback。
+`TriggerCandidateProposalResult` 包含 disposition、frozen candidate 和 `ReasoningResponseProvenance`：
+declared provider_profile_id/model_id、reasoning_contract_id、request_id、context_id、exact raw response SHA/byte length。
+候选不保存原始 response 或 transport metadata。不同 JSON whitespace 可具有相同 candidate ID，但 raw SHA 不同。
+持久化 provenance 是声明，不单独认证 provider/source；复核原 response SHA 需要调用方持有对应 raw bytes。
+
+LLM Claim != Objective Evidence；LLM Reasoning != Verification Result；Candidate != Verified Trigger。
+正确解析/引用不证明 hypothesis 正确、必要/充分、causal 或适用于 client。
+V2-5B.2R 真实 provider、密钥加载、固件团队输入与 firmware-side integration 均未实现。
+
+### 本地 request-only 验收（不是模型实验）
+
+复用上节 exact context 和不完整 Rocket/ProcessorFuzz 来源声明；只消费 SI、hardware-test ELF、ISA CSV、
+RTL log 四份原件的 bytes snapshots，前后 SHA/长度相同，不读取其他材料。只构建 request/prompt，
+不实例化 candidate/HardwareTriggerSpec，不调用 provider。acceptance profile 是本地声明
+`offline-request-acceptance-v1`，model_id=None，不对应任何已调用的模型。
+
+context ID 保持 `v2-hardware-trigger-candidate-context-v1:4d63dd288817c52f71ba2f004cd98837570cfa8bf8c896aefbdce4ba589a44f4`。
+request ID 为 `v2-trigger-candidate-reasoning-request-v1:73c863745d900dd63174791fdab43da0703e86f1023ce5562ed8c991eef8ad41`。
+context/index payload 为 80984 bytes；prompt 为 89396 bytes，SHA-256 为
+`d6fc30f4303b382e6653982d185786c8fd6bf67786958442c1521c476e0052cc`。
+118 个 objective fact refs 与 27 个 unresolved conditions 均可见；18 个 NO_DIRECT_SI_LABEL_ANCHOR
+保持开放，selected divergence 的两侧 SI linkage 均未解决。没有自动生成真实 trigger 要求。

@@ -174,6 +174,10 @@
 - LLM Reasoning != Verification Result
 - Compact Fact Reference != Authenticated Source Bytes
 - Candidate Validation != Requirement Satisfaction
+- LLM Proposal != Verified Trigger
+- ABSTAIN != Verified Negative
+- Response Provenance != Verification Evidence
+- Prompt Data Delimitation != Model Injection Immunity
 
 真实客户端分析绑定固定 hardware + immutable original firmware，可使用 byte-identical 离线副本。
 不得用 patch/recompile/instruction insertion、JTAG code injection 或修改程序字节的 software breakpoint
@@ -196,8 +200,8 @@ transition.db 的 run identity 未解决。V2-5A.1 的 293-key 支持是限定�
 不证明文件生成关系或 authenticated run。前一条 csrrw 不被标记 causal；DELAYED 不猜测关联，
 缺失 mode/state 不补零，COV/WDATA/internal FPR 不自动成为 architectural state/time。
 新 observations 不自动投影为 RUNTIME_OBSERVED ProcessorBehaviorFragment，不派生 Trigger requirements。
-V2-5A.2 已冻结，只允许 hardware-side SI/ELF/trace anchors；V2-5B.1 候选合同/有界上下文待审查，
-V2-5B.2 real/model reasoning 与 LLM-assisted extraction/reduction 未实现。
+V2-5A.2 与 V2-5B.1 已冻结；V2-5B.2 仅新增离线 proposal boundary，处于 CURRENT / under review。
+V2-5B.2R 真实 provider、缩减、firmware-side integration 未实现。
 当前 `.input_1.elf` 是 ProcessorFuzz/ISA/RTL hardware experiment 的 test-program ELF，不是 client firmware
 或 firmware-team artifact，不绑定 ImmutableFirmwareArtifact；项目尚未接入固件团队材料。
 SI label 的 lexical symbol match 不是 authenticated build provenance；缺失标签与无标签指令保持未锚定。
@@ -212,6 +216,14 @@ V2-5B.1 context builder 不是 extractor：只能重现 bounded facts 与 source
 或 UNSUPPORTED；无 verified/causal/necessary/sufficient verdict。rationale 永远不是 evidence level。
 实际首差异的 direct SI mapping 缺失必须保持未解决；typed refs 和 exact SHA 不认证 run/build 或 client applicability。
 候选验证不能删除 unresolved conditions，也不能把上一条指令、集合排序或 source adjacency 提升为因果/必要顺序。
+
+V2-5B.2：LLM = Coordinator / Reasoner；Deterministic Analysis = Fact Producer。
+模型只能提议规范性假设，不能提供新的 facts、source identity、验证级别、confidence probability 或漏洞 verdict。
+即使 parser、schema、引用和 candidate validator 全部通过，也只表示合同一致；rationale 本身未被证明为真。
+system/task rules 与 context strings 分开；来源文本永远当不可信 DATA，不能转换为系统指令或新 evidence。
+缺失的 direct SI linkage 在请求和输出中都保留。允许 ABSTAIN，不要求模型为填充输出而编造 trigger。
+真实验收只构建 context/request/prompt；不制造现实 trigger 提议。硬件 testcase 不变成 client firmware，
+provider metadata/raw SHA 不变成 verification evidence，整个阶段无真实 provider、网络、模拟器或固件分析。
 
 Bundled GDBFuzz Serial Example != Proof That Arbitrary Firmware Requires No Adaptation。
 SUTConnection 是主机端 input delivery；示例 ready-marker/长度/testcase 握手与示例固件相互匹配。

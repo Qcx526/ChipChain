@@ -13,7 +13,9 @@ V2-5A.1 已冻结于 `chipchain-v2-5a1-stable` / `677f3228488f0f567cdf2238509555
 V2-5A.2 Hardware-Test SI/ELF/Trace Anchor Binding 已 FROZEN 于 `chipchain-v2-5a2-stable` /
 `9e65cec9bca12a8e9512396a3d923371a2fe2cbb`。
 V2-5B.1 Evidence-Bound Trigger Candidate Contract + Deterministic Candidate Context Builder
-为 CURRENT implementation under review；V2-5B.2 real/model reasoning 为 NOT IMPLEMENTED。
+已 FROZEN 于 `chipchain-v2-5b1-stable` / `7fa3360f75799c3acc9cefa2a00e7aaac6f894a8`。
+V2-5B.2 LLM-Assisted Hardware Trigger Candidate Proposal Boundary 为 CURRENT / under review；
+V2-5B.2R real-provider validation 与 firmware-side integration 为 NOT IMPLEMENTED。
 RISC-V 为主实验架构；RISC-V-first != RISC-V-only。公共合同保持架构中立，
 backend/profile/adapter 分别承担具体架构能力，架构标签不代表已有实现。
 
@@ -29,9 +31,10 @@ backend/profile/adapter 分别承担具体架构能力，架构标签不代表�
 | V2-5A | Confirmed Case Output Semantics Audit | COMPLETED / READ-ONLY；输出语义部分可解释，不把 mismatch 当 trigger proof |
 | V2-5A.1 | Case Evidence IR + Deterministic Adapters | FROZEN；exact bytes、lossless 分型、显式字段比较与连续 key 对齐；无因果/trigger/verification |
 | V2-5A.2 | SI / Hardware-Test ELF / Trace Anchor Binding | FROZEN；exact bytes、unique symbol/LOAD、保留部分映射；不绑定 client firmware |
-| V2-5B.1 | Evidence-Bound Trigger Candidate / Bounded Context | CURRENT，待审查；typed scoped refs、HYPOTHESIS-only proposals、有界事实视图与未解决项；不提取 |
-| V2-5B.2 | Real/Model Reasoning | NOT IMPLEMENTED；LLM 提议不能替代客观证据；须独立授权 |
-| V2-6 | GDBFuzz Artifact / External Input Adapter | 绑定原始不可变 firmware、既有端点与 execution artifacts |
+| V2-5B.1 | Evidence-Bound Trigger Candidate / Bounded Context | FROZEN；typed scoped refs、HYPOTHESIS-only proposals、有界事实视图与未解决项 |
+| V2-5B.2 | LLM-Assisted Candidate Proposal Boundary | CURRENT，待审查；strict JSON、exact context refs、ABSTAIN；离线 fake-only 测试 |
+| V2-5B.2R | Real-provider validation | NOT IMPLEMENTED；须冻结当前合同后独立授权 |
+| V2-6 | GDBFuzz Artifact / External Input Adapter | NOT IMPLEMENTED；绑定原始不可变 firmware、既有端点与 execution artifacts |
 | V2-7 | RISC-V Firmware / angr → Processor Behavior IR | 审计实际 decoder/profile 输出，分离静态语义与运行观察 |
 | V2-8 | Deterministic Trigger Matcher | 明确匹配规则、负例与未知项，不把候选称为漏洞 |
 | V2-9 | Anchored Reachability / Feasibility | 将路径锚定具体目标、输入及假设，区分静态与实际到达 |
@@ -96,7 +99,7 @@ V2-5A.2 本地验证：完整离线 pytest 852 passed；anchors + dependency fir
 Confirmed SI + ISA-side artifact + RTL-side artifact + signature/comparison material 将来可能支持
 trigger feature extraction、reduction、root-cause localization 与跨层验证规划；这些能力当前均未实现。
 
-## V2-5B.1 当前实施范围（under review）
+## V2-5B.1 已冻结范围
 
 新增独立 `candidates` 层，单向消费公开 core/behavior/evidence/anchors/trigger。
 经项目负责人单独批准，只有 context builder 可直接导入
@@ -114,7 +117,7 @@ compact JSON 上限 256 KiB，不包含完整 SI/trace/ELF、signatures 或隔�
 typed reference 同时绑定 kind、原 fact ID 与 source/parent owner，避免重复 comparison ID 串用。
 validate 只返回 detached hypothesis；所有 context 未解决项保持开放。rationale 不是事实或 evidence level。
 上下文生成不是提取：真实只读验收不得生成 candidate 或 HardwareTriggerSpec。
-V2-5B.2 real/model reasoning、provider、prompt、缩减、因果、matcher、固件输入与可达性均不实现。
+本阶段不实现 provider、prompt、缩减、因果、matcher、固件输入与可达性。下述为 V2-5B.1 历史验收。
 
 V2-5B.1 本地只读验收：重现原 293 对 alignment，selected divergence ordinal 128；默认 before=5/after=3
 得到 123–131 共 9 对。两侧合计 18 个 ELF trace anchors，窗口内 direct SI composed anchors 为 0，
@@ -123,7 +126,32 @@ V2-5B.1 本地只读验收：重现原 293 对 alignment，selected divergence o
 该验收不重跑模拟器，不回答因果、必要/充分性或 client firmware reachability。
 本地验证：完整离线 pytest 989 passed；candidates + dependency firewall 的 `-W error` 检查
 148 passed；compileall、两种 CLI help、`git diff --check` 通过。所有冻结 production 文件与 CLI
-portability test 无 diff，真实材料无 tracked entries；本轮修改未暂存、未 commit/push/tag。
+portability test 无 diff，真实材料无 tracked entries；现已由 V2-5B.1 stable tag 冻结。
+
+## V2-5B.2 当前实施范围（under review）
+
+独立 `reasoning.trigger_candidate` 只直接消费公开 core/candidates/trigger；不修改冻结 production。
+请求绑定 frozen context ID/view、派生 fact-reference / unresolved-ID 索引、固定规则、schema 和 declared provider。
+system instructions 与 untrusted context DATA 通过确定性 JSON envelope 分开，不把来源文本拼入规则。
+这不是对任意 LLM prompt injection 的免疫证明；最终 strict parsing 与 frozen candidate validation 不可跳过。
+
+v1 proposal DTO 支持 mnemonic-only instruction、gpr/system register-access、exact register-state 及显式
+required order；不支持其他 V2-4 类型或指令 operands。局部 proposal IDs 只用于响应内部引用，
+source/architecture/最终 requirement IDs 由确定性代码绑定，sorted local IDs 分配的 slot 不代表执行顺序。
+每个 requirement/order 都需要唯一非空 support，材料化后仅为 HYPOTHESIZED。
+ABSTAIN 要求无 requirements/orders/supports，仍保留全部 unresolved IDs；不是已验证的 negative result。
+
+parser 拒绝 Markdown、额外 prose/多文档、重复键、float/NaN/Infinity、未知字段、非法类型/引用；
+无自动 repair/retry/fallback。response provenance 只保存 declared provider/model/request/context 与 exact raw SHA/长度，
+不把 transport metadata 写入 candidate。响应上限 64 KiB；所有永久 provider 测试离线、deterministic fake-only。
+V2-5B.2R 真实 provider、网络/密钥加载、多 agent、RAG、缩减、verification、因果、固件分析及跨层匹配均未实现。
+
+V2-5B.2 本地检查：完整离线 pytest 1137 passed；reasoning + dependency firewall 的 `-W error`
+为 168 passed；compileall、两种 CLI help 与 diff 检查通过。冻结 production 与 CLI portability test 无 diff。
+tests 后真实只读 request-only 验收：沿用原 context ID，118 个 fact refs、27 个 unresolved conditions，
+其中 18 个 missing SI linkage（selected divergence 两侧均保留）；prompt 89396 UTF-8 bytes。
+重复 request/prompt 一致，四份源文件前后 SHA/长度一致；provider calls=0，candidate/spec 构造 guard 通过。
+本轮未暂存、未 commit/push/tag，V2-5B.2 仍待人工审查。
 
 ## 未来客户端来源与不可变目标
 

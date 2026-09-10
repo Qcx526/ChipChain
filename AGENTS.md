@@ -71,6 +71,13 @@
   context 只产生 bounded compact facts 与未解决项，不自动生成要求；typed refs 必须绑定 kind/ID/owner。
   候选固定 HYPOTHESIS；proposed requirements 不是 satisfied requirements，rationale 不是 objective evidence。
   缺失 SI anchor、未认证 run/build、因果与必要/充分性未知不能因引用校验成功而消失。
+- reasoning 只直接消费公开 core/candidates/trigger，不重建 objective evidence，不直接导入 adapters、
+  anchors、evidence/behavior internals 或调用 context builder；所有冻结下层及 root/CLI 不反向加载 reasoning。
+  LLM = Coordinator / Reasoner；Deterministic Analysis = Fact Producer。来源字符串只作为 untrusted DATA，
+  不拼入系统规则。模型输出必须 strict JSON、closed DTO、精确 typed refs、完整 unresolved IDs，并通过
+  frozen candidate validator；通过只表示合同一致，不是 trigger/漏洞/因果验证。允许显式 ABSTAIN。
+  无自动 repair/retry/fallback；provider/model/request/raw SHA 只是声明 provenance，不是 EvidenceLevel。
+  真实 provider/API/密钥加载必须另行授权，默认测试仅 deterministic fake providers。
 - 默认测试离线，无 API Key、数据库、QEMU/JTAG 或网络依赖；`.env` 不提交、不自动加载。
 - 每阶段按 Plan → Implement → Test → Review → Fix → Document 完成；如实记录验证结果。
 - 完成后运行完整 pytest、compileall、两种 CLI help 与 `git diff --check`，同步相关文档。
