@@ -59,6 +59,11 @@
   来源绑定不证明要求正确、最小、已触发或适用于 client；提取/缩减与满足性判断需独立授权。
 - 项目负责人声明的 Rocket/ProcessorFuzz family 不证明具体配置或版本；显式 unspecified local ID
   不是上游 profile，也不是 authenticated provenance，未知 revision/ISA profile 必须保持未知。
+- hardware-test ELF 是 ProcessorFuzz/ISA/RTL 硬件实验 artifact，不得绑定为 ImmutableFirmwareArtifact
+  或冒充 client/固件团队输入；hardware-test 地址/执行/差异不证明 client firmware reachability 或跨层漏洞。
+  anchors 可单向消费公开 core/behavior/evidence/ProcessorFuzz adapter；下层不能反向依赖 anchors。
+  anchor 服务必须复现 exact ELF bytes/view 并重新验证 SI/trace 来源，symbol match 不是 compilation proof。
+  SI label anchor 仅属于携带该标签的记录；不得向无标签邻居推算地址。
 - 默认测试离线，无 API Key、数据库、QEMU/JTAG 或网络依赖；`.env` 不提交、不自动加载。
 - 每阶段按 Plan → Implement → Test → Review → Fix → Document 完成；如实记录验证结果。
 - 完成后运行完整 pytest、compileall、两种 CLI help 与 `git diff --check`，同步相关文档。

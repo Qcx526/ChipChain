@@ -9,8 +9,9 @@ V2-3B confirmed-profile raw parser 与保守 mapper 已由 `chipchain-v2-3b-stab
 `7d42e325beb0385a0e8df16b204c7f8ea296eb5a`。
 V2-4 已由 `chipchain-v2-4-stable` 冻结于 `798d7ee99b4529a00007874c886c5ec8a39d0a28`。
 V2-5A Confirmed Case Output Semantics Audit 已完成（READ-ONLY），并未证明完整 run provenance。
-V2-5A.1 为 CURRENT：Case Evidence IR、deterministic output adapters 与 non-causal alignment；待审查冻结。
-V2-5A.2 SI/ELF/Trace Anchor Binding 与 V2-5B LLM-assisted Trigger Candidate Extraction / Reduction 均为 PLANNED。
+V2-5A.1 已冻结于 `chipchain-v2-5a1-stable` / `677f3228488f0f567cdf223850955530b8c546d4`。
+V2-5A.2 Hardware-Test SI/ELF/Trace Anchor Binding 为 CURRENT implementation under review。
+V2-5B LLM-assisted Trigger Candidate Extraction / Reduction 为 NOT IMPLEMENTED（待独立授权）。
 RISC-V 为主实验架构；RISC-V-first != RISC-V-only。公共合同保持架构中立，
 backend/profile/adapter 分别承担具体架构能力，架构标签不代表已有实现。
 
@@ -24,9 +25,9 @@ backend/profile/adapter 分别承担具体架构能力，架构标签不代表�
 | V2-3B | Confirmed ProcessorFuzz SI Structural Adapter | FROZEN；exact bytes/raw roundtrip、SOURCE_DECLARED-only mapper；不解码 |
 | V2-4 | Hardware Trigger IR v1 | FROZEN；仅要求合同，来源/target、slot、位宽、引用与无环顺序检查；无提取或满足性判断 |
 | V2-5A | Confirmed Case Output Semantics Audit | COMPLETED / READ-ONLY；输出语义部分可解释，不把 mismatch 当 trigger proof |
-| V2-5A.1 | Case Evidence IR + Deterministic Adapters | CURRENT；exact bytes、lossless 分型、显式字段比较与连续 key 对齐；无因果/trigger/verification |
-| V2-5A.2 | SI / ELF / Trace Anchor Binding | PLANNED；显式绑定经复核的跨 artifact anchors，不能依赖 stale disassembly |
-| V2-5B | LLM-assisted Trigger Candidate Extraction / Reduction | PLANNED；下游 reasoning 不替代客观证据；缩减/候选需独立授权 |
+| V2-5A.1 | Case Evidence IR + Deterministic Adapters | FROZEN；exact bytes、lossless 分型、显式字段比较与连续 key 对齐；无因果/trigger/verification |
+| V2-5A.2 | SI / Hardware-Test ELF / Trace Anchor Binding | CURRENT，待审查；exact bytes、unique symbol/LOAD、保留部分映射；不绑定 client firmware |
+| V2-5B | LLM-assisted Trigger Candidate Extraction / Reduction | NOT IMPLEMENTED；下游 reasoning 不替代客观证据；缩减/候选需独立授权 |
 | V2-6 | GDBFuzz Artifact / External Input Adapter | 绑定原始不可变 firmware、既有端点与 execution artifacts |
 | V2-7 | RISC-V Firmware / angr → Processor Behavior IR | 审计实际 decoder/profile 输出，分离静态语义与运行观察 |
 | V2-8 | Deterministic Trigger Matcher | 明确匹配规则、负例与未知项，不把候选称为漏洞 |
@@ -70,11 +71,25 @@ V2-5A.1 实现 ISA CSV/log、RTL log 与 signatures 的局部格式合同：exac
 连续 common-program file order + PC + encoding 支持审计中的 293 对；不使用 COV、模糊匹配或插删猜测。
 首次差异仅针对声明 scope；前一条指令是上下文，不是因果证据。CSV/log 对应保留为本地验收检查，
 不扩大为生成来源证明。不投影 RUNTIME_OBSERVED behavior、不构造真实 trigger spec、不运行任何 simulator。
-独立冻结后再讨论 V2-5A.2 与 V2-5B；当前不启动 anchor binding、LLM、提取或缩减。
-本地验证：两种完整 pytest 调用均 739 passed；evidence/adapters `-W error` 为 243 passed，
+V2-5A.1 已冻结；以下为该阶段历史验收，不代表 V2-5A.2 的测试计数。
+V2-5A.1 本地验证：两种完整 pytest 调用均 739 passed；evidence/adapters `-W error` 为 243 passed，
 dependency firewall 为 10 passed；compileall、两种 CLI help 与 diff 检查通过。
 默认 tests 之后的真实只读验收复现 293 对、首个 scope 差异 index 128、signature 第 38/45/49 行差异；
 真实值未进入永久 tests。101 个本地 case 文件的 SHA/长度不变；该验收不是模拟器重跑或漏洞验证。
+
+V2-5A.2 新增独立 anchors 层：只解析 hardware-test ELF 的 ELF64 LE/RISC-V/ET_EXEC 局部 profile，
+以 exact SI record label + unique defined ELF symbol 建立相关关系，以 unique file-backed LOAD bytes
+核对 32-bit textual trace word。创建/组合入口都重新消费 exact ELF bytes 并复现 parsed view，
+同时重新验证 SI/trace snapshots；不能用 caller-mutated descriptor 制造来源。
+当前 ELF 是硬件团队实验侧 testcase，不是 client/deployed/GDBFuzz firmware；项目尚未接入固件团队 artifact。
+203/208 是前期审计的标签存在性结果，不是 368 条 SI 指令的编译映射证明；无标签、缺失和歧义项不推算地址。
+本轮不实现完整 .S compilation mapping、提取、缩减、因果、LLM、固件可达性或跨层候选。
+V2-5A.2 真实只读验收：203 个 unique label anchors、5 个缺失、0 个歧义；ISA 293 条与 RTL 321 条
+instruction observations 独立 byte-anchor，5 条 RTL boot records 无 LOAD mapping，DELAYED 34 条独立。
+SI-label/ELF/trace composed anchors 每侧仅 10 个。首差异两侧 bytes 同源，但没有对应 SI label anchor；
+不反推 source instruction、不作因果结论。四份消费 artifact 的前后 SHA/长度完全一致。
+V2-5A.2 本地验证：完整离线 pytest 852 passed；anchors + dependency firewall 的 `-W error`
+为 123 passed；compileall、两种 CLI help 与 diff 检查通过。冻结层保持不变，尚未 commit/tag。
 Confirmed SI + ISA-side artifact + RTL-side artifact + signature/comparison material 将来可能支持
 trigger feature extraction、reduction、root-cause localization 与跨层验证规划；这些能力当前均未实现。
 

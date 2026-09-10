@@ -1,6 +1,6 @@
 # V2 架构
 
-## 已实现：冻结 core/behavior/SI adapter/trigger + V2-5A.1 evidence
+## 已实现：冻结至 V2-5A.1 + V2-5A.2 hardware-test anchors（待审查）
 
 V2-2 冻结于 `chipchain-v2-2-stable` / `48f8925792a1afa829d20bc25841010e1a12faa2`。
 
@@ -14,6 +14,7 @@ adapters.processorfuzz  exact bytes → raw SI；raw + PF descriptor → SOURCE_
 trigger             来源/目标 + 状态 preconditions + 行为/event steps + 显式 required order
 evidence            byte-bound artifact / typed observation / scoped non-causal comparison
 adapters.hardware_case  bytes → confirmed ISA CSV/log / RTL log / opaque signature records
+anchors             SI labeled record ↔ hardware-test ELF symbol ↔ exact ELF bytes / trace PC+word
 ```
 
 core 只依赖 Python 标准库与 Pydantic；它不加载 decoder、分析器、运行后端、模型服务或业务子系统。
@@ -48,6 +49,19 @@ DELAYED 不强行归属任何 PC，boot/tail/delayed 未配对记录留在结果
 FieldComparison 只做 EQUAL/DIFFERENT/NOT_COMPARABLE/MISSING_LEFT/MISSING_RIGHT；
 DivergenceObservation 绑定 scope/pair/field 和精确值/XOR，既不是 Processor Behavior fact，也不是 Trigger IR。
 helper 的首个差异和前后 context 仅限该显式范围，不是 global first error 或 causal slice。
+
+V2-5A.1 已由 `chipchain-v2-5a1-stable` 冻结于 `677f3228488f0f567cdf223850955530b8c546d4`。
+新增 anchors 只依赖 stdlib/Pydantic、公开 core/behavior/evidence/ProcessorFuzz adapter 及自身模块。
+所有下层与 root/CLI 均不反向导入 anchors；不导入 trigger、hardware_case adapter、firmware backend 或外部工具。
+HardwareTestProgramELF 是硬件实验 test-program，不是 ImmutableFirmwareArtifact；当前没有固件团队输入。
+小型 stdlib ELF parser 只保留 header/LOAD/section/symtab 必需视图。所有 anchor 服务重新解析 exact ELF bytes，
+比较整个 view，并重新验证 SI/trace sources。持久化 anchor 模型只检查声明内部一致性，不能单靠反序列化认证 bytes；
+对外 source-backed composition 必须携带原 sources 再现两侧 anchor。
+可选 behavior reference 使用冻结 SOURCE_DECLARED mapper 再现 supplied fragment，不添加/解释额外语义。
+
+关联仅为 SI 显式 label ↔ exact ELF symbol/address ↔ 32-bit LE trace word 的 file-backed bytes。
+不向无标签邻居传播地址，不以 mnemonic/ordinal/假定步长制造编译映射；重复 trace occurrence 保留独立 ID。
+ELF 地址始终是 hardware-test virtual address，不是 physical/MMIO/client firmware address。
 
 `HardwareTargetIdentity` 区分 client 与 ProcessorFuzz hardware；同架构不是同目标。
 `ImmutableFirmwareArtifact` 组合来源 SHA、架构、硬件目标与可选 ISA profile。
@@ -87,10 +101,11 @@ Trigger IR 合同可先于 Extractor 开发，但运行时提取结果进入 IR�
 V2-3B 的首个 adapter 只做 confirmed SI 结构解析与 SOURCE_DECLARED 指令/操作数/顺序投影。
 V2-5A 只读审计已完成：bundle 并非 provenance-complete，stale disassembly 隔离，note unbound，
 transition.db 混合且未解决。V2-5A.1 ingestion 支持受限 293-key common alignment；LLM 仍在下游。
-V2-5A.2 anchor binding 和 V2-5B LLM-assisted candidate extraction/reduction 均仅 PLANNED，
-当前不实现提取、缩减、root-cause localization 或跨层验证规划。
+V2-5A.2 hardware-side anchor binding 为 CURRENT，V2-5B LLM-assisted candidate extraction/reduction 未实现；
+当前不实现提取、缩减、root-cause localization、firmware reachability 或跨层候选。
 行为归一化与来源适配分离，架构专用 backend/profile 不改变核心的架构中立边界。
-每次连接必须绑定同架构、同原始 firmware identity 与声明的分析范围。
+未来固件侧连接必须绑定同架构、同原始 firmware identity 与声明的分析范围；
+当前 hardware-test anchors 仅绑定硬件实验 artifact sources，不能冒充固件侧连接。
 RISC-V-first != RISC-V-only；架构标签不能作为实现声明。
 
 LLM 未来承担 coordinator/reasoner，knowledge 提供上下文；两者都不能制造 processor ground truth。

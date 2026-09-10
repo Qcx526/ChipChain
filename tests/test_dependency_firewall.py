@@ -55,6 +55,11 @@ def test_production_imports_respect_core_behavior_adapter_trigger_direction() ->
         "chipchain.adapters.hardware_case.isa_csv", "chipchain.adapters.hardware_case.isa_log",
         "chipchain.adapters.hardware_case.rtl_log", "chipchain.adapters.hardware_case.signature",
     }
+    anchor_allowed = {
+        "struct", "chipchain.core", "chipchain.behavior.processor", "chipchain.evidence",
+        "chipchain.adapters.processorfuzz", "chipchain.anchors.base", "chipchain.anchors.elf",
+        "chipchain.anchors.hardware_case",
+    }
     for path in sorted(PRODUCTION.rglob("*.py")):
         source = path.read_text(encoding="utf-8")
         file_allowed = (
@@ -65,7 +70,7 @@ def test_production_imports_respect_core_behavior_adapter_trigger_direction() ->
             file_allowed = {name for name in allowed if not name.startswith("chipchain")} | adapter_allowed
             if "hardware_case" in path.relative_to(PRODUCTION).parts:
                 file_allowed = {name for name in allowed if not name.startswith("chipchain")} | case_adapter_allowed
-        else:
+        elif "anchors" not in path.relative_to(PRODUCTION).parts:
             assert "chipchain.adapters" not in source, path
         if "trigger" in path.relative_to(PRODUCTION).parts:
             file_allowed = {name for name in allowed if not name.startswith("chipchain")} | trigger_allowed
@@ -73,8 +78,12 @@ def test_production_imports_respect_core_behavior_adapter_trigger_direction() ->
             assert "chipchain.trigger" not in source, path
         if "evidence" in path.relative_to(PRODUCTION).parts:
             file_allowed = {name for name in allowed if not name.startswith("chipchain")} | evidence_allowed
-        elif "hardware_case" not in path.relative_to(PRODUCTION).parts:
+        elif not {"hardware_case", "anchors"}.intersection(path.relative_to(PRODUCTION).parts):
             assert "chipchain.evidence" not in source, path
+        if "anchors" in path.relative_to(PRODUCTION).parts:
+            file_allowed = {name for name in allowed if not name.startswith("chipchain")} | anchor_allowed
+        else:
+            assert "chipchain.anchors" not in source, path
         for package in OLD_PACKAGES:
             assert f"chipchain.{package}" not in source, path
         for node in ast.walk(ast.parse(source)):
@@ -91,7 +100,7 @@ def test_production_imports_respect_core_behavior_adapter_trigger_direction() ->
         assert not (PRODUCTION / package).exists()
 
 
-@pytest.mark.parametrize("mode", ["root", "core", "behavior", "adapter", "trigger", "evidence", "case_adapter", "console", "module"])
+@pytest.mark.parametrize("mode", ["root", "core", "behavior", "adapter", "trigger", "evidence", "case_adapter", "anchors", "console", "module"])
 def test_fresh_process_import_firewall(mode: str) -> None:
     # A fresh process avoids false assurance from previously imported backends.
     script = r'''
@@ -104,18 +113,22 @@ mode = sys.argv[1]
 old = ("agents", "analysis", "candidate", "corpus", "evaluation", "graph",
        "hardware_trigger", "knowledge", "models", "multi_agent", "reasoning",
        "runtime", "verification")
-if mode not in ("adapter", "case_adapter"):
+if mode not in ("adapter", "case_adapter", "anchors"):
     old += ("adapters",)
-if mode not in ("evidence", "case_adapter"):
+if mode not in ("evidence", "case_adapter", "anchors"):
     old += ("evidence",)
 if mode != "trigger":
     old += ("trigger",)
+if mode != "anchors":
+    old += ("anchors",)
 forbidden = tuple("chipchain." + item for item in old) + (
     "angr", "capstone", "networkx", "openai", "dotenv", "qemu", "provider",
     "jtag", "processorfuzz", "gdbfuzz", "requests", "httpx",
 )
 if mode == "case_adapter":
     forbidden += ("chipchain.adapters.processorfuzz",)
+if mode == "anchors":
+    forbidden += ("chipchain.adapters.hardware_case",)
 def forbidden_module(name):
     return any(name == prefix or name.startswith(prefix + ".") for prefix in forbidden)
 class BlockBackends(importlib.abc.MetaPathFinder):
@@ -156,6 +169,10 @@ elif mode == "case_adapter":
     artifact = parse_signature((b"0" * 32 + b"\n") * 254,
         source_side=TraceSourceSide.ISA_SIDE, architecture=Architecture.RISC_V)
     assert len(artifact.observations) == 254
+elif mode == "anchors":
+    from chipchain.anchors import HardwareTestProgramELFSource
+    source = HardwareTestProgramELFSource(artifact_sha256="0" * 64, byte_length=64)
+    assert source.artifact_kind == "HARDWARE_TEST_PROGRAM_ELF"
 else:
     sys.argv = ["chipchain", "--help"]
     try:

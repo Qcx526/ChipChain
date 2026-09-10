@@ -1,4 +1,4 @@
-# V2-R0 / V2-1 / V2-2 / V2-3B / V2-4 / V2-5A.1 数据合同
+# V2-R0 / V2-1 / V2-2 / V2-3B / V2-4 / V2-5A.1 / V2-5A.2 数据合同
 
 ## 模型与架构
 
@@ -327,7 +327,7 @@ model_copy/model_construct 不作为权威输入，重新 model_validate 时仍�
 PF 绑定负例也只使用 synthetic provenance descriptors；未从真实 confirmed SI 或其 368 behavior records
 构造 HardwareTriggerSpec。V2-5A 只读输出语义审计已完成；V2-5B 提取/缩减、matcher 和 reachability 均未实施。
 
-## V2-5A.1 Confirmed Case Evidence IR（CURRENT）
+## V2-5A.1 Confirmed Case Evidence IR（FROZEN）
 
 V2-4 已冻结于 `chipchain-v2-4-stable` / `798d7ee99b4529a00007874c886c5ec8a39d0a28`。
 V2-5A 审计完成但不证明 bundle provenance-complete：`out/tests/disassembly.asm` 的 348 个可比较
@@ -416,5 +416,73 @@ CSV/log 293-key correspondence 仅保留本地 acceptance correlation，不称 C
 不含 path/time/random。公开 ingestion 和 alignment 入口重新验证输入；unchecked 对象不能当可信结果。
 `tests/evidence/` 仅使用 benign synthetic format-only fixtures，无真实指令序列或差异值。
 真实 case 仅在默认 tests 通过后本地只读验收，不成为默认测试依赖或已认证漏洞 fixture。
-后续 V2-5A.2 SI/ELF/Trace Anchor Binding 与 V2-5B LLM-assisted extraction/reduction 均 PLANNED；
+V2-5A.1 冻结于 `chipchain-v2-5a1-stable` / `677f3228488f0f567cdf223850955530b8c546d4`；
+V2-5A.2 hardware-test anchor binding 为 CURRENT，V2-5B LLM-assisted extraction/reduction 未实现；
 当前没有 runtime ProcessorBehaviorFragment projection、真实 HardwareTriggerSpec、LLM、firmware 分析或 simulator 执行。
+
+## V2-5A.2 Hardware-Test SI / ELF / Trace Anchors（CURRENT，待审查）
+
+当前 `hardware_buginfo/testis/out/tests/.input_1.elf` 是硬件实验 testcase/test-program ELF，
+不是 client/deployed/GDBFuzz firmware，也不是固件团队 artifact。`HardwareTestProgramELFSource`
+的 artifact_kind 固定 HARDWARE_TEST_PROGRAM_ELF，不包含 ImmutableFirmwareArtifact/client binding。
+项目尚未接入固件团队材料。本阶段只建立硬件侧来源相关关系，不建立 client firmware → hardware trigger。
+
+### ELF view 与 exact byte consumption
+
+公开入口 `chipchain.anchors.parse_hardware_test_elf(data: bytes, *, expected_sha256=None)`。
+固定 `confirmed_riscv_elf64_le_v1`：ELF64、little endian、RISC-V、ET_EXEC、普通 program/section
+table numbering、静态 symtab/strtab；不支持 extended indices 或通用 ELF framework。
+只用 stdlib struct，不读文件、不执行 readelf/objdump/模拟器，不依赖 disassembly.asm。
+
+source 保存实际消费 bytes 的 SHA/length、RISC-V 与 local profile。view 保存 entry virtual address、
+PT_LOAD file offset/virtual address/file size/memory size/flags/alignment、section metadata 与 symtab records。
+symbol 保存 exact name/value、type/binding/other、section index、table/record ordinal；不从名称推断语言语义。
+非法范围、截断、整型越界、错误 string/symbol table、未知 local profile 均 fail closed。
+ELF section 名称只是词法 metadata；本阶段不解析 `.riscv.attributes` 内容或据此补全硬件 ISA profile。
+
+view 不嵌入整个 ELF binary。`revalidate_hardware_test_elf(view, data)` 重新解析同一 exact bytes，
+要求 SHA/length 与完整 parsed view 一致；结构上合法的 caller-mutated view 仍不足以创建 anchor。
+`read_elf_file_backed_bytes(view, data, *, address, size)` 先执行上述复核，只接受唯一 LOAD 的完整
+file-backed interval。拒绝 BSS、无 mapping、跨界及任何竞争 LOAD overlap（含另一 LOAD 的 BSS）。
+不把 virtual address 当 physical/MMIO/client firmware address，不把零填充当文件数据。
+
+### 三类 anchor 与 source-backed 服务
+
+- `anchor_si_label(raw_si, elf, elf_bytes, *, si_record_id, behavior_fragment=None)`：重新验证完整 raw SI
+  snapshot 和 ELF；仅允许该 raw SI 中显式带标签的 record，与唯一同名且位于其 allocated section 的
+  defined symbol 匹配。无匹配抛 MissingSymbolError，多 occurrence 抛 AmbiguousSymbolError；不默默挑选。
+- `anchor_trace_instruction(elf, elf_bytes, trace_artifact, *, observation_id)`：重新验证完整 trace 来源与
+  occurrence membership，当前只接受 confirmed ISA CSV 或 RTL NORMAL/EXCEPTION。按固定
+  `confirmed_riscv_trace_word32_le_v1` 将 8-hex textual word 转为四字节 little-endian，与 exact ELF
+  file bytes 比较；拒绝 compressed/long instruction-width markers、错误编码、DELAYED 和其他 profile。
+- `compose_hardware_case_anchor(si_anchor, trace_anchor, *, raw_si, elf, elf_bytes, trace_artifact,
+  behavior_fragment=None)`：重新消费全部 sources 并再现两侧 anchor；要求所有字段一致、same exact ELF
+  source、trace PC == symbol address。不同 trace source、occurrence、SI SHA 或 altered declaration 均拒绝。
+
+持久化 SILabelELFAnchor 保存 SI snapshot ID/SHA、raw record、ELF source、symbol，以及 optional behavior reference。
+ELFTraceInstructionAnchor 保存 ELF source、trace source、完整 observation 与四字节 file hex。
+HardwareCaseInstructionAnchor 组合两侧 immutable snapshots。source side/PC/encoding/ordinal/IDs 均可从保留
+字段精确恢复，evidence level 固定 CROSS_ARTIFACT_CORRELATED，无 causal/trigger/critical/verified 字段。
+这些模型反序列化仅检查声明内部一致性，不能认证未提供的 ELF bytes；消费/组合必须走上述 source-backed APIs。
+
+optional ProcessorBehaviorAnchorBinding 只接受 supplied PROCESSORFUZZ_SI fragment：冻结 mapper 重新生成
+SOURCE_DECLARED projection，要求完整 fragment 相等，核对 SHA/context、RISC-V、source ordinal 与成员身份。
+不重解释 operands，不新增 access/state/event，也不把 ELF 地址写回冻结 InstructionBehavior。
+
+### 部分性与科研边界
+
+label anchor 只属于携带该 label 的 SI record。203 个标签存在不等于 368 条 SI 指令完成编译映射；
+未标记指令、缺失标签和歧义项不产生地址，不按 ordinal/相邻记录/固定步长/标签编号/下一 symbol 推算。
+重复 PC/encoding 的不同 trace occurrence 仍有不同 anchor ID。所有 ID 使用完整版本化 canonical payload，
+无 path/time/random；tuple/frozen 与 detached source revalidation 保持输入隔离。
+Byte Match != Build Provenance；Symbol Match != Compilation Proof；Trace PC/Encoding Match != Causality。
+硬件 testcase ELF 与 client firmware 不是同一程序/目标；本阶段没有 firmware reachability 或跨层候选。
+stale disassembly、note.log、transition.db 均不消费；不读取 `.S` 来猜测编译映射，不提取/缩减 trigger。
+永久 tests 仅使用手工构造 benign synthetic ELF/SI/trace；真实案例只在 tests 通过后只读验收。
+
+本地只读验收：368 条 SI instructions 中 208 条携带标签，203 个 unique label anchors；
+`_s0`–`_s4` 保持缺失，无 ambiguous label。ISA CSV 293 条全部 byte-anchor；RTL 的 326 条
+instruction records 中 321 条 byte-anchor，5 条启动 PC 无 ELF LOAD mapping，34 条 DELAYED 单独保留。
+exact symbol address == trace PC 的 composed anchors 每侧仅 10 个，不扩大成全 SI 编译映射。
+首个 scoped divergence 的两侧观察可独立绑定同一 ELF bytes，但该 PC 无 SI label anchor，不能反推 SI 指令。
+未出现在采样 trace 同地址集合的标签不等于对应指令未执行；不据此解释 branch/path/causality。

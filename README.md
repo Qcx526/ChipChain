@@ -24,7 +24,7 @@ ChipChain: Processor Behavior + Trigger Extraction + Trigger Matching + Reachabi
 开发时可先定义 Trigger IR 合同再实现 Extractor，开发依赖顺序不等于运行数据流。
 所有跨层关联必须发生在同一架构内，不能拼接 ARM 固件与 RISC-V 硬件来源。
 
-## 当前范围：冻结 V2-4 + V2-5A.1 Case Evidence IR
+## 当前范围：冻结 V2-5A.1 + V2-5A.2 Hardware-Test Anchor Binding
 
 V2-R0/V2-1 已冻结，保留硬件目标、精确固件、ProcessorFuzz/GDBFuzz 来源、
 外部输入端点/投递/输入 artifact，以及调试扰动声明。它们仅是可验证字段一致性的 core 合同，
@@ -47,7 +47,8 @@ RISC-V 与 ARM 示例均为 benign synthetic 合同测试，不是解码结果�
 | GDBFuzz integration / parsing | NOT IMPLEMENTED |
 | RISC-V firmware decoder | NOT IMPLEMENTED |
 | Hardware Trigger IR v1 | V2-4 已冻结；仅规范性 requirements |
-| Confirmed Case Evidence IR / output adapters | V2-5A.1 CURRENT；exact bytes、分型观察、非因果对齐与字段比较 |
+| Confirmed Case Evidence IR / output adapters | V2-5A.1 FROZEN；exact bytes、分型观察、非因果对齐与字段比较 |
+| SI / hardware-test ELF / trace anchors | V2-5A.2 CURRENT，待审查；标签相关与 exact ELF bytes 绑定，不是固件分析 |
 | Trigger Extraction / Reduction | NOT IMPLEMENTED |
 | Trigger Matcher | NOT IMPLEMENTED |
 | Anchored Reachability | NOT IMPLEMENTED |
@@ -63,8 +64,10 @@ V2-4 已由 `chipchain-v2-4-stable` 冻结于 `798d7ee99b4529a00007874c886c5ec8a
 并非 provenance-complete。V2-5A.1 提供 ISA CSV/log、RTL log、signature 的 bytes-only ingestion，
 按明确范围的 file order + PC + instruction encoding 对齐（本地审计的 common prefix 为 293 对）。
 `first_observed_divergence_in_scope` 只表示该比较范围内的首个观察差异，不表示 root cause/trigger。
-V2-5A.2 SI/ELF/Trace Anchor Binding 与 V2-5B LLM-assisted Trigger Candidate Extraction / Reduction
-仍为 PLANNED；不从本轮差异构造 trigger、行为事实、满足性判断或漏洞 verdict。
+V2-5A.1 已冻结于 `chipchain-v2-5a1-stable` / `677f3228488f0f567cdf223850955530b8c546d4`。
+V2-5A.2 仅建立 hardware-side SI label ↔ ELF symbol ↔ trace PC/word 的来源相关关系；
+V2-5B LLM-assisted Trigger Candidate Extraction / Reduction 为 NOT IMPLEMENTED。
+不从本轮差异构造 trigger、行为事实、满足性判断或漏洞 verdict。
 
 LLM 的未来角色是 coordinator/reasoner，不是 processor ground truth。
 Knowledge 提供上下文关联，不等于确定性 trigger reachability。
@@ -76,6 +79,12 @@ V2-3 的真实格式基准已更正为完整 **Hardware Case Bundle** 内的
 Bundle 可包含 SI、assembly/ELF/HEX/symbols/disassembly、ISA/RTL trace/log、signatures 与 build/context
 材料；完整 bundle 仍是文档级概念。V2-5A.1 仅为受审计的输出格式提供逐 artifact 合同，
 不创建 authenticated run，也不把 ISA side 命名为 ground truth。
+
+当前 `.input_1.elf` 是 **HardwareTestProgramELF（硬件实验 testcase ELF）**，不是客户端固件，
+不是固件团队 artifact，不绑定 `ImmutableFirmwareArtifact`。项目尚未接入固件团队材料。
+V2-5A.2 的关联限于 ProcessorFuzz SI → hardware-test program ELF → ISA/RTL observations；
+不证明 source compilation，也不回答 client firmware → hardware trigger 或 firmware reachability。
+只有携带显式标签的 SI record 可锚定；不能从标签向无标签邻居推算地址。
 
 仓库根目录 `/hardware_buginfo/` 和 `/hardware_caseinfo/` 均为 `LOCAL_ONLY_REAL_ARTIFACT`，默认不提交。
 完整 case 的首选目录名是 `hardware_caseinfo/`，但本轮不移动现有数据。

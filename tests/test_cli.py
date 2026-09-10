@@ -14,10 +14,11 @@ def test_cli_help(entry: str) -> None:
         if entry == "console" else [sys.executable, "-m", "chipchain"]
     )
     result = subprocess.run(command + ["--help"], capture_output=True, text=True, check=True)
-    assert "ChipChain V2" in result.stdout
-    assert "RISC-V-first" in result.stdout
-    assert "not implemented" in result.stdout
-    assert "positional arguments:" not in result.stdout
+    normalized_stdout = " ".join(result.stdout.split())
+    assert "ChipChain V2" in normalized_stdout
+    assert "RISC-V-first" in normalized_stdout
+    assert "not implemented" in normalized_stdout
+    assert "positional arguments:" not in normalized_stdout
     assert result.stderr == ""
 
 

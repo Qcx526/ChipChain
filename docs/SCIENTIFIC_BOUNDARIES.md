@@ -149,6 +149,22 @@
 - Stale Artifact != Evidence
 - Unbound Note != Current Case Metadata
 - Mixed Transition Record != Current Run Evidence
+- Byte Match != Build Provenance
+- Symbol Match != Compilation Proof
+- SI Label Anchor != Full SI Instruction Mapping
+- ELF Virtual Address != Physical Address
+- Trace PC/Encoding Match != Causality
+- Cross-Artifact Anchor != Trigger
+- Cross-Artifact Anchor != Vulnerability Verification
+- Hardware-test ELF != Client Firmware
+- Hardware-test Program Address != Client Firmware Address
+- Hardware-test Instruction != Client Firmware Instruction
+- Hardware-test Reachability != Client Firmware Reachability
+- ProcessorFuzz Testcase Execution != Client Firmware Execution
+- ISA/RTL Testcase Divergence != Cross-layer Firmware/Hardware Vulnerability
+- Same RISC-V ISA != Same Program
+- Same Instruction Mnemonic != Same Runtime State
+- Same Hardware Target Family != Client Applicability
 
 真实客户端分析绑定固定 hardware + immutable original firmware，可使用 byte-identical 离线副本。
 不得用 patch/recompile/instruction insertion、JTAG code injection 或修改程序字节的 software breakpoint
@@ -171,7 +187,14 @@ transition.db 的 run identity 未解决。V2-5A.1 的 293-key 支持是限定�
 不证明文件生成关系或 authenticated run。前一条 csrrw 不被标记 causal；DELAYED 不猜测关联，
 缺失 mode/state 不补零，COV/WDATA/internal FPR 不自动成为 architectural state/time。
 新 observations 不自动投影为 RUNTIME_OBSERVED ProcessorBehaviorFragment，不派生 Trigger requirements。
-V2-5A.2 anchor binding、V2-5B LLM-assisted extraction/reduction 另行授权；LLM 不参与本轮证据生成。
+V2-5A.2 仅允许 hardware-side SI/ELF/trace anchors；V2-5B LLM-assisted extraction/reduction 未实现。
+当前 `.input_1.elf` 是 ProcessorFuzz/ISA/RTL hardware experiment 的 test-program ELF，不是 client firmware
+或 firmware-team artifact，不绑定 ImmutableFirmwareArtifact；项目尚未接入固件团队材料。
+SI label 的 lexical symbol match 不是 authenticated build provenance；缺失标签与无标签指令保持未锚定。
+不按 source ordinal、邻接、标签编号、固定四字节步长或下一 symbol 反推 SI 地址。
+ELF/trace 四字节一致只证明限定 profile 下的地址/观察相关关系，不能据此生成跨层候选或回答固件可达性。
+即使首差异与前一条 csrrw 均可 byte-anchor，仍不标记 causal、critical、necessary 或 sufficient。
+LLM 不参与本轮证据生成。
 Rocket/ProcessorFuzz 是项目负责人提供的 family 声明；unspecified local IDs 不补全版本、配置或 ISA。
 
 Bundled GDBFuzz Serial Example != Proof That Arbitrary Firmware Requires No Adaptation。
