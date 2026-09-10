@@ -1,6 +1,6 @@
 # V2 架构
 
-## 已实现：冻结 core/behavior/adapter + 本地 V2-4 requirement IR
+## 已实现：冻结 core/behavior/SI adapter/trigger + V2-5A.1 evidence
 
 V2-2 冻结于 `chipchain-v2-2-stable` / `48f8925792a1afa829d20bc25841010e1a12faa2`。
 
@@ -12,6 +12,8 @@ core                models / architecture / identity / provenance / address
 behavior.processor  指令/访问/状态/事件/关系及单来源 fragment（数据合同）
 adapters.processorfuzz  exact bytes → raw SI；raw + PF descriptor → SOURCE_DECLARED fragment
 trigger             来源/目标 + 状态 preconditions + 行为/event steps + 显式 required order
+evidence            byte-bound artifact / typed observation / scoped non-causal comparison
+adapters.hardware_case  bytes → confirmed ISA CSV/log / RTL log / opaque signature records
 ```
 
 core 只依赖 Python 标准库与 Pydantic；它不加载 decoder、分析器、运行后端、模型服务或业务子系统。
@@ -29,6 +31,23 @@ IR 只做要求的内部合法性检查，未连接 parser/mapper，不做提取
 单一 source context 保留完整 hardware target 与声明的 artifact/producer；ProcessorFuzz 来源还需 exact descriptor。
 preconditions/steps 为无序语义集合，slot 只标识节点，顺序只由 required order 声明。
 SOURCE_SEQUENCE != REQUIRED_PRECEDES；required adjacency != observed adjacency。
+
+V2-4 已冻结。V2-5A.1 新增的 `evidence → core / 公开 behavior` 与
+`adapters.hardware_case → core / evidence` 为单向依赖；不导入 trigger、SI adapter 或 behavior 私有 helper。
+core/behavior/trigger/root/CLI 及冻结 SI adapter 不反向加载 evidence/hardware-case adapter。
+Evidence 的 `_profiles` 仅做局部词法一致性校验，无文件/后端访问，供 detached IR validation 使用；
+adapter 接收单一 immutable bytes，计算 SHA，并创建源/记录。完整 artifact 再重建 exact bytes 复核 SHA/length。
+raw_line 是规范载荷；PC、encoding、字段值等只读视图不作为第二份可独立修改的 serialized data。
+记录 source ID + ordinal + raw payload 定义身份；相同 PC 的不同 occurrence 不会合并。
+
+`AlignmentScope` 显式声明两方完整 source descriptors、common start、profile 和字段集。
+alignment 只接受单一连续 ISA CSV 序列与唯一 RTL common start 后的连续 instruction-key 序列；
+DELAYED 不强行归属任何 PC，boot/tail/delayed 未配对记录留在结果中。完整结果保留双方 artifact，
+反序列化重新验证来源字节、逐对成员关系、顺序和比较，不能用内部一致的伪造 pair 替代原记录。
+`RELIABLE_KEYS_PARTIAL_SEMANTICS` 不是单一 valid/verified boolean。
+FieldComparison 只做 EQUAL/DIFFERENT/NOT_COMPARABLE/MISSING_LEFT/MISSING_RIGHT；
+DivergenceObservation 绑定 scope/pair/field 和精确值/XOR，既不是 Processor Behavior fact，也不是 Trigger IR。
+helper 的首个差异和前后 context 仅限该显式范围，不是 global first error 或 causal slice。
 
 `HardwareTargetIdentity` 区分 client 与 ProcessorFuzz hardware；同架构不是同目标。
 `ImmutableFirmwareArtifact` 组合来源 SHA、架构、硬件目标与可选 ISA profile。
@@ -66,8 +85,10 @@ Hardware Trigger IR + Processor Behavior IR → Trigger Matching + Anchored Reac
 核心问题是 `FirmwareExecutionPath |= HardwareTriggerSpecification ?`，当前合同不回答该问题。
 Trigger IR 合同可先于 Extractor 开发，但运行时提取结果进入 IR；两种顺序不能混淆。
 V2-3B 的首个 adapter 只做 confirmed SI 结构解析与 SOURCE_DECLARED 指令/操作数/顺序投影。
-V2-4 定义 Trigger IR 后，V2-5A 先专项审计 case 输出的实际语义与 provenance，V2-5B 再提取/缩减，
-再讨论 feature extraction、reduction、root-cause localization 和跨层验证规划；当前不实现这些能力。
+V2-5A 只读审计已完成：bundle 并非 provenance-complete，stale disassembly 隔离，note unbound，
+transition.db 混合且未解决。V2-5A.1 ingestion 支持受限 293-key common alignment；LLM 仍在下游。
+V2-5A.2 anchor binding 和 V2-5B LLM-assisted candidate extraction/reduction 均仅 PLANNED，
+当前不实现提取、缩减、root-cause localization 或跨层验证规划。
 行为归一化与来源适配分离，架构专用 backend/profile 不改变核心的架构中立边界。
 每次连接必须绑定同架构、同原始 firmware identity 与声明的分析范围。
 RISC-V-first != RISC-V-only；架构标签不能作为实现声明。

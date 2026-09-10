@@ -44,6 +44,17 @@ def test_production_imports_respect_core_behavior_adapter_trigger_direction() ->
         "chipchain.trigger.enums", "chipchain.trigger.values", "chipchain.trigger.requirements",
         "chipchain.trigger.relations", "chipchain.trigger.models",
     }
+    evidence_allowed = {
+        "csv", "chipchain.core", "chipchain.behavior.processor",
+        "chipchain.evidence.base", "chipchain.evidence.enums", "chipchain.evidence._profiles",
+        "chipchain.evidence.observations", "chipchain.evidence.models", "chipchain.evidence.alignment",
+    }
+    case_adapter_allowed = {
+        "chipchain.core", "chipchain.evidence",
+        "chipchain.adapters.hardware_case._common", "chipchain.adapters.hardware_case.errors",
+        "chipchain.adapters.hardware_case.isa_csv", "chipchain.adapters.hardware_case.isa_log",
+        "chipchain.adapters.hardware_case.rtl_log", "chipchain.adapters.hardware_case.signature",
+    }
     for path in sorted(PRODUCTION.rglob("*.py")):
         source = path.read_text(encoding="utf-8")
         file_allowed = (
@@ -52,12 +63,18 @@ def test_production_imports_respect_core_behavior_adapter_trigger_direction() ->
         )
         if "adapters" in path.relative_to(PRODUCTION).parts:
             file_allowed = {name for name in allowed if not name.startswith("chipchain")} | adapter_allowed
+            if "hardware_case" in path.relative_to(PRODUCTION).parts:
+                file_allowed = {name for name in allowed if not name.startswith("chipchain")} | case_adapter_allowed
         else:
             assert "chipchain.adapters" not in source, path
         if "trigger" in path.relative_to(PRODUCTION).parts:
             file_allowed = {name for name in allowed if not name.startswith("chipchain")} | trigger_allowed
         else:
             assert "chipchain.trigger" not in source, path
+        if "evidence" in path.relative_to(PRODUCTION).parts:
+            file_allowed = {name for name in allowed if not name.startswith("chipchain")} | evidence_allowed
+        elif "hardware_case" not in path.relative_to(PRODUCTION).parts:
+            assert "chipchain.evidence" not in source, path
         for package in OLD_PACKAGES:
             assert f"chipchain.{package}" not in source, path
         for node in ast.walk(ast.parse(source)):
@@ -74,7 +91,7 @@ def test_production_imports_respect_core_behavior_adapter_trigger_direction() ->
         assert not (PRODUCTION / package).exists()
 
 
-@pytest.mark.parametrize("mode", ["root", "core", "behavior", "adapter", "trigger", "console", "module"])
+@pytest.mark.parametrize("mode", ["root", "core", "behavior", "adapter", "trigger", "evidence", "case_adapter", "console", "module"])
 def test_fresh_process_import_firewall(mode: str) -> None:
     # A fresh process avoids false assurance from previously imported backends.
     script = r'''
@@ -87,14 +104,18 @@ mode = sys.argv[1]
 old = ("agents", "analysis", "candidate", "corpus", "evaluation", "graph",
        "hardware_trigger", "knowledge", "models", "multi_agent", "reasoning",
        "runtime", "verification")
-if mode != "adapter":
+if mode not in ("adapter", "case_adapter"):
     old += ("adapters",)
+if mode not in ("evidence", "case_adapter"):
+    old += ("evidence",)
 if mode != "trigger":
     old += ("trigger",)
 forbidden = tuple("chipchain." + item for item in old) + (
     "angr", "capstone", "networkx", "openai", "dotenv", "qemu", "provider",
     "jtag", "processorfuzz", "gdbfuzz", "requests", "httpx",
 )
+if mode == "case_adapter":
+    forbidden += ("chipchain.adapters.processorfuzz",)
 def forbidden_module(name):
     return any(name == prefix or name.startswith(prefix + ".") for prefix in forbidden)
 class BlockBackends(importlib.abc.MetaPathFinder):
@@ -124,6 +145,17 @@ elif mode == "trigger":
     assert HardwareTriggerSpec.model_fields["contract"].default == "v2_hardware_trigger_spec_v1"
     constraint = ExactScalarConstraint(value={"width_bits": 8, "value": "0x1"})
     assert constraint.id.startswith("v2-trigger-exact-scalar-constraint-v1:")
+elif mode == "evidence":
+    from chipchain.evidence import FieldComparison, ComparableField, ComparisonOutcome
+    comparison = FieldComparison.create(ComparableField.MSTATUS, None, None)
+    assert comparison.outcome == ComparisonOutcome.NOT_COMPARABLE
+elif mode == "case_adapter":
+    from chipchain.adapters.hardware_case import parse_signature
+    from chipchain.core import Architecture
+    from chipchain.evidence import TraceSourceSide
+    artifact = parse_signature((b"0" * 32 + b"\n") * 254,
+        source_side=TraceSourceSide.ISA_SIDE, architecture=Architecture.RISC_V)
+    assert len(artifact.observations) == 254
 else:
     sys.argv = ["chipchain", "--help"]
     try:

@@ -1,4 +1,4 @@
-# V2-R0 / V2-1 / V2-2 / V2-3B / V2-4 数据合同
+# V2-R0 / V2-1 / V2-2 / V2-3B / V2-4 / V2-5A.1 数据合同
 
 ## 模型与架构
 
@@ -197,7 +197,8 @@ Parser 绑定实际消费 bytes 的 SHA，mapper 再核对显式 ProcessorFuzzAr
 | Comparison/signature artifacts | `out/.isa_sig_0.txt`、`out/.rtl_sig_0.txt` |
 | Other state/context | `out/transition.db`、`note.log`、`build/` 的 Verilator/RocketTile 等文件 |
 
-不从命名推断实际执行、硬件 target、差异原因或 vulnerability；本阶段不解析日志、signature、数据库或二进制。
+不从命名推断实际执行、硬件 target、差异原因或 vulnerability。V2-5A.1 只解析受审计的 trace/log/signature
+bytes，不解析 transition.db、stale disassembly 或二进制，也不创建整体 run provenance 合同。
 V2-3B 的最初 projection 仅允许 SOURCE_DECLARED 指令、确定性支持的 RegisterOperand/DeclaredOperand、
 SOURCE_SEQUENCE；没有额外语义证据时不生成 RegisterAccessBehavior、MemoryAccessBehavior、
 ControlTransferBehavior、ProcessorEvent、PrivilegeStateFact、RegisterStateFact 或 MemoryStateFact。
@@ -324,4 +325,96 @@ model_copy/model_construct 不作为权威输入，重新 model_validate 时仍�
 
 `tests/trigger/` 仅为 benign SYNTHETIC_FIXTURE，不是 ProcessorFuzz finding、真实硬件 trigger 或漏洞。
 PF 绑定负例也只使用 synthetic provenance descriptors；未从真实 confirmed SI 或其 368 behavior records
-构造 HardwareTriggerSpec。V2-5A 输出语义审计、V2-5B 提取/缩减、matcher 和 reachability 均未实施。
+构造 HardwareTriggerSpec。V2-5A 只读输出语义审计已完成；V2-5B 提取/缩减、matcher 和 reachability 均未实施。
+
+## V2-5A.1 Confirmed Case Evidence IR（CURRENT）
+
+V2-4 已冻结于 `chipchain-v2-4-stable` / `798d7ee99b4529a00007874c886c5ec8a39d0a28`。
+V2-5A 审计完成但不证明 bundle provenance-complete：`out/tests/disassembly.asm` 的 348 个可比较
+编码中 278 个与当前 ELF 不符，保持 quarantined；`note.log` 未绑定当前 SI；`transition.db`
+混合/累积且缺少稳定 run identity。三者不进入本阶段 production adapter。
+
+### 来源与 lossless 记录
+
+公开合同位于 `chipchain.evidence`；解析 API 位于 `chipchain.adapters.hardware_case`：
+
+- `parse_isa_csv(data: bytes, *, architecture, expected_sha256=None)`
+- `parse_isa_log(data: bytes, *, architecture, expected_sha256=None)`
+- `parse_rtl_log(data: bytes, *, architecture, expected_sha256=None)`
+- `parse_signature(data: bytes, *, source_side, architecture, expected_sha256=None)`
+
+全部返回 `ParsedCaseArtifact`，只消费调用者提供的单个 immutable bytes，不读路径、环境或调用后端。
+`EvidenceArtifactSource` 保存 exact artifact_sha256、byte_length、architecture、source_side、format_profile_id，
+来源 ID 是以上完整声明的版本化 hash。side 仅 ISA_SIDE/RTL_SIDE，不命名 truth；不含 hardware applicability。
+四个 closed local profiles 为 `confirmed_isa_csv_v1`、`confirmed_isa_log_v1`、
+`confirmed_rocket_rtl_log_v1`、`confirmed_signature_v1`，当前只支持显式 RISC-V。
+profile 是本地受审计 print layout，不是上游版本/config 身份，也不是通用 ISA/RTL 格式承诺。
+
+每个 observation 保存 source_id、零基 record_ordinal、kind、exact raw_line 和 FORMAT_OBSERVED。
+规范 payload 只有一份：raw_line；PC/encoding/mode/state 等通过校验后的只读 property/method 提供，
+不重复序列化另一套可独立修改的 typed fields。raw_line 不含行终止符；行终止符由 closed profile 指定。
+record_ordinal 是 header 后的记录顺序（无 header 则从首行开始），不是 retirement ordinal 或 cycle。
+同 PC/encoding 重复出现时因 ordinal 不同得到不同 ID；source SHA 变化也改变所有 record ID。
+
+`ParsedCaseArtifact` 必须重新验证嵌套 source/observations、连续零基 ordinal、kind/profile/side/architecture，
+然后重建 exact bytes（包括固定 header、CSV CRLF / 其他 LF、末尾终止符）并复核 SHA 和 byte length。
+独立 observation 只证明局部格式与声明 source_id；完整 artifact 才建立 actual bytes 的来源绑定。
+任意修改 raw、序列、来源或未校验的 model_copy 都不能绕过 detached validation。
+byte_binding_level 固定 BYTE_VERIFIED，仅表示载荷字节一致，不认证来源真实性或 processor ground truth。
+run_provenance 固定 CORRELATED_ARTIFACT_SET；没有 run_id/campaign_id/timestamp 或 authenticated-run 状态。
+
+EvidenceLevel 独立词汇为 BYTE_VERIFIED、FORMAT_OBSERVED、PRODUCER_DECLARED、CROSS_ARTIFACT_CORRELATED、
+INFERRED、UNKNOWN；它不是 BehaviorFactNature，词汇存在不表示本轮创建这些级别或自动升级。
+
+### 局部格式与 typed views
+
+| Profile | 记录与安全解释 |
+| --- | --- |
+| ISA CSV | 精确 17 列 header；64-bit printed PC、32-bit printed encoding；保留 mode 缺失、mixed gpr 更新及八个 state tokens；空 state 为 None |
+| ISA log | DESCRIPTION / COMMIT / EXCEPTION / LABEL_OR_CONTEXT / OTHER_SUPPORTED（仅已观察 tval）；保留 exact lexical fields，不推断 post-state |
+| RTL log | RTL_NORMAL / RTL_EXCEPTION / DELAYED 独立；40-bit printed PC、32-bit encoding；保留全部 print tokens，禁止把 DELAYED 归属猜测 PC |
+| Signature | 恰好 254 条，每条 32 个小写 hex，零基 ordinal；不附 address、CSR 或 layout mapping；ISA/RTL side 独立 |
+
+Instruction encoding 是打印的 hex token，不解码、不重排成指令 bytes，不证明 ISA 合法性。
+CSV `gpr` 保留 mixed GPR/FPR/CSR 原文，不生成 register access/value facts。
+RTL 的 COV 来自受审计 `io_covSum`，不是 cycle/time/retirement；WDATA 仅 raw token，deadbeef sentinel
+不可当 architectural write。内部 FPR representation 不解释为 IEEE 值。
+ISA log 的 description state vector 九个 token 保留词法，第九项不命名为已证实 CSR。
+内部 RTL fields 除显式共同字段外只作 lossless token 保留，不默认与 ISA 状态比较。
+
+### 对齐与字段比较
+
+`AlignmentScope` 保存双方完整 source descriptors（因此有 ID/SHA）、显式 common_start_pc、
+固定 `confirmed_common_sequence_v1` 和 nonempty/duplicate-free/canonical ordered comparable_fields。
+唯一允许的字段依次为：mstatus、frm、fflags、mcause、scause、medeleg、mcounteren、scounteren；
+比较位宽依次为 64、3、5、8、8、64、32、32，表示双方被批准比较的 printed view，非完整寄存器集合。
+
+`align_common_program(scope, isa_artifact, rtl_artifact)` detached revalidate 全部输入，要求 ISA CSV
+从显式 common start 开始，RTL instruction records 中 start key 唯一，随后与全部 ISA records
+逐对 PC + encoding 相同且连续。只使用 common-program file order + PC + encoding，不使用 COV、
+文本相似度、物理行号相等、动态规划或插删猜配；歧义/断裂/缺失直接 fail closed。
+DELAYED 不参与 instruction-key 序列，但仍列入未配对记录；boot/tail 不丢弃。
+
+`AlignedPair` 保留 scope、零基 alignment_ordinal、双方 observation（ID 可恢复）、PC/encoding 和 comparisons。
+`AlignmentResult` 保存完整双方 artifacts、有序 pairs、双方未配对 IDs，固定状态
+RELIABLE_KEYS_PARTIAL_SEMANTICS。验证器重新执行序列选择、检查 pair 完整成员身份/顺序与 comparisons，
+拒绝篡改、不完整结果和虚构来源；不生成任何 verification record。
+
+`FieldComparison` 包含 field、isa_value/rtl_value（公开 ExactScalar 或 None）、outcome、可选 xor。
+outcome 为 EQUAL / DIFFERENT / NOT_COMPARABLE / MISSING_LEFT / MISSING_RIGHT。
+双方缺失或宽度不同为 NOT_COMPARABLE；单边缺失保留 MISSING_*；等宽不同值保存描述性 XOR。
+模型重算 outcome/XOR，pair 再从 raw 来源重算批准字段，不能仅提交 caller-claimed DIFFERENT。
+`DivergenceObservation` 只绑定 aligned_pair + field，scope、精确值/XOR 从 pair.comparison 可恢复，
+级别固定 CROSS_ARTIFACT_CORRELATED，无 causal/trigger/necessary/sufficient/verified/vulnerability 字段。
+
+`first_observed_divergence_in_scope(result)` 是该范围/有序 pairs 中首个 DIFFERENT，非 global first error。
+`divergence_context(result, observation, before=5, after=3)` 只返回邻近 aligned pairs；不标记 critical 指令、
+不构造 trigger window/causal slice。真实审计支持 293-key common alignment，首差异前的指令不被声称 causal。
+CSV/log 293-key correspondence 仅保留本地 acceptance correlation，不称 CSV 由 log 生成的 provenance 证明。
+
+所有合同 frozen + tuple + nested revalidation；完整规范化 payload 使用 `v2-…-v1` ID namespace，
+不含 path/time/random。公开 ingestion 和 alignment 入口重新验证输入；unchecked 对象不能当可信结果。
+`tests/evidence/` 仅使用 benign synthetic format-only fixtures，无真实指令序列或差异值。
+真实 case 仅在默认 tests 通过后本地只读验收，不成为默认测试依赖或已认证漏洞 fixture。
+后续 V2-5A.2 SI/ELF/Trace Anchor Binding 与 V2-5B LLM-assisted extraction/reduction 均 PLANNED；
+当前没有 runtime ProcessorBehaviorFragment projection、真实 HardwareTriggerSpec、LLM、firmware 分析或 simulator 执行。

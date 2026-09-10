@@ -24,7 +24,7 @@ ChipChain: Processor Behavior + Trigger Extraction + Trigger Matching + Reachabi
 开发时可先定义 Trigger IR 合同再实现 Extractor，开发依赖顺序不等于运行数据流。
 所有跨层关联必须发生在同一架构内，不能拼接 ARM 固件与 RISC-V 硬件来源。
 
-## 当前范围：冻结 V2-3B + V2-4 Hardware Trigger requirements
+## 当前范围：冻结 V2-4 + V2-5A.1 Case Evidence IR
 
 V2-R0/V2-1 已冻结，保留硬件目标、精确固件、ProcessorFuzz/GDBFuzz 来源、
 外部输入端点/投递/输入 artifact，以及调试扰动声明。它们仅是可验证字段一致性的 core 合同，
@@ -46,7 +46,8 @@ RISC-V 与 ARM 示例均为 benign synthetic 合同测试，不是解码结果�
 | ProcessorFuzz SI structural parser / mapper | V2-3B 已冻结 confirmed profile；不集成或运行 ProcessorFuzz |
 | GDBFuzz integration / parsing | NOT IMPLEMENTED |
 | RISC-V firmware decoder | NOT IMPLEMENTED |
-| Hardware Trigger IR v1 | V2-4 本地实现；仅规范性 requirements，待审查冻结 |
+| Hardware Trigger IR v1 | V2-4 已冻结；仅规范性 requirements |
+| Confirmed Case Evidence IR / output adapters | V2-5A.1 CURRENT；exact bytes、分型观察、非因果对齐与字段比较 |
 | Trigger Extraction / Reduction | NOT IMPLEMENTED |
 | Trigger Matcher | NOT IMPLEMENTED |
 | Anchored Reachability | NOT IMPLEMENTED |
@@ -57,8 +58,13 @@ V2-3B 冻结标签 `chipchain-v2-3b-stable` 指向 `7d42e325beb0385a0e8df16b204c
 保持单一来源/硬件目标、严格 slot、位宽和引用完整性。RISC-V/ARM 例子均为 benign synthetic 合同测试。
 Trigger requirement != Processor Behavior fact；Trigger requirement != satisfied requirement；
 Trigger spec != verified vulnerability；SOURCE_SEQUENCE != REQUIRED_PRECEDES。
-真实 confirmed SI 尚未提取/缩减为真实 trigger spec。下一步 V2-5A 先审计 case 输出语义，
-再由独立授权的 V2-5B 进行提取/缩减；本轮不实现任何满足性判断。
+V2-4 已由 `chipchain-v2-4-stable` 冻结于 `798d7ee99b4529a00007874c886c5ec8a39d0a28`。
+真实 confirmed SI 尚未提取/缩减为真实 trigger spec。V2-5A 只读输出语义审计已完成，但 bundle
+并非 provenance-complete。V2-5A.1 提供 ISA CSV/log、RTL log、signature 的 bytes-only ingestion，
+按明确范围的 file order + PC + instruction encoding 对齐（本地审计的 common prefix 为 293 对）。
+`first_observed_divergence_in_scope` 只表示该比较范围内的首个观察差异，不表示 root cause/trigger。
+V2-5A.2 SI/ELF/Trace Anchor Binding 与 V2-5B LLM-assisted Trigger Candidate Extraction / Reduction
+仍为 PLANNED；不从本轮差异构造 trigger、行为事实、满足性判断或漏洞 verdict。
 
 LLM 的未来角色是 coordinator/reasoner，不是 processor ground truth。
 Knowledge 提供上下文关联，不等于确定性 trigger reachability。
@@ -68,7 +74,8 @@ Knowledge 提供上下文关联，不等于确定性 trigger reachability。
 V2-3 的真实格式基准已更正为完整 **Hardware Case Bundle** 内的
 **hardware-team-confirmed valid SI testcase**。外部团队确认不等于 ChipChain verification。
 Bundle 可包含 SI、assembly/ELF/HEX/symbols/disassembly、ISA/RTL trace/log、signatures 与 build/context
-材料；这些仅是结构角色，尚无 production bundle model 或 case-output parser；当前仅解析 SI。
+材料；完整 bundle 仍是文档级概念。V2-5A.1 仅为受审计的输出格式提供逐 artifact 合同，
+不创建 authenticated run，也不把 ISA side 命名为 ground truth。
 
 仓库根目录 `/hardware_buginfo/` 和 `/hardware_caseinfo/` 均为 `LOCAL_ONLY_REAL_ARTIFACT`，默认不提交。
 完整 case 的首选目录名是 `hardware_caseinfo/`，但本轮不移动现有数据。
@@ -76,7 +83,9 @@ V2-3B 用 exact bytes 生成 `RawProcessorFuzzSI`，独立 mapper 核对 Process
 仅将指令/文本顺序投影为 SOURCE_DECLARED Processor Behavior IR；raw header/标签/尾列/data 不投影。
 项目负责人已声明 Rocket + ProcessorFuzz；版本、配置、ISA profile 未知，不以 local unspecified ID
 冒充上游 profile 或认证。允许保留未知项的本地映射，不表示漏洞或 client-target applicability。
-详细 case 输出语义须在 V2-5 提取/缩减前审计。见 [路线图](PLANS.md) 与
+V2-5A 审计发现 supplied disassembly 与当前 ELF 不一致，保持 quarantined；`note.log` 未绑定当前 SI，
+`transition.db` 混合累积且 run identity 未解决，均无新 adapter。COV 不是 cycle/time，DELAYED 独立保留，
+WDATA sentinel 不转换为 architectural write。见 [路线图](PLANS.md) 与
 [本地 case 记录](docs/DATA_CONTRACTS.md#本地-hardware-case-bundle文档级概念)。
 
 ## GDBFuzz 与不可变客户端

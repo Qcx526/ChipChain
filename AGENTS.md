@@ -42,9 +42,15 @@
 - 冻结模型使用不可变字段类型；嵌套输入需重新验证，不能仅依赖浅层 frozen 标志。
 - core、root、CLI 不依赖业务子系统或分析/运行/模型后端，不留下未来模块空壳。
 - behavior 只能依赖 stdlib/Pydantic/core/behavior；core 不反向依赖 behavior，IR 不依赖未来 adapters/backends。
-- adapters 只能依赖 stdlib/Pydantic/core/behavior/adapters；core/behavior/root/CLI 不反向导入 adapters。
+- SI adapters 只能依赖 stdlib/Pydantic/core/behavior/自身模块；core/behavior/root/CLI 不反向导入 adapters。
   SI parser 消费 exact bytes，mapper 必须 detached revalidate 并匹配 ProcessorFuzzArtifact SHA；
   只生成 SOURCE_DECLARED 指令与 SOURCE_SEQUENCE，不能推断状态、访问效果或运行事件。
+- evidence 只能依赖 stdlib/Pydantic/core、公开 behavior 值类型及自身模块；hardware_case adapters
+  只能依赖 stdlib/Pydantic/core/evidence/自身模块，不读取文件或执行后端。
+  core/behavior/trigger/root/CLI 与冻结 SI adapter 不反向依赖 evidence；不复用 BehaviorFactNature。
+  字节绑定只证明 exact payload 一致，不能认证 run/producer；raw 与 typed views 必须一致，未知保持未知。
+  COV 不是 time/cycle，WDATA sentinel 不是 architectural write，DELAYED 独立保留。
+  非因果对齐只比较显式批准字段，首个差异始终限于 scope；不把差异/上下文变成 trigger/root cause。
 - trigger 只能依赖 stdlib/Pydantic、公开 core/behavior 合同及自身模块；不导入 behavior 私有 helper
   或 adapters/backends，core/behavior/adapters/root/CLI 不反向导入 trigger。
 - Trigger requirement != Processor Behavior fact != requirement satisfaction；不复用 BehaviorFactNature。

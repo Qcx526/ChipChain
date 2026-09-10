@@ -7,8 +7,10 @@ V2-2 Processor Behavior IR v1 已由 `chipchain-v2-2-stable` 冻结于
 V2-3A.1 已由 `chipchain-v2-3a1-stable` 冻结于 `2b6b61b8cd8abcb5c68760c9a0f39a99dd59c6d0`。
 V2-3B confirmed-profile raw parser 与保守 mapper 已由 `chipchain-v2-3b-stable` 冻结于
 `7d42e325beb0385a0e8df16b204c7f8ea296eb5a`。
-V2-4 为 CURRENT：Hardware Trigger IR v1 本地已实现，仅 requirement contracts，待审查冻结。
-V2-5A 及以后仍未实现。
+V2-4 已由 `chipchain-v2-4-stable` 冻结于 `798d7ee99b4529a00007874c886c5ec8a39d0a28`。
+V2-5A Confirmed Case Output Semantics Audit 已完成（READ-ONLY），并未证明完整 run provenance。
+V2-5A.1 为 CURRENT：Case Evidence IR、deterministic output adapters 与 non-causal alignment；待审查冻结。
+V2-5A.2 SI/ELF/Trace Anchor Binding 与 V2-5B LLM-assisted Trigger Candidate Extraction / Reduction 均为 PLANNED。
 RISC-V 为主实验架构；RISC-V-first != RISC-V-only。公共合同保持架构中立，
 backend/profile/adapter 分别承担具体架构能力，架构标签不代表已有实现。
 
@@ -20,9 +22,11 @@ backend/profile/adapter 分别承担具体架构能力，架构标签不代表�
 | V2-1 | Target / Source / External Input / Debug Contracts | 已冻结；精确固件绑定、来源分离、调试扰动词汇及离线负例；不定义业务结果 |
 | V2-2 | Processor Behavior IR v1 | 已冻结；指令/访问/状态/事件、来源性质、分型关系、引用完整性与 synthetic 回归；无分析 |
 | V2-3B | Confirmed ProcessorFuzz SI Structural Adapter | FROZEN；exact bytes/raw roundtrip、SOURCE_DECLARED-only mapper；不解码 |
-| V2-4 | Hardware Trigger IR v1 | CURRENT；仅要求合同，来源/target、slot、位宽、引用与无环顺序检查；无提取或满足性判断 |
-| V2-5A | Confirmed Case Output Semantics Audit | 另行授权审计 case 输出及生产者语义，不把 ISA/RTL mismatch 当 trigger proof |
-| V2-5B | Trigger Extraction / Reduction | 在语义审计后独立实现来源可重放的提取/缩减，保留未知条件与适用范围 |
+| V2-4 | Hardware Trigger IR v1 | FROZEN；仅要求合同，来源/target、slot、位宽、引用与无环顺序检查；无提取或满足性判断 |
+| V2-5A | Confirmed Case Output Semantics Audit | COMPLETED / READ-ONLY；输出语义部分可解释，不把 mismatch 当 trigger proof |
+| V2-5A.1 | Case Evidence IR + Deterministic Adapters | CURRENT；exact bytes、lossless 分型、显式字段比较与连续 key 对齐；无因果/trigger/verification |
+| V2-5A.2 | SI / ELF / Trace Anchor Binding | PLANNED；显式绑定经复核的跨 artifact anchors，不能依赖 stale disassembly |
+| V2-5B | LLM-assisted Trigger Candidate Extraction / Reduction | PLANNED；下游 reasoning 不替代客观证据；缩减/候选需独立授权 |
 | V2-6 | GDBFuzz Artifact / External Input Adapter | 绑定原始不可变 firmware、既有端点与 execution artifacts |
 | V2-7 | RISC-V Firmware / angr → Processor Behavior IR | 审计实际 decoder/profile 输出，分离静态语义与运行观察 |
 | V2-8 | Deterministic Trigger Matcher | 明确匹配规则、负例与未知项，不把候选称为漏洞 |
@@ -58,8 +62,19 @@ V2-4 只定义 Hardware Trigger requirements：状态 preconditions 与行为/ev
 slot 支持 A/B/A 重复节点但不隐含顺序，显式 order 只引用本 spec steps 并检查无环。
 requirements 不是 facts，更不是 satisfied requirements 或漏洞结论；SOURCE_SEQUENCE 不自动转换成 required order。
 真实 confirmed SI（包括其 368 条 behavior records）尚未提取/缩减为真实 trigger spec。
-V2-5A 将专项审计 ISA/RTL trace/log、signatures、transition database、compiled artifacts 的
-实际内容和生产者语义，再由 V2-5B 进入 Trigger Extraction / Reduction。本轮不启动这些工作。
+V2-5A 已专项审计这些输出及生产者语义。supplied disassembly 的 348 个可比较编码中 278 个与当前 ELF
+不一致，保持隔离；note 未绑定当前 SI；transition records 混合/累积，缺少稳定 run identity。
+全 bundle 只可声明 correlated artifact set，不能声称 authenticated single run。
+V2-5A.1 实现 ISA CSV/log、RTL log 与 signatures 的局部格式合同：exact SHA/length、source side、
+版本化 profile、分型 raw record + 只读 typed views；默认只比较八个经审计共同字段。
+连续 common-program file order + PC + encoding 支持审计中的 293 对；不使用 COV、模糊匹配或插删猜测。
+首次差异仅针对声明 scope；前一条指令是上下文，不是因果证据。CSV/log 对应保留为本地验收检查，
+不扩大为生成来源证明。不投影 RUNTIME_OBSERVED behavior、不构造真实 trigger spec、不运行任何 simulator。
+独立冻结后再讨论 V2-5A.2 与 V2-5B；当前不启动 anchor binding、LLM、提取或缩减。
+本地验证：两种完整 pytest 调用均 739 passed；evidence/adapters `-W error` 为 243 passed，
+dependency firewall 为 10 passed；compileall、两种 CLI help 与 diff 检查通过。
+默认 tests 之后的真实只读验收复现 293 对、首个 scope 差异 index 128、signature 第 38/45/49 行差异；
+真实值未进入永久 tests。101 个本地 case 文件的 SHA/长度不变；该验收不是模拟器重跑或漏洞验证。
 Confirmed SI + ISA-side artifact + RTL-side artifact + signature/comparison material 将来可能支持
 trigger feature extraction、reduction、root-cause localization 与跨层验证规划；这些能力当前均未实现。
 

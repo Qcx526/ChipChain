@@ -130,6 +130,25 @@
 - Register State Requirement != Register Access Requirement
 - Lexical Operand Constraint != ISA Semantic Equivalence
 - ProcessorFuzz Source Association != Trigger Correctness Or Minimality
+- Trace Observation != Processor Ground Truth
+- Evidence Level != BehaviorFactNature
+- BYTE_VERIFIED != Producer Authenticity
+- Aligned Difference != Trigger
+- First Observed Divergence != First Causal Error
+- First Divergence In Scope != Global First Error
+- Divergence Evidence != HardwareTriggerSpec
+- ISA_SIDE != Architectural Truth Automatically
+- RTL_SIDE != Physical Silicon
+- COV != Cycle
+- COV != Timestamp Or Retirement Ordinal
+- Printed WDATA Sentinel != Architectural Register Write
+- Internal FPR Representation != Architectural IEEE Value
+- Same PC != Same Trace Occurrence
+- Content Correlation != Production Provenance
+- CORRELATED_ARTIFACT_SET != AUTHENTICATED_RUN
+- Stale Artifact != Evidence
+- Unbound Note != Current Case Metadata
+- Mixed Transition Record != Current Run Evidence
 
 真实客户端分析绑定固定 hardware + immutable original firmware，可使用 byte-identical 离线副本。
 不得用 patch/recompile/instruction insertion、JTAG code injection 或修改程序字节的 software breakpoint
@@ -144,10 +163,15 @@ V2-2 仅新增 processor facts 的数据合同；synthetic RISC-V/ARM 示例不�
 “有效”是硬件团队提供的来源确认，不由 ChipChain 本轮独立验证；bundle 丰富程度不构成证明强度升级。
 SI、ISA/RTL artifacts 与 signatures 将来可能支持提取、缩减和根因定位，但须先审计其实际语义；
 SI structural parser 与 SOURCE_DECLARED mapper 已由 V2-3B 冻结；V2-4 仅新增 Hardware Trigger
-requirements 的内部合法性合同，没有 case-output parser、真实提取的 trigger、满足性判断、跨层确认
-或真实 silicon 结论，材料保持 local-only。真实 confirmed SI 尚未缩减或构造为真实 trigger spec。
-synthetic requirement examples 不是 ProcessorFuzz finding 或客户证据；V2-5A 先独立审计输出语义，
-V2-5B 才讨论提取/缩减，不能用本轮模型创建替代这些工作。
+requirements 的内部合法性合同。V2-5A.1 新增 case-output parser 与 non-causal comparison，但没有
+真实提取的 trigger、满足性判断、跨层确认或真实 silicon 结论，材料保持 local-only。
+真实 confirmed SI 尚未缩减或构造为真实 trigger spec。synthetic examples 不是 ProcessorFuzz finding 或客户证据。
+V2-5A 只读审计完成，不表示 provenance-complete：disassembly 与 ELF 不一致而隔离，note 未绑定，
+transition.db 的 run identity 未解决。V2-5A.1 的 293-key 支持是限定字段和来源的相关关系，
+不证明文件生成关系或 authenticated run。前一条 csrrw 不被标记 causal；DELAYED 不猜测关联，
+缺失 mode/state 不补零，COV/WDATA/internal FPR 不自动成为 architectural state/time。
+新 observations 不自动投影为 RUNTIME_OBSERVED ProcessorBehaviorFragment，不派生 Trigger requirements。
+V2-5A.2 anchor binding、V2-5B LLM-assisted extraction/reduction 另行授权；LLM 不参与本轮证据生成。
 Rocket/ProcessorFuzz 是项目负责人提供的 family 声明；unspecified local IDs 不补全版本、配置或 ISA。
 
 Bundled GDBFuzz Serial Example != Proof That Arbitrary Firmware Requires No Adaptation。
