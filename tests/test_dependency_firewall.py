@@ -1,6 +1,7 @@
 """Keep production and entry points independent of archived business packages."""
 
 import ast
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -60,6 +61,11 @@ def test_production_imports_respect_core_behavior_adapter_trigger_direction() ->
         "chipchain.adapters.processorfuzz", "chipchain.anchors.base", "chipchain.anchors.elf",
         "chipchain.anchors.hardware_case",
     }
+    candidate_allowed = {
+        "chipchain.core", "chipchain.behavior.processor", "chipchain.evidence", "chipchain.anchors", "chipchain.trigger",
+        "chipchain.candidates.base", "chipchain.candidates.enums", "chipchain.candidates.facts",
+        "chipchain.candidates.models", "chipchain.candidates.context", "chipchain.candidates.validation",
+    }
     for path in sorted(PRODUCTION.rglob("*.py")):
         source = path.read_text(encoding="utf-8")
         file_allowed = (
@@ -70,22 +76,29 @@ def test_production_imports_respect_core_behavior_adapter_trigger_direction() ->
             file_allowed = {name for name in allowed if not name.startswith("chipchain")} | adapter_allowed
             if "hardware_case" in path.relative_to(PRODUCTION).parts:
                 file_allowed = {name for name in allowed if not name.startswith("chipchain")} | case_adapter_allowed
-        elif "anchors" not in path.relative_to(PRODUCTION).parts:
+        elif not {"anchors", "candidates"}.intersection(path.relative_to(PRODUCTION).parts):
             assert "chipchain.adapters" not in source, path
         if "trigger" in path.relative_to(PRODUCTION).parts:
             file_allowed = {name for name in allowed if not name.startswith("chipchain")} | trigger_allowed
-        else:
+        elif "candidates" not in path.relative_to(PRODUCTION).parts:
             assert "chipchain.trigger" not in source, path
         if "evidence" in path.relative_to(PRODUCTION).parts:
             file_allowed = {name for name in allowed if not name.startswith("chipchain")} | evidence_allowed
-        elif not {"hardware_case", "anchors"}.intersection(path.relative_to(PRODUCTION).parts):
+        elif not {"hardware_case", "anchors", "candidates"}.intersection(path.relative_to(PRODUCTION).parts):
             assert "chipchain.evidence" not in source, path
         if "anchors" in path.relative_to(PRODUCTION).parts:
             file_allowed = {name for name in allowed if not name.startswith("chipchain")} | anchor_allowed
-        else:
+        elif "candidates" not in path.relative_to(PRODUCTION).parts:
             assert "chipchain.anchors" not in source, path
+        if "candidates" in path.relative_to(PRODUCTION).parts:
+            file_allowed = {name for name in allowed if not name.startswith("chipchain")} | candidate_allowed
+            if path.name == "context.py":
+                file_allowed |= {"chipchain.adapters.processorfuzz.models"}
+            _check_candidate_adapter_imports(source, path.name)
+        else:
+            assert "chipchain.candidates" not in source, path
         for package in OLD_PACKAGES:
-            assert f"chipchain.{package}" not in source, path
+            assert re.search(r"\bchipchain\." + package + r"\b", source) is None, path
         for node in ast.walk(ast.parse(source)):
             if isinstance(node, ast.Import):
                 assert all(item.name in file_allowed for item in node.names), path
@@ -100,7 +113,7 @@ def test_production_imports_respect_core_behavior_adapter_trigger_direction() ->
         assert not (PRODUCTION / package).exists()
 
 
-@pytest.mark.parametrize("mode", ["root", "core", "behavior", "adapter", "trigger", "evidence", "case_adapter", "anchors", "console", "module"])
+@pytest.mark.parametrize("mode", ["root", "core", "behavior", "adapter", "trigger", "evidence", "case_adapter", "anchors", "candidates", "console", "module"])
 def test_fresh_process_import_firewall(mode: str) -> None:
     # A fresh process avoids false assurance from previously imported backends.
     script = r'''
@@ -113,21 +126,23 @@ mode = sys.argv[1]
 old = ("agents", "analysis", "candidate", "corpus", "evaluation", "graph",
        "hardware_trigger", "knowledge", "models", "multi_agent", "reasoning",
        "runtime", "verification")
-if mode not in ("adapter", "case_adapter", "anchors"):
+if mode not in ("adapter", "case_adapter", "anchors", "candidates"):
     old += ("adapters",)
-if mode not in ("evidence", "case_adapter", "anchors"):
+if mode not in ("evidence", "case_adapter", "anchors", "candidates"):
     old += ("evidence",)
-if mode != "trigger":
+if mode not in ("trigger", "candidates"):
     old += ("trigger",)
-if mode != "anchors":
+if mode not in ("anchors", "candidates"):
     old += ("anchors",)
+if mode != "candidates":
+    old += ("candidates",)
 forbidden = tuple("chipchain." + item for item in old) + (
     "angr", "capstone", "networkx", "openai", "dotenv", "qemu", "provider",
     "jtag", "processorfuzz", "gdbfuzz", "requests", "httpx",
 )
 if mode == "case_adapter":
     forbidden += ("chipchain.adapters.processorfuzz",)
-if mode == "anchors":
+if mode in ("anchors", "candidates"):
     forbidden += ("chipchain.adapters.hardware_case",)
 def forbidden_module(name):
     return any(name == prefix or name.startswith(prefix + ".") for prefix in forbidden)
@@ -173,6 +188,9 @@ elif mode == "anchors":
     from chipchain.anchors import HardwareTestProgramELFSource
     source = HardwareTestProgramELFSource(artifact_sha256="0" * 64, byte_length=64)
     assert source.artifact_kind == "HARDWARE_TEST_PROGRAM_ELF"
+elif mode == "candidates":
+    from chipchain.candidates import HardwareTriggerCandidate, build_trigger_candidate_context
+    assert HardwareTriggerCandidate.model_fields["status"].default == "HYPOTHESIS"
 else:
     sys.argv = ["chipchain", "--help"]
     try:
@@ -187,3 +205,28 @@ else:
 assert not [name for name in sys.modules if forbidden_module(name)]
 '''
     subprocess.run([sys.executable, "-B", "-I", "-c", script, mode], check=True, capture_output=True, text=True)
+
+
+def _check_candidate_adapter_imports(source: str, filename: str) -> None:
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import):
+            assert not any(n.name.startswith("chipchain.adapters") for n in node.names)
+        if isinstance(node, ast.ImportFrom) and (node.module or "").startswith("chipchain.adapters"):
+            assert filename == "context.py"
+            assert node.module == "chipchain.adapters.processorfuzz.models" and node.level == 0
+            assert [(n.name, n.asname) for n in node.names] == [("RawProcessorFuzzSI", None)]
+
+
+@pytest.mark.parametrize("source,filename", [
+    ("from chipchain.adapters.processorfuzz import RawProcessorFuzzSI", "context.py"),
+    ("from chipchain.adapters.processorfuzz.models import RawSIInstructionRecord", "context.py"),
+    ("from chipchain.adapters.processorfuzz.models import RawProcessorFuzzSI", "models.py"),
+    ("from chipchain.adapters.processorfuzz.models import *", "context.py"),
+    ("from chipchain.adapters.processorfuzz.parser import parse_processorfuzz_si", "context.py"),
+    ("from chipchain.adapters.processorfuzz.mapper import map_processorfuzz_si", "context.py"),
+    ("from chipchain.adapters.hardware_case import parse_isa_csv", "context.py"),
+    ("import chipchain.adapters.processorfuzz.models", "context.py"),
+])
+def test_candidate_raw_si_exception_rejects_broader_dependencies(source, filename):
+    with pytest.raises(AssertionError):
+        _check_candidate_adapter_imports(source, filename)

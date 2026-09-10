@@ -1,6 +1,6 @@
 # V2 架构
 
-## 已实现：冻结至 V2-5A.1 + V2-5A.2 hardware-test anchors（待审查）
+## 已实现：冻结至 V2-5A.2 + V2-5B.1 candidate contracts（待审查）
 
 V2-2 冻结于 `chipchain-v2-2-stable` / `48f8925792a1afa829d20bc25841010e1a12faa2`。
 
@@ -15,6 +15,7 @@ trigger             来源/目标 + 状态 preconditions + 行为/event steps + 
 evidence            byte-bound artifact / typed observation / scoped non-causal comparison
 adapters.hardware_case  bytes → confirmed ISA CSV/log / RTL log / opaque signature records
 anchors             SI labeled record ↔ hardware-test ELF symbol ↔ exact ELF bytes / trace PC+word
+candidates          bounded source-backed context → explicit hypothesis proposal / reference consistency
 ```
 
 core 只依赖 Python 标准库与 Pydantic；它不加载 decoder、分析器、运行后端、模型服务或业务子系统。
@@ -101,7 +102,8 @@ Trigger IR 合同可先于 Extractor 开发，但运行时提取结果进入 IR�
 V2-3B 的首个 adapter 只做 confirmed SI 结构解析与 SOURCE_DECLARED 指令/操作数/顺序投影。
 V2-5A 只读审计已完成：bundle 并非 provenance-complete，stale disassembly 隔离，note unbound，
 transition.db 混合且未解决。V2-5A.1 ingestion 支持受限 293-key common alignment；LLM 仍在下游。
-V2-5A.2 hardware-side anchor binding 为 CURRENT，V2-5B LLM-assisted candidate extraction/reduction 未实现；
+V2-5A.2 hardware-side anchor binding 为 FROZEN；V2-5B.1 合同与有界上下文为 CURRENT / under review，
+V2-5B.2 real/model reasoning 与 LLM-assisted extraction/reduction 未实现；
 当前不实现提取、缩减、root-cause localization、firmware reachability 或跨层候选。
 行为归一化与来源适配分离，架构专用 backend/profile 不改变核心的架构中立边界。
 未来固件侧连接必须绑定同架构、同原始 firmware identity 与声明的分析范围；
@@ -117,3 +119,27 @@ ready-marker/length/testcase 协议需要匹配的示例固件逻辑；不能据
 Hardware breakpoint halt、single-step、reset 与软件断点可能扰动运行；文件 SHA 相同并不证明自然时序。
 
 合同细节见 [DATA_CONTRACTS.md](DATA_CONTRACTS.md)，阶段安排见 [PLANS.md](../PLANS.md)。
+
+## V2-5B.1：证据引用与候选假设分层
+
+`candidates.facts` 是 compact source projection/typed reference/未解决项合同；`models` 是独立候选、
+proposal support 与 rationale；`validation` 只检查同一 context/source/architecture 和引用闭包。
+`context` 接收已经解析的 sources，以冻结 alignment/anchor APIs 构建上下文，不解析 SI，不直接调用 mapper。
+candidate context has a narrow read-only dependency on the frozen ProcessorFuzz raw SI representation
+solely to satisfy exact-source anchor reconstruction：唯一直接 adapter import 为 context.py 中的
+`from chipchain.adapters.processorfuzz.models import RawProcessorFuzzSI`。
+base/enums/facts/models/validation 不导入 adapter，所有冻结下层、root、CLI 不反向导入 candidates。
+冻结 ProcessorFuzz 包初始化/anchor 内部仍可加载原 parser/mapper；该传递加载不是候选层直接调用授权。
+AST 与 fresh-process firewall 分别约束直接依赖和上下层加载方向。
+
+builder 重验完整 snapshots，但只输出有界 compact projections；逐标签 source inventory 检查不是
+不受限的运行历史搜索，输出只保留与窗口 trace 成功组成的标签。不存在第二套 anchor 算法。
+每一引用的 kind/fact_id/owner_id 一起解析：comparison 的 owner 是 pair，observation 的 owner 是 trace，
+pair/divergence 的 owner 是 alignment result，anchor 的 owner 是 exact hardware-test ELF source。
+原始 fact ID 保持不变。JSON 反序列化验证内部闭包，不能认证未提供的原始字节；source-backed builder
+才重新消费实际 sources，候选验证也不将引用一致性宣传为来源认证或漏洞验证。
+
+上下文不生成提议；独立 `HardwareTriggerCandidate` 内部使用 `HardwareTriggerSpec` 作为规范性 proposal
+容器，不导出“已满足 trigger”。要求与 required order 始终 HYPOTHESIZED/UNSUPPORTED，候选固定 HYPOTHESIS。
+rationale 与候选一起参与候选 ID，但不能更改 context/fact/requirement 身份或成为引用目标。
+Evidence != Hypothesis；Candidate != Trigger Verification；Candidate != Vulnerability。

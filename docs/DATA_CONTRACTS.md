@@ -417,10 +417,13 @@ CSV/log 293-key correspondence 仅保留本地 acceptance correlation，不称 C
 `tests/evidence/` 仅使用 benign synthetic format-only fixtures，无真实指令序列或差异值。
 真实 case 仅在默认 tests 通过后本地只读验收，不成为默认测试依赖或已认证漏洞 fixture。
 V2-5A.1 冻结于 `chipchain-v2-5a1-stable` / `677f3228488f0f567cdf223850955530b8c546d4`；
-V2-5A.2 hardware-test anchor binding 为 CURRENT，V2-5B LLM-assisted extraction/reduction 未实现；
+V2-5A.2 hardware-test anchor binding 为 FROZEN；V2-5B.1 candidate/context 合同为 CURRENT / under review，
+V2-5B.2 real/model reasoning 与 LLM-assisted extraction/reduction 未实现；
 当前没有 runtime ProcessorBehaviorFragment projection、真实 HardwareTriggerSpec、LLM、firmware 分析或 simulator 执行。
 
-## V2-5A.2 Hardware-Test SI / ELF / Trace Anchors（CURRENT，待审查）
+## V2-5A.2 Hardware-Test SI / ELF / Trace Anchors（FROZEN）
+
+冻结于 `chipchain-v2-5a2-stable` / `9e65cec9bca12a8e9512396a3d923371a2fe2cbb`。
 
 当前 `hardware_buginfo/testis/out/tests/.input_1.elf` 是硬件实验 testcase/test-program ELF，
 不是 client/deployed/GDBFuzz firmware，也不是固件团队 artifact。`HardwareTestProgramELFSource`
@@ -486,3 +489,96 @@ instruction records 中 321 条 byte-anchor，5 条启动 PC 无 ELF LOAD mappin
 exact symbol address == trace PC 的 composed anchors 每侧仅 10 个，不扩大成全 SI 编译映射。
 首个 scoped divergence 的两侧观察可独立绑定同一 ELF bytes，但该 PC 无 SI label anchor，不能反推 SI 指令。
 未出现在采样 trace 同地址集合的标签不等于对应指令未执行；不据此解释 branch/path/causality。
+
+## V2-5B.1 Evidence-Bound Trigger Candidate（CURRENT / under review）
+
+### Source-backed compact context
+
+`build_trigger_candidate_context(raw_si, elf, elf_bytes, alignment, divergence, source, *, before=5,
+after=3, behavior_fragment=None)` 只消费调用方已解析的 snapshots。source 是 V2-4 `TriggerSourceContext`，
+不是 HardwareTriggerSpec；SI SHA、架构、optional behavior 的 artifact/target 必须相符。
+exact ELF view/bytes、alignment、selected divergence 及其成员关系都重新验证；anchor 重建只走冻结服务。
+只有 `context.py` 获准导入 `processorfuzz.models.RawProcessorFuzzSI` 数据合同；不直接调用 SI parser/mapper，
+不把 raw representation 视为 trigger 或 client behavior。无文件读取/外部调用。
+
+`HardwareTriggerCandidateContext` 保存来源声明、SI ID/SHA/长度、HardwareTestProgramELFSource、
+alignment result ID/完整 scope/总 pair 数、一处 divergence、按原 ordinal 排列的 bounded pairs，
+以及成功重建的 compact anchors、所需 labeled raw record/optional SOURCE_DECLARED behavior 引用。
+observation 仅保存原 ID/source/ordinal/PC/encoding/可用 mnemonic；不复制 raw log 或操作数流。
+比较保留原批准字段及 exact values/outcome/XOR；未知不补零。相同值比较可在不同 pairs 重复出现。
+source 中较宽的 core hardware labels 在 compact view 边界额外拒绝路径分隔符/控制字符，不更改 core 合同。
+before/after 必须为严格整数 0..8；最多 17 pairs/34 trace anchors，最多 256 SI label records、
+512 composed anchors，完整 normalized context 最大 256 KiB。超限 fail closed，不静默截取。
+
+`candidate_context_view` 返回 context_id 和 detached JSON-native payload；
+`serialize_candidate_context` 输出 canonical UTF-8 bytes，无 prompt/provider 格式。
+registry 中的原 IDs 是 source references，不是 compact payload 自行认证原始证据的证明。
+JSON validation 只检查来源声明与内部闭包；必须重新提供 sources 调用 builder 才复现原始 anchors。
+
+### Typed objective references
+
+`ObjectiveFactReference(kind, fact_id, owner_id)` 使用以下闭集：
+
+| kind | owner_id / 定位边界 |
+| --- | --- |
+| SI_RAW_RECORD | raw SI snapshot ID；只列入窗口内 composed anchor 使用的显式标签记录 |
+| SOURCE_DECLARED_BEHAVIOR | supplied/reproduced fragment ID；不是 runtime occurrence |
+| SI_ELF_LABEL_ANCHOR | hardware-test ELF source ID |
+| ELF_TRACE_ANCHOR | hardware-test ELF source ID；链接 exact trace source/occurrence |
+| HARDWARE_CASE_INSTRUCTION_ANCHOR | hardware-test ELF source ID；两侧 anchor endpoints 必须存在 |
+| ISA_OBSERVATION / RTL_OBSERVATION | 各自 exact trace source ID |
+| ALIGNED_PAIR / DIVERGENCE_OBSERVATION | alignment result ID；scope 由 context 明确保存 |
+| FIELD_COMPARISON | 所属 pair ID；不能只按可能重复的 comparison ID 解析 |
+
+只在 supplied context 的 `fact_index()` 中解析完整 typed key，kind/ID/owner 任一不符均拒绝。
+重复输入不去重掩盖；collection ID、pair ordinal、source/scoped refs 与 anchor endpoints 校验闭包。
+ordered context records 不重新排序；无序集合 canonical 排序，身份基于显式 v2 namespace + complete canonical JSON。
+
+### 未解决项与 policy
+
+`UnresolvedCondition` 只保存闭集 kind、alignment_scope_id 以及适用时的 observation_ref/PC。
+NO_DIRECT_SI_LABEL_ANCHOR 表示该窗口 occurrence 未形成直接 SI/ELF/trace composed linkage；
+ELF_TRACE_ANCHOR_UNAVAILABLE 表示 frozen byte-anchor API 未成功重建。两者不是“未执行”或“已证伪”。
+不存在标签传播、步长/ordinal 地址推算、因果推断或自动解决操作。
+
+v1 inputs 不认证 run/build，也没有显式版本化 ISA-model identity 或 ProcessorFuzz version 认证字段，
+因此 policy 保留 NO_AUTHENTICATED_RUN_PROVENANCE、NO_AUTHENTICATED_BUILD_PROVENANCE、
+PROCESSORFUZZ_VERSION_UNKNOWN、ISA_MODEL_IDENTITY_UNKNOWN、CLIENT_APPLICABILITY_UNKNOWN、
+CAUSALITY_UNESTABLISHED、NECESSITY_UNESTABLISHED、SUFFICIENCY_UNESTABLISHED。
+只有 source revision 为 None 时增加 HARDWARE_REVISION_UNKNOWN。这些是本 context 的证据缺口，
+不是推测整个外部世界缺少信息，不从 local profile/model 字符串猜版本或配置。
+缺失锚点项逐 observation 生成；完整 closed policy 是模型验证的一部分，不能删掉未解决项冒充已解决。
+
+### 独立候选与支持检查
+
+`HardwareTriggerCandidate` status 只能 HYPOTHESIS，绑定 exact context_id；
+`proposed_requirements: HardwareTriggerSpec` 仅作 V2-4 normative proposal 容器。
+复用全部原 instruction/access/state/control/event/order 类型、来源/架构、slot、端点与无环检查；
+没有第二套 trigger 语言，也不修改冻结 Trigger IR 的语义或 ID。
+`CandidateRequirementSupport` 必须逐 precondition/step/order 一对一绑定。
+CONTEXT_REFERENCES 要求非空、可解析且无重复 refs，epistemic_status 只能 HYPOTHESIZED；
+NO_SUPPORT 必须为空并标为 UNSUPPORTED。v1 不允许 requirement 标记 OBSERVED/CORRELATED/VERIFIED：
+“观察到指令/差异”不等于“它是 trigger requirement”。OBSERVED/CORRELATED 词汇不是升级提议的入口。
+
+`validate_trigger_candidate(candidate, context)` detached revalidate 两者、检查 exact source/context、
+typed ref closure 和全部 unresolved IDs，返回新的 HYPOTHESIS 对象。缺少/外来/重复 support 或 refs、
+来源/架构不符、extra fields、丢弃 unresolved、非法 order 均 fail closed。不生成 evidence/verification verdict。
+
+`CandidateRationaleAtom` 是 HYPOTHESIS-only：statement_id、1..240 printable ASCII prose、非空 typed refs。
+拒绝 paths、控制字符和已知 raw-log 形状，最多 32 atoms；不是通用文档/日志通道，更不是 EvidenceLevel。
+文字内容未被证明为真，即使自称原因也没有客观权威。rationale 不能 mint objective fact IDs 或成为事实引用目标。
+完整 normalized rationale 参与 candidate ID，但不参与既有 context/fact/requirement IDs。
+
+真实 case 只用于 tests 后只读 context acceptance：不生成 candidate 或 HardwareTriggerSpec，
+首差异的 NO_DIRECT_SI_LABEL_ANCHOR 保持开放，不把前一条 CSR 指令标为 causal/necessary/sufficient。
+Hardware-test ELF != Client Firmware；Evidence != Hypothesis；Candidate Requirement != Satisfied Requirement。
+
+本地只读 acceptance 使用项目负责人已声明的 Rocket / ProcessorFuzz family：
+target_id=`rocket-unspecified-config`，hardware_revision / instruction_set_profile_id 均为 None；
+artifact_id=`local-confirmed-processorfuzz-si`，source_kind=`project-owner-declared`，
+producer_profile_id=`processorfuzz-unspecified-profile`。这些是明确不完整的 local declarations，
+不是 upstream profile、具体版本/配置或 authenticated provenance。
+默认 5/3 窗口得到 9 对/18 个 byte anchors/0 个 direct composed anchors；27 个未解决项，
+其中 18 个是逐 observation 的 NO_DIRECT_SI_LABEL_ANCHOR。compact view 为 40112 bytes。
+重复构建 ID 为 `v2-hardware-trigger-candidate-context-v1:4d63dd288817c52f71ba2f004cd98837570cfa8bf8c896aefbdce4ba589a44f4`；
+SI/ELF/ISA CSV/RTL log 四份消费文件前后 SHA/长度不变。未产生真实候选或任何 trigger requirements。

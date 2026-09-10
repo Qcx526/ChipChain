@@ -10,8 +10,10 @@ V2-3B confirmed-profile raw parser 与保守 mapper 已由 `chipchain-v2-3b-stab
 V2-4 已由 `chipchain-v2-4-stable` 冻结于 `798d7ee99b4529a00007874c886c5ec8a39d0a28`。
 V2-5A Confirmed Case Output Semantics Audit 已完成（READ-ONLY），并未证明完整 run provenance。
 V2-5A.1 已冻结于 `chipchain-v2-5a1-stable` / `677f3228488f0f567cdf223850955530b8c546d4`。
-V2-5A.2 Hardware-Test SI/ELF/Trace Anchor Binding 为 CURRENT implementation under review。
-V2-5B LLM-assisted Trigger Candidate Extraction / Reduction 为 NOT IMPLEMENTED（待独立授权）。
+V2-5A.2 Hardware-Test SI/ELF/Trace Anchor Binding 已 FROZEN 于 `chipchain-v2-5a2-stable` /
+`9e65cec9bca12a8e9512396a3d923371a2fe2cbb`。
+V2-5B.1 Evidence-Bound Trigger Candidate Contract + Deterministic Candidate Context Builder
+为 CURRENT implementation under review；V2-5B.2 real/model reasoning 为 NOT IMPLEMENTED。
 RISC-V 为主实验架构；RISC-V-first != RISC-V-only。公共合同保持架构中立，
 backend/profile/adapter 分别承担具体架构能力，架构标签不代表已有实现。
 
@@ -26,8 +28,9 @@ backend/profile/adapter 分别承担具体架构能力，架构标签不代表�
 | V2-4 | Hardware Trigger IR v1 | FROZEN；仅要求合同，来源/target、slot、位宽、引用与无环顺序检查；无提取或满足性判断 |
 | V2-5A | Confirmed Case Output Semantics Audit | COMPLETED / READ-ONLY；输出语义部分可解释，不把 mismatch 当 trigger proof |
 | V2-5A.1 | Case Evidence IR + Deterministic Adapters | FROZEN；exact bytes、lossless 分型、显式字段比较与连续 key 对齐；无因果/trigger/verification |
-| V2-5A.2 | SI / Hardware-Test ELF / Trace Anchor Binding | CURRENT，待审查；exact bytes、unique symbol/LOAD、保留部分映射；不绑定 client firmware |
-| V2-5B | LLM-assisted Trigger Candidate Extraction / Reduction | NOT IMPLEMENTED；下游 reasoning 不替代客观证据；缩减/候选需独立授权 |
+| V2-5A.2 | SI / Hardware-Test ELF / Trace Anchor Binding | FROZEN；exact bytes、unique symbol/LOAD、保留部分映射；不绑定 client firmware |
+| V2-5B.1 | Evidence-Bound Trigger Candidate / Bounded Context | CURRENT，待审查；typed scoped refs、HYPOTHESIS-only proposals、有界事实视图与未解决项；不提取 |
+| V2-5B.2 | Real/Model Reasoning | NOT IMPLEMENTED；LLM 提议不能替代客观证据；须独立授权 |
 | V2-6 | GDBFuzz Artifact / External Input Adapter | 绑定原始不可变 firmware、既有端点与 execution artifacts |
 | V2-7 | RISC-V Firmware / angr → Processor Behavior IR | 审计实际 decoder/profile 输出，分离静态语义与运行观察 |
 | V2-8 | Deterministic Trigger Matcher | 明确匹配规则、负例与未知项，不把候选称为漏洞 |
@@ -89,9 +92,38 @@ instruction observations 独立 byte-anchor，5 条 RTL boot records 无 LOAD ma
 SI-label/ELF/trace composed anchors 每侧仅 10 个。首差异两侧 bytes 同源，但没有对应 SI label anchor；
 不反推 source instruction、不作因果结论。四份消费 artifact 的前后 SHA/长度完全一致。
 V2-5A.2 本地验证：完整离线 pytest 852 passed；anchors + dependency firewall 的 `-W error`
-为 123 passed；compileall、两种 CLI help 与 diff 检查通过。冻结层保持不变，尚未 commit/tag。
+为 123 passed；compileall、两种 CLI help 与 diff 检查通过。上述为 V2-5A.2 历史验收；现已冻结。
 Confirmed SI + ISA-side artifact + RTL-side artifact + signature/comparison material 将来可能支持
 trigger feature extraction、reduction、root-cause localization 与跨层验证规划；这些能力当前均未实现。
+
+## V2-5B.1 当前实施范围（under review）
+
+新增独立 `candidates` 层，单向消费公开 core/behavior/evidence/anchors/trigger。
+经项目负责人单独批准，只有 context builder 可直接导入
+`chipchain.adapters.processorfuzz.models.RawProcessorFuzzSI`，用于冻结 anchor API 的 exact-source
+重建；不是允许 candidates 直接使用 parser/mapper 或一般 adapter 能力。冻结 production 层不修改。
+
+`build_trigger_candidate_context` detached revalidate raw/source/ELF/alignment/divergence，检查成员关系，
+选择 before/after 各 0..8 的邻近窗口，再用冻结 APIs 重现 anchors。默认 5/3，至多 17 对；
+compact JSON 上限 256 KiB，不包含完整 SI/trace/ELF、signatures 或隔离材料。
+只列入成功组成窗口内 observation correlation 的 SI records/optional existing behaviors。
+缺少 SI/ELF/trace linkage 必须保留，不传播标签、不回溯推算、不排名。
+
+`HardwareTriggerCandidate` 独立包裹 proposed V2-4 requirements；每个要求/顺序都有唯一 support，
+有参考只能 HYPOTHESIZED，无参考必须 UNSUPPORTED，不能通过观察或共识变成满足性结论。
+typed reference 同时绑定 kind、原 fact ID 与 source/parent owner，避免重复 comparison ID 串用。
+validate 只返回 detached hypothesis；所有 context 未解决项保持开放。rationale 不是事实或 evidence level。
+上下文生成不是提取：真实只读验收不得生成 candidate 或 HardwareTriggerSpec。
+V2-5B.2 real/model reasoning、provider、prompt、缩减、因果、matcher、固件输入与可达性均不实现。
+
+V2-5B.1 本地只读验收：重现原 293 对 alignment，selected divergence ordinal 128；默认 before=5/after=3
+得到 123–131 共 9 对。两侧合计 18 个 ELF trace anchors，窗口内 direct SI composed anchors 为 0，
+18 个 NO_DIRECT_SI_LABEL_ANCHOR 与 9 个来源/科研未解决项保留。前后四份源文件 SHA/长度相同，
+重复构建与序列化完全一致；构造器 guard 确认未生成真实 candidate/HardwareTriggerSpec。
+该验收不重跑模拟器，不回答因果、必要/充分性或 client firmware reachability。
+本地验证：完整离线 pytest 989 passed；candidates + dependency firewall 的 `-W error` 检查
+148 passed；compileall、两种 CLI help、`git diff --check` 通过。所有冻结 production 文件与 CLI
+portability test 无 diff，真实材料无 tracked entries；本轮修改未暂存、未 commit/push/tag。
 
 ## 未来客户端来源与不可变目标
 

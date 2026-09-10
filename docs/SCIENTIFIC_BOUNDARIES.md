@@ -165,6 +165,15 @@
 - Same RISC-V ISA != Same Program
 - Same Instruction Mnemonic != Same Runtime State
 - Same Hardware Target Family != Client Applicability
+- Evidence != Hypothesis
+- Correlation != Causality
+- Candidate != Trigger Verification
+- Candidate Requirement != Satisfied Requirement
+- Candidate != Vulnerability
+- LLM Reasoning != Objective Evidence
+- LLM Reasoning != Verification Result
+- Compact Fact Reference != Authenticated Source Bytes
+- Candidate Validation != Requirement Satisfaction
 
 真实客户端分析绑定固定 hardware + immutable original firmware，可使用 byte-identical 离线副本。
 不得用 patch/recompile/instruction insertion、JTAG code injection 或修改程序字节的 software breakpoint
@@ -187,7 +196,8 @@ transition.db 的 run identity 未解决。V2-5A.1 的 293-key 支持是限定�
 不证明文件生成关系或 authenticated run。前一条 csrrw 不被标记 causal；DELAYED 不猜测关联，
 缺失 mode/state 不补零，COV/WDATA/internal FPR 不自动成为 architectural state/time。
 新 observations 不自动投影为 RUNTIME_OBSERVED ProcessorBehaviorFragment，不派生 Trigger requirements。
-V2-5A.2 仅允许 hardware-side SI/ELF/trace anchors；V2-5B LLM-assisted extraction/reduction 未实现。
+V2-5A.2 已冻结，只允许 hardware-side SI/ELF/trace anchors；V2-5B.1 候选合同/有界上下文待审查，
+V2-5B.2 real/model reasoning 与 LLM-assisted extraction/reduction 未实现。
 当前 `.input_1.elf` 是 ProcessorFuzz/ISA/RTL hardware experiment 的 test-program ELF，不是 client firmware
 或 firmware-team artifact，不绑定 ImmutableFirmwareArtifact；项目尚未接入固件团队材料。
 SI label 的 lexical symbol match 不是 authenticated build provenance；缺失标签与无标签指令保持未锚定。
@@ -196,6 +206,12 @@ ELF/trace 四字节一致只证明限定 profile 下的地址/观察相关关系
 即使首差异与前一条 csrrw 均可 byte-anchor，仍不标记 causal、critical、necessary 或 sufficient。
 LLM 不参与本轮证据生成。
 Rocket/ProcessorFuzz 是项目负责人提供的 family 声明；unspecified local IDs 不补全版本、配置或 ISA。
+
+V2-5B.1 context builder 不是 extractor：只能重现 bounded facts 与 source limitations，不能生成要求。
+候选独立于事实；支持指令/差异被观察到，不代表假设中的触发要求成立。所有提议固定为 HYPOTHESIZED
+或 UNSUPPORTED；无 verified/causal/necessary/sufficient verdict。rationale 永远不是 evidence level。
+实际首差异的 direct SI mapping 缺失必须保持未解决；typed refs 和 exact SHA 不认证 run/build 或 client applicability。
+候选验证不能删除 unresolved conditions，也不能把上一条指令、集合排序或 source adjacency 提升为因果/必要顺序。
 
 Bundled GDBFuzz Serial Example != Proof That Arbitrary Firmware Requires No Adaptation。
 SUTConnection 是主机端 input delivery；示例 ready-marker/长度/testcase 握手与示例固件相互匹配。

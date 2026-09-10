@@ -64,6 +64,13 @@
   anchors 可单向消费公开 core/behavior/evidence/ProcessorFuzz adapter；下层不能反向依赖 anchors。
   anchor 服务必须复现 exact ELF bytes/view 并重新验证 SI/trace 来源，symbol match 不是 compilation proof。
   SI label anchor 仅属于携带该标签的记录；不得向无标签邻居推算地址。
+- candidates 可单向消费公开 core/behavior/evidence/anchors/trigger；所有冻结下层及 root/CLI 不反向依赖它。
+  唯一批准的直接 adapter 例外：仅 context builder 可导入
+  `chipchain.adapters.processorfuzz.models.RawProcessorFuzzSI` 数据合同，为冻结 anchor 服务提供 exact-source
+  重建输入。不得直接导入/调用 SI parser、mapper 或其他 adapter，不在 anchors 重导出数据合同。
+  context 只产生 bounded compact facts 与未解决项，不自动生成要求；typed refs 必须绑定 kind/ID/owner。
+  候选固定 HYPOTHESIS；proposed requirements 不是 satisfied requirements，rationale 不是 objective evidence。
+  缺失 SI anchor、未认证 run/build、因果与必要/充分性未知不能因引用校验成功而消失。
 - 默认测试离线，无 API Key、数据库、QEMU/JTAG 或网络依赖；`.env` 不提交、不自动加载。
 - 每阶段按 Plan → Implement → Test → Review → Fix → Document 完成；如实记录验证结果。
 - 完成后运行完整 pytest、compileall、两种 CLI help 与 `git diff --check`，同步相关文档。
